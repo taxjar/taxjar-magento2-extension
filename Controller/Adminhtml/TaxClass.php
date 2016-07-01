@@ -86,7 +86,7 @@ abstract class TaxClass extends \Magento\Backend\App\Action
     {
         $className = trim($className);
         if ($className == '') {
-            throw new InputException(__('Invalid name of tax class specified.'));
+            throw new \Magento\Framework\Exception\InputException(__('Invalid name of tax class specified.'));
         }
         return $className;
     }

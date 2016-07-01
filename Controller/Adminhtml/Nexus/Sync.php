@@ -30,7 +30,7 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
             $nexus = $this->nexusSyncFactory->create();
             $nexus->syncCollection();
             $this->messageManager->addSuccess(__('Your nexus addresses have been synced from TaxJar.'));            
-        } catch (Mage_Core_Exception $e) {
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->messageManager->addError($e->getMessage());
         }
 
