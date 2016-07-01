@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event:etc/events.xsd">
+    <event name="admin_system_config_changed_section_tax">
+        <observer name="taxjar_salestax_config_changed" instance="Taxjar\SalesTax\Observer\ConfigChanged"/>
+    </event>
+    <event name="controller_action_predispatch_adminhtml_system_config_edit">
+        <observer name="taxjar_salestax_config_review" instance="Taxjar\SalesTax\Observer\ConfigReview"/>
+    </event>
+    <event name="taxjar_salestax_import_data">
+        <observer name="taxjar_salestax_import_data" instance="Taxjar\SalesTax\Observer\ImportData"/>
+    </event>
+    <event name="taxjar_salestax_import_rates">
+        <observer name="taxjar_salestax_import_rates" instance="Taxjar\SalesTax\Observer\ImportRates"/>
+    </event>
+</config>

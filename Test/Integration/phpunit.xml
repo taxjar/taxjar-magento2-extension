@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
+         colors="true"
+         bootstrap="./framework/bootstrap.php"
+>
+    <!-- Test suites definition -->
+    <testsuites>
+        <!-- Memory tests run first to prevent influence of other tests on accuracy of memory measurements -->
+        <testsuite name="Memory Usage Tests">
+            <file>testsuite/Magento/MemoryUsageTest.php</file>
+        </testsuite>
+        <testsuite name="Taxjar">
+            <directory>../../app/code/Taxjar/SalesTax/Test/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <!-- Code coverage filters -->
+    <filter>
+        <whitelist addUncoveredFilesFromWhiteList="true">
+            <directory suffix=".php">../../app/code/Magento</directory>
+            <directory suffix=".php">../../lib/internal/Magento</directory>
+            <exclude>
+                <directory>../../app/code/*/*/Test</directory>
+                <directory>../../lib/internal/*/*/Test</directory>
+                <directory>../../lib/internal/*/*/*/Test</directory>
+                <directory>../../setup/src/*/*/Test</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+    <!-- PHP INI settings and constants definition -->
+    <php>
+        <includePath>.</includePath>
+        <includePath>testsuite</includePath>
+        <ini name="date.timezone" value="America/Los_Angeles"/>
+        <ini name="xdebug.max_nesting_level" value="200"/>
+        <!-- Local XML configuration file ('.dist' extension will be added, if the specified file doesn't exist) -->
+        <const name="TESTS_INSTALL_CONFIG_FILE" value="etc/install-config-mysql.php"/>
+        <!-- Local XML configuration file ('.dist' extension will be added, if the specified file doesn't exist) -->
+        <const name="TESTS_GLOBAL_CONFIG_FILE" value="etc/config-global.php"/>
+        <!-- Semicolon-separated 'glob' patterns, that match global XML configuration files -->
+        <const name="TESTS_GLOBAL_CONFIG_DIR" value="../../app/etc"/>
+        <!-- Whether to cleanup the application before running tests or not -->
+        <const name="TESTS_CLEANUP" value="enabled"/>
+        <const name="TESTS_MEM_LEAK_LIMIT" value=""/>
+        <const name="TESTS_MAGENTO_MODE" value="developer"/>
+        <const name="TESTS_ERROR_LOG_LISTENER_LEVEL" value="-1"/>
+    </php>
+    <!-- Test listeners -->
+    <listeners>
+        <listener class="Magento\TestFramework\Event\PhpUnit"/>
+        <listener class="Magento\TestFramework\ErrorLog\Listener"/>
+    </listeners>
+</phpunit>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="adminhtml.block.taxjar.taxclass.container">
+            <block class="Magento\Backend\Block\Widget\Grid" name="adminhtml.block.taxjar.taxclass.grid" as="grid">
+                <arguments>
+                    <argument name="id" xsi:type="string">taxjar_taxclass_grid</argument>
+                    <argument name="dataSource" xsi:type="object">Taxjar\SalesTax\Model\Tax\TaxClassCollection</argument>
+                    <argument name="default_sort" xsi:type="string">class_name</argument>
+                    <argument name="default_dir" xsi:type="string">ASC</argument>
+                    <argument name="save_parameters_in_session" xsi:type="string">1</argument>
+                </arguments>
+                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="adminhtml.block.taxjar.taxclass.columnSet" as="grid.columnSet">
+                    <arguments>
+                        <argument name="rowUrl" xsi:type="array">
+                            <item name="path" xsi:type="string">taxjar/*/edit</item>
+                            <item name="extraParamsTemplate" xsi:type="array">
+                                <item name="class" xsi:type="string">getClassId</item>
+                            </item>
+                        </argument>
+                    </arguments>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="class_name">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">Class Name</argument>
+                            <argument name="filter_index" xsi:type="string">class_name</argument>
+                            <argument name="index" xsi:type="string">class_name</argument>
+                            <argument name="column_css_class" xsi:type="string">col-name</argument>
+                            <argument name="header_css_class" xsi:type="string">col-name</argument>
+                        </arguments>
+                    </block>
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" as="tj_salestax_code">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">TaxJar Category Code</argument>
+                            <argument name="filter_index" xsi:type="string">tj_salestax_code</argument>
+                            <argument name="index" xsi:type="string">tj_salestax_code</argument>
+                            <argument name="column_css_class" xsi:type="string">col-name</argument>
+                            <argument name="header_css_class" xsi:type="string">col-name</argument>
+                        </arguments>
+                    </block>
+                </block>
+            </block>
+        </referenceBlock>
+    </body>
+</page>
