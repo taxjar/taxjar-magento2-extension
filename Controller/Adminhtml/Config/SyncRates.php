@@ -26,7 +26,7 @@ class SyncRates extends \Magento\Backend\App\AbstractAction
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
-    protected $_eventManager;
+    protected $eventManager;
 
     /**
      * @param Context $context
@@ -34,7 +34,7 @@ class SyncRates extends \Magento\Backend\App\AbstractAction
     public function __construct(
         Context $context
     ) {
-        $this->_eventManager = $context->getEventManager();
+        $this->eventManager = $context->getEventManager();
         parent::__construct($context);
     }
 
@@ -46,8 +46,8 @@ class SyncRates extends \Magento\Backend\App\AbstractAction
     public function execute()
     {
         try {
-            $this->_eventManager->dispatch('taxjar_salestax_import_data');
-            $this->_eventManager->dispatch('taxjar_salestax_import_rates');    
+            $this->eventManager->dispatch('taxjar_salestax_import_data');
+            $this->eventManager->dispatch('taxjar_salestax_import_rates');
         } catch (\Exception $e) {
             $this->messageManager->addError($e->getMessage());
         }

@@ -37,7 +37,7 @@ class Configuration
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
-    protected $_resourceConfig;
+    protected $resourceConfig;
     
     /**
      * @param Config $resourceConfig
@@ -45,7 +45,7 @@ class Configuration
     public function __construct(
         Config $resourceConfig
     ) {
-        $this->_resourceConfig = $resourceConfig;
+        $this->resourceConfig = $resourceConfig;
     }
 
     /**
@@ -73,8 +73,8 @@ class Configuration
     public function setDisplaySettings()
     {
         $settings = [
-            'tax/display/type', 
-            'tax/display/shipping', 
+            'tax/display/type',
+            'tax/display/shipping',
             'tax/cart_display/price',
             'tax/cart_display/subtotal',
             'tax/cart_display/shipping'
@@ -94,6 +94,6 @@ class Configuration
      */
     private function _setConfig($path, $value)
     {
-        $this->_resourceConfig->saveConfig($path, $value, 'default', 0);
+        $this->resourceConfig->saveConfig($path, $value, 'default', 0);
     }
 }

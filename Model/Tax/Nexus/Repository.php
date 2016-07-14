@@ -171,22 +171,24 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
      */
     protected function validateNexusData(\Taxjar\SalesTax\Api\Data\Tax\NexusInterface $nexus)
     {
+        // @codingStandardsIgnoreStart
         $exception = new InputException();
+        // @codingStandardsIgnoreEnd
 
         if (!\Zend_Validate::is(trim($nexus->getStreet()), 'NotEmpty')) {
-            $exception->addError(__(InputException::REQUIRED_FIELD, ['fieldName' => Nexus::KEY_STREET]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_STREET]));
         }
         
         if (!\Zend_Validate::is(trim($nexus->getCity()), 'NotEmpty')) {
-            $exception->addError(__(InputException::REQUIRED_FIELD, ['fieldName' => Nexus::KEY_CITY]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_CITY]));
         }
         
         if (!\Zend_Validate::is(trim($nexus->getCountryId()), 'NotEmpty')) {
-            $exception->addError(__(InputException::REQUIRED_FIELD, ['fieldName' => Nexus::KEY_COUNTRY_ID]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
         }
         
         if (!\Zend_Validate::is(trim($nexus->getPostcode()), 'NotEmpty')) {
-            $exception->addError(__(InputException::REQUIRED_FIELD, ['fieldName' => Nexus::KEY_POSTCODE]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
         }
         
         if (!$nexus->getId()) {
@@ -198,7 +200,9 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
             
             $countryAddresses = $this->getList($searchCriteria);
             
-            if ($countryAddresses->getTotalCount() && $nexus->getCountryId() != 'US' && $nexus->getCountryId() != 'CA') {
+            if ($countryAddresses->getTotalCount()
+            && $nexus->getCountryId() != 'US'
+            && $nexus->getCountryId() != 'CA') {
                 $exception->addError(__('Only one address per country (outside of US/CA) is currently supported.'));
             }
         }
@@ -240,8 +244,6 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
 
     /**
      * Helper function that adds a FilterGroup to the collection.
-     *
-     * TODO: This method duplicates functionality of search methods in other services and should be refactored.
      *
      * @param FilterGroup $filterGroup
      * @param NexusCollection $collection

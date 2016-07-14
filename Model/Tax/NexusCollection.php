@@ -60,8 +60,10 @@ class NexusCollection extends AbstractServiceCollection
     /**
      * {@inheritdoc}
      */
+    // @codingStandardsIgnoreStart
     public function loadData($printQuery = false, $logQuery = false)
     {
+        // @codingStandardsIgnoreEnd
         if (!$this->isLoaded()) {
             $searchCriteria = $this->getSearchCriteria();
             $searchResults = $this->nexusRepository->getList($searchCriteria);
@@ -82,7 +84,9 @@ class NexusCollection extends AbstractServiceCollection
      */
     protected function createNexusCollectionItem(NexusInterface $nexus)
     {
+        // @codingStandardsIgnoreStart
         $collectionItem = new \Magento\Framework\DataObject();
+        // @codingStandardsIgnoreEnd
         $collectionItem->setId($nexus->getId());
         $collectionItem->setApiId($nexus->getApiId());
         $collectionItem->setStreet($nexus->getStreet());

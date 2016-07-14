@@ -29,17 +29,17 @@ class ConfigChanged implements ObserverInterface
     /**
      * @var \Magento\Framework\App\CacheInterface
      */
-    protected $_cache;
+    protected $cache;
     
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
-    protected $_eventManager;
+    protected $eventManager;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @param CacheInterface $cache
@@ -51,9 +51,9 @@ class ConfigChanged implements ObserverInterface
         ManagerInterface $eventManager,
         ScopeConfigInterface $scopeConfig
     ) {
-        $this->_cache = $cache;
-        $this->_eventManager = $eventManager;
-        $this->_scopeConfig = $scopeConfig;
+        $this->cache = $cache;
+        $this->eventManager = $eventManager;
+        $this->scopeConfig = $scopeConfig;
     }
     
     /**
@@ -61,8 +61,10 @@ class ConfigChanged implements ObserverInterface
      * @return $this
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    // @codingStandardsIgnoreStart
     public function execute(Observer $observer)
     {
+        // @codingStandardsIgnoreEnd
         $this->_updateSmartcalcs();
         $this->_updateBackupRates();
         return $this;
@@ -73,12 +75,12 @@ class ConfigChanged implements ObserverInterface
      */
     private function _updateSmartcalcs()
     {
-        $enabled = (int)$this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED); 
-        $prevEnabled = (int)$this->_cache->load('taxjar_salestax_config_enabled');
+        $enabled = (int)$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
+        $prevEnabled = (int)$this->cache->load('taxjar_salestax_config_enabled');
 
         if (isset($prevEnabled)) {
             if ($prevEnabled != $enabled && $enabled == 1) {
-                $this->_eventManager->dispatch('taxjar_salestax_import_data');
+                $this->eventManager->dispatch('taxjar_salestax_import_data');
             }
         }
     }
@@ -88,13 +90,13 @@ class ConfigChanged implements ObserverInterface
      */
     private function _updateBackupRates()
     {
-        $enabled = (int)$this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP); 
-        $prevEnabled = (int)$this->_cache->load('taxjar_salestax_config_backup');
+        $enabled = (int)$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        $prevEnabled = (int)$this->cache->load('taxjar_salestax_config_backup');
 
         if (isset($prevEnabled)) {
             if ($prevEnabled != $enabled) {
-                $this->_eventManager->dispatch('taxjar_salestax_import_data');
-                $this->_eventManager->dispatch('taxjar_salestax_import_rates');
+                $this->eventManager->dispatch('taxjar_salestax_import_data');
+                $this->eventManager->dispatch('taxjar_salestax_import_rates');
             }
         }
     }

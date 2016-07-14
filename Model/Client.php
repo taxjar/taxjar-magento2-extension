@@ -19,30 +19,31 @@ namespace Taxjar\SalesTax\Model;
 
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 
 class Client
 {
-    CONST API_URL = 'https://api.taxjar.com/v2';
+    const API_URL = 'https://api.taxjar.com/v2';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var string
      */
-    protected $_storeZip;
+    protected $storeZip;
     
     /**
      * @var string
      */
-    protected $_storeRegionCode;
+    protected $storeRegionCode;
     
     /**
      * @var \Magento\Directory\Model\CountryFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -52,11 +53,11 @@ class Client
         ScopeConfigInterface $scopeConfig,
         RegionFactory $regionFactory
     ) {
-        $this->_scopeConfig = $scopeConfig;
-        $this->_regionFactory = $regionFactory;
-        $this->_storeZip = trim($this->_scopeConfig->getValue('shipping/origin/postcode'));
+        $this->scopeConfig = $scopeConfig;
+        $this->regionFactory = $regionFactory;
+        $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
         $region = $this->_getShippingRegion();
-        $this->_storeRegionCode = $region->getCode();
+        $this->storeRegionCode = $region->getCode();
     }
     
     /**
@@ -102,7 +103,7 @@ class Client
     public function putResource($apiKey, $resource, $resourceId, $data, $errors = [])
     {
         $resourceUrl = $this->_getApiUrl($resource) . '/' . $resourceId;
-        $client = $this->_getClient($apiKey, $resourceUrl, \Zend_Http_Client::PUT);    
+        $client = $this->_getClient($apiKey, $resourceUrl, \Zend_Http_Client::PUT);
         $client->setRawData(json_encode($data), 'application/json');
         return $this->_getRequest($client, $errors);
     }
@@ -133,7 +134,9 @@ class Client
      */
     private function _getClient($apiKey, $url, $method = \Zend_Http_Client::GET)
     {
+        // @codingStandardsIgnoreStart
         $client = new \Zend_Http_Client($url);
+        // @codingStandardsIgnoreEnd
         $client->setUri($url);
         $client->setMethod($method);
         $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
@@ -160,7 +163,7 @@ class Client
                 $this->_handleError($errors, $response->getStatus());
             }
         } catch (\Zend_Http_Client_Exception $e) {
-            throw new \Magento\Framework\Validator\Exception(__('Could not connect to TaxJar.'));
+            throw new LocalizedException(__('Could not connect to TaxJar.'));
         }
     }
     
@@ -174,12 +177,12 @@ class Client
     {
         $apiUrl = self::API_URL;
 
-        switch($resource) {
+        switch ($resource) {
             case 'config':
-                $apiUrl .= '/plugins/magento/configuration/' . $this->_storeRegionCode;
+                $apiUrl .= '/plugins/magento/configuration/' . $this->storeRegionCode;
                 break;
             case 'rates':
-                $apiUrl .= '/plugins/magento/rates/' . $this->_storeRegionCode . '/' . $this->_storeZip;
+                $apiUrl .= '/plugins/magento/rates/' . $this->storeRegionCode . '/' . $this->storeZip;
                 break;
             case 'categories':
                 $apiUrl .= '/categories';
@@ -199,8 +202,8 @@ class Client
      */
     private function _getShippingRegion()
     {
-        $region = $this->_regionFactory->create();
-        $regionId = $this->_scopeConfig->getValue(
+        $region = $this->regionFactory->create();
+        $regionId = $this->scopeConfig->getValue(
             \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID
         );
         $region->load($regionId);
@@ -219,9 +222,9 @@ class Client
         $errors = $this->_defaultErrors() + $customErrors;
         
         if (isset($errors[$statusCode])) {
-            throw new \Magento\Framework\Validator\Exception($errors[$statusCode]);
+            throw new LocalizedException($errors[$statusCode]);
         } else {
-            throw new \Magento\Framework\Validator\Exception($errors['default']);
+            throw new LocalizedException($errors['default']);
         }
     }
     
@@ -232,9 +235,11 @@ class Client
      */
     private function _defaultErrors()
     {
+        // @codingStandardsIgnoreStart
         return [
             '401' => __('Your TaxJar API token is invalid. Please review your TaxJar account at https://app.taxjar.com.'),
             'default' => __('Could not connect to TaxJar.')
         ];
+        // @codingStandardsIgnoreEnd
     }
 }

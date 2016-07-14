@@ -31,7 +31,7 @@ abstract class Nexus extends \Magento\Backend\App\Action
     /**
      * @var \Magento\Framework\Registry
      */
-    protected $_coreRegistry;
+    protected $coreRegistry;
     
     /**
      * @var \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
@@ -76,7 +76,7 @@ abstract class Nexus extends \Magento\Backend\App\Action
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Directory\Model\CountryFactory $countryFactory
     ) {
-        $this->_coreRegistry = $coreRegistry;
+        $this->coreRegistry = $coreRegistry;
         $this->nexusService = $nexusService;
         $this->nexusDataObjectFactory = $nexusDataObjectFactory;
         $this->nexusSyncFactory = $nexusSyncFactory;
@@ -120,7 +120,9 @@ abstract class Nexus extends \Magento\Backend\App\Action
         $nexusMissingPostcode = $nexus->getCollection()->addFieldToFilter('postcode', ['null' => true]);
         
         if ($nexusMissingPostcode->getSize()) {
+            // @codingStandardsIgnoreStart
             return $this->messageManager->addNotice(__('One or more of your nexus addresses are missing a zip/post code. Please provide accurate data for each nexus address.'));
+            // @codingStandardsIgnoreEnd
         }
     }
     

@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -42,17 +42,17 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     /**
      * @var \Magento\Framework\Pricing\PriceCurrencyInterface
      */
-    protected $_priceCurrency;
+    protected $priceCurrency;
     
     /**
      * @var \Magento\Tax\Api\Data\AppliedTaxInterfaceFactory
      */
-    protected $_appliedTaxDataObjectFactory;
+    protected $appliedTaxDataObjectFactory;
 
     /**
      * @var \Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory
      */
-    protected $_appliedTaxRateDataObjectFactory;
+    protected $appliedTaxRateDataObjectFactory;
     
     /**
      * @param Calculation $calculation
@@ -81,9 +81,9 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         AppliedTaxInterfaceFactory $appliedTaxDataObjectFactory,
         AppliedTaxRateInterfaceFactory $appliedTaxRateDataObjectFactory
     ) {
-        $this->_priceCurrency = $priceCurrency;
-        $this->_appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
-        $this->_appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
+        $this->priceCurrency = $priceCurrency;
+        $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
+        $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
         
         return parent::__construct(
             $calculation,
@@ -99,7 +99,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
     /**
      * Calculate sales tax for each item in a quote
-     * 
+     *
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteDetails
      * @param bool $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
@@ -174,7 +174,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     
     /**
      * Process a quote item into a tax details item
-     * 
+     *
      * @param QuoteDetailsItemInterface $item
      * @param bool $useBaseCurrency
      * @param \Magento\Framework\App\ScopeInterface $scope
@@ -193,7 +193,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $taxPercent = $extensionAttributes ? $extensionAttributes->getCombinedTaxRate() : 0;
         
         if (!$useBaseCurrency) {
-            $taxCollectable = $this->_priceCurrency->convert($taxCollectable, $scope);
+            $taxCollectable = $this->priceCurrency->convert($taxCollectable, $scope);
         }
 
         $rowTotal = $price * $quantity;
@@ -223,7 +223,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     
     /**
      * Set applied taxes for tax summary based on SmartCalcs response breakdown
-     * 
+     *
      * @param QuoteDetailsItemInterface $item
      * @param \Magento\Framework\App\ScopeInterface $scope
      * @return \Magento\Tax\Api\Data\AppliedTaxInterface
@@ -235,21 +235,23 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
     ) {
         $extensionAttributes = $item->getExtensionAttributes();
         $taxCollectable = $extensionAttributes ? $extensionAttributes->getTaxCollectable() : 0;
-        $taxCollectable = $this->_priceCurrency->convert($taxCollectable, $scope);
+        $taxCollectable = $this->priceCurrency->convert($taxCollectable, $scope);
         $taxPercent = $extensionAttributes ? $extensionAttributes->getCombinedTaxRate() : 0;
         $jurisdictionTaxRates = $extensionAttributes ? $extensionAttributes->getJurisdictionTaxRates() : [];
         $rateDataObjects = [];
         
         foreach ($jurisdictionTaxRates as $jurisdiction => $jurisdictionTaxRate) {
+            // @codingStandardsIgnoreStart
             $jurisdictionTitle = (in_array($jurisdiction, ['gst', 'pst', 'qst'])) ? strtoupper($jurisdiction) : ucfirst($jurisdiction) . ' Tax';
+            // @codingStandardsIgnoreEnd
             
-            $rateDataObjects[$jurisdiction] = $this->_appliedTaxRateDataObjectFactory->create()
+            $rateDataObjects[$jurisdiction] = $this->appliedTaxRateDataObjectFactory->create()
                 ->setPercent($jurisdictionTaxRate['rate'])
                 ->setCode($jurisdiction)
                 ->setTitle($jurisdictionTitle);
         }
         
-        $appliedTaxDataObject = $this->_appliedTaxDataObjectFactory->create();
+        $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
         $appliedTaxDataObject->setAmount($taxCollectable);
         $appliedTaxDataObject->setPercent($taxPercent);
         $appliedTaxDataObject->setTaxRateKey(implode(' - ', array_keys($jurisdictionTaxRates)));

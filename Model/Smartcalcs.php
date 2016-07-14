@@ -34,37 +34,37 @@ class Smartcalcs
     /**
      * @var \Magento\Checkout\Model\Session
      */
-    protected $_checkoutSession;
+    protected $checkoutSession;
     
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
      */
-    protected $_clientFactory;
+    protected $clientFactory;
     
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
     
     /**
      * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
-    protected $_nexusFactory;
+    protected $nexusFactory;
     
     /**
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
      */
-    protected $_taxClassRepository;
+    protected $taxClassRepository;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Zend_Http_Response
      */
-    protected $_response;
+    protected $response;
     
     /**
      * @param \Magento\Checkout\Model\Session $checkoutSession
@@ -82,12 +82,12 @@ class Smartcalcs
         ScopeConfigInterface $scopeConfig,
         ZendClientFactory $clientFactory
     ) {
-        $this->_checkoutSession = $checkoutSession;
-        $this->_regionFactory = $regionFactory;
-        $this->_nexusFactory = $nexusFactory;
-        $this->_taxClassRepository = $taxClassRepositoryInterface;
-        $this->_scopeConfig = $scopeConfig;
-        $this->_clientFactory = $clientFactory;
+        $this->checkoutSession = $checkoutSession;
+        $this->regionFactory = $regionFactory;
+        $this->nexusFactory = $nexusFactory;
+        $this->taxClassRepository = $taxClassRepositoryInterface;
+        $this->scopeConfig = $scopeConfig;
+        $this->clientFactory = $clientFactory;
     }
     
     /**
@@ -102,7 +102,7 @@ class Smartcalcs
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
         $address = $shippingAssignment->getShipping()->getAddress();
-        $apiKey = preg_replace('/\s+/', '', $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $apiKey = preg_replace('/\s+/', '', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
 
         if (!$apiKey) {
             return;
@@ -120,14 +120,14 @@ class Smartcalcs
             return;
         }
         
-        $shippingRegionId = $this->_scopeConfig->getValue('shipping/origin/region_id');
+        $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id');
 
         $fromAddress = [
-            'from_country' => $this->_scopeConfig->getValue('shipping/origin/country_id'),
-            'from_zip' => $this->_scopeConfig->getValue('shipping/origin/postcode'),
-            'from_state' => $this->_regionFactory->create()->load($shippingRegionId)->getCode(),
-            'from_city' => $this->_scopeConfig->getValue('shipping/origin/city'),
-            'from_street' => $this->_scopeConfig->getValue('shipping/origin/street_line1'),
+            'from_country' => $this->scopeConfig->getValue('shipping/origin/country_id'),
+            'from_zip' => $this->scopeConfig->getValue('shipping/origin/postcode'),
+            'from_state' => $this->regionFactory->create()->load($shippingRegionId)->getCode(),
+            'from_city' => $this->scopeConfig->getValue('shipping/origin/city'),
+            'from_street' => $this->scopeConfig->getValue('shipping/origin/street_line1'),
         ];
 
         $toAddress = [
@@ -146,7 +146,7 @@ class Smartcalcs
         ]);
 
         if ($this->_orderChanged($order)) {
-            $client = $this->_clientFactory->create();
+            $client = $this->clientFactory->create();
             $client->setUri(self::API_URL . '/magento/taxes');
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
@@ -155,18 +155,18 @@ class Smartcalcs
 
             try {
                 $response = $client->request('POST');
-                $this->_response = $response;
+                $this->response = $response;
                 $this->_setSessionData('response', $response);
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
-                $this->_response = null;
+                $this->response = null;
                 $this->_unsetSessionData('response');
             }
         } else {
             $sessionResponse = $this->_getSessionData('response');
             
             if (isset($sessionResponse)) {
-                $this->_response = $sessionResponse;
+                $this->response = $sessionResponse;
             }
         }
 
@@ -180,10 +180,10 @@ class Smartcalcs
      */
     public function getResponse()
     {
-        if ($this->_response) {
+        if ($this->response) {
             return [
-                'body' => json_decode($this->_response->getBody(), true),
-                'status' => $this->_response->getStatus(),
+                'body' => json_decode($this->response->getBody(), true),
+                'status' => $this->response->getStatus(),
             ];
         } else {
             return [
@@ -199,9 +199,9 @@ class Smartcalcs
      * @return array
      */
     public function getResponseLineItem($id)
-    {        
-        if ($this->_response) {
-            $responseBody = json_decode($this->_response->getBody(), true);
+    {
+        if ($this->response) {
+            $responseBody = json_decode($this->response->getBody(), true);
 
             if (isset($responseBody['tax']['breakdown']['line_items'])) {
                 $lineItems = $responseBody['tax']['breakdown']['line_items'];
@@ -221,18 +221,18 @@ class Smartcalcs
      */
     public function getResponseShipping()
     {
-        if ($this->_response) {
-            $responseBody = json_decode($this->_response->getBody(), true);
+        if ($this->response) {
+            $responseBody = json_decode($this->response->getBody(), true);
             
             if (isset($responseBody['tax']['breakdown']['shipping'])) {
                 return $responseBody['tax']['breakdown']['shipping'];
             }
         }
     }
-    
+
     /**
      * Determine if SmartCalcs returned a valid response
-     * 
+     *
      * @return bool
      */
     public function isValidResponse()
@@ -256,16 +256,16 @@ class Smartcalcs
     private function _hasNexus($regionCode, $country)
     {
         if ($country == 'US') {
-            $nexusInRegion = $this->_nexusFactory->create()->getCollection()->addRegionCodeFilter($regionCode);
+            $nexusInRegion = $this->nexusFactory->create()->getCollection()->addRegionCodeFilter($regionCode);
 
             if ($nexusInRegion->getSize()) {
-                return true;    
+                return true;
             }
         } else {
-            $nexusInCountry = $this->_nexusFactory->create()->getCollection()->addCountryFilter($country);
+            $nexusInCountry = $this->nexusFactory->create()->getCollection()->addCountryFilter($country);
 
             if ($nexusInCountry->getSize()) {
-                return true;    
+                return true;
             }
         }
 
@@ -289,7 +289,7 @@ class Smartcalcs
                 if ($item->getType() == 'product') {
                     $id = $item->getCode();
                     $quantity = $item->getQuantity();
-                    $taxClass = $this->_taxClassRepository->get($item->getTaxClassKey()->getValue());
+                    $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                     $taxCode = $taxClass->getTjSalestaxCode();
                     $unitPrice = (float) $item->getUnitPrice();
                     $discount = (float) $item->getDiscountAmount();
@@ -315,7 +315,7 @@ class Smartcalcs
      */
     private function _getNexusAddresses()
     {
-        $nexusAddresses = $this->_nexusFactory->create()->getCollection();
+        $nexusAddresses = $this->nexusFactory->create()->getCollection();
         $addresses = [];
         
         foreach ($nexusAddresses as $nexusAddress) {
@@ -357,7 +357,7 @@ class Smartcalcs
      */
     private function _getSessionData($key)
     {
-        return $this->_checkoutSession->getData('taxjar_salestax_' . $key);
+        return $this->checkoutSession->getData('taxjar_salestax_' . $key);
     }
     
     /**
@@ -369,7 +369,7 @@ class Smartcalcs
      */
     private function _setSessionData($key, $val)
     {
-        return $this->_checkoutSession->setData('taxjar_salestax_' . $key, $val);
+        return $this->checkoutSession->setData('taxjar_salestax_' . $key, $val);
     }
     
     /**
@@ -380,6 +380,6 @@ class Smartcalcs
      */
     private function _unsetSessionData($key)
     {
-        return $this->_checkoutSession->unsetData('taxjar_salestax_' . $key);
+        return $this->checkoutSession->unsetData('taxjar_salestax_' . $key);
     }
 }

@@ -30,8 +30,10 @@ class InstallSchema implements InstallSchemaInterface
      * {@inheritdoc}
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
+    // @codingStandardsIgnoreStart
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
+        // @codingStandardsIgnoreEnd
         $installer = $setup;
         $installer->startSetup();
         

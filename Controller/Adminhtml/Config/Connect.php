@@ -30,17 +30,17 @@ class Connect extends \Magento\Backend\App\AbstractAction
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
-    protected $_resourceConfig;
+    protected $resourceConfig;
     
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
-    protected $_reinitableConfig;
+    protected $reinitableConfig;
 
     /**
      * @param Context $context
@@ -54,9 +54,9 @@ class Connect extends \Magento\Backend\App\AbstractAction
         Config $resourceConfig,
         ReinitableConfigInterface $reinitableConfig
     ) {
-        $this->_scopeConfig = $scopeConfig;
-        $this->_resourceConfig = $resourceConfig;
-        $this->_reinitableConfig = $reinitableConfig;
+        $this->scopeConfig = $scopeConfig;
+        $this->resourceConfig = $resourceConfig;
+        $this->reinitableConfig = $reinitableConfig;
         parent::__construct($context);
     }
 
@@ -71,13 +71,15 @@ class Connect extends \Magento\Backend\App\AbstractAction
         $apiEmail = (string) $this->getRequest()->getParam('api_email');
         
         if ($apiKey && $apiEmail) {
-            $this->_resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);
-            $this->_resourceConfig->saveConfig(TaxjarConfig::TAXJAR_EMAIL, $apiEmail, 'default', 0);
-            $this->_resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
-            $this->_reinitableConfig->reinit();
+            $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);
+            $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_EMAIL, $apiEmail, 'default', 0);
+            $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
+            $this->reinitableConfig->reinit();
             $this->messageManager->addSuccess(__('TaxJar account for %1 is now connected.', $apiEmail));
         } else {
+            // @codingStandardsIgnoreStart
             $this->messageManager->addError(__('Could not connect your TaxJar account. Please make sure you have a valid API token and try again.'));
+            // @codingStandardsIgnoreEnd
         }
 
         $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);

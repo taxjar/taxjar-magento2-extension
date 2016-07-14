@@ -31,27 +31,27 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
      */
-    protected $_clientFactory;
+    protected $clientFactory;
     
     /**
      * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
-    protected $_nexusFactory;
+    protected $nexusFactory;
     
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
     
     /**
      * @var \Magento\Directory\Model\CountryFactory
      */
-    protected $_countryFactory;
+    protected $countryFactory;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @param \Magento\Framework\Model\Context $context
@@ -90,11 +90,11 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
             $resourceCollection,
             $data
         );
-        $this->_clientFactory = $clientFactory;
-        $this->_nexusFactory = $nexusFactory;
-        $this->_regionFactory = $regionFactory;
-        $this->_countryFactory = $countryFactory;
-        $this->_scopeConfig = $scopeConfig;
+        $this->clientFactory = $clientFactory;
+        $this->nexusFactory = $nexusFactory;
+        $this->regionFactory = $regionFactory;
+        $this->countryFactory = $countryFactory;
+        $this->scopeConfig = $scopeConfig;
     }
     
     /**
@@ -104,8 +104,8 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
      */
     public function sync()
     {
-        $client = $this->_clientFactory->create();
-        $apiKey = trim($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $client = $this->clientFactory->create();
+        $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
 
         $data = [
             'street' => $this->getStreet(),
@@ -115,12 +115,14 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
             'country' => $this->getCountryId()
         ];
         
+        // @codingStandardsIgnoreStart
         $responseErrors = [
             '400' => __('Your nexus address contains invalid data. Please verify the address in order to sync with TaxJar.'),
             '409' => __('A nexus address already exists for this state/region. TaxJar currently supports one address per region.'),
             '422' => __('Your nexus address is missing one or more required fields. Please verify the address in order to sync with TaxJar.'),
             '500' => __('Something went wrong while syncing your address with TaxJar. Please verify the address and contact support@taxjar.com if the problem persists.')
         ];
+        // @codingStandardsIgnoreEnd
         
         if ($this->getId()) {
             $client->putResource($apiKey, 'nexus', $this->getApiId(), $data, $responseErrors);
@@ -137,13 +139,15 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
      */
     public function syncDelete()
     {
-        $client = $this->_clientFactory->create();
-        $apiKey = trim($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $client = $this->clientFactory->create();
+        $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         
+        // @codingStandardsIgnoreStart
         $responseErrors = [
             '409' => __('A nexus address with this ID could not be found in TaxJar.'),
             '500' => __('Something went wrong while deleting your address in TaxJar. Please contact support@taxjar.com if the problem persists.')
         ];
+        // @codingStandardsIgnoreEnd
 
         if ($this->getId()) {
             $client->deleteResource($apiKey, 'nexus', $this->getApiId(), $responseErrors);
@@ -157,19 +161,20 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
      */
     public function syncCollection()
     {
-        $client = $this->_clientFactory->create();
-        $apiKey = trim($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $client = $this->clientFactory->create();
+        $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $nexusJson = $client->getResource($apiKey, 'nexus');
 
         if ($nexusJson['addresses']) {
             $addresses = $nexusJson['addresses'];
 
             foreach ($addresses as $address) {
-                $addressRegion = $this->_regionFactory->create()->loadByCode($address['state'], $address['country']);
-                $addressCountry = $this->_countryFactory->create()->loadByCode($address['country']);
-                $addressCollection = $this->_nexusFactory->create()->getCollection();
+                $addressRegion = $this->regionFactory->create()->loadByCode($address['state'], $address['country']);
+                $addressCountry = $this->countryFactory->create()->loadByCode($address['country']);
+                $addressCollection = $this->nexusFactory->create()->getCollection();
                 
                 // Find existing address by region if US, otherwise country
+                // @codingStandardsIgnoreStart
                 if ($address['country'] == 'US') {
                     $existingAddress = $addressCollection->addRegionFilter($addressRegion->getId())->getFirstItem();
                 } else {
@@ -185,7 +190,7 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
                     ]);
                     $existingAddress->save();
                 } else {
-                    $newAddress = $this->_nexusFactory->create();
+                    $newAddress = $this->nexusFactory->create();
                     $newAddress->setData([
                         'api_id'      => $address['id'],
                         'street'      => $address['street'],
@@ -198,6 +203,7 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
                     ]);
                     $newAddress->save();
                 }
+                // @codingStandardsIgnoreEnd
             }
         }
     }

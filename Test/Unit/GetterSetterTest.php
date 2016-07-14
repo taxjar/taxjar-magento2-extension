@@ -15,6 +15,8 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+// @codingStandardsIgnoreStart
+
 namespace Taxjar\SalesTax\Test\Unit;
 
 class GetterSetterTest extends \PHPUnit_Framework_TestCase
@@ -43,7 +45,7 @@ class GetterSetterTest extends \PHPUnit_Framework_TestCase
                     $variableValue = [$obj];
                     $variables[$variableName] = $variableValue;
                 }
-            } else if (strpos($variableValue, 'Magento') !== false) {
+            } elseif (strpos($variableValue, 'Magento') !== false) {
                 $obj = $objectManager->getObject($variableValue);
                 $variableValue = $obj;
                 $variables[$variableName] = $variableValue;

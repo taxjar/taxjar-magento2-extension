@@ -27,27 +27,27 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     /**
      * @var \Taxjar\SalesTax\Model\Smartcalcs
      */
-    protected $_smartCalcs;
+    protected $smartCalcs;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Magento\Framework\Pricing\PriceCurrencyInterface
      */
-    protected $_priceCurrency;
+    protected $priceCurrency;
     
     /**
      * @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory
      */
-    protected $_extensionFactory;
+    protected $extensionFactory;
     
     /**
      * @var \Taxjar\SalesTax\Model\Tax\TaxCalculation
      */
-    protected $_taxCalculation;
+    protected $taxCalculation;
     
     /**
      * @param \Magento\Tax\Model\Config $taxConfig
@@ -80,11 +80,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
         \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation
     ) {
-        $this->_smartCalcs = $smartCalcs;
-        $this->_scopeConfig = $scopeConfig;
-        $this->_priceCurrency = $priceCurrency;
-        $this->_extensionFactory = $extensionFactory;
-        $this->_taxCalculation = $taxCalculation;
+        $this->smartCalcs = $smartCalcs;
+        $this->scopeConfig = $scopeConfig;
+        $this->priceCurrency = $priceCurrency;
+        $this->extensionFactory = $extensionFactory;
+        $this->taxCalculation = $taxCalculation;
         
         parent::__construct(
             $taxConfig,
@@ -114,14 +114,14 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
         
-        $isEnabled = $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
+        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
         
         if ($isEnabled) {
             $baseQuoteTaxDetails = $this->getQuoteTaxDetailsInterface($shippingAssignment, $total, true);
-            $this->_smartCalcs->getTaxForOrder($baseQuoteTaxDetails, $shippingAssignment);
+            $this->smartCalcs->getTaxForOrder($baseQuoteTaxDetails, $shippingAssignment);
         }
 
-        if ($this->_smartCalcs->isValidResponse()) {
+        if ($this->smartCalcs->isValidResponse()) {
             $quoteTax = $this->getQuoteTax($quote, $shippingAssignment, $total);
 
             //Populate address and items with tax calculation results
@@ -135,7 +135,12 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                 $shippingTaxDetails = $itemsByType[self::ITEM_TYPE_SHIPPING][self::ITEM_CODE_SHIPPING][self::KEY_ITEM];
                 $baseShippingTaxDetails =
                     $itemsByType[self::ITEM_TYPE_SHIPPING][self::ITEM_CODE_SHIPPING][self::KEY_BASE_ITEM];
-                $this->processShippingTaxInfo($shippingAssignment, $total, $shippingTaxDetails, $baseShippingTaxDetails);
+                $this->processShippingTaxInfo(
+                    $shippingAssignment,
+                    $total,
+                    $shippingTaxDetails,
+                    $baseShippingTaxDetails
+                );
             }
             
             //Process taxable items that are not product or shipping
@@ -157,7 +162,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     
     /**
      * Get quote tax details from SmartCalcs
-     * 
+     *
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @param \Magento\Quote\Model\Quote\Address\Total $total
@@ -220,7 +225,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     
     /**
      * Get quote tax details for calculation
-     * 
+     *
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $taxDetails
      * @param bool $useBaseCurrency
@@ -232,7 +237,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $useBaseCurrency
     ) {
         $store = $quote->getStore();
-        $taxDetails = $this->_taxCalculation->calculateTaxDetails($taxDetails, $useBaseCurrency, $store);
+        $taxDetails = $this->taxCalculation->calculateTaxDetails($taxDetails, $useBaseCurrency, $store);
         return $taxDetails;
     }
     
@@ -255,14 +260,20 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $useBaseCurrency,
         $parentCode = null
     ) {
-        $itemDataObject = parent::mapItem($itemDataObjectFactory, $item, $priceIncludesTax, $useBaseCurrency, $parentCode);
+        $itemDataObject = parent::mapItem(
+            $itemDataObjectFactory,
+            $item,
+            $priceIncludesTax,
+            $useBaseCurrency,
+            $parentCode
+        );
 
-        $lineItemTax = $this->_smartCalcs->getResponseLineItem($itemDataObject->getCode());
+        $lineItemTax = $this->smartCalcs->getResponseLineItem($itemDataObject->getCode());
         
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface $extensionAttributes */
         $extensionAttributes = $itemDataObject->getExtensionAttributes()
             ? $itemDataObject->getExtensionAttributes()
-            : $this->_extensionFactory->create();
+            : $this->extensionFactory->create();
         
         $extensionAttributes->setTaxCollectable($lineItemTax['tax_collectable']);
         $extensionAttributes->setCombinedTaxRate($lineItemTax['combined_tax_rate'] * 100);
@@ -286,7 +297,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                 $jurisdictionRates[$jurisdiction] = [
                     'rate' => $rate * 100,
                     'amount' => $amount
-                ];    
+                ];
             }
         }
         
@@ -303,9 +314,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         /** @var \Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterface $extensionAttributes */
         $extensionAttributes = $shippingDataObject->getExtensionAttributes()
             ? $shippingDataObject->getExtensionAttributes()
-            : $this->_extensionFactory->create();
+            : $this->extensionFactory->create();
             
-        $shippingTax = $this->_smartCalcs->getResponseShipping();
+        $shippingTax = $this->smartCalcs->getResponseShipping();
 
         $extensionAttributes->setTaxCollectable($shippingTax['tax_collectable']);
         $extensionAttributes->setCombinedTaxRate($shippingTax['combined_tax_rate'] * 100);

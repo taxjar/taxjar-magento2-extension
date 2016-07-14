@@ -15,7 +15,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Model\Config\TaxClass\Source;
+namespace Taxjar\SalesTax\Model\Config\Taxclass\Source;
 
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Magento\Tax\Api\TaxClassManagementInterface;
@@ -23,22 +23,22 @@ use Magento\Tax\Model\ClassModel;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 
-class Product implements \Magento\Framework\Option\ArrayInterface
+class Customer implements \Magento\Framework\Option\ArrayInterface
 {
     /**
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
      */
-    protected $_taxClassRepository;
+    protected $taxClassRepository;
     
     /**
      * @var \Magento\Framework\Api\FilterBuilder
      */
-    protected $_filterBuilder;
+    protected $filterBuilder;
     
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
-    protected $_searchCriteriaBuilder;
+    protected $searchCriteriaBuilder;
 
     /**
      * @param TaxClassRepositoryInterface $taxClassRepository
@@ -50,9 +50,9 @@ class Product implements \Magento\Framework\Option\ArrayInterface
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder
     ) {
-        $this->_taxClassRepository = $taxClassRepository;
-        $this->_filterBuilder = $filterBuilder;
-        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->taxClassRepository = $taxClassRepository;
+        $this->filterBuilder = $filterBuilder;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -61,14 +61,14 @@ class Product implements \Magento\Framework\Option\ArrayInterface
     public function toOptionArray()
     {
         $output = [];
-        $filter = $this->_filterBuilder
+        $filter = $this->filterBuilder
             ->setField(ClassModel::KEY_TYPE)
-            ->setValue(TaxClassManagementInterface::TYPE_PRODUCT)
+            ->setValue(TaxClassManagementInterface::TYPE_CUSTOMER)
             ->create();
-        $searchCriteria = $this->_searchCriteriaBuilder->addFilters([$filter])->create();
-        $productClasses = $this->_taxClassRepository->getList($searchCriteria);
+        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
+        $customerClasses = $this->taxClassRepository->getList($searchCriteria);
         
-        foreach ($productClasses->getItems() as $taxClass) {
+        foreach ($customerClasses->getItems() as $taxClass) {
             $output[] = [
                 'value' => $taxClass->getClassId(),
                 'label' => $taxClass->getClassName(),

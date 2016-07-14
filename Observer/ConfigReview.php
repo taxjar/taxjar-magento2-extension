@@ -30,32 +30,32 @@ class ConfigReview implements ObserverInterface
     /**
      * @var \Magento\Framework\App\Request\Http
      */
-    protected $_request;
+    protected $request;
     
     /**
      * @var \Magento\Framework\App\CacheInterface
      */
-    protected $_cache;
+    protected $cache;
     
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
-    protected $_eventManager;
+    protected $eventManager;
     
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
-    protected $_messageManager;
+    protected $messageManager;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
-    protected $_nexusFactory;
+    protected $nexusFactory;
     
     /**
      * @param \Magento\Framework\App\Request\Http $request
@@ -73,12 +73,12 @@ class ConfigReview implements ObserverInterface
         ScopeConfigInterface $scopeConfig,
         NexusFactory $nexusFactory
     ) {
-        $this->_request = $request;
-        $this->_cache = $cache;
-        $this->_eventManager = $eventManager;
-        $this->_messageManager = $messageManager;
-        $this->_scopeConfig = $scopeConfig;
-        $this->_nexusFactory = $nexusFactory;
+        $this->request = $request;
+        $this->cache = $cache;
+        $this->eventManager = $eventManager;
+        $this->messageManager = $messageManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->nexusFactory = $nexusFactory;
     }
 
     /**
@@ -86,12 +86,14 @@ class ConfigReview implements ObserverInterface
      * @return $this
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    // @codingStandardsIgnoreStart
     public function execute(Observer $observer)
     {
-        $configSection = $this->_request->getParam('section');
+        // @codingStandardsIgnoreEnd
+        $configSection = $this->request->getParam('section');
         
         if ($configSection == 'tax') {
-            $enabled = $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
+            $enabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
             
             if ($enabled) {
                 $this->_reviewNexusAddresses();
@@ -103,13 +105,16 @@ class ConfigReview implements ObserverInterface
     
     /**
      * @return void
+     * @SuppressWarnings(Generic.Files.LineLength.TooLong)
      */
     private function _reviewNexusAddresses()
     {
-        $nexusAddresses = $this->_nexusFactory->create()->getCollection();
+        $nexusAddresses = $this->nexusFactory->create()->getCollection();
         
         if (!$nexusAddresses->getSize()) {
-            $this->_messageManager->addError(__('You have no nexus addresses loaded in Magento. Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'));
+            // @codingStandardsIgnoreStart
+            $this->messageManager->addError(__('You have no nexus addresses loaded in Magento. Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'));
+            // @codingStandardsIgnoreEnd
         }
     }
 }

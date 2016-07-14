@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -22,17 +22,6 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class Connected extends Field
 {
-    /**
-     * Get the element HTML
-     *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
-     * @return string
-     */
-    protected function _getElementHtml(AbstractElement $element)
-    {
-        return parent::_getElementHtml($element);
-    }
-    
     /**
      * Remove scope label
      *

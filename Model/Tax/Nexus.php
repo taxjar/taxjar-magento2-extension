@@ -49,7 +49,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
 
     /**
      * Get nexus ID
-     * 
+     *
      * @return int
      */
     public function getId()
@@ -59,7 +59,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
 
     /**
      * Get nexus API ID
-     * 
+     *
      * @return int
      */
     public function getApiId()
@@ -69,7 +69,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
 
     /**
      * Get nexus street
-     * 
+     *
      * @return string
      */
     public function getStreet()
@@ -79,7 +79,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus city
-     * 
+     *
      * @return string
      */
     public function getCity()
@@ -89,7 +89,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get country ID
-     * 
+     *
      * @return int
      */
     public function getCountryId()
@@ -99,7 +99,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus region
-     * 
+     *
      * @return string
      */
     public function getRegion()
@@ -109,7 +109,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus region ID
-     * 
+     *
      * @return int
      */
     public function getRegionId()
@@ -119,7 +119,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus region code
-     * 
+     *
      * @return string
      */
     public function getRegionCode()
@@ -129,7 +129,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus postcode
-     * 
+     *
      * @return string
      */
     public function getPostcode()
@@ -139,7 +139,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus created at timestamp
-     * 
+     *
      * @return string
      */
     public function getCreatedAt()
@@ -149,7 +149,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     
     /**
      * Get nexus updated at timestamp
-     * 
+     *
      * @return string
      */
     public function getUpdatedAt()

@@ -28,7 +28,7 @@ class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
     public function execute()
     {
         $addressId = (int)$this->getRequest()->getParam('address');
-        $this->_coreRegistry->register('nexus_address_id', $addressId);
+        $this->coreRegistry->register('nexus_address_id', $addressId);
         /** @var \Magento\Backend\Model\Session $backendSession */
         $backendSession = $this->_objectManager->get('Magento\Backend\Model\Session');
 
@@ -48,28 +48,11 @@ class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
         }
         $data = $backendSession->getNexusData(true);
         if (!empty($data)) {
-            $this->_coreRegistry->register('nexus_form_data', $data);
+            $this->coreRegistry->register('nexus_form_data', $data);
         }
         $breadcrumb = $addressId ? __('Edit Nexus Address') : __('New Nexus Address');
         $resultPage = $this->initResultPage();
-        $layout = $resultPage->getLayout();
-
-        $toolbarSaveBlock = $layout->createBlock('Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus\Toolbar\Save')
-            ->assign('header', __('Edit Nexus Address'))
-            ->assign(
-                'form',
-                $layout->createBlock('Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus\Form', 'nexus_form')
-                        ->setShowLegend(true)
-            );
-
-        $resultPage->addBreadcrumb(
-            __('Manage Nexus Addresses'),
-            __('Manage Nexus Addresses'),
-            $this->getUrl('taxjar/nexus')
-        )
-            ->addBreadcrumb($breadcrumb, $breadcrumb)
-            ->addContent($toolbarSaveBlock);
-
+        $resultPage->addBreadcrumb($breadcrumb, $breadcrumb);
         $resultPage->getConfig()->getTitle()->prepend(__('Nexus Addresses'));
         $resultPage->getConfig()->getTitle()->prepend($pageTitle);
         return $resultPage;

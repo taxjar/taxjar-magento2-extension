@@ -20,7 +20,7 @@
     <update handle="taxjar_taxclass_block"/>
     <body>
         <referenceContainer name="content">
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\TaxClass" name="adminhtml.block.taxjar.taxclass.container"/>
+            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass" name="adminhtml.block.taxjar.taxclass.container"/>
         </referenceContainer>
     </body>
 </page>

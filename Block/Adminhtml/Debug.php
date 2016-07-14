@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -22,6 +22,7 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\Unserialize\Unserialize;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Debug extends Field
@@ -29,37 +30,47 @@ class Debug extends Field
     /**
      * @var string
      */
+    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::debug.phtml';
+    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Magento\Framework\Module\ModuleListInterface
      */
-    protected $_moduleList;
+    protected $moduleList;
     
     /**
      * @var \Magento\Framework\App\ProductMetadata
      */
-    protected $_productMetadata;
+    protected $productMetadata;
+    
+    /**
+     * @var \Magento\Framework\Unserialize\Unserialize
+     */
+    protected $unserialize;
     
     /**
      * @param Context $context
      * @param ModuleListInterface $moduleList
+     * @param Unserialize $unserialize
      * @param array $data
      */
     public function __construct(
         Context $context,
         ModuleListInterface $moduleList,
         ProductMetadata $productMetadata,
+        Unserialize $unserialize,
         array $data = []
     ) {
-        $this->_scopeConfig = $context->getScopeConfig();
-        $this->_moduleList = $moduleList;
-        $this->_productMetadata = $productMetadata;
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->moduleList = $moduleList;
+        $this->productMetadata = $productMetadata;
+        $this->unserialize = $unserialize;
         parent::__construct($context, $data);
     }
     
@@ -81,7 +92,7 @@ class Debug extends Field
      */
     public function isEnabled()
     {
-        $isEnabled = $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_DEBUG); 
+        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_DEBUG);
 
         if ($isEnabled) {
             return true;
@@ -97,7 +108,10 @@ class Debug extends Field
      */
     public function getBackupStates()
     {
-        return implode(', ', unserialize($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES)));
+        return implode(
+            ', ',
+            $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
+        );
     }
     
     /**
@@ -107,7 +121,7 @@ class Debug extends Field
      */
     public function getBackupUpdate()
     {
-        return $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
+        return $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
     }
     
     /**
@@ -117,7 +131,7 @@ class Debug extends Field
      */
     public function getVersion()
     {
-        return $this->_moduleList->getOne('Taxjar_SalesTax')['setup_version'];
+        return $this->moduleList->getOne('Taxjar_SalesTax')['setup_version'];
     }
     
     /**
@@ -127,7 +141,7 @@ class Debug extends Field
      */
     public function getPhpVersion()
     {
-        return @phpversion();
+        return phpversion();
     }
     
     /**
@@ -137,7 +151,7 @@ class Debug extends Field
      */
     public function getMagentoVersion()
     {
-        return $this->_productMetadata->getVersion();
+        return $this->productMetadata->getVersion();
     }
     
     /**
@@ -147,6 +161,6 @@ class Debug extends Field
      */
     public function getMemoryLimit()
     {
-        return @ini_get('memory_limit');
+        return ini_get('memory_limit');
     }
 }

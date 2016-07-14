@@ -15,7 +15,10 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Block\Adminhtml\Tax\TaxClass;
+ /**
+  * Product tax class edit form
+  */
+namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Edit;
 
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
@@ -27,22 +30,22 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     /**
      * @var \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory
      */
-    protected $_fieldsetFactory;
+    protected $fieldsetFactory;
     
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
 
     /**
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
      */
-    protected $_taxClassRepository;
+    protected $taxClassRepository;
     
     /**
-     * @var \Taxjar\SalesTax\Model\Config\TaxClass\Source\CategoryFactory
+     * @var \Taxjar\SalesTax\Model\Config\Taxclass\Source\CategoryFactory
      */
-    protected $_taxClassCategoryFactory;
+    protected $taxClassCategoryFactory;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -50,8 +53,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * @param \Magento\Framework\Data\FormFactory $formFactory
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory
-     * @param \Magento\Tax\Api\TaxRateRepositoryInterface $taxRateRepository
-     * @param \Taxjar\SalesTax\Model\Config\TaxClass\Source\CategoryFactory $taxClassCategoryFactory
+     * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
+     * @param \Taxjar\SalesTax\Model\Config\Taxclass\Source\CategoryFactory $taxClassCategoryFactory
      * @param array $data
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -62,23 +65,29 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Taxjar\SalesTax\Model\Config\TaxClass\Source\CategoryFactory $taxClassCategoryFactory,
+        \Taxjar\SalesTax\Model\Config\Taxclass\Source\CategoryFactory $taxClassCategoryFactory,
         array $data = []
     ) {
         $this->formKey = $context->getFormKey();
-        $this->_regionFactory = $regionFactory;
-        $this->_fieldsetFactory = $fieldsetFactory;
-        $this->_taxClassRepository = $taxClassRepository;
-        $this->_taxClassCategoryFactory = $taxClassCategoryFactory;
+        $this->regionFactory = $regionFactory;
+        $this->fieldsetFactory = $fieldsetFactory;
+        $this->taxClassRepository = $taxClassRepository;
+        $this->taxClassCategoryFactory = $taxClassCategoryFactory;
         parent::__construct($context, $registry, $formFactory, $data);
     }
-
+    
     /**
+     * Init class
+     *
      * @return void
      */
     protected function _construct()
     {
         parent::_construct();
+
+        $this->setId('taxClassForm');
+        $this->setTitle(__('Product Tax Class Information'));
+        $this->setUseContainer(true);
     }
 
     /**
@@ -93,10 +102,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
 
         try {
             if ($taxClassId) {
-                $taxClass = $this->_taxClassRepository->get($taxClassId);
+                $taxClass = $this->taxClassRepository->get($taxClassId);
             }
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            /* tax rate not found */
+            $taxClass = null;
         }
 
         $sessionFormValues = (array)$this->_coreRegistry->registry('tax_class_form_data');
@@ -104,7 +113,9 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $formValues = array_merge($taxClassData, $sessionFormValues);
 
         /** @var \Magento\Framework\Data\Form $form */
-        $form = $this->_formFactory->create();
+        $form = $this->_formFactory->create(
+            ['data' => ['id' => 'edit_form', 'action' => $this->getData('action'), 'method' => 'post']]
+        );
 
         $legend = $this->getShowLegend() ? __('Tax Class Information') : '';
         $fieldset = $form->addFieldset('base_fieldset', ['legend' => $legend, 'class' => 'form-inline']);
@@ -134,7 +145,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ['name' => 'class_type', 'value' => 'PRODUCT']
         );
         
-        $categoryModel = $this->_taxClassCategoryFactory->create();
+        $categoryModel = $this->taxClassCategoryFactory->create();
         $fieldset->addField(
             'tj_salestax_code',
             'select',
@@ -145,12 +156,9 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'value' => isset($formValues['tj_salestax_code']) ? $formValues['tj_salestax_code'] : ''
             ]
         );
-
-        $form->setId('taxClassForm');
-        $form->setTitle(__('Product Tax Class Information'));
-        $form->setAction($this->getUrl('taxjar/taxClass/save'));
-        $form->setUseContainer(true);
-        $form->setMethod('post');
+        
+        $form->setAction($this->getUrl('taxjar/taxclass/save'));
+        $form->setUseContainer($this->getUseContainer());
         $this->setForm($form);
 
         return parent::_prepareForm();

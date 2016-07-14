@@ -14,14 +14,19 @@
  * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-?>
-<script>
-require([
-    "jquery",
-    "mage/adminhtml/form"
-], function(jQuery){
-    var updater = new RegionUpdater('country_id', 'region', 'region_id', <?php /* @escapeNotVerified */ echo $this->helper('Magento\Directory\Helper\Data')->getRegionJson() ?>, 'disable');
-    updater.disableRegionValidation();
-    window.updater = updater;
-});
-</script>
+
+namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
+
+use Magento\Framework\Controller\ResultFactory;
+
+class NewAction extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
+{
+    /**
+     * @return \Magento\Backend\Model\View\Result\Page
+     */
+    public function execute()
+    {
+        $resultForward = $this->resultFactory->create(ResultFactory::TYPE_FORWARD);
+        return $resultForward->forward('edit');
+    }
+}

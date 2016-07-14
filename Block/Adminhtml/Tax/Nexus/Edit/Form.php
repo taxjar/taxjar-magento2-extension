@@ -16,9 +16,9 @@
  */
 
 /**
- * Admin nexus add form
+ * Admin nexus edit form
  */
-namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus;
+namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus\Edit;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -29,31 +29,31 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * @var \Magento\Framework\Data\Form\FormKey
      */
     protected $formKey;
-    
-    /**
-     * @var string
-     */
-    protected $_template = 'tax/nexus/form.phtml';
 
     /**
      * @var \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory
      */
-    protected $_fieldsetFactory;
+    protected $fieldsetFactory;
     
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
     
     /**
      * @var \Magento\Directory\Model\Config\Source\Country
      */
-    protected $_country;
+    protected $country;
     
     /**
      * @var \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
      */
-    protected $_nexusRepository;
+    protected $nexusRepository;
+    
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
 
     /**
      * @param \Magento\Backend\Block\Template\Context $context
@@ -77,19 +77,26 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         array $data = []
     ) {
         $this->formKey = $context->getFormKey();
-        $this->_country = $country;
-        $this->_regionFactory = $regionFactory;
-        $this->_fieldsetFactory = $fieldsetFactory;
-        $this->_nexusRepository = $nexusRepository;
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->country = $country;
+        $this->regionFactory = $regionFactory;
+        $this->fieldsetFactory = $fieldsetFactory;
+        $this->nexusRepository = $nexusRepository;
         parent::__construct($context, $registry, $formFactory, $data);
     }
-
+    
     /**
+     * Init class
+     *
      * @return void
      */
     protected function _construct()
     {
         parent::_construct();
+
+        $this->setId('nexusForm');
+        $this->setTitle(__('Nexus Address Information'));
+        $this->setUseContainer(true);
     }
 
     /**
@@ -104,10 +111,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
 
         try {
             if ($addressId) {
-                $nexus = $this->_nexusRepository->get($addressId);
+                $nexus = $this->nexusRepository->get($addressId);
             }
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            /* tax rate not found */
+            $nexus = null;
         }
 
         $sessionFormValues = (array)$this->_coreRegistry->registry('nexus_form_data');
@@ -115,26 +122,28 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $formValues = array_merge($nexusData, $sessionFormValues);
 
         /** @var \Magento\Framework\Data\Form $form */
-        $form = $this->_formFactory->create();
+        $form = $this->_formFactory->create(
+            ['data' => ['id' => 'edit_form', 'action' => $this->getData('action'), 'method' => 'post']]
+        );
         
-        $countries = $this->_country->toOptionArray(false, 'US');
+        $countries = $this->country->toOptionArray(false, 'US');
         unset($countries[0]);
         
         if (!isset($formValues['country_id'])) {
-            $formValues['country_id'] = $this->_scopeConfig->getValue(
+            $formValues['country_id'] = $this->scopeConfig->getValue(
                 \Magento\Tax\Model\Config::CONFIG_XML_PATH_DEFAULT_COUNTRY,
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
         }
 
         if (!isset($formValues['region_id'])) {
-            $formValues['region_id'] = $this->_scopeConfig->getValue(
+            $formValues['region_id'] = $this->scopeConfig->getValue(
                 \Magento\Tax\Model\Config::CONFIG_XML_PATH_DEFAULT_REGION,
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
         }
         
-        $regionCollection = $this->_regionFactory->create()->getCollection()->addCountryFilter(
+        $regionCollection = $this->regionFactory->create()->getCollection()->addCountryFilter(
             $formValues['country_id']
         );
 
@@ -219,18 +228,9 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
-        $form->setId('nexusForm');
-        $form->setTitle(__('Nexus Address Information'));
         $form->setAction($this->getUrl('taxjar/nexus/save'));
-        $form->setUseContainer(true);
-        $form->setMethod('post');
+        $form->setUseContainer($this->getUseContainer());
         $this->setForm($form);
-        
-        $this->setChild(
-            'form_after',
-            $this->getLayout()->createBlock('Magento\Framework\View\Element\Template')
-            ->setTemplate('Taxjar_SalesTax::tax/nexus/js.phtml')
-        );
 
         return parent::_prepareForm();
     }

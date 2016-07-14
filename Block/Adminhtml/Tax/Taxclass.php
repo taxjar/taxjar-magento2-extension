@@ -20,14 +20,14 @@
  */
 namespace Taxjar\SalesTax\Block\Adminhtml\Tax;
 
-class TaxClass extends \Magento\Backend\Block\Widget\Grid\Container
+class Taxclass extends \Magento\Backend\Block\Widget\Grid\Container
 {
     /**
      * @return void
      */
     protected function _construct()
     {
-        $this->_controller = 'adminhtml_tax_taxclass';
+        $this->_controller = 'taxjar_taxclass';
         $this->_headerText = __('Manage Product Tax Classes');
         $this->_addButtonLabel = __('Add New Product Tax Class');
         parent::_construct();

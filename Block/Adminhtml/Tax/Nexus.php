@@ -27,7 +27,7 @@ class Nexus extends \Magento\Backend\Block\Widget\Grid\Container
      */
     protected function _construct()
     {
-        $this->_controller = 'adminhtml_tax_nexus';
+        $this->_controller = 'taxjar_nexus';
         $this->_headerText = __('Nexus Addresses');
         $this->_addButtonLabel = __('Add New Nexus Address');
 
@@ -40,7 +40,8 @@ class Nexus extends \Magento\Backend\Block\Widget\Grid\Container
                 'onclick' => 'window.location.href=\'' . $this->getUrl('taxjar/nexus/sync') . '\'',
                 'class' => 'add primary sync-nexus'
             ],
-            0, -1
+            0,
+            -1
         );
     }
 }

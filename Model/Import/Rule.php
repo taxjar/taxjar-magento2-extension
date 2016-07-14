@@ -24,7 +24,7 @@ class Rule
     /**
      * @var \Magento\Tax\Model\Calculation\RuleFactory
      */
-    protected $_ruleFactory;
+    protected $ruleFactory;
     
     /**
      * @param CalculationRuleFactory $ruleFactory
@@ -32,7 +32,7 @@ class Rule
     public function __construct(
         CalculationRuleFactory $ruleFactory
     ) {
-        $this->_ruleFactory = $ruleFactory;
+        $this->ruleFactory = $ruleFactory;
         return $this;
     }
     
@@ -48,8 +48,8 @@ class Rule
      */
     public function create($code, $customerClasses, $productClasses, $position, $rates)
     {
-        $rule = $this->_ruleFactory->create();
-        $ruleModel = $this->_ruleFactory->create();
+        $rule = $this->ruleFactory->create();
+        $ruleModel = $this->ruleFactory->create();
         $rule->load($code, 'code');
 
         if (isset($rule)) {

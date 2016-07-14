@@ -19,7 +19,8 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus\Form" name="nexus-edit"/>
+            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus\Edit"/>
+            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Nexus\Edit\Form" name="nexus-edit" template="tax/nexus/edit.phtml"/>
         </referenceContainer>
     </body>
 </page>

@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -17,13 +17,14 @@
 
 namespace Taxjar\SalesTax\Block\Adminhtml;
 
-use Magento\Directory\Model\RegionFactory;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
-use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Tax\Api\TaxRateRepositoryInterface;
+use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Unserialize\Unserialize;
+use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Backend\Model\UrlInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -32,47 +33,54 @@ class Backup extends Field
     /**
      * @var string
      */
+    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::backup.phtml';
+    // @codingStandardsIgnoreEnd
     
     /**
      * @var \Magento\Framework\Config\CacheInterface
      */
-    protected $_cache;
+    protected $cache;
 
     /**
      * @var \Magento\Backend\Model\UrlInterface
      */
-    protected $_backendUrl;
+    protected $backendUrl;
 
     /**
      * @var \Magento\Tax\Api\TaxRateRepositoryInterface
      */
-    protected $_rateService;
+    protected $rateService;
 
     /**
      * @var \Taxjar\SalesTax\Model\Import\RateFactory
      */
-    protected $_importRateFactory;
+    protected $importRateFactory;
 
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @var \Magento\Framework\Api\FilterBuilder
      */
-    protected $_filterBuilder;
+    protected $filterBuilder;
 
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
-    protected $_searchCriteriaBuilder;
+    protected $searchCriteriaBuilder;
+    
+    /**
+     * @var \Magento\Framework\Unserialize\Unserialize
+     */
+    protected $unserialize;
     
     /**
      * @param Context $context
@@ -82,6 +90,7 @@ class Backup extends Field
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param UrlInterface $backendUrl
+     * @param Unserialize $unserialize
      * @param array $data
      */
     public function __construct(
@@ -92,19 +101,21 @@ class Backup extends Field
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
         UrlInterface $backendUrl,
+        Unserialize $unserialize,
         array $data = []
     ) {
-        $this->_cache = $context->getCache();
-        $this->_scopeConfig = $context->getScopeConfig();
-        $this->_rateService = $rateService;
-        $this->_importRateFactory = $importRateFactory;
-        $this->_regionFactory = $regionFactory;
-        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->_filterBuilder = $filterBuilder;
-        $this->_backendUrl = $backendUrl;
+        $this->cache = $context->getCache();
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->rateService = $rateService;
+        $this->importRateFactory = $importRateFactory;
+        $this->regionFactory = $regionFactory;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder = $filterBuilder;
+        $this->backendUrl = $backendUrl;
+        $this->unserialize = $unserialize;
 
-        $region = $this->_regionFactory->create();
-        $regionId = $this->_scopeConfig->getValue('shipping/origin/region_id');
+        $region = $this->regionFactory->create();
+        $regionId = $this->scopeConfig->getValue('shipping/origin/region_id');
         $this->_regionCode = $region->load($regionId)->getCode();
         
         parent::__construct($context, $data);
@@ -118,7 +129,7 @@ class Backup extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $apiKey = trim($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         
         if ($apiKey) {
             $this->_cacheElementValue($element);
@@ -136,7 +147,7 @@ class Backup extends Field
     protected function _cacheElementValue(AbstractElement $element)
     {
         $elementValue = (string) $element->getValue();
-        $this->_cache->save($elementValue, 'taxjar_salestax_config_backup');
+        $this->cache->save($elementValue, 'taxjar_salestax_config_backup');
     }
     
     /**
@@ -146,7 +157,7 @@ class Backup extends Field
      */
     public function isEnabled()
     {
-        $isEnabled = $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP); 
+        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
 
         if ($isEnabled) {
             return true;
@@ -164,10 +175,10 @@ class Backup extends Field
      */
     public function getStateList()
     {
-        $states = unserialize($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+        $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
         $states[] = $this->_regionCode;
         $statesHtml = '';
-        $lastUpdate = $this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
+        $lastUpdate = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
 
         sort($states);
 
@@ -191,7 +202,7 @@ class Backup extends Field
         if (!empty($lastUpdate)) {
             $statesHtml .= '<p class="' . $matches . '-msg" style="background: none !important;">';
             $statesHtml .= '<small>&nbsp;&nbsp;' . 'Last synced on ' . $lastUpdate . '.</small>';
-            $statesHtml .= '</p><br/>';    
+            $statesHtml .= '</p><br/>';
         }
 
         return $statesHtml;
@@ -206,7 +217,7 @@ class Backup extends Field
      */
     public function getStoreUrl($route, $params = [])
     {
-        return $this->_backendUrl->getUrl($route, $params);
+        return $this->backendUrl->getUrl($route, $params);
     }
     
     /**
@@ -217,13 +228,13 @@ class Backup extends Field
      */
     private function _getStateName($regionCode)
     {
-        $region = $this->_regionFactory->create();
+        $region = $this->regionFactory->create();
         return $region->loadByCode($regionCode, 'US')->getDefaultName();
     }
     
     /**
      * Generate state list item
-     * 
+     *
      * @param array $taxRatesByState
      * @param string $state
      * @return string
@@ -262,18 +273,18 @@ class Backup extends Field
         $ratesByState = [];
 
         foreach (array_unique($states) as $state) {
-            $region = $this->_regionFactory->create();
+            $region = $this->regionFactory->create();
             $regionId = $region->loadByCode($state, 'US')->getId();
-            $filter = $this->_filterBuilder
+            $filter = $this->filterBuilder
                 ->setField('tax_region_id')
                 ->setValue($regionId)
                 ->create();
-            $searchCriteria = $this->_searchCriteriaBuilder->addFilters([$filter])->create();
+            $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
             
-            $ratesByState[$state] = $this->_rateService->getList($searchCriteria)->getTotalCount();
+            $ratesByState[$state] = $this->rateService->getList($searchCriteria)->getTotalCount();
         }
         
-        $importRateModel = $this->_importRateFactory->create();
+        $importRateModel = $this->importRateFactory->create();
 
         $rateCalcs = [
             'total_rates' => array_sum($ratesByState),

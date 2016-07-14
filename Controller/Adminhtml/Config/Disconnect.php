@@ -30,22 +30,22 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
-    protected $_resourceConfig;
+    protected $resourceConfig;
     
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
-    protected $_reinitableConfig;
+    protected $reinitableConfig;
 
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
-    protected $_eventManager;
+    protected $eventManager;
 
     /**
      * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
-    protected $_nexusFactory;
+    protected $nexusFactory;
 
     /**
      * @param Context $context
@@ -59,10 +59,10 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
         ReinitableConfigInterface $reinitableConfig,
         NexusFactory $nexusFactory
     ) {
-        $this->_resourceConfig = $resourceConfig;
-        $this->_reinitableConfig = $reinitableConfig;
-        $this->_eventManager = $context->getEventManager();
-        $this->_nexusFactory = $nexusFactory;
+        $this->resourceConfig = $resourceConfig;
+        $this->reinitableConfig = $reinitableConfig;
+        $this->eventManager = $context->getEventManager();
+        $this->nexusFactory = $nexusFactory;
         parent::__construct($context);
     }
 
@@ -73,12 +73,12 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     public function execute()
     {
-        $this->_resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, 'default', 0);
-        $this->_resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_EMAIL, 'default', 0);
-        $this->_resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);
-        $this->_resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, 'default', 0);
-        $this->_resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, 'default', 0);
-        $this->_reinitableConfig->reinit();
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_EMAIL, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, 'default', 0);
+        $this->reinitableConfig->reinit();
         
         $this->_purgeNexusAddresses();
 
@@ -94,9 +94,11 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     private function _purgeNexusAddresses()
     {
-        $nexusAddresses = $this->_nexusFactory->create()->getCollection();
+        $nexusAddresses = $this->nexusFactory->create()->getCollection();
         foreach ($nexusAddresses as $nexusAddress) {
+            // @codingStandardsIgnoreStart
             $nexusAddress->delete();
+            // @codingStandardsIgnoreEnd
         }
     }
 }

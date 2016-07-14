@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -28,35 +28,43 @@ class Enabled extends Field
     /**
      * @var string
      */
+    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::enabled.phtml';
+    // @codingStandardsIgnoreEnd
   
     /**
      * @var \Magento\Framework\Config\CacheInterface
      */
-    protected $_cache;
+    protected $cache;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Magento\Backend\Model\UrlInterface
      */
-    protected $_backendUrl;
+    protected $backendUrl;
+    
+    /**
+     * @var \Magento\Framework\App\RequestInterface
+     */
+    protected $request;
     
     /**
      * @var string
      */
-    protected $_apiKey;
+    protected $apiKey;
     
     /**
      * @var string
      */
-    protected $_apiEmail;
+    protected $apiEmail;
     
     /**
      * @param Context $context
+     * @param RequestInterface $httpRequest
      * @param UrlInterface $backendUrl
      * @param array $data
      */
@@ -65,9 +73,10 @@ class Enabled extends Field
         UrlInterface $backendUrl,
         array $data = []
     ) {
-        $this->_cache = $context->getCache();
-        $this->_scopeConfig = $context->getScopeConfig();
-        $this->_backendUrl = $backendUrl;
+        $this->cache = $context->getCache();
+        $this->request = $context->getRequest();
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->backendUrl = $backendUrl;
         parent::__construct($context, $data);
     }
     
@@ -79,10 +88,10 @@ class Enabled extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $this->_apiKey = trim($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-        $this->_apiEmail = trim($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_EMAIL));
+        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $this->apiEmail = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_EMAIL));
         
-        if (!$this->_apiKey) {
+        if (!$this->apiKey) {
             $element->setDisabled('disabled');
         } else {
             $this->_cacheElementValue($element);
@@ -100,7 +109,7 @@ class Enabled extends Field
     protected function _cacheElementValue(AbstractElement $element)
     {
         $elementValue = (string) $element->getValue();
-        $this->_cache->save($elementValue, 'taxjar_salestax_config_enabled');
+        $this->cache->save($elementValue, 'taxjar_salestax_config_enabled');
     }
     
     /**
@@ -110,7 +119,7 @@ class Enabled extends Field
      */
     public function isConnected()
     {
-        if ($this->_apiKey) {
+        if ($this->apiKey) {
             return true;
         }
         return false;
@@ -123,7 +132,7 @@ class Enabled extends Field
      */
     public function getApiEmail()
     {
-        return $this->_apiEmail;
+        return $this->apiEmail;
     }
     
     /**
@@ -135,7 +144,7 @@ class Enabled extends Field
      */
     public function getStoreUrl($route, $params = [])
     {
-        return $this->_backendUrl->getUrl($route, $params);
+        return $this->backendUrl->getUrl($route, $params);
     }
     
     /**
@@ -171,8 +180,8 @@ class Enabled extends Field
      */
     private function _getStoreOrigin()
     {
-        $protocol = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-        return $protocol . $_SERVER['HTTP_HOST'];
+        $protocol = $this->request->isSecure() ? 'https://' : 'http://';
+        return $protocol . $this->request->getHttpHost(false);
     }
     
     /**
@@ -182,7 +191,7 @@ class Enabled extends Field
      */
     private function _getStoreGeneralEmail()
     {
-        $email = $this->_scopeConfig->getValue('trans_email/ident_general/email');
+        $email = $this->scopeConfig->getValue('trans_email/ident_general/email');
         if ($email != 'owner@example.com') {
             return $email;
         } else {

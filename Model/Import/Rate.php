@@ -17,12 +17,13 @@
 
 namespace Taxjar\SalesTax\Model\Import;
 
-use Magento\Framework\App\CacheInterface;
-use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Unserialize\Unserialize;
+use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Rate
@@ -30,37 +31,42 @@ class Rate
     /**
      * @var \Magento\Framework\App\CacheInterface
      */
-    protected $_cache;
+    protected $cache;
     
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Magento\Tax\Model\Calculation\RateFactory
      */
-    protected $_rateFactory;
+    protected $rateFactory;
     
     /**
      * @var \Magento\Tax\Api\TaxRateRepositoryInterface
      */
-    protected $_rateService;
+    protected $rateService;
     
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
-    protected $_regionFactory;
+    protected $regionFactory;
     
     /**
      * @var \Magento\Framework\Api\FilterBuilder
      */
-    protected $_filterBuilder;
+    protected $filterBuilder;
     
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
-    protected $_searchCriteriaBuilder;
+    protected $searchCriteriaBuilder;
+    
+    /**
+     * @var \Magento\Framework\Unserialize\Unserialize
+     */
+    protected $unserialize;
     
     /**
      * @param CacheInterface $cache
@@ -71,6 +77,7 @@ class Rate
      * @param RegionFactory  $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
+     * @param Unserialize $unserialize
      */
     public function __construct(
         CacheInterface $cache,
@@ -80,16 +87,18 @@ class Rate
         TaxRateRepositoryInterface $rateService,
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder
+        FilterBuilder $filterBuilder,
+        Unserialize $unserialize
     ) {
-        $this->_cache = $cache;
-        $this->_scopeConfig = $scopeConfig;
+        $this->cache = $cache;
+        $this->scopeConfig = $scopeConfig;
         $this->_calculationFactory = $calculationFactory;
-        $this->_rateFactory = $rateFactory;
-        $this->_rateService = $rateService;
-        $this->_regionFactory = $regionFactory;
-        $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->_filterBuilder = $filterBuilder;
+        $this->rateFactory = $rateFactory;
+        $this->rateService = $rateService;
+        $this->regionFactory = $regionFactory;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder = $filterBuilder;
+        $this->unserialize = $unserialize;
         return $this;
     }
     
@@ -112,17 +121,19 @@ class Rate
                 $countryCode = 'US';
             }
 
-            if ($this->_cache->load('regionId') && $regionCode == $this->_cache->load('regionCode') && $countryCode == $this->_cache->load('countryCode')) {
-                $regionId = $this->_cache->load('regionId');
+            if ($this->cache->load('regionId')
+            && $regionCode == $this->cache->load('regionCode')
+            && $countryCode == $this->cache->load('countryCode')) {
+                $regionId = $this->cache->load('regionId');
             } else {
-                $region = $this->_regionFactory->create();
+                $region = $this->regionFactory->create();
                 $regionId = $region->loadByCode($regionCode, $countryCode)->getId();
-                $this->_cache->save($regionId, 'regionId');
-                $this->_cache->save($regionCode, 'regionCode');
-                $this->_cache->save($countryCode, 'countryCode');
+                $this->cache->save($regionId, 'regionId');
+                $this->cache->save($regionCode, 'regionCode');
+                $this->cache->save($countryCode, 'countryCode');
             }
 
-            $rateModel = $this->_rateFactory->create();
+            $rateModel = $this->rateFactory->create();
             $rateModel->setTaxCountryId($countryCode);
             $rateModel->setTaxRegionId($regionId);
             $rateModel->setTaxPostcode($zip);
@@ -150,14 +161,14 @@ class Rate
      */
     public function getExistingRates()
     {
-        $filter = $this->_filterBuilder
+        $filter = $this->filterBuilder
             ->setField('tax_region_id')
             ->setValue($this->getRegionFilter())
             ->setConditionType('in')
             ->create();
-        $searchCriteria = $this->_searchCriteriaBuilder->addFilters([$filter])->create();
+        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
 
-        return $this->_rateService->getList($searchCriteria);
+        return $this->rateService->getList($searchCriteria);
     }
     
     /**
@@ -183,8 +194,8 @@ class Rate
     private function getRegionFilter()
     {
         $filter = [];
-        $states = unserialize($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
-        $region = $this->_regionFactory->create();
+        $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+        $region = $this->regionFactory->create();
 
         foreach (array_unique($states) as $state) {
             $regionId = $region->loadByCode($state, 'US')->getId();

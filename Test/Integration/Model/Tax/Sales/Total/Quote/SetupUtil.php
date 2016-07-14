@@ -15,6 +15,8 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+// @codingStandardsIgnoreStart
+
 namespace Taxjar\SalesTax\Test\Integration\Model\Tax\Sales\Total\Quote;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -148,7 +150,7 @@ class SetupUtil
     
     /**
      * Product tax class metadata such as TaxJar category tax codes
-     * 
+     *
      * @var array
      */
     protected $productTaxClassesMetadata = [
@@ -186,7 +188,7 @@ class SetupUtil
     
     /**
      * Nexus address defaults
-     * 
+     *
      * @var array
      */
     protected $nexusAddresses = [
@@ -247,12 +249,12 @@ class SetupUtil
     /**
      * @var \Magento\Customer\Api\CustomerRepositoryInterface
      */
-    protected $customerRepository;
+    private $customerRepository;
 
     /**
      * @var \Magento\Customer\Api\AccountManagementInterface
      */
-    protected $accountManagement;
+    private $accountManagement;
 
     /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
@@ -344,6 +346,7 @@ class SetupUtil
      *
      * @param array $overrides
      * @return $this
+     * @SuppressWarnings(MEQP1.Performance.Loop.ModelLSD)
      */
     protected function createTaxRates($overrides)
     {
@@ -493,7 +496,7 @@ class SetupUtil
                 ->save()
                 ->getId();
         } else {
-            foreach ($overrides[self::TAX_RULE_OVERRIDES] as $taxRuleOverrideData ) {
+            foreach ($overrides[self::TAX_RULE_OVERRIDES] as $taxRuleOverrideData) {
                 //convert code to id for productTaxClass, customerTaxClass and taxRate
                 $taxRuleOverrideData = $this->processTaxRuleOverrides($taxRuleOverrideData, $taxRateIds);
                 $mergedTaxRuleData = array_merge($taxRuleDefaultData, $taxRuleOverrideData);
@@ -934,7 +937,7 @@ class SetupUtil
     
     /**
      * Create nexus addresses
-     * 
+     *
      * @param array $overrides
      * @return void
      */
@@ -965,7 +968,7 @@ class SetupUtil
     
     /**
      * Add currency with conversion rate to quote
-     * 
+     *
      * @param \Magento\Quote\Model\Quote $quote
      * @param array $currencyData
      * @return $this

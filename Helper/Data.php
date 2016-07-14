@@ -27,7 +27,7 @@ class Data extends AbstractHelper
      * @param const $order
      * @return array
      */
-    public function array_sort($array, $on, $order = SORT_ASC)
+    public function sortArray($array, $on, $order = SORT_ASC)
     {
         $newArray = [];
         $sortableArray = [];

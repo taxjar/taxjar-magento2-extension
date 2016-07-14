@@ -17,7 +17,6 @@
 
 namespace Taxjar\SalesTax\Model\Tax;
 
-use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Framework\Data\Collection\EntityFactory;
 use Magento\Framework\Api\AbstractServiceCollection;
 use Magento\Framework\Api\FilterBuilder;
@@ -35,7 +34,7 @@ use Magento\Tax\Model\ClassModel;
 class TaxClassCollection extends AbstractServiceCollection
 {
     /**
-     * @var TaxRateRepositoryInterface
+     * @var TaxClassRepositoryInterface
      */
     protected $taxClassRepository;
 
@@ -46,8 +45,7 @@ class TaxClassCollection extends AbstractServiceCollection
      * @param FilterBuilder $filterBuilder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param SortOrderBuilder $sortOrderBuilder
-     * @param TaxRateRepositoryInterface $rateService
-     * @param \Magento\Tax\Model\Calculation\Rate\Converter $rateConverter
+     * @param TaxClassRepositoryInterface $taxClassService
      */
     public function __construct(
         EntityFactory $entityFactory,
@@ -63,8 +61,10 @@ class TaxClassCollection extends AbstractServiceCollection
     /**
      * {@inheritdoc}
      */
+    // @codingStandardsIgnoreStart
     public function loadData($printQuery = false, $logQuery = false)
     {
+        // @codingStandardsIgnoreEnd
         if (!$this->isLoaded()) {
             $this->addFieldToFilter(ClassModel::KEY_TYPE, TaxClassManagementInterface::TYPE_PRODUCT);
             $searchCriteria = $this->getSearchCriteria();
@@ -86,7 +86,9 @@ class TaxClassCollection extends AbstractServiceCollection
      */
     protected function createTaxClassCollectionItem(TaxClass $taxClass)
     {
+        // @codingStandardsIgnoreStart
         $collectionItem = new \Magento\Framework\DataObject();
+        // @codingStandardsIgnoreEnd
         $collectionItem->setClassId($taxClass->getClassId());
         $collectionItem->setClassName($taxClass->getClassName());
         $collectionItem->setClassType($taxClass->getClassType());

@@ -15,7 +15,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Model\Config\TaxClass\Source;
+namespace Taxjar\SalesTax\Model\Config\Taxclass\Source;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -25,12 +25,12 @@ class Category implements \Magento\Framework\Option\ArrayInterface
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $_scopeConfig;
+    protected $scopeConfig;
     
     /**
      * @var \Taxjar\SalesTax\Helper\Data
      */
-    protected $_helper;
+    protected $helper;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -40,8 +40,8 @@ class Category implements \Magento\Framework\Option\ArrayInterface
         ScopeConfigInterface $scopeConfig,
         \Taxjar\SalesTax\Helper\Data $helper
     ) {
-        $this->_scopeConfig = $scopeConfig;
-        $this->_helper = $helper;
+        $this->scopeConfig = $scopeConfig;
+        $this->helper = $helper;
     }
 
     /**
@@ -49,8 +49,8 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        $categories = json_decode($this->_scopeConfig->getValue(TaxjarConfig::TAXJAR_CATEGORIES), true);
-        $categories = $this->_helper->array_sort($categories, 'product_tax_code', SORT_ASC);
+        $categories = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CATEGORIES), true);
+        $categories = $this->helper->sortArray($categories, 'product_tax_code', SORT_ASC);
         
         $output = [
             [

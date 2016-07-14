@@ -19,7 +19,7 @@ namespace Taxjar\SalesTax\Controller\Adminhtml;
 
 use Magento\Framework\Controller\ResultFactory;
 
-abstract class TaxClass extends \Magento\Backend\App\Action
+abstract class Taxclass extends \Magento\Backend\App\Action
 {
     /**
      * Authorization level of a basic admin session
@@ -31,7 +31,7 @@ abstract class TaxClass extends \Magento\Backend\App\Action
     /**
      * @var \Magento\Framework\Registry
      */
-    protected $_coreRegistry;
+    protected $coreRegistry;
     
     /**
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
@@ -55,7 +55,7 @@ abstract class TaxClass extends \Magento\Backend\App\Action
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassService,
         \Magento\Tax\Api\Data\TaxClassInterfaceFactory $taxClassDataObjectFactory
     ) {
-        $this->_coreRegistry = $coreRegistry;
+        $this->coreRegistry = $coreRegistry;
         $this->taxClassService = $taxClassService;
         $this->taxClassDataObjectFactory = $taxClassDataObjectFactory;
         parent::__construct($context);
