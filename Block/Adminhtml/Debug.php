@@ -57,6 +57,7 @@ class Debug extends Field
     /**
      * @param Context $context
      * @param ModuleListInterface $moduleList
+     * @param ProductMetadata $productMetadata
      * @param Unserialize $unserialize
      * @param array $data
      */
@@ -131,7 +132,7 @@ class Debug extends Field
      */
     public function getVersion()
     {
-        return $this->moduleList->getOne('Taxjar_SalesTax')['setup_version'];
+        return TaxjarConfig::TAXJAR_VERSION;
     }
     
     /**

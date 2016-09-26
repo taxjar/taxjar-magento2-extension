@@ -18,9 +18,9 @@
 namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Model\UrlInterface;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Backend\Model\UrlInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Enabled extends Field
@@ -33,6 +33,11 @@ class Enabled extends Field
     // @codingStandardsIgnoreEnd
   
     /**
+     * @var \Magento\Backend\Model\UrlInterface
+     */
+    protected $backendUrl;
+  
+    /**
      * @var \Magento\Framework\Config\CacheInterface
      */
     protected $cache;
@@ -41,11 +46,6 @@ class Enabled extends Field
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
-    /**
-     * @var \Magento\Backend\Model\UrlInterface
-     */
-    protected $backendUrl;
     
     /**
      * @var \Magento\Framework\App\RequestInterface
@@ -169,6 +169,8 @@ class Enabled extends Field
         if ($this->_getStoreGeneralEmail()) {
             $popupUrl .= '&email=' . urlencode($this->_getStoreGeneralEmail());
         }
+        
+        $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
       
         return $popupUrl;
     }

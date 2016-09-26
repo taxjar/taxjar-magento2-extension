@@ -38,7 +38,7 @@ use Taxjar\SalesTax\Model\Import\RuleFactory;
 class ImportRates implements ObserverInterface
 {
     /**
-     * @var \Magento\Framework\App\Config\ReinitableConfigInterface
+     * @var \Magento\Framework\Event\ManagerInterface
      */
     protected $eventManager;
 

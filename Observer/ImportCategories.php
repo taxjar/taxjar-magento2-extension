@@ -27,7 +27,7 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\ConfigurationFactory;
 
 class ImportCategories implements ObserverInterface
-{    
+{
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -42,7 +42,7 @@ class ImportCategories implements ObserverInterface
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
     protected $reinitableConfig;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
      */
@@ -114,6 +114,11 @@ class ImportCategories implements ObserverInterface
         return $categoryJson['categories'];
     }
 
+    /**
+     * Import TaxJar product categories
+     *
+     * @return void
+     */
     private function _importCategories()
     {
         $categoryJson = $this->_getCategoryJson();

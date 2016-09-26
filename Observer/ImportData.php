@@ -151,18 +151,16 @@ class ImportData implements ObserverInterface
     /**
      * Set TaxJar config
      *
-     * @param array $configJson
      * @return void
      */
     private function _setConfiguration()
     {
         $config = $this->configFactory->create();
         $configJson = $this->_getConfigJson();
-        $categoryJson = $this->_getCategoryJson();
 
         $config->setTaxBasis($configJson);
         $config->setDisplaySettings();
-        
+
         $this->resourceConfig->saveConfig(
             TaxjarConfig::TAXJAR_STATES,
             serialize(explode(',', $configJson['states'])),
