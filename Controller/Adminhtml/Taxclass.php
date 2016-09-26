@@ -69,8 +69,7 @@ abstract class Taxclass extends \Magento\Backend\App\Action
     protected function initResultPage()
     {
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
-        $resultPage->setActiveMenu('Taxjar_SalesTax::product_tax_classes')
-            ->addBreadcrumb(__('Sales'), __('Sales'))
+        $resultPage->addBreadcrumb(__('Sales'), __('Sales'))
             ->addBreadcrumb(__('Tax'), __('Tax'));
         return $resultPage;
     }
@@ -120,7 +119,6 @@ abstract class Taxclass extends \Magento\Backend\App\Action
         if (isset($postData['tj_salestax_code'])) {
             $taxClass->setTjSalestaxCode($postData['tj_salestax_code']);
         }
-        $taxClass->setClassType('PRODUCT');
         return $taxClass;
     }
 }

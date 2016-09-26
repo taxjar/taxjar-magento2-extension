@@ -18,7 +18,7 @@
 /**
  * Admin product tax class edit container
  */
-namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass;
+namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product;
 
 class Edit extends \Magento\Backend\Block\Widget\Form\Container
 {
@@ -51,7 +51,7 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
     protected function _construct()
     {
         $this->_objectId = 'class';
-        $this->_controller = 'adminhtml_tax_taxclass';
+        $this->_controller = 'adminhtml_tax_taxclass_product';
         $this->_blockGroup = 'Taxjar_SalesTax';
 
         parent::_construct();

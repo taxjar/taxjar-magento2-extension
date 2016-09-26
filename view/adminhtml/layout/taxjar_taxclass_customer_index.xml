@@ -1,4 +1,5 @@
-<?php
+<?xml version="1.0"?>
+<!--
 /**
  * Taxjar_SalesTax
  *
@@ -14,22 +15,12 @@
  * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-
-/**
- * Admin tax class content block
- */
-namespace Taxjar\SalesTax\Block\Adminhtml\Tax;
-
-class Taxclass extends \Magento\Backend\Block\Widget\Grid\Container
-{
-    /**
-     * @return void
-     */
-    protected function _construct()
-    {
-        $this->_controller = 'taxjar_taxclass';
-        $this->_headerText = __('Manage Product Tax Classes');
-        $this->_addButtonLabel = __('Add New Product Tax Class');
-        parent::_construct();
-    }
-}
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="taxjar_taxclass_customer_block"/>
+    <body>
+        <referenceContainer name="content">
+            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Customer" name="adminhtml.block.taxjar.taxclass.customer.container"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -24,7 +24,7 @@ class SyncRates extends \Magento\Backend\App\AbstractAction
     const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
-     * @var \Magento\Framework\App\Config\ReinitableConfigInterface
+     * @var \Magento\Framework\Event\ManagerInterface
      */
     protected $eventManager;
 
@@ -46,6 +46,7 @@ class SyncRates extends \Magento\Backend\App\AbstractAction
     public function execute()
     {
         try {
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
             $this->eventManager->dispatch('taxjar_salestax_import_data');
             $this->eventManager->dispatch('taxjar_salestax_import_rates');
         } catch (\Exception $e) {

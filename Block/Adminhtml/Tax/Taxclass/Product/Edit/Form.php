@@ -18,7 +18,7 @@
  /**
   * Product tax class edit form
   */
-namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Edit;
+namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit;
 
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
@@ -157,7 +157,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
         
-        $form->setAction($this->getUrl('taxjar/taxclass/save'));
+        $form->setAction($this->getUrl('taxjar/taxclass_product/save'));
         $form->setUseContainer($this->getUseContainer());
         $this->setForm($form);
 

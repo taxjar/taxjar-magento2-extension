@@ -28,6 +28,11 @@ class Connect extends \Magento\Backend\App\AbstractAction
     const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    protected $eventManager;
+
+    /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -54,6 +59,7 @@ class Connect extends \Magento\Backend\App\AbstractAction
         Config $resourceConfig,
         ReinitableConfigInterface $reinitableConfig
     ) {
+        $this->eventManager = $context->getEventManager();
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
@@ -76,6 +82,7 @@ class Connect extends \Magento\Backend\App\AbstractAction
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
             $this->reinitableConfig->reinit();
             $this->messageManager->addSuccess(__('TaxJar account for %1 is now connected.', $apiEmail));
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
         } else {
             // @codingStandardsIgnoreStart
             $this->messageManager->addError(__('Could not connect your TaxJar account. Please make sure you have a valid API token and try again.'));

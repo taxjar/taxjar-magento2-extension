@@ -15,11 +15,11 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
+namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer;
 
 use Magento\Framework\Controller\ResultFactory;
 
-class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
+class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
 {
     /**
      * @return \Magento\Backend\Model\View\Result\Page
@@ -31,15 +31,15 @@ class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
         $taxClassId = (int)$this->getRequest()->getParam('class');
         try {
             $this->taxClassService->deleteById($taxClassId);
-            $this->messageManager->addSuccess(__('The product tax class has been deleted.'));
+            $this->messageManager->addSuccess(__('The customer tax class has been deleted.'));
             return $resultRedirect->setPath('taxjar/*/');
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            $this->messageManager->addError(__('This product tax class no longer exists.'));
+            $this->messageManager->addError(__('This customer tax class no longer exists.'));
             return $resultRedirect->setPath('taxjar/*/');
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->messageManager->addError($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('Something went wrong deleting this product tax class.'));
+            $this->messageManager->addError(__('Something went wrong deleting this customer tax class.'));
         }
 
         return $resultRedirect->setUrl($this->_redirect->getRedirectUrl($this->getUrl('*')));

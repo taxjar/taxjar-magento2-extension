@@ -15,18 +15,18 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
+namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer;
 
-use Magento\Framework\Controller\ResultFactory;
-
-class NewAction extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
+class Index extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
 {
     /**
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()
     {
-        $resultForward = $this->resultFactory->create(ResultFactory::TYPE_FORWARD);
-        return $resultForward->forward('edit');
+        $resultPage = $this->initResultPage();
+        $resultPage->addBreadcrumb(__('Manage Tax Classes'), __('Manage Tax Classes'));
+        $resultPage->getConfig()->getTitle()->prepend(__('Customer Tax Classes'));
+        return $resultPage;
     }
 }

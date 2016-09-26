@@ -80,6 +80,7 @@ class ConfigChanged implements ObserverInterface
 
         if (isset($prevEnabled)) {
             if ($prevEnabled != $enabled && $enabled == 1) {
+                $this->eventManager->dispatch('taxjar_salestax_import_categories');
                 $this->eventManager->dispatch('taxjar_salestax_import_data');
             }
         }
@@ -95,6 +96,7 @@ class ConfigChanged implements ObserverInterface
 
         if (isset($prevEnabled)) {
             if ($prevEnabled != $enabled) {
+                $this->eventManager->dispatch('taxjar_salestax_import_categories');
                 $this->eventManager->dispatch('taxjar_salestax_import_data');
                 $this->eventManager->dispatch('taxjar_salestax_import_rates');
             }

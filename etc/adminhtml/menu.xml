@@ -18,7 +18,8 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="Taxjar_SalesTax::product_tax_classes" title="Product Tax Classes" module="Taxjar_SalesTax" sortOrder="30" parent="Magento_Tax::sales_tax" action="taxjar/taxclass" resource="Magento_Tax::manage_tax" dependsOnConfig="tax/taxjar/connected"/>
+        <add id="Taxjar_SalesTax::customer_tax_classes" title="Customer Tax Classes" module="Taxjar_SalesTax" sortOrder="20" parent="Magento_Tax::sales_tax" action="taxjar/taxclass_customer" resource="Magento_Tax::manage_tax" dependsOnConfig="tax/taxjar/connected"/>
+        <add id="Taxjar_SalesTax::product_tax_classes" title="Product Tax Classes" module="Taxjar_SalesTax" sortOrder="30" parent="Magento_Tax::sales_tax" action="taxjar/taxclass_product" resource="Magento_Tax::manage_tax" dependsOnConfig="tax/taxjar/connected"/>
         <add id="Taxjar_SalesTax::nexus_addresses" title="Nexus Addresses" module="Taxjar_SalesTax" sortOrder="40" parent="Magento_Tax::sales_tax" action="taxjar/nexus" resource="Magento_Tax::manage_tax" dependsOnConfig="tax/taxjar/connected"/>
     </menu>
 </config>

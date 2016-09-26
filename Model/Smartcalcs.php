@@ -120,6 +120,10 @@ class Smartcalcs
             return;
         }
         
+        if ($this->_isCustomerExempt($address)) {
+            return;
+        }
+        
         $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id');
 
         $fromAddress = [
@@ -269,6 +273,25 @@ class Smartcalcs
             }
         }
 
+        return false;
+    }
+    
+    /**
+     * Verify if customer is exempt from sales tax
+     *
+     * @param \Magento\Quote\Model\Quote\Address $address
+     * @return bool
+     */
+    private function _isCustomerExempt(
+        \Magento\Quote\Model\Quote\Address $address
+    ) {
+        $customerTaxClass = $this->taxClassRepository->get($address->getQuote()->getCustomerTaxClassId());
+        $customerTaxCode = $customerTaxClass->getTjSalestaxCode();
+        
+        if ($customerTaxCode == '99999') {
+            return true;
+        }
+        
         return false;
     }
     

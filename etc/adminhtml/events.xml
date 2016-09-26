@@ -23,6 +23,9 @@
     <event name="controller_action_predispatch_adminhtml_system_config_edit">
         <observer name="taxjar_salestax_config_review" instance="Taxjar\SalesTax\Observer\ConfigReview"/>
     </event>
+    <event name="taxjar_salestax_import_categories">
+        <observer name="taxjar_salestax_import_categories" instance="Taxjar\SalesTax\Observer\ImportCategories"/>
+    </event>
     <event name="taxjar_salestax_import_data">
         <observer name="taxjar_salestax_import_data" instance="Taxjar\SalesTax\Observer\ImportData"/>
     </event>

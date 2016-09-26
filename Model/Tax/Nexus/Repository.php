@@ -35,7 +35,7 @@ use Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\CollectionFactory as NexusColl
 class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
 {
     /**
-     * @var TaxClassCollectionFactory
+     * @var NexusCollectionFactory
      */
     protected $nexusCollectionFactory;
 
@@ -76,7 +76,7 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
     /**
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
-     * @param TaxClassCollectionFactory $taxClassCollectionFactory
+     * @param NexusCollectionFactory $nexusCollectionFactory
      * @param \Magento\Tax\Api\Data\TaxClassSearchResultsInterfaceFactory $searchResultsFactory
      * @param ClassModelRegistry $classModelRegistry
      * @param \Magento\Tax\Model\ResourceModel\TaxClass $taxClassResource

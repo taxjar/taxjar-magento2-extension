@@ -38,7 +38,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     protected $reinitableConfig;
 
     /**
-     * @var \Magento\Framework\App\Config\ReinitableConfigInterface
+     * @var \Magento\Framework\Event\ManagerInterface
      */
     protected $eventManager;
 

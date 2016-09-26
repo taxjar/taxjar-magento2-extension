@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -15,12 +14,22 @@
  * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
--->
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <body>
-        <referenceContainer name="content">
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Edit"/>
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Edit\Form" name="taxclass-edit" template="tax/taxclass/edit.phtml"/>
-        </referenceContainer>
-    </body>
-</page>
+
+/**
+ * Admin tax class content block
+ */
+namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass;
+
+class Customer extends \Magento\Backend\Block\Widget\Grid\Container
+{
+    /**
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_controller = 'taxjar_taxclass_customer';
+        $this->_headerText = __('Manage Customer Tax Classes');
+        $this->_addButtonLabel = __('Add New Customer Tax Class');
+        parent::_construct();
+    }
+}

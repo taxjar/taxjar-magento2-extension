@@ -31,7 +31,7 @@ use Magento\Tax\Model\ClassModel;
  * Tax rate collection for a grid backed by Services
  */
 
-class TaxClassCollection extends AbstractServiceCollection
+class TaxClassCustomerCollection extends AbstractServiceCollection
 {
     /**
      * @var TaxClassRepositoryInterface
@@ -66,7 +66,7 @@ class TaxClassCollection extends AbstractServiceCollection
     {
         // @codingStandardsIgnoreEnd
         if (!$this->isLoaded()) {
-            $this->addFieldToFilter(ClassModel::KEY_TYPE, TaxClassManagementInterface::TYPE_PRODUCT);
+            $this->addFieldToFilter(ClassModel::KEY_TYPE, TaxClassManagementInterface::TYPE_CUSTOMER);
             $searchCriteria = $this->getSearchCriteria();
             $searchResults = $this->taxClassRepository->getList($searchCriteria);
             $this->_totalRecords = $searchResults->getTotalCount();

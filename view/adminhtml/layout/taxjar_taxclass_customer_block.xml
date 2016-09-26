@@ -18,16 +18,16 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceBlock name="adminhtml.block.taxjar.taxclass.container">
-            <block class="Magento\Backend\Block\Widget\Grid" name="adminhtml.block.taxjar.taxclass.grid" as="grid">
+        <referenceBlock name="adminhtml.block.taxjar.taxclass.customer.container">
+            <block class="Magento\Backend\Block\Widget\Grid" name="adminhtml.block.taxjar.taxclass.customer.grid" as="grid">
                 <arguments>
-                    <argument name="id" xsi:type="string">taxjar_taxclass_grid</argument>
-                    <argument name="dataSource" xsi:type="object">Taxjar\SalesTax\Model\Tax\TaxClassCollection</argument>
+                    <argument name="id" xsi:type="string">taxjar_taxclass_customer_grid</argument>
+                    <argument name="dataSource" xsi:type="object">Taxjar\SalesTax\Model\Tax\TaxClassCustomerCollection</argument>
                     <argument name="default_sort" xsi:type="string">class_name</argument>
                     <argument name="default_dir" xsi:type="string">ASC</argument>
                     <argument name="save_parameters_in_session" xsi:type="string">1</argument>
                 </arguments>
-                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="adminhtml.block.taxjar.taxclass.columnSet" as="grid.columnSet">
+                <block class="Magento\Backend\Block\Widget\Grid\ColumnSet" name="adminhtml.block.taxjar.taxclass.customer.columnSet" as="grid.columnSet">
                     <arguments>
                         <argument name="rowUrl" xsi:type="array">
                             <item name="path" xsi:type="string">taxjar/*/edit</item>
@@ -47,9 +47,10 @@
                     </block>
                     <block class="Magento\Backend\Block\Widget\Grid\Column" as="tj_salestax_code">
                         <arguments>
-                            <argument name="header" xsi:type="string" translate="true">TaxJar Category Code</argument>
+                            <argument name="header" xsi:type="string" translate="true">TaxJar Exempt</argument>
                             <argument name="filter_index" xsi:type="string">tj_salestax_code</argument>
                             <argument name="index" xsi:type="string">tj_salestax_code</argument>
+                            <argument name="renderer" xsi:type="string">Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Customer\Grid\Renderer\Exempt</argument>
                             <argument name="column_css_class" xsi:type="string">col-name</argument>
                             <argument name="header_css_class" xsi:type="string">col-name</argument>
                         </arguments>

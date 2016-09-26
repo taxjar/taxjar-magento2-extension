@@ -15,12 +15,12 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
+namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Controller\ResultFactory;
 
-class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
+class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
 {
     /**
      * @return \Magento\Backend\Model\View\Result\Page

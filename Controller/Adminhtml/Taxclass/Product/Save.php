@@ -15,11 +15,11 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
+namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product;
 
 use Magento\Framework\Controller\ResultFactory;
 
-class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
+class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
 {
     /**
      * @return \Magento\Backend\Model\View\Result\Page
@@ -49,6 +49,6 @@ class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
             $this->_objectManager->get('Magento\Backend\Model\Session')->setClassData($postData);
             return $resultRedirect->setUrl($this->_redirect->getRedirectUrl($this->getUrl('*')));
         }
-        return $resultRedirect->setPath('taxjar/taxClass');
+        return $resultRedirect->setPath('taxjar/taxclass_product');
     }
 }

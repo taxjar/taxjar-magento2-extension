@@ -18,21 +18,16 @@
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Config\Model\ResourceModel\Config;
-use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\ConfigurationFactory;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
-class ImportData implements ObserverInterface
-{
+class ImportCategories implements ObserverInterface
+{    
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -47,11 +42,6 @@ class ImportData implements ObserverInterface
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
     protected $reinitableConfig;
-    
-    /**
-     * @var \Magento\Directory\Model\RegionFactory
-     */
-    protected $regionFactory;
     
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
@@ -76,7 +66,6 @@ class ImportData implements ObserverInterface
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
-     * @param RegionFactory $regionFactory
      * @param ClientFactory $clientFactory
      * @param ConfigurationFactory $configFactory
      * @param ReinitableConfigInterface $reinitableConfig
@@ -84,14 +73,12 @@ class ImportData implements ObserverInterface
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
-        RegionFactory $regionFactory,
         ClientFactory $clientFactory,
         ConfigurationFactory $configFactory,
         ReinitableConfigInterface $reinitableConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
-        $this->regionFactory = $regionFactory;
         $this->clientFactory = $clientFactory;
         $this->configFactory = $configFactory;
         $this->reinitableConfig = $reinitableConfig;
@@ -107,74 +94,30 @@ class ImportData implements ObserverInterface
     {
         // @codingStandardsIgnoreEnd
         $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-        $region = $this->_getShippingRegion();
         
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
-            
-            if ($region->getCode()) {
-                $this->_setConfiguration();
-            } else {
-                throw new LocalizedException(__('Please check that you have set a Region/State in Shipping Settings.'));
-            }
+            $this->_importCategories();
         }
 
         return $this;
     }
     
     /**
-     * Get shipping region
+     * Get TaxJar product categories
      *
      * @return string
      */
-    private function _getShippingRegion()
+    private function _getCategoryJson()
     {
-        $region = $this->regionFactory->create();
-        $regionId = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID
-        );
-        $region->load($regionId);
-        return $region;
+        $categoryJson = $this->client->getResource($this->apiKey, 'categories');
+        return $categoryJson['categories'];
     }
-    
-    /**
-     * Get TaxJar user account configuration
-     *
-     * @return string
-     */
-    private function _getConfigJson()
-    {
-        $configJson = $this->client->getResource($this->apiKey, 'config');
-        return $configJson['configuration'];
-    }
-    
-    /**
-     * Set TaxJar config
-     *
-     * @param array $configJson
-     * @return void
-     */
-    private function _setConfiguration()
-    {
-        $config = $this->configFactory->create();
-        $configJson = $this->_getConfigJson();
-        $categoryJson = $this->_getCategoryJson();
 
-        $config->setTaxBasis($configJson);
-        $config->setDisplaySettings();
-        
-        $this->resourceConfig->saveConfig(
-            TaxjarConfig::TAXJAR_STATES,
-            serialize(explode(',', $configJson['states'])),
-            'default',
-            0
-        );
-        $this->resourceConfig->saveConfig(
-            TaxjarConfig::TAXJAR_FREIGHT_TAXABLE,
-            $configJson['freight_taxable'],
-            'default',
-            0
-        );
+    private function _importCategories()
+    {
+        $categoryJson = $this->_getCategoryJson();
+        $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CATEGORIES, json_encode($categoryJson), 'default', 0);
         $this->reinitableConfig->reinit();
     }
 }
