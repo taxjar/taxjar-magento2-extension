@@ -205,7 +205,7 @@ class ImportRates implements ObserverInterface
      */
     public function cron()
     {
-        $this->execute();
+        $this->execute(new Observer);
     }
     
     /**
