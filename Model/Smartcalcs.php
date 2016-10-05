@@ -17,6 +17,7 @@
 
 namespace Taxjar\SalesTax\Model;
 
+use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClient;
@@ -57,6 +58,11 @@ class Smartcalcs
     protected $taxClassRepository;
     
     /**
+     * @var \Magento\Framework\App\ProductMetadata
+     */
+    protected $productMetadata;
+    
+    /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -71,6 +77,7 @@ class Smartcalcs
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface
+     * @param ProductMetadata $productMetadata
      * @param ScopeConfigInterface $scopeConfig
      * @param ZendClientFactory $clientFactory
      */
@@ -80,12 +87,14 @@ class Smartcalcs
         NexusFactory $nexusFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface,
         ScopeConfigInterface $scopeConfig,
-        ZendClientFactory $clientFactory
+        ZendClientFactory $clientFactory,
+        ProductMetadata $productMetadata
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
         $this->nexusFactory = $nexusFactory;
         $this->taxClassRepository = $taxClassRepositoryInterface;
+        $this->productMetadata = $productMetadata;
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
     }
@@ -312,10 +321,28 @@ class Smartcalcs
                 if ($item->getType() == 'product') {
                     $id = $item->getCode();
                     $quantity = $item->getQuantity();
-                    $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
-                    $taxCode = $taxClass->getTjSalestaxCode();
                     $unitPrice = (float) $item->getUnitPrice();
                     $discount = (float) $item->getDiscountAmount();
+                    $extensionAttributes = $item->getExtensionAttributes();
+                    
+                    if ($item->getTaxClassKey()->getValue()) {
+                        $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
+                        $taxCode = $taxClass->getTjSalestaxCode();    
+                    }
+                    
+                    if ($this->productMetadata->getEdition() == 'Enterprise') {
+                        if ($extensionAttributes->getProductType() == \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD) {
+                            $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class');
+                            
+                            if ($giftTaxClassId) {
+                                $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
+                                $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
+                                $taxCode = $giftTaxClassCode;
+                            } else {
+                                $taxCode = '99999';
+                            }
+                        }
+                    }
 
                     array_push($lineItems, [
                         'id' => $id,

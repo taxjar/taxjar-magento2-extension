@@ -21,5 +21,6 @@
         <attribute code="tax_collectable" type="float" />
         <attribute code="combined_tax_rate" type="float" />
         <attribute code="jurisdiction_tax_rates" type="array" />
+        <attribute code="product_type" type="string" />
     </extension_attributes>
 </config>

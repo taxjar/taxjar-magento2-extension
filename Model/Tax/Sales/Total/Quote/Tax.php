@@ -277,6 +277,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         
         $extensionAttributes->setTaxCollectable($lineItemTax['tax_collectable']);
         $extensionAttributes->setCombinedTaxRate($lineItemTax['combined_tax_rate'] * 100);
+        $extensionAttributes->setProductType($item->getProductType());
         
         $jurisdictions = ['country', 'state', 'county', 'city', 'special', 'gst', 'pst', 'qst'];
         $jurisdictionRates = [];
