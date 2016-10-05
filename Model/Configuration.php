@@ -21,7 +21,7 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '0.5.2';
+    const TAXJAR_VERSION              = '0.6.0';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
     const TAXJAR_CATEGORIES           = 'tax/taxjar/categories';
