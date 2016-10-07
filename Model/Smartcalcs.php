@@ -324,6 +324,7 @@ class Smartcalcs
                     $unitPrice = (float) $item->getUnitPrice();
                     $discount = (float) $item->getDiscountAmount();
                     $extensionAttributes = $item->getExtensionAttributes();
+                    $taxCode = '';
                     
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
