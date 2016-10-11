@@ -294,11 +294,13 @@ class Smartcalcs
     private function _isCustomerExempt(
         \Magento\Quote\Model\Quote\Address $address
     ) {
-        $customerTaxClass = $this->taxClassRepository->get($address->getQuote()->getCustomerTaxClassId());
-        $customerTaxCode = $customerTaxClass->getTjSalestaxCode();
-        
-        if ($customerTaxCode == '99999') {
-            return true;
+        if ($address->getQuote()->getCustomerTaxClassId()) {
+            $customerTaxClass = $this->taxClassRepository->get($address->getQuote()->getCustomerTaxClassId());
+            $customerTaxCode = $customerTaxClass->getTjSalestaxCode();
+            
+            if ($customerTaxCode == '99999') {
+                return true;
+            }
         }
         
         return false;
