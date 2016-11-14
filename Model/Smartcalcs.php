@@ -61,7 +61,12 @@ class Smartcalcs
      * @var \Magento\Framework\App\ProductMetadata
      */
     protected $productMetadata;
-    
+
+    /**
+     * @var \Magento\Tax\Helper\Data $taxData
+     */
+    protected $taxData;
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -80,6 +85,7 @@ class Smartcalcs
      * @param ProductMetadata $productMetadata
      * @param ScopeConfigInterface $scopeConfig
      * @param ZendClientFactory $clientFactory
+     * @param \Magento\Tax\Helper\Data $taxData
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -88,7 +94,8 @@ class Smartcalcs
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface,
         ScopeConfigInterface $scopeConfig,
         ZendClientFactory $clientFactory,
-        ProductMetadata $productMetadata
+        ProductMetadata $productMetadata,
+        \Magento\Tax\Helper\Data $taxData
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -97,16 +104,19 @@ class Smartcalcs
         $this->productMetadata = $productMetadata;
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
+        $this->taxData = $taxData;
     }
     
     /**
      * Tax calculation for order
      *
+     * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteTaxDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @return void
      */
     public function getTaxForOrder(
+        \Magento\Quote\Model\Quote $quote,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteTaxDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
@@ -153,7 +163,7 @@ class Smartcalcs
 
         $order = array_merge($fromAddress, $toAddress, [
             'shipping' => (float) $address->getShippingAmount(),
-            'line_items' => $this->_getLineItems($quoteTaxDetails),
+            'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
             'nexus_addresses' => $this->_getNexusAddresses(),
             'plugin' => 'magento'
         ]);
@@ -309,13 +319,16 @@ class Smartcalcs
     /**
      * Get order line items
      *
+     * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteTaxDetails
      * @return array
      */
     private function _getLineItems(
+        \Magento\Quote\Model\Quote $quote,
         \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteTaxDetails
     ) {
         $lineItems = [];
+        $store = $quote->getStore();
         $items = $quoteTaxDetails->getItems();
 
         if (count($items) > 0) {
@@ -327,10 +340,14 @@ class Smartcalcs
                     $discount = (float) $item->getDiscountAmount();
                     $extensionAttributes = $item->getExtensionAttributes();
                     $taxCode = '';
-                    
+
+                    if (!$this->taxData->applyTaxAfterDiscount($store)) {
+                        $discount = 0;
+                    }
+
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
-                        $taxCode = $taxClass->getTjSalestaxCode();    
+                        $taxCode = $taxClass->getTjSalestaxCode();
                     }
                     
                     if ($this->productMetadata->getEdition() == 'Enterprise') {

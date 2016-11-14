@@ -118,7 +118,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         
         if ($isEnabled) {
             $baseQuoteTaxDetails = $this->getQuoteTaxDetailsInterface($shippingAssignment, $total, true);
-            $this->smartCalcs->getTaxForOrder($baseQuoteTaxDetails, $shippingAssignment);
+            $this->smartCalcs->getTaxForOrder($quote, $baseQuoteTaxDetails, $shippingAssignment);
         }
 
         if ($this->smartCalcs->isValidResponse()) {
