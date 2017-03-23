@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -26,7 +26,7 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Taxjar\SalesTax\Helper\Data
      */
@@ -51,21 +51,21 @@ class Category implements \Magento\Framework\Option\ArrayInterface
     {
         $categories = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CATEGORIES), true);
         $categories = $this->helper->sortArray($categories, 'product_tax_code', SORT_ASC);
-        
+
         $output = [
             [
                 'label' => 'None',
                 'value' => ''
             ]
         ];
-        
+
         foreach ($categories as $category) {
             $output[] = [
                 'label' => $category['name'] . ' (' . $category['product_tax_code'] . ')',
                 'value' => $category['product_tax_code']
             ];
         }
-        
+
         return $output;
     }
 }

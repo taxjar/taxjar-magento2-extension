@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -32,49 +32,49 @@ class Rate
      * @var \Magento\Framework\App\CacheInterface
      */
     protected $cache;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Tax\Model\Calculation\RateFactory
      */
     protected $rateFactory;
-    
+
     /**
      * @var \Magento\Tax\Api\TaxRateRepositoryInterface
      */
     protected $rateService;
-    
+
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
     protected $regionFactory;
-    
+
     /**
      * @var \Magento\Framework\Api\FilterBuilder
      */
     protected $filterBuilder;
-    
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     protected $searchCriteriaBuilder;
-    
+
     /**
      * @var \Magento\Framework\Unserialize\Unserialize
      */
     protected $unserialize;
-    
+
     /**
      * @param CacheInterface $cache
      * @param ScopeConfigInterface $scopeConfig
-     * @param MagentoTaxModelCalculationRateFactory $rateFactory
-     * @param MagentoTaxModelCalculationFactory $calculationFactory
+     * @param \Magento\Tax\Model\Calculation\RateFactory $rateFactory
+     * @param \Magento\Tax\Model\CalculationFactory $calculationFactory
      * @param TaxRateRepositoryInterface $rateService
-     * @param RegionFactory  $regionFactory
+     * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param Unserialize $unserialize
@@ -101,7 +101,7 @@ class Rate
         $this->unserialize = $unserialize;
         return $this;
     }
-    
+
     /**
      * Attempt to create a new rate from JSON data
      *
@@ -153,7 +153,7 @@ class Rate
             return;
         }
     }
-    
+
     /**
      * Get existing TaxJar rates based on configuration states
      *
@@ -170,7 +170,7 @@ class Rate
 
         return $this->rateService->getList($searchCriteria);
     }
-    
+
     /**
      * Get existing TaxJar rule calculations based on the rate ID
      *
@@ -182,7 +182,7 @@ class Rate
         $calculationModel = $this->_calculationFactory->create();
         $calculations = $calculationModel->getCollection()
                         ->addFieldToFilter('tax_calculation_rate_id', $rateId);
-        
+
         return $calculations;
     }
 

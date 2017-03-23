@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -29,12 +29,12 @@ class Customer implements \Magento\Framework\Option\ArrayInterface
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
      */
     protected $taxClassRepository;
-    
+
     /**
      * @var \Magento\Framework\Api\FilterBuilder
      */
     protected $filterBuilder;
-    
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
@@ -67,14 +67,14 @@ class Customer implements \Magento\Framework\Option\ArrayInterface
             ->create();
         $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
         $customerClasses = $this->taxClassRepository->getList($searchCriteria);
-        
+
         foreach ($customerClasses->getItems() as $taxClass) {
             $output[] = [
                 'value' => $taxClass->getClassId(),
                 'label' => $taxClass->getClassName(),
             ];
         }
-        
+
         return $output;
     }
 }

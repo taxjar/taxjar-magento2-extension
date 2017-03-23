@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -36,12 +36,12 @@ class Connect extends \Magento\Backend\App\AbstractAction
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     protected $resourceConfig;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
@@ -75,17 +75,23 @@ class Connect extends \Magento\Backend\App\AbstractAction
     {
         $apiKey = (string) $this->getRequest()->getParam('api_key');
         $apiEmail = (string) $this->getRequest()->getParam('api_email');
-        
+        $reportingAccess = (string) $this->getRequest()->getParam('reporting_access');
+
         if ($apiKey && $apiEmail) {
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_EMAIL, $apiEmail, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
+
+            if ($reportingAccess == 'true') {
+                $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH, 1, 'default', 0);
+            }
+
             $this->reinitableConfig->reinit();
-            $this->messageManager->addSuccess(__('TaxJar account for %1 is now connected.', $apiEmail));
+            $this->messageManager->addSuccessMessage(__('TaxJar account for %1 is now connected.', $apiEmail));
             $this->eventManager->dispatch('taxjar_salestax_import_categories');
         } else {
             // @codingStandardsIgnoreStart
-            $this->messageManager->addError(__('Could not connect your TaxJar account. Please make sure you have a valid API token and try again.'));
+            $this->messageManager->addErrorMessage(__('Could not connect your TaxJar account. Please make sure you have a valid API token and try again.'));
             // @codingStandardsIgnoreEnd
         }
 

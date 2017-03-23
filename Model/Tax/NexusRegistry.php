@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -29,21 +29,21 @@ class NexusRegistry
     /**
      * Nexus model factory
      *
-     * @var NexusModelFactory
+     * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
     private $nexusFactory;
 
     /**
      * Neuxs models
      *
-     * @var NexusModel[]
+     * @var array
      */
     private $nexusRegistryById = [];
 
     /**
      * Initialize dependencies
      *
-     * @param TaxClassModelFactory $taxClassModelFactory
+     * @param NexusFactory $nexusFactory
      */
     public function __construct(NexusFactory $nexusFactory)
     {
@@ -53,7 +53,7 @@ class NexusRegistry
     /**
      * Add nexus model to the registry
      *
-     * @param TaxClassModel $nexusModel
+     * @param Nexus $nexusModel
      * @return void
      */
     public function registerNexus(Nexus $nexusModel)
@@ -65,7 +65,7 @@ class NexusRegistry
      * Retrieve nexus model from the registry
      *
      * @param int $nexusId
-     * @return NexusModel
+     * @return \Taxjar\SalesTax\Model\Tax\Nexus
      * @throws NoSuchEntityException
      */
     public function retrieve($nexusId)
@@ -73,7 +73,7 @@ class NexusRegistry
         if (isset($this->nexusRegistryById[$nexusId])) {
             return $this->nexusRegistryById[$nexusId];
         }
-        /** @var TaxClassModel $taxClassModel */
+        /** @var \Taxjar\SalesTax\Model\Tax\Nexus $nexusModel */
         $nexusModel = $this->nexusFactory->create()->load($nexusId);
         if (!$nexusModel->getId()) {
             // Nexus address does not exist
@@ -86,7 +86,7 @@ class NexusRegistry
     /**
      * Remove an instance of the nexus model from the registry
      *
-     * @param int $taxClassId
+     * @param int $nexusId
      * @return void
      */
     public function remove($nexusId)

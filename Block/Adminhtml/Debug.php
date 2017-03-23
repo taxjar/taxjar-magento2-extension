@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -38,22 +38,22 @@ class Debug extends Field
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Framework\Module\ModuleListInterface
      */
     protected $moduleList;
-    
+
     /**
      * @var \Magento\Framework\App\ProductMetadata
      */
     protected $productMetadata;
-    
+
     /**
      * @var \Magento\Framework\Unserialize\Unserialize
      */
     protected $unserialize;
-    
+
     /**
      * @param Context $context
      * @param ModuleListInterface $moduleList
@@ -74,18 +74,18 @@ class Debug extends Field
         $this->unserialize = $unserialize;
         parent::__construct($context, $data);
     }
-    
+
     /**
      * Get the element HTML
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {
         return parent::_getElementHtml($element) . $this->_toHtml();
     }
-    
+
     /**
      * Debug mode enabled check
      *
@@ -101,7 +101,7 @@ class Debug extends Field
 
         return false;
     }
-    
+
     /**
      * Get list of backup rate states
      *
@@ -114,7 +114,7 @@ class Debug extends Field
             $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
         );
     }
-    
+
     /**
      * Get backup rate last updated date
      *
@@ -124,7 +124,7 @@ class Debug extends Field
     {
         return $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
     }
-    
+
     /**
      * Get extension version
      *
@@ -134,7 +134,7 @@ class Debug extends Field
     {
         return TaxjarConfig::TAXJAR_VERSION;
     }
-    
+
     /**
      * Get PHP version
      *
@@ -144,7 +144,7 @@ class Debug extends Field
     {
         return phpversion();
     }
-    
+
     /**
      * Get Magento version
      *
@@ -154,7 +154,7 @@ class Debug extends Field
     {
         return $this->productMetadata->getVersion();
     }
-    
+
     /**
      * Get PHP memory limit
      *

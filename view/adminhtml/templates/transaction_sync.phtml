@@ -1,0 +1,148 @@
+<?php
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<p class='note'><span>Sync orders and refunds with TaxJar for automated sales tax reporting and filing. Complete and closed transactions sync automatically on update.</span></p><br/>
+
+<?php if (!$block->isAuthorized() && $block->isConnected()) { ?>
+    <p><button type="button" class="scalable" onclick='openPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Upgrade Your TaxJar Account", 400, 520)'><span>Start Your Free 30 Day Trial</span></button></p>
+    <p class='note'><span>TaxJar Reports &amp; AutoFile requires a <a href="https://www.taxjar.com/pricing/" target="_blank">paid subscription</a>. Start your free reporting trial today to enable transaction sync. Already a subscriber? <a href="javascript:void(0)" onclick='openPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Upgrade Your TaxJar Account", 400, 520)'>Click here.</a></span></p>
+    <script>
+        require([
+            'jquery',
+            'popup'
+        ], function($, popup) {
+            $('#tax_taxjar_transactions').bind('DOMSubtreeModified', function(e) {
+                $(this).prop('disabled', true);
+            });
+
+            window.addEventListener('message', function(e) {
+                if (e.origin !== '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>')
+                    return;
+
+                try {
+                    var data = JSON.parse(e.data);
+                    if (data.reporting) {
+                        window.popup.postMessage('Data received', '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>');
+                        window.location = encodeURI('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/upgrade')) ?>');
+                    } else {
+                        throw 'Invalid data';
+                    }
+                } catch(e) {
+                    alert('Invalid reporting auth provided. Please try again or contact support@taxjar.com.');
+                }
+            }, false);
+        });
+    </script>
+<?php } ?>
+
+<?php if ($block->isEnabled()) { ?>
+    <p><button type="button" class="scalable" onclick="openTransactionSyncModal()"><span>Sync Transactions</span></button></p>
+    <script>
+        require([
+            'jquery',
+            'clipboard',
+            'Magento_Ui/js/modal/modal'
+        ], function($, clipboard, modal) {
+            var options = {
+                type: 'slide',
+                title: $.mage.__('Sync Transactions'),
+                buttons: [
+                    {
+                        text: $.mage.__('Sync to TaxJar'),
+                        class: 'action-primary',
+                        click: function(e) {
+                            var syncButton = $(e.target).closest('button');
+                            syncButton.prop('disabled', true);
+                            syncButton.find('span').text('Syncing...');
+                            backfillTransactions(syncButton);
+                        }
+                    }
+                ],
+                responsive: true,
+                innerScroll: true,
+                modalLeftMargin: 300
+            };
+
+            var popup = modal(options, $('#transaction-sync-modal'));
+            var copyButton = new clipboard('.copy-button');
+
+            copyButton.on('success', function(e) {
+                $(e.trigger).find('span').html('Copied!');
+                setTimeout(function() {
+                    $(e.trigger).find('span').html('Copy Output');
+                }, 2500);
+                e.clearSelection();
+            });
+
+            window.openTransactionSyncModal = function() {
+                $('#transaction-sync-modal').modal('openModal');
+            };
+
+            window.backfillTransactions = function(syncButton) {
+                var fromDate = $('#date_from').val();
+                var toDate = $('#date_to').val();
+
+                $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
+
+                $.ajax({
+                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
+                    method: 'GET',
+                    data: {
+                        from_date: fromDate,
+                        to_date: toDate
+                    }
+                }).done(function(data) {
+                    if (data.result) {
+                        $('#transaction-sync-log').find('> pre').html('');
+
+                        data.result.forEach(function(line) {
+                            $('#transaction-sync-log').find('> pre').append(line);
+                        });
+                    } else {
+                        $('#transaction-sync-log').find('> pre').html('Error: ' + data.error_message);
+                    }
+
+                    syncButton.prop('disabled', false);
+                    syncButton.find('span').text('Sync to TaxJar');
+                });
+            };
+        });
+    </script>
+
+    <div id="transaction-sync-modal" style="display: none">
+        <?php
+            echo $block->getLayout()
+                       ->createBlock('Taxjar\SalesTax\Block\Adminhtml\TransactionSync\Form')
+                       ->setTemplate('Taxjar_SalesTax::transaction_sync/form.phtml')
+                       ->toHtml();
+        ?>
+        <div class="admin__fieldset">
+            <div class="admin__field">
+                <label class="label admin__field-label">Output Log</label>
+                <div class="admin__field-control">
+                    <div id="transaction-sync-log" style="overflow: auto; max-height: 500px; margin-bottom: 1em; padding: 0 1em; border: 1px solid #e3e3e3; background: #f8f8f8">
+                        <pre style="overflow: visible">Awaiting sync! Click "Sync to TaxJar" to start syncing transactions.</pre>
+                    </div>
+                    <p><button type="button" class="copy-button scalable" data-clipboard-target="#transaction-sync-log"><span>Copy Output</span></button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php } ?>

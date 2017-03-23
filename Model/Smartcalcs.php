@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -20,7 +20,6 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
-use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -31,32 +30,32 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 class Smartcalcs
 {
     const API_URL = 'https://api.taxjar.com/v2';
-    
+
     /**
      * @var \Magento\Checkout\Model\Session
      */
     protected $checkoutSession;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
      */
     protected $clientFactory;
-    
+
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
     protected $regionFactory;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
     protected $nexusFactory;
-    
+
     /**
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
      */
     protected $taxClassRepository;
-    
+
     /**
      * @var \Magento\Framework\App\ProductMetadata
      */
@@ -71,20 +70,20 @@ class Smartcalcs
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Zend_Http_Response
      */
     protected $response;
-    
+
     /**
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface
-     * @param ProductMetadata $productMetadata
      * @param ScopeConfigInterface $scopeConfig
      * @param ZendClientFactory $clientFactory
+     * @param ProductMetadata $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      */
     public function __construct(
@@ -106,14 +105,14 @@ class Smartcalcs
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
     }
-    
+
     /**
      * Tax calculation for order
      *
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteTaxDetails
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @return void
+     * @return $this
      */
     public function getTaxForOrder(
         \Magento\Quote\Model\Quote $quote,
@@ -138,11 +137,11 @@ class Smartcalcs
         if (!count($address->getAllItems())) {
             return;
         }
-        
+
         if ($this->_isCustomerExempt($address)) {
             return;
         }
-        
+
         $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id');
 
         $fromAddress = [
@@ -173,7 +172,7 @@ class Smartcalcs
             $client->setUri(self::API_URL . '/magento/taxes');
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
-            
+
             $this->_setSessionData('order', json_encode($order));
 
             try {
@@ -187,7 +186,7 @@ class Smartcalcs
             }
         } else {
             $sessionResponse = $this->_getSessionData('response');
-            
+
             if (isset($sessionResponse)) {
                 $this->response = $sessionResponse;
             }
@@ -195,7 +194,7 @@ class Smartcalcs
 
         return $this;
     }
-    
+
     /**
      * Get the SmartCalcs API response
      *
@@ -214,7 +213,7 @@ class Smartcalcs
             ];
         }
     }
-    
+
     /**
      * Get a specific line item breakdown from a SmartCalcs API response
      *
@@ -229,14 +228,14 @@ class Smartcalcs
             if (isset($responseBody['tax']['breakdown']['line_items'])) {
                 $lineItems = $responseBody['tax']['breakdown']['line_items'];
                 $matchedKey = array_search($id, array_column($lineItems, 'id'));
-                
+
                 if (isset($lineItems[$matchedKey]) && $matchedKey !== false) {
                     return $lineItems[$matchedKey];
                 }
             }
         }
     }
-    
+
     /**
      * Get the shipping breakdown from a SmartCalcs API response
      *
@@ -246,7 +245,7 @@ class Smartcalcs
     {
         if ($this->response) {
             $responseBody = json_decode($this->response->getBody(), true);
-            
+
             if (isset($responseBody['tax']['breakdown']['shipping'])) {
                 return $responseBody['tax']['breakdown']['shipping'];
             }
@@ -261,11 +260,11 @@ class Smartcalcs
     public function isValidResponse()
     {
         $response = $this->getResponse();
-        
+
         if (isset($response['body']['tax']) && $response['status'] == 200) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -294,7 +293,7 @@ class Smartcalcs
 
         return false;
     }
-    
+
     /**
      * Verify if customer is exempt from sales tax
      *
@@ -307,15 +306,15 @@ class Smartcalcs
         if ($address->getQuote()->getCustomerTaxClassId()) {
             $customerTaxClass = $this->taxClassRepository->get($address->getQuote()->getCustomerTaxClassId());
             $customerTaxCode = $customerTaxClass->getTjSalestaxCode();
-            
+
             if ($customerTaxCode == '99999') {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get order line items
      *
@@ -349,11 +348,11 @@ class Smartcalcs
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
                     }
-                    
+
                     if ($this->productMetadata->getEdition() == 'Enterprise') {
                         if ($extensionAttributes->getProductType() == \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD) {
                             $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class');
-                            
+
                             if ($giftTaxClassId) {
                                 $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
                                 $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
@@ -377,7 +376,7 @@ class Smartcalcs
 
         return $lineItems;
     }
-    
+
     /**
      * Get international nexus addresses for `nexus_addresses` param
      *
@@ -387,7 +386,7 @@ class Smartcalcs
     {
         $nexusAddresses = $this->nexusFactory->create()->getCollection();
         $addresses = [];
-        
+
         foreach ($nexusAddresses as $nexusAddress) {
             $addresses[] = [
                 'id' => $nexusAddress->getId(),
@@ -398,7 +397,7 @@ class Smartcalcs
                 'street' => $nexusAddress->getStreet()
             ];
         }
-        
+
         return $addresses;
     }
 
@@ -418,7 +417,7 @@ class Smartcalcs
             return true;
         }
     }
-    
+
     /**
      * Get prefixed session data from checkout/session
      *
@@ -429,7 +428,7 @@ class Smartcalcs
     {
         return $this->checkoutSession->getData('taxjar_salestax_' . $key);
     }
-    
+
     /**
      * Set prefixed session data in checkout/session
      *
@@ -441,7 +440,7 @@ class Smartcalcs
     {
         return $this->checkoutSession->setData('taxjar_salestax_' . $key, $val);
     }
-    
+
     /**
      * Unset prefixed session data in checkout/session
      *

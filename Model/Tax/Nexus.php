@@ -11,14 +11,11 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Model\Tax;
-
-use Magento\Framework\Api\AttributeValueFactory;
-use Magento\Framework\Exception\CouldNotDeleteException;
 
 class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     \Taxjar\SalesTax\Api\Data\Tax\NexusInterface
@@ -76,7 +73,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_STREET);
     }
-    
+
     /**
      * Get nexus city
      *
@@ -86,7 +83,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_CITY);
     }
-    
+
     /**
      * Get country ID
      *
@@ -96,7 +93,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_COUNTRY_ID);
     }
-    
+
     /**
      * Get nexus region
      *
@@ -106,7 +103,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_REGION);
     }
-    
+
     /**
      * Get nexus region ID
      *
@@ -116,7 +113,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_REGION_ID);
     }
-    
+
     /**
      * Get nexus region code
      *
@@ -126,7 +123,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_REGION_CODE);
     }
-    
+
     /**
      * Get nexus postcode
      *
@@ -136,7 +133,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_POSTCODE);
     }
-    
+
     /**
      * Get nexus created at timestamp
      *
@@ -146,7 +143,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->getData(self::KEY_CREATED_AT);
     }
-    
+
     /**
      * Get nexus updated at timestamp
      *
@@ -189,7 +186,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_STREET, $street);
     }
-    
+
     /**
      * Set nexus city
      *
@@ -200,7 +197,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_CITY, $city);
     }
-    
+
     /**
      * Set nexus country ID
      *
@@ -211,7 +208,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_COUNTRY_ID, $countryId);
     }
-    
+
     /**
      * Set nexus region
      *
@@ -222,7 +219,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_REGION, $region);
     }
-    
+
     /**
      * Set nexus region ID
      *
@@ -233,7 +230,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_REGION_ID, $regionId);
     }
-    
+
     /**
      * Set nexus region code
      *
@@ -244,7 +241,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_REGION_CODE, $regionCode);
     }
-    
+
     /**
      * Set nexus postcode
      *
@@ -255,7 +252,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     {
         return $this->setData(self::KEY_POSTCODE, $postcode);
     }
-    
+
     /**
      * Set nexus created at timestamp
      *

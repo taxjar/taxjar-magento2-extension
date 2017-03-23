@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -27,6 +27,7 @@ use Magento\Framework\Unserialize\Unserialize;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Backend\Model\UrlInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Taxjar\SalesTax\Model\Import\RateFactory;
 
 class Backup extends Field
 {
@@ -36,7 +37,7 @@ class Backup extends Field
     // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::backup.phtml';
     // @codingStandardsIgnoreEnd
-    
+
     /**
      * @var \Magento\Framework\Config\CacheInterface
      */
@@ -76,15 +77,15 @@ class Backup extends Field
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     protected $searchCriteriaBuilder;
-    
+
     /**
      * @var \Magento\Framework\Unserialize\Unserialize
      */
     protected $unserialize;
-    
+
     /**
      * @param Context $context
-     * @param TaxjarSalesTaxModelImportRateFactory $importRateFactory
+     * @param RateFactory $importRateFactory
      * @param TaxRateRepositoryInterface $rateService
      * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
@@ -95,7 +96,7 @@ class Backup extends Field
      */
     public function __construct(
         Context $context,
-        \Taxjar\SalesTax\Model\Import\RateFactory $importRateFactory,
+        RateFactory $importRateFactory,
         TaxRateRepositoryInterface $rateService,
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
@@ -117,31 +118,31 @@ class Backup extends Field
         $region = $this->regionFactory->create();
         $regionId = $this->scopeConfig->getValue('shipping/origin/region_id');
         $this->_regionCode = $region->load($regionId)->getCode();
-        
+
         parent::__construct($context, $data);
     }
-    
+
     /**
      * Get the element HTML
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {
         $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-        
+
         if ($apiKey) {
             $this->_cacheElementValue($element);
         }
 
         return parent::_getElementHtml($element) . $this->_toHtml();
     }
-    
+
     /**
      * Cache the element value
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return void
      */
     protected function _cacheElementValue(AbstractElement $element)
@@ -149,7 +150,7 @@ class Backup extends Field
         $elementValue = (string) $element->getValue();
         $this->cache->save($elementValue, 'taxjar_salestax_config_backup');
     }
-    
+
     /**
      * Backup rates enabled check
      *
@@ -169,8 +170,6 @@ class Backup extends Field
     /**
      * Build HTML list of states
      *
-     * @param string $states
-     * @param string $regionCode
      * @return string
      */
     public function getStateList()
@@ -187,18 +186,18 @@ class Backup extends Field
         foreach (array_unique($states) as $state) {
             $statesHtml .= $this->_getStateListItem($taxRatesByState, $state);
         }
-        
+
         if ($taxRatesByState['rates_loaded'] != $taxRatesByState['total_rates']) {
             $matches = 'error';
         } else {
             $matches = 'success';
         }
-        
+
         $statesHtml .= '<p class="' . $matches . '-msg" style="background: none !important;">';
         $statesHtml .= '<small>&nbsp;&nbsp;' . number_format($taxRatesByState['total_rates']);
         $statesHtml .= ' of ' . number_format($taxRatesByState['rates_loaded']);
         $statesHtml .= ' expected rates loaded.</small></p>';
-        
+
         if (!empty($lastUpdate)) {
             $statesHtml .= '<p class="' . $matches . '-msg" style="background: none !important;">';
             $statesHtml .= '<small>&nbsp;&nbsp;' . 'Last synced on ' . $lastUpdate . '.</small>';
@@ -207,7 +206,7 @@ class Backup extends Field
 
         return $statesHtml;
     }
-    
+
     /**
      * Get store URL
      *
@@ -219,7 +218,7 @@ class Backup extends Field
     {
         return $this->backendUrl->getUrl($route, $params);
     }
-    
+
     /**
      * Get region name from region code
      *
@@ -231,11 +230,11 @@ class Backup extends Field
         $region = $this->regionFactory->create();
         return $region->loadByCode($regionCode, 'US')->getDefaultName();
     }
-    
+
     /**
      * Generate state list item
      *
-     * @param array $taxRatesByState
+     * @param array $rates
      * @param string $state
      * @return string
      */
@@ -243,7 +242,7 @@ class Backup extends Field
     {
         $originResourceUrl = 'http://blog.taxjar.com/charging-sales-tax-rates/';
         $nexusUrl = $this->getUrl('taxjar/nexus/index');
-        
+
         if (($name = $this->_getStateName($state)) && !empty($name)) {
             if ($rates['rates_by_state'][$state] == 1 && ($rates['rates_loaded'] == $rates['total_rates'])) {
                 $class = 'success';
@@ -255,13 +254,15 @@ class Backup extends Field
                 $class = 'success';
                 $total = number_format($rates['rates_by_state'][$state]) . ' rates';
             }
-            
+
             $itemClass = "message message-{$class} {$class}";
 
             return "<div class='{$itemClass}'><span style='font-size: 1.2em'>{$name}</span>: {$total}</div>";
         }
+
+        return '';
     }
-    
+
     /**
      * Get the number of rates loaded
      *
@@ -280,10 +281,10 @@ class Backup extends Field
                 ->setValue($regionId)
                 ->create();
             $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
-            
+
             $ratesByState[$state] = $this->rateService->getList($searchCriteria)->getTotalCount();
         }
-        
+
         $importRateModel = $this->importRateFactory->create();
 
         $rateCalcs = [

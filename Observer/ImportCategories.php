@@ -11,10 +11,10 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
- 
+
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Config\Model\ResourceModel\Config;
@@ -32,12 +32,12 @@ class ImportCategories implements ObserverInterface
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     protected $resourceConfig;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
@@ -47,22 +47,22 @@ class ImportCategories implements ObserverInterface
      * @var \Taxjar\SalesTax\Model\ClientFactory
      */
     protected $clientFactory;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\ConfigurationFactory
      */
     protected $configFactory;
-    
+
     /**
      * @var string
      */
     protected $apiKey;
-    
+
     /**
      * @var string
      */
     protected $client;
-    
+
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
@@ -83,7 +83,7 @@ class ImportCategories implements ObserverInterface
         $this->configFactory = $configFactory;
         $this->reinitableConfig = $reinitableConfig;
     }
-    
+
     /**
      * @param  Observer $observer
      * @return $this
@@ -94,7 +94,7 @@ class ImportCategories implements ObserverInterface
     {
         // @codingStandardsIgnoreEnd
         $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-        
+
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
             $this->_importCategories();
@@ -102,7 +102,7 @@ class ImportCategories implements ObserverInterface
 
         return $this;
     }
-    
+
     /**
      * Get TaxJar product categories
      *
@@ -110,7 +110,7 @@ class ImportCategories implements ObserverInterface
      */
     private function _getCategoryJson()
     {
-        $categoryJson = $this->client->getResource($this->apiKey, 'categories');
+        $categoryJson = $this->client->getResource('categories');
         return $categoryJson['categories'];
     }
 

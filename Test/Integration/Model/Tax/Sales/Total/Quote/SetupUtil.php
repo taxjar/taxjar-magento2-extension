@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -126,7 +126,7 @@ class SetupUtil
             'id' => null,
         ],
     ];
-    
+
     const PRODUCT_TYPE_BUNDLE = \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE;
     const PRODUCT_TYPE_CONFIGURABLE = \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE;
     const PRODUCT_TYPE_SIMPLE = \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE;
@@ -147,7 +147,7 @@ class SetupUtil
         self::PRODUCT_GROCERY_TAX_CLASS => null,
         self::SHIPPING_TAX_CLASS => null,
     ];
-    
+
     /**
      * Product tax class metadata such as TaxJar category tax codes
      *
@@ -185,7 +185,7 @@ class SetupUtil
     const TAX_RATE_OVERRIDES = 'tax_rate_overrides';
     const TAX_RULE_OVERRIDES = 'tax_rule_overrides';
     const NEXUS_OVERRIDES = 'nexus_overrides';
-    
+
     /**
      * Nexus address defaults
      *
@@ -236,7 +236,7 @@ class SetupUtil
         'stop_rules_processing' => 1,
         'website_ids' => [1],
     ];
-    
+
     protected $configurableProductAttributes;
 
     /**
@@ -550,7 +550,7 @@ class SetupUtil
 
         //Create tax rules
         $this->createTaxRules($overrides);
-        
+
         //Create nexus addresses
         $this->createNexusAddresses($overrides);
 
@@ -566,6 +566,7 @@ class SetupUtil
      * @param string $sku
      * @param float $price
      * @param int $taxClassId
+     * @param array $attributes
      * @return \Magento\Catalog\Model\Product
      */
     public function createSimpleProduct($sku, $price, $taxClassId, $attributes = [])
@@ -591,17 +592,17 @@ class SetupUtil
             ->setMetaDescription('meta description')
             ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
             ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
-            
+
         foreach ($attributes as $attributeKey => $attribute) {
             $product->setData($attributeKey, $attribute);
         }
-        
+
         $product->save();
 
         $product = $product->load($product->getId());
         return $product;
     }
-    
+
     public function createConfigurableProduct($sku, $price, $taxClassId, $itemData)
     {
         /* Create simple products per each option value*/
@@ -652,7 +653,7 @@ class SetupUtil
 
         return $product;
     }
-    
+
     protected function createConfigurableProductAttribute($attributeCode, $options)
     {
         $eavConfig = $this->objectManager->get('Magento\Eav\Model\Config');
@@ -703,12 +704,12 @@ class SetupUtil
         /** @var \Magento\Eav\Model\Config $eavConfig */
         $eavConfig = $this->objectManager->get('Magento\Eav\Model\Config');
         $eavConfig->clear();
-        
+
         $this->configurableProductAttributes[$attributeCode] = $attribute;
-        
+
         return $attribute;
     }
-    
+
     protected function createConfigurableProductRequestInfo($qty)
     {
         $attribute = $this->configurableProductAttributes['test_attribute'];
@@ -716,14 +717,14 @@ class SetupUtil
         $superAttributes = [];
 
         array_shift($options);
-        
+
         $superAttributes[$attribute->getId()] = $options[0]->getValue();
 
         $requestInfo = new \Magento\Framework\DataObject([
             'qty' => $qty,
             'super_attribute' => $superAttributes
         ]);
-        
+
         return $requestInfo;
     }
 
@@ -879,7 +880,7 @@ class SetupUtil
             $taxClassName =
                 isset($itemData['tax_class_name']) ? $itemData['tax_class_name'] : self::PRODUCT_DEFAULT_TAX_CLASS;
             $taxClassId = $this->productTaxClasses[$taxClassName];
-            
+
             switch ($itemData['type']) {
                 case self::PRODUCT_TYPE_CONFIGURABLE:
                     $product = $this->createConfigurableProduct($sku, $price, $taxClassId, $itemData);
@@ -891,7 +892,7 @@ class SetupUtil
                     break;
             }
 
-            $addProduct = $quote->addProduct($product, $request);
+            $quote->addProduct($product, $request);
         }
         return $this;
     }
@@ -919,7 +920,7 @@ class SetupUtil
                 ->save();
             $quote->getShippingAddress()->setCollectShippingRates(true);
         }
-        
+
         if (isset($quoteData['currency'])) {
             $this->addCurrencyToQuote($quote, $quoteData['currency']);
         }
@@ -934,7 +935,7 @@ class SetupUtil
 
         return $quote;
     }
-    
+
     /**
      * Create nexus addresses
      *
@@ -953,19 +954,19 @@ class SetupUtil
                 ->setCountryId($address['country_id'])
                 ->setRegion($address['region'])
                 ->setPostcode($address['postcode']);
-                
+
             if (isset($address['region_id'])) {
                 $nexusModel->setRegionId($address['region_id']);
             }
-            
+
             if (isset($address['region_code'])) {
                 $nexusModel->setRegionCode($address['region_code']);
             }
-            
+
             $nexusModel->save();
         }
     }
-    
+
     /**
      * Add currency with conversion rate to quote
      *
@@ -979,7 +980,7 @@ class SetupUtil
         $baseCurrencyCode = $currencyData['base_code'];
         $activeCurrencyCode = $currencyData['active_code'];
         $conversionRate = $currencyData['conversion_rate'];
-        
+
         $currency->saveRates([
             $baseCurrencyCode => [
                 $activeCurrencyCode => $conversionRate

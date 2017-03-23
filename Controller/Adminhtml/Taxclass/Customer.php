@@ -11,13 +11,11 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
-
-use Magento\Framework\Controller\ResultFactory;
 
 abstract class Customer extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
 {
@@ -47,7 +45,7 @@ abstract class Customer extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
         $resultPage->setActiveMenu('Taxjar_SalesTax::customer_tax_classes');
         return $resultPage;
     }
-    
+
     /**
      * Initialize tax class service object with form data.
      *

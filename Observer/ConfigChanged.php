@@ -11,10 +11,10 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
- 
+
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Framework\App\CacheInterface;
@@ -30,17 +30,17 @@ class ConfigChanged implements ObserverInterface
      * @var \Magento\Framework\App\CacheInterface
      */
     protected $cache;
-    
+
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
     protected $eventManager;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @param CacheInterface $cache
      * @param ManagerInterface $eventManager
@@ -55,7 +55,7 @@ class ConfigChanged implements ObserverInterface
         $this->eventManager = $eventManager;
         $this->scopeConfig = $scopeConfig;
     }
-    
+
     /**
      * @param Observer $observer
      * @return $this
@@ -69,7 +69,7 @@ class ConfigChanged implements ObserverInterface
         $this->_updateBackupRates();
         return $this;
     }
-    
+
     /**
      * @return void
      */
@@ -85,7 +85,7 @@ class ConfigChanged implements ObserverInterface
             }
         }
     }
-    
+
     /**
      * @return void
      */

@@ -20,6 +20,13 @@ bin/magento setup:upgrade
 bin/magento setup:di:compile
 ```
 
+If the orange `Connect to TaxJar` button is unresponsive, you may need to clear and recompile your static content. Run the following commands:
+
+```
+rm -rf pub/static/*
+bin/magento setup:static-content:deploy
+```
+
 These commands will enable the TaxJar extension, perform necessary database updates, and re-compile your Magento store. From there, you'll want to run through the pre-import checklist and set everything up using our [extension guide](http://www.taxjar.com/guides/integrations/magento2/)).
 
 ## Tests

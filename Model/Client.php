@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -20,30 +20,44 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Client
 {
+    /**
+     * @var string
+     */
     const API_URL = 'https://api.taxjar.com/v2';
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
+    /**
+     * @var string
+     */
+    protected $apiKey;
+
     /**
      * @var string
      */
     protected $storeZip;
-    
+
     /**
      * @var string
      */
     protected $storeRegionCode;
-    
+
     /**
      * @var \Magento\Directory\Model\CountryFactory
      */
     protected $regionFactory;
+
+    /**
+     * @var bool
+     */
+    protected $showResponseErrors;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -55,122 +69,128 @@ class Client
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->regionFactory = $regionFactory;
+        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
         $region = $this->_getShippingRegion();
         $this->storeRegionCode = $region->getCode();
     }
-    
+
     /**
      * Perform a GET request
      *
-     * @param string $apiKey
-     * @param string $url
+     * @param string $resource
      * @param array $errors
      * @return array
      */
-    public function getResource($apiKey, $resource, $errors = [])
+    public function getResource($resource, $errors = [])
     {
-        $client = $this->_getClient($apiKey, $this->_getApiUrl($resource));
+        $client = $this->getClient($this->_getApiUrl($resource));
         return $this->_getRequest($client, $errors);
     }
 
     /**
      * Perform a POST request
      *
-     * @param string $apiKey
      * @param string $resource
      * @param array $data
      * @param array $errors
      * @return array
      */
-    public function postResource($apiKey, $resource, $data, $errors = [])
+    public function postResource($resource, $data, $errors = [])
     {
-        $client = $this->_getClient($apiKey, $this->_getApiUrl($resource), \Zend_Http_Client::POST);
+        $client = $this->getClient($this->_getApiUrl($resource), \Zend_Http_Client::POST);
         $client->setRawData(json_encode($data), 'application/json');
         return $this->_getRequest($client, $errors);
     }
-    
+
     /**
      * Perform a PUT request
      *
-     * @param string $apiKey
      * @param string $resource
      * @param int $resourceId
      * @param array $data
      * @param array $errors
      * @return array
      */
-    public function putResource($apiKey, $resource, $resourceId, $data, $errors = [])
+    public function putResource($resource, $resourceId, $data, $errors = [])
     {
         $resourceUrl = $this->_getApiUrl($resource) . '/' . $resourceId;
-        $client = $this->_getClient($apiKey, $resourceUrl, \Zend_Http_Client::PUT);
+        $client = $this->getClient($resourceUrl, \Zend_Http_Client::PUT);
         $client->setRawData(json_encode($data), 'application/json');
         return $this->_getRequest($client, $errors);
     }
-    
+
     /**
      * Perform a DELETE request
      *
-     * @param string $apiKey
      * @param string $resource
      * @param int $resourceId
      * @param array $errors
      * @return array
      */
-    public function deleteResource($apiKey, $resource, $resourceId, $errors = [])
+    public function deleteResource($resource, $resourceId, $errors = [])
     {
         $resourceUrl = $this->_getApiUrl($resource) . '/' . $resourceId;
-        $client = $this->_getClient($apiKey, $resourceUrl, \Zend_Http_Client::DELETE);
+        $client = $this->getClient($resourceUrl, \Zend_Http_Client::DELETE);
         return $this->_getRequest($client, $errors);
+    }
+
+    /**
+     * @param bool $toggle
+     * @return void
+     */
+    public function showResponseErrors($toggle)
+    {
+        $this->showResponseErrors = $toggle;
     }
 
     /**
      * Get HTTP Client
      *
-     * @param string $apiKey
      * @param string $url
      * @param string $method
-     * @return ZendClient $response
+     * @return \Zend_Http_Client $client
      */
-    private function _getClient($apiKey, $url, $method = \Zend_Http_Client::GET)
+    private function getClient($url, $method = \Zend_Http_Client::GET)
     {
         // @codingStandardsIgnoreStart
         $client = new \Zend_Http_Client($url);
         // @codingStandardsIgnoreEnd
         $client->setUri($url);
         $client->setMethod($method);
-        $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
+        $client->setHeaders('Authorization', 'Bearer ' . $this->apiKey);
 
         return $client;
     }
-    
+
     /**
      * Get HTTP request
      *
-     * @param Varien_Http_Client $client
+     * @param \Zend_Http_Client $client
      * @param array $errors
      * @return array
+     * @throws LocalizedException
      */
     private function _getRequest($client, $errors = [])
     {
         try {
             $response = $client->request();
-            
+
             if ($response->isSuccessful()) {
                 $json = $response->getBody();
                 return json_decode($json, true);
             } else {
-                $this->_handleError($errors, $response->getStatus());
+                $this->_handleError($errors, $response);
             }
         } catch (\Zend_Http_Client_Exception $e) {
             throw new LocalizedException(__('Could not connect to TaxJar.'));
         }
     }
-    
+
     /**
      * Get SmartCalcs API URL
      *
-     * @param string $type
+     * @param string $resource
      * @return string
      */
     private function _getApiUrl($resource)
@@ -190,11 +210,17 @@ class Client
             case 'nexus':
                 $apiUrl .= '/nexus/addresses';
                 break;
+            case 'orders':
+                $apiUrl .= '/transactions/orders';
+                break;
+            case 'refunds':
+                $apiUrl .= '/transactions/refunds';
+                break;
         }
-        
+
         return $apiUrl;
     }
-    
+
     /**
      * Get shipping region
      *
@@ -209,25 +235,27 @@ class Client
         $region->load($regionId);
         return $region;
     }
-    
+
     /**
      * Handle API errors and throw exception
      *
      * @param array $customErrors
-     * @param string $statusCode
-     * @return string
+     * @param \Zend_Http_Response $response
+     * @return void
+     * @throws LocalizedException
      */
-    private function _handleError($customErrors, $statusCode)
+    private function _handleError($customErrors, $response)
     {
         $errors = $this->_defaultErrors() + $customErrors;
-        
-        if (isset($errors[$statusCode])) {
-            throw new LocalizedException($errors[$statusCode]);
-        } else {
-            throw new LocalizedException($errors['default']);
+        $statusCode = $response->getStatus();
+
+        if ($this->showResponseErrors) {
+            throw new LocalizedException(__($response->getBody()));
         }
+
+        throw new LocalizedException($errors[$statusCode] || $errors['default']);
     }
-    
+
     /**
      * Return default API errors
      *
@@ -237,7 +265,7 @@ class Client
     {
         // @codingStandardsIgnoreStart
         return [
-            '401' => __('Your TaxJar API token is invalid. Please review your TaxJar account at https://app.taxjar.com.'),
+            '401' => __('Your TaxJar API token is invalid. Please review your TaxJar account at %1.', TaxjarConfig::TAXJAR_AUTH_URL),
             'default' => __('Could not connect to TaxJar.')
         ];
         // @codingStandardsIgnoreEnd

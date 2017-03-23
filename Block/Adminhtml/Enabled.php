@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -19,11 +19,10 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
-use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
-class Enabled extends Field
+class Enabled extends PopupField
 {
     /**
      * @var string
@@ -31,40 +30,39 @@ class Enabled extends Field
     // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::enabled.phtml';
     // @codingStandardsIgnoreEnd
-  
+
     /**
      * @var \Magento\Backend\Model\UrlInterface
      */
     protected $backendUrl;
-  
+
     /**
      * @var \Magento\Framework\Config\CacheInterface
      */
     protected $cache;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Framework\App\RequestInterface
      */
     protected $request;
-    
+
     /**
      * @var string
      */
     protected $apiKey;
-    
+
     /**
      * @var string
      */
     protected $apiEmail;
-    
+
     /**
      * @param Context $context
-     * @param RequestInterface $httpRequest
      * @param UrlInterface $backendUrl
      * @param array $data
      */
@@ -77,20 +75,20 @@ class Enabled extends Field
         $this->request = $context->getRequest();
         $this->scopeConfig = $context->getScopeConfig();
         $this->backendUrl = $backendUrl;
-        parent::__construct($context, $data);
+        parent::__construct($context, $backendUrl, $data);
     }
-    
+
     /**
      * Get the element HTML
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {
         $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $this->apiEmail = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_EMAIL));
-        
+
         if (!$this->apiKey) {
             $element->setDisabled('disabled');
         } else {
@@ -99,11 +97,11 @@ class Enabled extends Field
 
         return parent::_getElementHtml($element) . $this->_toHtml();
     }
-    
+
     /**
      * Cache the element value
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return void
      */
     protected function _cacheElementValue(AbstractElement $element)
@@ -111,7 +109,7 @@ class Enabled extends Field
         $elementValue = (string) $element->getValue();
         $this->cache->save($elementValue, 'taxjar_salestax_config_enabled');
     }
-    
+
     /**
      * Connected check
      *
@@ -124,7 +122,7 @@ class Enabled extends Field
         }
         return false;
     }
-    
+
     /**
      * Get API email
      *
@@ -134,29 +132,7 @@ class Enabled extends Field
     {
         return $this->apiEmail;
     }
-    
-    /**
-     * Get store URL
-     *
-     * @param string $route
-     * @param array $params
-     * @return string
-     */
-    public function getStoreUrl($route, $params = [])
-    {
-        return $this->backendUrl->getUrl($route, $params);
-    }
-    
-    /**
-     * Get reporting app auth URL
-     *
-     * @return string
-     */
-    public function getAuthUrl()
-    {
-        return 'https://app.taxjar.com';
-    }
-    
+
     /**
      * Get popup URL
      *
@@ -164,40 +140,14 @@ class Enabled extends Field
      */
     public function getPopupUrl()
     {
-        $popupUrl = $this->getAuthUrl() . '/smartcalcs/connect/magento/?store=' . urlencode($this->_getStoreOrigin());
-      
-        if ($this->_getStoreGeneralEmail()) {
-            $popupUrl .= '&email=' . urlencode($this->_getStoreGeneralEmail());
+        $popupUrl = $this->getAuthUrl() . '/smartcalcs/connect/magento/?store=' . urlencode($this->getStoreOrigin());
+
+        if ($this->getStoreGeneralEmail()) {
+            $popupUrl .= '&email=' . urlencode($this->getStoreGeneralEmail());
         }
-        
+
         $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
-      
+
         return $popupUrl;
-    }
-    
-    /**
-     * Get current store origin
-     *
-     * @return string
-     */
-    private function _getStoreOrigin()
-    {
-        $protocol = $this->request->isSecure() ? 'https://' : 'http://';
-        return $protocol . $this->request->getHttpHost(false);
-    }
-    
-    /**
-     * Get store general contact email if non-default
-     *
-     * @return string
-     */
-    private function _getStoreGeneralEmail()
-    {
-        $email = $this->scopeConfig->getValue('trans_email/ident_general/email');
-        if ($email != 'owner@example.com') {
-            return $email;
-        } else {
-            return '';
-        }
     }
 }

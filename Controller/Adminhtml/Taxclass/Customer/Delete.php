@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -31,15 +31,15 @@ class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
         $taxClassId = (int)$this->getRequest()->getParam('class');
         try {
             $this->taxClassService->deleteById($taxClassId);
-            $this->messageManager->addSuccess(__('The customer tax class has been deleted.'));
+            $this->messageManager->addSuccessMessage(__('The customer tax class has been deleted.'));
             return $resultRedirect->setPath('taxjar/*/');
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            $this->messageManager->addError(__('This customer tax class no longer exists.'));
+            $this->messageManager->addErrorMessage(__('This customer tax class no longer exists.'));
             return $resultRedirect->setPath('taxjar/*/');
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('Something went wrong deleting this customer tax class.'));
+            $this->messageManager->addErrorMessage(__('Something went wrong deleting this customer tax class.'));
         }
 
         return $resultRedirect->setUrl($this->_redirect->getRedirectUrl($this->getUrl('*')));

@@ -11,10 +11,10 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
- 
+
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Framework\App\CacheInterface;
@@ -31,32 +31,32 @@ class ConfigReview implements ObserverInterface
      * @var \Magento\Framework\App\Request\Http
      */
     protected $request;
-    
+
     /**
      * @var \Magento\Framework\App\CacheInterface
      */
     protected $cache;
-    
+
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
     protected $eventManager;
-    
+
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
     protected $messageManager;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
      */
     protected $nexusFactory;
-    
+
     /**
      * @param \Magento\Framework\App\Request\Http $request
      * @param CacheInterface $cache
@@ -91,10 +91,10 @@ class ConfigReview implements ObserverInterface
     {
         // @codingStandardsIgnoreEnd
         $configSection = $this->request->getParam('section');
-        
+
         if ($configSection == 'tax') {
             $enabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
-            
+
             if ($enabled) {
                 $this->_reviewNexusAddresses();
             }
@@ -102,7 +102,7 @@ class ConfigReview implements ObserverInterface
 
         return $this;
     }
-    
+
     /**
      * @return void
      * @SuppressWarnings(Generic.Files.LineLength.TooLong)
@@ -110,10 +110,10 @@ class ConfigReview implements ObserverInterface
     private function _reviewNexusAddresses()
     {
         $nexusAddresses = $this->nexusFactory->create()->getCollection();
-        
+
         if (!$nexusAddresses->getSize()) {
             // @codingStandardsIgnoreStart
-            $this->messageManager->addError(__('You have no nexus addresses loaded in Magento. Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'));
+            $this->messageManager->addErrorMessage(__('You have no nexus addresses loaded in Magento. Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'));
             // @codingStandardsIgnoreEnd
         }
     }

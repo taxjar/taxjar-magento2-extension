@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -77,9 +77,9 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param NexusCollectionFactory $nexusCollectionFactory
-     * @param \Magento\Tax\Api\Data\TaxClassSearchResultsInterfaceFactory $searchResultsFactory
-     * @param ClassModelRegistry $classModelRegistry
-     * @param \Magento\Tax\Model\ResourceModel\TaxClass $taxClassResource
+     * @param \Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterfaceFactory $searchResultsFactory
+     * @param NexusRegistry $nexusRegistry
+     * @param \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus $nexusResource
      * @param \Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface $joinProcessor
      */
     public function __construct(
@@ -176,34 +176,34 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         // @codingStandardsIgnoreEnd
 
         if (!\Zend_Validate::is(trim($nexus->getStreet()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_STREET]));
+            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_STREET]));
         }
-        
+
         if (!\Zend_Validate::is(trim($nexus->getCity()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_CITY]));
+            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_CITY]));
         }
-        
+
         if (!\Zend_Validate::is(trim($nexus->getCountryId()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
+            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
         }
-        
+
         if (!\Zend_Validate::is(trim($nexus->getPostcode()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
+            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
         }
-        
+
         if (!$nexus->getId()) {
             $filter = $this->filterBuilder
                 ->setField('country_id')
                 ->setValue($nexus->getCountryId())
                 ->create();
             $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
-            
+
             $countryAddresses = $this->getList($searchCriteria);
-            
+
             if ($countryAddresses->getTotalCount()
             && $nexus->getCountryId() != 'US'
             && $nexus->getCountryId() != 'CA') {
-                $exception->addError(__('Only one address per country (outside of US/CA) is currently supported.'));
+                $exception->addErrorMessage(__('Only one address per country (outside of US/CA) is currently supported.'));
             }
         }
 

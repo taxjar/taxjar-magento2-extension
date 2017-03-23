@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -27,9 +27,9 @@ class Index extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
         $resultPage = $this->initResultPage();
         $resultPage->addBreadcrumb(__('Manage Nexus Addresses'), __('Manage Nexus Addresses'));
         $resultPage->getConfig()->getTitle()->prepend(__('Nexus Addresses'));
-        
+
         $this->_reviewNexusAddresses();
-        
+
         return $resultPage;
     }
 }

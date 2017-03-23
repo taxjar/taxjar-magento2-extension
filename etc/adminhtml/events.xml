@@ -12,7 +12,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 -->
@@ -22,6 +22,12 @@
     </event>
     <event name="controller_action_predispatch_adminhtml_system_config_edit">
         <observer name="taxjar_salestax_config_review" instance="Taxjar\SalesTax\Observer\ConfigReview"/>
+    </event>
+    <event name="sales_order_save_after">
+        <observer name="taxjar_salestax_sync_transaction" instance="Taxjar\SalesTax\Observer\SyncTransaction"/>
+    </event>
+    <event name="taxjar_salestax_backfill_transactions">
+        <observer name="taxjar_salestax_backfill_transactions" instance="Taxjar\SalesTax\Observer\BackfillTransactions"/>
     </event>
     <event name="taxjar_salestax_import_categories">
         <observer name="taxjar_salestax_import_categories" instance="Taxjar\SalesTax\Observer\ImportCategories"/>

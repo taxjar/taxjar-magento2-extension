@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -26,7 +26,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
     {
         $this->_init('Taxjar\SalesTax\Model\Tax\Nexus', 'Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus');
     }
-    
+
     /**
      * Retrieve option array
      *
@@ -46,7 +46,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
     {
         return $this->_toOptionHash('id', 'region');
     }
-    
+
     /**
      * Filter by region_id
      *
@@ -64,11 +64,11 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         }
         return $this;
     }
-    
+
     /**
      * Filter by region_code
      *
-     * @param string|array $regionId
+     * @param string|array $regionCode
      * @return $this
      */
     public function addRegionCodeFilter($regionCode)
@@ -82,7 +82,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         }
         return $this;
     }
-    
+
     /**
      * Filter by country_id
      *

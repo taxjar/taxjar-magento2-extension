@@ -1,0 +1,149 @@
+<?php
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+namespace Taxjar\SalesTax\Observer;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Registry;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Taxjar\SalesTax\Model\Logger;
+use Taxjar\SalesTax\Model\Transaction\OrderFactory;
+use Taxjar\SalesTax\Model\Transaction\RefundFactory;
+
+class SyncTransaction implements ObserverInterface
+{
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    protected $messageManager;
+
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\Logger
+     */
+    protected $logger;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\Transaction\OrderFactory
+     */
+    protected $orderFactory;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\Transaction\RefundFactory
+     */
+    protected $refundFactory;
+
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    protected $registry;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param ManagerInterface $messageManager
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderFactory $orderFactory
+     * @param RefundFactory $refundFactory
+     * @param Registry $registry
+     * @param Logger $logger
+     */
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        ManagerInterface $messageManager,
+        OrderRepositoryInterface $orderRepository,
+        OrderFactory $orderFactory,
+        RefundFactory $refundFactory,
+        Registry $registry,
+        Logger $logger
+    ) {
+        $this->scopeConfig = $scopeConfig;
+        $this->messageManager = $messageManager;
+        $this->orderRepository = $orderRepository;
+        $this->orderFactory = $orderFactory;
+        $this->refundFactory = $refundFactory;
+        $this->registry = $registry;
+        $this->logger = $logger;
+    }
+
+    /**
+     * @param Observer $observer
+     * @return $this
+     */
+    public function execute(
+        Observer $observer
+    ) {
+        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
+
+        if (!$syncEnabled) {
+            return $this;
+        }
+
+        if (!$this->registry->registry('taxjar_sync')) {
+            $this->registry->register('taxjar_sync', true);
+        } else {
+            return $this;
+        }
+
+        if ($observer->getData('order_id')) {
+            $order = $this->orderRepository->get($observer->getData('order_id'));
+        } else {
+            $order = $observer->getEvent()->getOrder();
+        }
+
+        $orderTransaction = $this->orderFactory->create();
+
+        if ($orderTransaction->isSyncable($order)) {
+            try {
+                $orderTransaction->build($order);
+                $orderTransaction->push();
+
+                $creditmemos = $order->getCreditmemosCollection();
+
+                foreach ($creditmemos as $creditmemo) {
+                    $refundTransaction = $this->refundFactory->create();
+                    $refundTransaction->build($order, $creditmemo);
+                    $refundTransaction->push();
+                }
+
+                if ($observer->getData('order_id')) {
+                    $this->messageManager->addSuccessMessage(__('Order successfully synced to TaxJar.'));
+                }
+            } catch(\Exception $e) {
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
+        } else {
+            if ($observer->getData('order_id')) {
+                $this->messageManager->addErrorMessage(__('This order was not synced to TaxJar.'));
+            }
+        }
+
+        return $this;
+    }
+}

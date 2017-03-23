@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -31,7 +31,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
      * @var SetupUtil
      */
     protected $setupUtil = null;
-    
+
     /**
      * Test tax calculation with various configuration and combination of items
      * This method will test various collectors through $quoteAddress->collectTotals() method
@@ -173,7 +173,7 @@ class TaxTest extends \PHPUnit_Framework_TestCase
 
         return $this;
     }
-    
+
     /**
      * Read the array defined in ../../../../_files/tax_calculation_data_aggregated.php
      * and feed it to testTaxCalculation

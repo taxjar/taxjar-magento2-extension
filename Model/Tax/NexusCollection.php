@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -37,14 +37,11 @@ class NexusCollection extends AbstractServiceCollection
     protected $nexusRepository;
 
     /**
-     * Initialize dependencies.
-     *
      * @param EntityFactory $entityFactory
      * @param FilterBuilder $filterBuilder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param SortOrderBuilder $sortOrderBuilder
-     * @param TaxRateRepositoryInterface $rateService
-     * @param \Magento\Tax\Model\Calculation\Rate\Converter $rateConverter
+     * @param NexusRepositoryInterface $nexusService
      */
     public function __construct(
         EntityFactory $entityFactory,
@@ -79,7 +76,7 @@ class NexusCollection extends AbstractServiceCollection
     /**
      * Creates a collection item that represents a nexus address for the nexus grid.
      *
-     * @param Nexus $nexus Input data for creating the item.
+     * @param NexusInterface $nexus Input data for creating the item.
      * @return \Magento\Framework\DataObject Collection item that represents a nexus address
      */
     protected function createNexusCollectionItem(NexusInterface $nexus)

@@ -11,26 +11,21 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Model\Tax;
 
-use Magento\Tax\Api\TaxCalculationInterface;
 use Magento\Tax\Api\TaxClassManagementInterface;
 use Magento\Tax\Api\Data\AppliedTaxInterfaceFactory;
 use Magento\Tax\Api\Data\AppliedTaxRateInterfaceFactory;
-use Magento\Tax\Api\Data\TaxDetailsItemInterface;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterface;
 use Magento\Tax\Api\Data\TaxDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\TaxDetailsItemInterfaceFactory;
 use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Calculation\AbstractCalculator;
 use Magento\Tax\Model\Calculation\CalculatorFactory;
 use Magento\Tax\Model\Config;
-use Magento\Tax\Model\TaxDetails\AppliedTax;
-use Magento\Tax\Model\TaxDetails\AppliedTaxRate;
 use Magento\Tax\Model\TaxDetails\TaxDetails;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -266,7 +261,6 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
         return $appliedTaxDataObject;
     }
-
 
     /**
      * Calculates the total quantity for this item.

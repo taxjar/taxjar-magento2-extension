@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -37,7 +37,7 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setId($id);
-    
+
     /**
      * Get nexus API ID.
      *
@@ -82,7 +82,7 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setCity($city);
-    
+
     /**
      * Get nexus country ID.
      *
@@ -97,7 +97,7 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setCountryId($countryId);
-    
+
     /**
      * Get region.
      *
@@ -112,7 +112,7 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setRegion($region);
-    
+
     /**
      * Get region ID.
      *
@@ -127,7 +127,7 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setRegionId($regionId);
-    
+
     /**
      * Get region code.
      *
@@ -142,14 +142,14 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setRegionCode($regionCode);
-    
+
     /**
      * Get postal code.
      *
      * @return string
      */
     public function getPostcode();
-    
+
     /**
      * Set postal code.
      *
@@ -157,7 +157,7 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setPostcode($postcode);
-    
+
     /**
      * Set created at.
      *
@@ -165,14 +165,14 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setCreatedAt($createdAt);
-    
+
     /**
      * Get created at.
      *
      * @return string
      */
     public function getCreatedAt();
-    
+
     /**
      * Set updated at.
      *
@@ -180,14 +180,14 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return $this
      */
     public function setUpdatedAt($updatedAt);
-    
+
     /**
      * Get updated at.
      *
      * @return string
      */
     public function getUpdatedAt();
-    
+
     /**
      * Retrieve existing extension attributes object or create a new one.
      *

@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -35,15 +35,15 @@ class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
                 $nexus->syncDelete();
             }
             $this->nexusService->deleteById($addressId);
-            $this->messageManager->addSuccess(__('The nexus address has been deleted.'));
+            $this->messageManager->addSuccessMessage(__('The nexus address has been deleted.'));
             return $resultRedirect->setPath('taxjar/*/');
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            $this->messageManager->addError(__('This nexus address no longer exists.'));
+            $this->messageManager->addErrorMessage(__('This nexus address no longer exists.'));
             return $resultRedirect->setPath('taxjar/*/');
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('Something went wrong deleting this nexus address.'));
+            $this->messageManager->addErrorMessage(__('Something went wrong deleting this nexus address.'));
         }
 
         return $resultRedirect->setUrl($this->_redirect->getRedirectUrl($this->getUrl('*')));

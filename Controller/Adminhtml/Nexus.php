@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -32,7 +32,7 @@ abstract class Nexus extends \Magento\Backend\App\Action
      * @var \Magento\Framework\Registry
      */
     protected $coreRegistry;
-    
+
     /**
      * @var \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
      */
@@ -52,7 +52,7 @@ abstract class Nexus extends \Magento\Backend\App\Action
      * @var \Magento\Directory\Model\RegionFactory
      */
     protected $regionFactory;
-    
+
     /**
      * @var \Magento\Directory\Model\CountryFactory
      */
@@ -98,7 +98,7 @@ abstract class Nexus extends \Magento\Backend\App\Action
             ->addBreadcrumb(__('Tax'), __('Tax'));
         return $resultPage;
     }
-    
+
     /**
      * Check current user permission on resource and privilege
      *
@@ -108,24 +108,24 @@ abstract class Nexus extends \Magento\Backend\App\Action
     {
         return $this->_authorization->isAllowed(self::ADMIN_RESOURCE);
     }
-    
+
     /**
      * Review nexus addresses for data issues
      *
-     * @return \Magento\Framework\Message\ManagerInterface
+     * @return \Magento\Framework\Message\ManagerInterface|void
      */
     protected function _reviewNexusAddresses()
     {
         $nexus = $this->nexusDataObjectFactory->create();
         $nexusMissingPostcode = $nexus->getCollection()->addFieldToFilter('postcode', ['null' => true]);
-        
+
         if ($nexusMissingPostcode->getSize()) {
             // @codingStandardsIgnoreStart
-            return $this->messageManager->addNotice(__('One or more of your nexus addresses are missing a zip/post code. Please provide accurate data for each nexus address.'));
+            return $this->messageManager->addNoticeMessage(__('One or more of your nexus addresses are missing a zip/post code. Please provide accurate data for each nexus address.'));
             // @codingStandardsIgnoreEnd
         }
     }
-    
+
     /**
      * Initialize nexus address service object with form data.
      *

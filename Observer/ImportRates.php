@@ -11,10 +11,10 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
- 
+
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Config\Model\ResourceModel\Config;
@@ -28,7 +28,6 @@ use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Magento\Framework\Unserialize\Unserialize;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\ConfigurationFactory;
 use Taxjar\SalesTax\Model\Import\RateFactory;
 use Taxjar\SalesTax\Model\Import\RuleFactory;
 
@@ -76,12 +75,12 @@ class ImportRates implements ObserverInterface
      * @var \Magento\Framework\App\Filesystem\DirectoryList
      */
     protected $directoryList;
-    
+
     /**
      * @var \Magento\Framework\Filesystem\Driver\File
      */
     protected $driverFile;
-    
+
     /**
      * @var \Magento\Framework\Unserialize\Unserialize
      */
@@ -121,7 +120,7 @@ class ImportRates implements ObserverInterface
      * @var array
      */
     protected $newShippingRates = [];
-    
+
     /**
      * @param ManagerInterface $eventManager
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
@@ -131,6 +130,7 @@ class ImportRates implements ObserverInterface
      * @param RateFactory $rateFactory
      * @param RuleFactory $ruleFactory
      * @param DirectoryList $directoryList
+     * @param DriverFile $driverFile
      * @param Unserialize $unserialize
      */
     public function __construct(
@@ -156,7 +156,7 @@ class ImportRates implements ObserverInterface
         $this->driverFile = $driverFile;
         $this->unserialize = $unserialize;
     }
-    
+
     /**
      * @param Observer $observer
      * @return $this
@@ -168,7 +168,7 @@ class ImportRates implements ObserverInterface
         // @codingStandardsIgnoreEnd
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
         $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-        
+
         if ($isEnabled && $this->apiKey) {
             $this->client = $this->clientFactory->create();
             $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
@@ -183,21 +183,21 @@ class ImportRates implements ObserverInterface
             $this->_importRates();
         } else {
             $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
-            
+
             if (!empty($states)) {
                 $this->_purgeRates();
             }
 
             $this->_setLastUpdateDate(null);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_BACKUP, 0, 'default', 0);
-            $this->messageManager->addNotice(__('Backup rates imported by TaxJar have been removed.'));
+            $this->messageManager->addNoticeMessage(__('Backup rates imported by TaxJar have been removed.'));
         }
 
         $this->eventManager->dispatch('adminhtml_cache_flush_all');
 
         return $this;
     }
-    
+
     /**
      * Execute observer action during cron job
      *
@@ -207,18 +207,19 @@ class ImportRates implements ObserverInterface
     {
         $this->execute(new Observer);
     }
-    
+
     /**
      * Import tax rates from TaxJar
      *
      * @return void
+     * @throws LocalizedException
      */
     private function _importRates()
     {
         $isDebugMode = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_DEBUG);
 
         if ($isDebugMode) {
-            $this->messageManager->addNotice(__('Debug mode enabled. Backup tax rates have not been altered.'));
+            $this->messageManager->addNoticeMessage(__('Debug mode enabled. Backup tax rates have not been altered.'));
             return;
         }
 
@@ -229,7 +230,7 @@ class ImportRates implements ObserverInterface
             throw new LocalizedException(__('Please check that your zip code is a valid US zip code in Shipping Settings.'));
             // @codingStandardsIgnoreEnd
         }
-        
+
         if (!count($this->productTaxClasses) || !count($this->customerTaxClasses)) {
             // @codingStandardsIgnoreStart
             throw new LocalizedException(__('Please select at least one product tax class and one customer tax class to import backup rates from TaxJar.'));
@@ -242,7 +243,7 @@ class ImportRates implements ObserverInterface
         try {
             if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), serialize($ratesJson)) !== false) {
                 ignore_user_abort(true);
-                
+
                 $filename = $this->_getTempRatesFileName();
                 $ratesJson = $this->unserialize->unserialize($this->driverFile->fileGetContents($filename));
 
@@ -253,7 +254,7 @@ class ImportRates implements ObserverInterface
 
                 $this->driverFile->deleteFile($filename);
 
-                $this->messageManager->addSuccess(
+                $this->messageManager->addSuccessMessage(
                     __('TaxJar has added new rates to your database. Thanks for using TaxJar!')
                 );
                 $this->eventManager->dispatch('taxjar_salestax_import_rates_after');
@@ -264,7 +265,7 @@ class ImportRates implements ObserverInterface
             // @codingStandardsIgnoreEnd
         }
     }
-    
+
     /**
      * Create new tax rates
      *
@@ -287,7 +288,7 @@ class ImportRates implements ObserverInterface
             }
         }
     }
-    
+
     /**
      * Create or update existing tax rules with new rates
      *
@@ -299,7 +300,7 @@ class ImportRates implements ObserverInterface
         $productTaxClasses = $this->productTaxClasses;
         $shippingClass = $this->scopeConfig->getValue('tax/classes/shipping_tax_class');
         $backupShipping = in_array($shippingClass, $productTaxClasses);
-        
+
         if ($backupShipping) {
             $productTaxClasses = array_diff($productTaxClasses, [$shippingClass]);
         }
@@ -311,7 +312,7 @@ class ImportRates implements ObserverInterface
             1,
             $this->newRates
         );
-        
+
         if ($backupShipping) {
             $rule->create(
                 'TaxJar Backup Rates (Shipping)',
@@ -322,7 +323,7 @@ class ImportRates implements ObserverInterface
             );
         }
     }
-    
+
     /**
      * Purge existing rule calculations and rates
      *
@@ -332,14 +333,14 @@ class ImportRates implements ObserverInterface
     {
         $rateModel = $this->rateFactory->create();
         $rates = $rateModel->getExistingRates();
-        
+
         if (!$rates->getTotalCount()) {
             return;
         }
 
         foreach ($rates->getItems() as $rate) {
             $calculations = $rateModel->getCalculationsByRateId($rate->getId());
-            
+
             try {
                 foreach ($calculations->getItems() as $calculation) {
                     // @codingStandardsIgnoreStart
@@ -347,7 +348,7 @@ class ImportRates implements ObserverInterface
                     // @codingStandardsIgnoreEnd
                 }
             } catch (\Exception $e) {
-                $this->messageManager->addError($e->getMessage());
+                $this->messageManager->addErrorMessage($e->getMessage());
             }
 
             try {
@@ -355,11 +356,11 @@ class ImportRates implements ObserverInterface
                 $rate->delete();
                 // @codingStandardsIgnoreEnd
             } catch (\Exception $e) {
-                $this->messageManager->addError($e->getMessage());
+                $this->messageManager->addErrorMessage($e->getMessage());
             }
         }
     }
-    
+
     /**
      * Get TaxJar backup rates
      *
@@ -369,7 +370,6 @@ class ImportRates implements ObserverInterface
     {
         // @codingStandardsIgnoreStart
         $ratesJson = $this->client->getResource(
-            $this->apiKey,
             'rates',
             [
                 '403' => __('Your last backup rate sync from TaxJar was too recent. Please wait at least 5 minutes and try again.')
@@ -386,9 +386,9 @@ class ImportRates implements ObserverInterface
      */
     private function _getTempRatesFileName()
     {
-        return $this->directoryList->getPath('tmp') . DIRECTORY_SEPARATOR . 'tj_tmp.dat';
+        return $this->directoryList->getPath(DirectoryList::TMP) . DIRECTORY_SEPARATOR . 'tj_tmp.dat';
     }
-    
+
     /**
      * Set the last updated date
      *

@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -21,7 +21,8 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '0.6.4';
+    const TAXJAR_VERSION              = '0.7.0';
+    const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
     const TAXJAR_CATEGORIES           = 'tax/taxjar/categories';
@@ -34,6 +35,8 @@ class Configuration
     const TAXJAR_LAST_UPDATE          = 'tax/taxjar/last_update';
     const TAXJAR_PRODUCT_TAX_CLASSES  = 'tax/taxjar/product_tax_classes';
     const TAXJAR_STATES               = 'tax/taxjar/states';
+    const TAXJAR_TRANSACTION_AUTH     = 'tax/taxjar/transaction_auth';
+    const TAXJAR_TRANSACTION_SYNC     = 'tax/taxjar/transactions';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config

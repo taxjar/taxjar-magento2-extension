@@ -11,10 +11,10 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
- 
+
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Config\Model\ResourceModel\Config;
@@ -37,42 +37,42 @@ class ImportData implements ObserverInterface
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
-    
+
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     protected $resourceConfig;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
     protected $reinitableConfig;
-    
+
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
     protected $regionFactory;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
      */
     protected $clientFactory;
-    
+
     /**
      * @var \Taxjar\SalesTax\Model\ConfigurationFactory
      */
     protected $configFactory;
-    
+
     /**
      * @var string
      */
     protected $apiKey;
-    
+
     /**
      * @var string
      */
     protected $client;
-    
+
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
@@ -96,10 +96,11 @@ class ImportData implements ObserverInterface
         $this->configFactory = $configFactory;
         $this->reinitableConfig = $reinitableConfig;
     }
-    
+
     /**
      * @param  Observer $observer
      * @return $this
+     * @throws LocalizedException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     // @codingStandardsIgnoreStart
@@ -108,10 +109,10 @@ class ImportData implements ObserverInterface
         // @codingStandardsIgnoreEnd
         $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $region = $this->_getShippingRegion();
-        
+
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
-            
+
             if ($region->getCode()) {
                 $this->_setConfiguration();
             } else {
@@ -121,7 +122,7 @@ class ImportData implements ObserverInterface
 
         return $this;
     }
-    
+
     /**
      * Get shipping region
      *
@@ -136,7 +137,7 @@ class ImportData implements ObserverInterface
         $region->load($regionId);
         return $region;
     }
-    
+
     /**
      * Get TaxJar user account configuration
      *
@@ -144,10 +145,10 @@ class ImportData implements ObserverInterface
      */
     private function _getConfigJson()
     {
-        $configJson = $this->client->getResource($this->apiKey, 'config');
+        $configJson = $this->client->getResource('config');
         return $configJson['configuration'];
     }
-    
+
     /**
      * Set TaxJar config
      *

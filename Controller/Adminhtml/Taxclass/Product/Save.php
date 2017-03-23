@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -34,16 +34,16 @@ class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
             try {
                 $taxClass = $this->taxClassService->save($taxClass);
 
-                $this->messageManager->addSuccess(__('You saved the product tax class.'));
+                $this->messageManager->addSuccessMessage(__('You saved the product tax class.'));
 
                 if ($this->getRequest()->getParam('back')) {
                     return $resultRedirect->setPath('taxjar/*/edit', ['class' => $taxClass->getId()]);
                 }
                 return $resultRedirect->setPath('taxjar/*/');
             } catch (\Magento\Framework\Exception\LocalizedException $e) {
-                $this->messageManager->addError($e->getMessage());
+                $this->messageManager->addErrorMessage($e->getMessage());
             } catch (\Exception $e) {
-                $this->messageManager->addError(__('We can\'t save this product tax class right now.'));
+                $this->messageManager->addErrorMessage(__('We can\'t save this product tax class right now.'));
             }
 
             $this->_objectManager->get('Magento\Backend\Model\Session')->setClassData($postData);

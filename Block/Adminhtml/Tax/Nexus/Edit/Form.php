@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -34,22 +34,22 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * @var \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory
      */
     protected $fieldsetFactory;
-    
+
     /**
      * @var \Magento\Directory\Model\RegionFactory
      */
     protected $regionFactory;
-    
+
     /**
      * @var \Magento\Directory\Model\Config\Source\Country
      */
     protected $country;
-    
+
     /**
      * @var \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
      */
     protected $nexusRepository;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -84,7 +84,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $this->nexusRepository = $nexusRepository;
         parent::__construct($context, $registry, $formFactory, $data);
     }
-    
+
     /**
      * Init class
      *
@@ -125,10 +125,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $form = $this->_formFactory->create(
             ['data' => ['id' => 'edit_form', 'action' => $this->getData('action'), 'method' => 'post']]
         );
-        
+
         $countries = $this->country->toOptionArray(false, 'US');
         unset($countries[0]);
-        
+
         if (!isset($formValues['country_id'])) {
             $formValues['country_id'] = $this->scopeConfig->getValue(
                 \Magento\Tax\Model\Config::CONFIG_XML_PATH_DEFAULT_COUNTRY,
@@ -142,7 +142,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
         }
-        
+
         $regionCollection = $this->regionFactory->create()->getCollection()->addCountryFilter(
             $formValues['country_id']
         );
@@ -158,13 +158,13 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'hidden',
                 ['name' => 'id', 'value' => $formValues['id']]
             );
-            
+
             $fieldset->addField(
                 'api_id',
                 'hidden',
                 ['name' => 'api_id', 'value' => $formValues['api_id']]
             );
-            
+
             $fieldset->addField(
                 'region',
                 'hidden',
@@ -182,7 +182,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'value' => isset($formValues['street']) ? $formValues['street'] : ''
             ]
         );
-        
+
         $fieldset->addField(
             'city',
             'text',
@@ -193,7 +193,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'value' => isset($formValues['city']) ? $formValues['city'] : ''
             ]
         );
-        
+
         $fieldset->addField(
             'region_id',
             'select',
@@ -216,7 +216,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'values' => $countries
             ]
         );
-        
+
         $fieldset->addField(
             'postcode',
             'text',
@@ -234,7 +234,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
 
         return parent::_prepareForm();
     }
-    
+
     /**
      * Extract nexus data in a format which is
      *

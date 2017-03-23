@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -34,41 +34,32 @@
   <p><a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/nexus/index')) ?>'>Nexus Addresses</a><br/><span style='font-size: 0.9em'>Before enabling SmartCalcs, set up your nexus addresses so TaxJar knows where to collect sales tax.</span></p>
   <p><a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/taxclass/index')) ?>'>Product Tax Classes</a><br/><span style='font-size: 0.9em'>If some of your products are tax-exempt, assign a TaxJar category tax code for new or existing product tax classes.</span></p>
   <p><a href='http://www.taxjar.com/contact/' target='_blank'>Help & Support</a><br/><span style='font-size: 0.9em'>Need help setting up SmartCalcs? Get in touch with our Magento sales tax experts.</span></p><br/>
-  
+
   <p><button type='button' class='scalable delete' onclick='if (window.confirm("Are you sure you want to disconnect from TaxJar? This will remove all TaxJar rates from your Magento store. If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com.")) window.location="<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/disconnect')) ?>"'><span>Disconnect TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p><br/>
 <?php } else { ?>
   <p class='note'><span>Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates can be used as a fallback.</p><br/>
-  <p><button type='button' class='scalable primary' onclick='openConnectPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Connect to TaxJar", 400, 500)'><span>Connect to TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p>
-  
+  <p><button type='button' class='scalable primary' onclick='openPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Connect to TaxJar", 400, 500)'><span>Connect to TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p>
+
   <script>
-      function openConnectPopup(url, title, w, h) {
-          var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-          var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
-          var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-          var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-          var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-          var top = ((height / 2) - (h / 2)) + dualScreenTop;
-          
-          window.connectPopup = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+    require([
+        'popup'
+    ], function(popup) {
+        window.addEventListener('message', function(e) {
+            if (e.origin !== '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>')
+                return;
 
-          if (window.focus) window.connectPopup.focus();
-      }
-
-      window.addEventListener('message', function(e) {
-          if (e.origin !== '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>')
-              return;
-          
-          try {
-              var data = JSON.parse(e.data);
-              if (data.api_token && data.email) {
-                  window.connectPopup.postMessage('Data received', '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>');
-                  window.location = encodeURI('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>?api_key=' + data.api_token + '&api_email=' + data.email);
-              } else {
-                  throw 'Invalid data';
-              }                        
-          } catch(e) {
-              alert('Invalid API token or email provided. Please try connecting to TaxJar again or contact support@taxjar.com.');
-          }
-      }, false);
+            try {
+                var data = JSON.parse(e.data);
+                if (data.api_token && data.email) {
+                    window.popup.postMessage('Data received', '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>');
+                    window.location = encodeURI('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>?api_key=' + data.api_token + '&api_email=' + data.email + '&reporting_access=' + data.reporting_access);
+                } else {
+                    throw 'Invalid data';
+                }
+            } catch(e) {
+                alert('Invalid API token or email provided. Please try connecting to TaxJar again or contact support@taxjar.com.');
+            }
+        }, false);
+    });
   </script>
 <?php } ?>

@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2016 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -31,7 +31,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     protected $resourceConfig;
-    
+
     /**
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
@@ -78,15 +78,17 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, 'default', 0);
         $this->reinitableConfig->reinit();
-        
+
         $this->_purgeNexusAddresses();
 
-        $this->messageManager->addSuccess(__('Your TaxJar account has been disconnected.'));
+        $this->messageManager->addSuccessMessage(__('Your TaxJar account has been disconnected.'));
 
         $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
     }
-    
+
     /**
      * Purge nexus addresses on disconnect
      *
