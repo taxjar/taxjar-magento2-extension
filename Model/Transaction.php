@@ -178,7 +178,7 @@ class Transaction
             }
 
             $lineItem = [
-                'id' => $item->getProductId(),
+                'id' => $item->getItemId(),
                 'quantity' => (int) $item->getQtyOrdered(),
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
