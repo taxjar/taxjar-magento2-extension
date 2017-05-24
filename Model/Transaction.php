@@ -17,6 +17,8 @@
 
 namespace Taxjar\SalesTax\Model;
 
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+
 class Transaction
 {
     /**
@@ -178,7 +180,7 @@ class Transaction
             }
 
             $lineItem = [
-                'id' => $item->getItemId(),
+                'id' => $this->getLineItemId($item),
                 'quantity' => (int) $item->getQtyOrdered(),
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
@@ -205,6 +207,25 @@ class Transaction
         }
 
         return $lineItems;
+    }
+
+    /**
+     * @param $item
+     * @return string
+     */
+    public function getLineItemId($item)
+    {
+        $id = $item->getProductId();
+
+        if ($item->getProductType() == Configurable::TYPE_CODE) {
+            $childrenItems = $item->getChildrenItems();
+            if (!empty($childrenItems)) {
+                $childItem = $childrenItems[0];
+                $id = $item->getProductId() . '_' . $childItem->getProductId();
+            }
+        }
+
+        return $id;
     }
 
     /**
