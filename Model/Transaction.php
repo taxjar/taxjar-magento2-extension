@@ -158,11 +158,12 @@ class Transaction
     /**
      * Build line items for SmartCalcs request
      *
+     * @param \Magento\Sales\Model\Order $order
      * @param array $items
      * @param string $type
      * @return array
      */
-    protected function buildLineItems($items, $type = 'order') {
+    protected function buildLineItems($order, $items, $type = 'order') {
         $lineItems = [];
         $parentDiscounts = $this->getParentDiscounts($items);
 
@@ -202,6 +203,15 @@ class Transaction
             }
 
             $lineItems['line_items'][] = $lineItem;
+        }
+
+        if ($order->getShippingDiscountAmount() > 0) {
+            $shippingDiscount = (float) $order->getShippingDiscountAmount();
+
+            $lineItems['line_items'][] = [
+                'description' => 'Shipping Discount',
+                'discount' => $shippingDiscount
+            ];
         }
 
         return $lineItems;
