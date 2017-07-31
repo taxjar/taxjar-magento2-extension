@@ -172,6 +172,10 @@ class Transaction
                 continue;
             }
 
+            if (method_exists($item, 'getOrderItem') && $item->getOrderItem()->getParentItemId()) {
+                continue;
+            }
+
             $discount = (float) $item->getDiscountAmount();
 
             if (isset($parentDiscounts[$item->getId()])) {
