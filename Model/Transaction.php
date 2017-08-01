@@ -165,7 +165,8 @@ class Transaction
      */
     protected function buildLineItems($order, $items, $type = 'order') {
         $lineItems = [];
-        $parentDiscounts = $this->getParentDiscounts($items);
+        $parentDiscounts = $this->getParentAmounts('discount', $items);
+        $parentTaxAmounts = $this->getParentAmounts('tax', $items);
 
         foreach ($items as $item) {
             if ($item->getParentItemId()) {
@@ -176,20 +177,26 @@ class Transaction
                 continue;
             }
 
+            $id = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
             $discount = (float) $item->getDiscountAmount();
+            $taxAmount = (float) $item->getTaxAmount();
 
-            if (isset($parentDiscounts[$item->getId()])) {
-                $discount = $parentDiscounts[$item->getId()] ?: $discount;
+            if (isset($parentDiscounts[$id])) {
+                $discount = $parentDiscounts[$id] ?: $discount;
+            }
+
+            if (isset($parentTaxAmounts[$id])) {
+                $taxAmount = $parentTaxAmounts[$id] ?: $taxAmount;
             }
 
             $lineItem = [
-                'id' => $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId(),
+                'id' => $id,
                 'quantity' => (int) $item->getQtyOrdered(),
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
                 'unit_price' => (float) $item->getPrice(),
                 'discount' => $discount,
-                'sales_tax' => (float) $item->getTaxAmount()
+                'sales_tax' => $taxAmount
             ];
 
             if ($type == 'refund') {
@@ -222,28 +229,47 @@ class Transaction
     }
 
     /**
-     * Get discounts for bundle products
+     * Get parent amounts (discounts, tax, etc) for configurable / bundle products
      *
+     * @param string $type
      * @param array $items
      * @return array
      */
-    protected function getParentDiscounts(
+    protected function getParentAmounts(
+        string $type,
         array $items
     ) {
-        $parentDiscounts = [];
+        $parentAmounts = [];
 
         foreach ($items as $item) {
-            if ($item->getParentItemId()) {
-                $discount = (float) $item->getDiscountAmount();
+            $parentItemId = null;
 
-                if (isset($parentDiscounts[$item->getParentItemId()])) {
-                    $parentDiscounts[$item->getParentItemId()] += $discount;
+            if ($item->getParentItemId()) {
+                $parentItemId = $item->getParentItemId();
+            }
+
+            if (method_exists($item, 'getOrderItem') && $item->getOrderItem()->getParentItemId()) {
+                $parentItemId = $item->getOrderItem()->getParentItemId();
+            }
+
+            if (isset($parentItemId)) {
+                switch ($type) {
+                    case 'discount':
+                        $amount = (float) $item->getDiscountAmount();
+                        break;
+                    case 'tax':
+                        $amount = (float) $item->getTaxAmount();
+                        break;
+                }
+
+                if (isset($parentAmounts[$parentItemId])) {
+                    $parentAmounts[$parentItemId] += $amount;
                 } else {
-                    $parentDiscounts[$item->getParentItemId()] = $discount;
+                    $parentAmounts[$parentItemId] = $amount;
                 }
             }
         }
 
-        return $parentDiscounts;
+        return $parentAmounts;
     }
 }
