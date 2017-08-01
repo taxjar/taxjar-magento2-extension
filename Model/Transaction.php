@@ -166,7 +166,7 @@ class Transaction
     protected function buildLineItems($order, $items, $type = 'order') {
         $lineItems = [];
         $parentDiscounts = $this->getParentAmounts('discount', $items);
-        $parentTaxAmounts = $this->getParentAmounts('tax', $items);
+        $parentTaxes = $this->getParentAmounts('tax', $items);
 
         foreach ($items as $item) {
             if ($item->getParentItemId()) {
@@ -177,26 +177,26 @@ class Transaction
                 continue;
             }
 
-            $id = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
+            $itemId = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
             $discount = (float) $item->getDiscountAmount();
-            $taxAmount = (float) $item->getTaxAmount();
+            $tax = (float) $item->getTaxAmount();
 
-            if (isset($parentDiscounts[$id])) {
-                $discount = $parentDiscounts[$id] ?: $discount;
+            if (isset($parentDiscounts[$itemId])) {
+                $discount = $parentDiscounts[$itemId] ?: $discount;
             }
 
-            if (isset($parentTaxAmounts[$id])) {
-                $taxAmount = $parentTaxAmounts[$id] ?: $taxAmount;
+            if (isset($parentTaxes[$itemId])) {
+                $tax = $parentTaxes[$itemId] ?: $tax;
             }
 
             $lineItem = [
-                'id' => $id,
+                'id' => $itemId,
                 'quantity' => (int) $item->getQtyOrdered(),
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
                 'unit_price' => (float) $item->getPrice(),
                 'discount' => $discount,
-                'sales_tax' => $taxAmount
+                'sales_tax' => $tax
             ];
 
             if ($type == 'refund') {
