@@ -30,7 +30,9 @@ if ($block->getSyncedAtDate($order)) {
     );
 }
 ?>
+<?php if (!empty($orderSyncDate)): ?>
 <tr>
     <th><?php /* @escapeNotVerified */ echo __('Synced to TaxJar') ?></th>
     <td><?php /* @escapeNotVerified */ echo $orderSyncDate ?></td>
 </tr>
+<?php endif; ?>
