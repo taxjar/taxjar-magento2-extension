@@ -113,7 +113,21 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                 $this->logger->log('Refund #' . $this->request['transaction_id'] . ' updated: ' . json_encode($response), 'api');
             }
 
-            $this->originalRefund->setTjSalestaxSyncDate(gmdate('Y-m-d H:i:s'))->save();
+            $originalAmountRefunded = $this->originalOrder->getAmountRefunded();
+            $originalBaseAmountRefunded = $this->originalOrder->getBaseAmountRefunded();
+            $originalBaseAmountRefundedOnline = $this->originalOrder->getBaseAmountRefundedOnline();
+
+            $this->originalRefund
+                ->setTjSalestaxSyncDate(gmdate('Y-m-d H:i:s'))
+                ->setPaymentRefundDisallowed(true)
+                ->setAutomaticallyCreated(true)
+                ->save();
+
+            $this->originalOrder
+                ->setAmountRefunded($originalAmountRefunded)
+                ->setBaseAmountRefunded($originalBaseAmountRefunded)
+                ->setBaseAmountRefundedOnline($originalBaseAmountRefundedOnline)
+                ->save();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
