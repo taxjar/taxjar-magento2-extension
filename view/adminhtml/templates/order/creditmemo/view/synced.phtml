@@ -40,6 +40,7 @@ if ($block->getSyncedAtDate($creditmemo)) {
     );
 }
 ?>
+<?php if (!empty($orderSyncDate)): ?>
 <tr>
     <th><?php /* @escapeNotVerified */ echo __('Order Synced to TaxJar') ?></th>
     <td><?php /* @escapeNotVerified */ echo $orderSyncDate ?></td>
@@ -48,3 +49,4 @@ if ($block->getSyncedAtDate($creditmemo)) {
     <th><?php /* @escapeNotVerified */ echo __('Credit Memo Synced to TaxJar') ?></th>
     <td><?php /* @escapeNotVerified */ echo $creditmemoSyncDate ?></td>
 </tr>
+<?php endif; ?>

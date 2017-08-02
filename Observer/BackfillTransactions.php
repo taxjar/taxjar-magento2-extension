@@ -193,15 +193,18 @@ class BackfillTransactions implements ObserverInterface
 
         foreach ($orders as $order) {
             $orderTransaction = $this->orderFactory->create();
-            $orderTransaction->build($order);
-            $orderTransaction->push();
 
-            $creditMemos = $order->getCreditmemosCollection();
+            if ($orderTransaction->isSyncable($order)) {
+                $orderTransaction->build($order);
+                $orderTransaction->push();
 
-            foreach ($creditMemos as $creditMemo) {
-                $refundTransaction = $this->refundFactory->create();
-                $refundTransaction->build($order, $creditMemo);
-                $refundTransaction->push();
+                $creditMemos = $order->getCreditmemosCollection();
+
+                foreach ($creditMemos as $creditMemo) {
+                    $refundTransaction = $this->refundFactory->create();
+                    $refundTransaction->build($order, $creditMemo);
+                    $refundTransaction->push();
+                }
             }
         }
 
