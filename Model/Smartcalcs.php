@@ -331,14 +331,26 @@ class Smartcalcs
         $items = $quoteTaxDetails->getItems();
 
         if (count($items) > 0) {
+            $parentQuantities = [];
+
             foreach ($items as $item) {
                 if ($item->getType() == 'product') {
                     $id = $item->getCode();
+                    $parentId = $item->getParentCode();
                     $quantity = $item->getQuantity();
                     $unitPrice = (float) $item->getUnitPrice();
                     $discount = (float) $item->getDiscountAmount();
                     $extensionAttributes = $item->getExtensionAttributes();
                     $taxCode = '';
+
+                    if ($extensionAttributes->getProductType() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
+                        $parentQuantities[$id] = $quantity;
+                        continue;
+                    }
+
+                    if (isset($parentQuantities[$parentId])) {
+                        $quantity *= $parentQuantities[$parentId];
+                    }
 
                     if (!$this->taxData->applyTaxAfterDiscount($store)) {
                         $discount = 0;
