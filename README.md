@@ -43,7 +43,9 @@ Backup or rename your existing `phpunit.xml` under `dev/tests/integration`. Copy
 cp app/code/Taxjar/SalesTax/Test/Integration/phpunit.xml dev/tests/integration/phpunit.xml
 ```
 
-Copy `Test/Integration/credentials.php.dist` to `credentials.php` and add your TaxJar API token:
+Rename `install-config-mysql.php.dist` to `install-config-mysql.php` under `dev/tests/integration/etc`. Make sure Magento has access to a MySQL database for running integration tests.
+
+Copy `Test/Integration/credentials.php.dist` to `credentials.php` in the same directory and add your TaxJar API token:
 
 ```
 cp app/code/Taxjar/SalesTax/Test/Integration/credentials.php.dist app/code/Taxjar/SalesTax/Test/Integration/credentials.php
