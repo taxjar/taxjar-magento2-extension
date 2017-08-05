@@ -78,23 +78,23 @@ $taxCalculationData['shipping_tax_calculation'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 4.59,
+            'tax_amount' => 4.66,
             'subtotal' => 49.99,
-            'subtotal_incl_tax' => 49.99 + (4.59 - 0.42),
-            'grand_total' => 49.99 + 4.59 + 5
+            'subtotal_incl_tax' => 49.99 + (4.66 - 0.42),
+            'grand_total' => 49.99 + 4.66 + 5
         ],
         'items_data' => [
             'taxjar-bbq' => [
-                'tax_amount' => 4.17,
-                'tax_percent' => 8.35,
+                'tax_amount' => 4.24,
+                'tax_percent' => 8.475,
                 'price' => 49.99,
-                'price_incl_tax' => 49.99 + 4.17,
+                'price_incl_tax' => 49.99 + 4.24,
                 'row_total' => 49.99,
-                'row_total_incl_tax' => 49.99 + 4.17
+                'row_total_incl_tax' => 49.99 + 4.24
             ],
             'shipping' => [
                 'tax_amount' => 0.42,
-                'tax_percent' => 8.35,
+                'tax_percent' => 8.475,
                 'row_total' => 5,
                 'row_total_incl_tax' => 5 + 0.42
             ]

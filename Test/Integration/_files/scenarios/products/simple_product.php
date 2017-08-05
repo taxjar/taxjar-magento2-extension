@@ -61,33 +61,33 @@ $taxCalculationData['simple_product'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 2.70,
+            'tax_amount' => 2.77,
             'subtotal' => 29.99,
-            'subtotal_incl_tax' => 29.99 + 2.70,
-            'grand_total' => 29.99 + 2.70
+            'subtotal_incl_tax' => 29.99 + 2.77,
+            'grand_total' => 29.99 + 2.77
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => 2.70,
-                'tax_percent' => 9.0,
+                'tax_amount' => 2.77,
+                'tax_percent' => 9.25,
                 'price' => 29.99,
-                'price_incl_tax' => 29.99 + 2.70,
+                'price_incl_tax' => 29.99 + 2.77,
                 'row_total' => 29.99,
-                'row_total_incl_tax' => 29.99 + 2.70,
+                'row_total_incl_tax' => 29.99 + 2.77,
                 'applied_taxes' => [
                     [
                         'id' => 'state - county - special',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 2.70,
-                        'base_amount' => 2.70,
-                        'percent' => 9.0,
+                        'amount' => 2.77,
+                        'base_amount' => 2.77,
+                        'percent' => 9.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
-                                'percent' => 6.5
+                                'percent' => 6.25
                             ],
                             [
                                 'code' => 'county',
@@ -97,7 +97,7 @@ $taxCalculationData['simple_product'] = [
                             [
                                 'code' => 'special',
                                 'title' => 'Special Tax',
-                                'percent' => 1.5
+                                'percent' => 2.0
                             ]
                         ]
                     ]
@@ -161,33 +161,33 @@ $taxCalculationData['simple_product_multiple'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 9.00,
+            'tax_amount' => 9.24,
             'subtotal' => 99.97,
-            'subtotal_incl_tax' => 99.97 + 9.00,
-            'grand_total' => 99.97 + 9.00
+            'subtotal_incl_tax' => 99.97 + 9.24,
+            'grand_total' => 99.97 + 9.24
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => 2.70,
-                'tax_percent' => 9.0,
+                'tax_amount' => 2.77,
+                'tax_percent' => 9.25,
                 'price' => 29.99,
-                'price_incl_tax' => 29.99 + 2.70,
+                'price_incl_tax' => 29.99 + 2.77,
                 'row_total' => 29.99,
-                'row_total_incl_tax' => 29.99 + 2.70,
+                'row_total_incl_tax' => 29.99 + 2.77,
                 'applied_taxes' => [
                     [
                         'id' => 'state - county - special',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 2.70,
-                        'base_amount' => 2.70,
-                        'percent' => 9.0,
+                        'amount' => 2.77,
+                        'base_amount' => 2.77,
+                        'percent' => 9.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
-                                'percent' => 6.5
+                                'percent' => 6.25
                             ],
                             [
                                 'code' => 'county',
@@ -197,33 +197,33 @@ $taxCalculationData['simple_product_multiple'] = [
                             [
                                 'code' => 'special',
                                 'title' => 'Special Tax',
-                                'percent' => 1.5
+                                'percent' => 2.0
                             ]
                         ]
                     ]
                 ]
             ],
             'taxjar-trucker-hat' => [
-                'tax_amount' => 0.90,
-                'tax_percent' => 9.0,
+                'tax_amount' => 0.92,
+                'tax_percent' => 9.25,
                 'price' => 9.99,
-                'price_incl_tax' => 9.99 + 0.90,
+                'price_incl_tax' => 9.99 + 0.92,
                 'row_total' => 9.99,
-                'row_total_incl_tax' => 9.99 + 0.90,
+                'row_total_incl_tax' => 9.99 + 0.92,
                 'applied_taxes' => [
                     [
                         'id' => 'state - county - special',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 0.90,
-                        'base_amount' => 0.90,
-                        'percent' => 9.0,
+                        'amount' => 0.92,
+                        'base_amount' => 0.92,
+                        'percent' => 9.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
-                                'percent' => 6.5
+                                'percent' => 6.25
                             ],
                             [
                                 'code' => 'county',
@@ -233,33 +233,33 @@ $taxCalculationData['simple_product_multiple'] = [
                             [
                                 'code' => 'special',
                                 'title' => 'Special Tax',
-                                'percent' => 1.5
+                                'percent' => 2.0
                             ]
                         ]
                     ]
                 ]
             ],
             'taxjar-hoodie' => [
-                'tax_amount' => 5.40,
-                'tax_percent' => 9.0,
+                'tax_amount' => 5.55,
+                'tax_percent' => 9.25,
                 'price' => 59.99,
-                'price_incl_tax' => 59.99 + 5.40,
+                'price_incl_tax' => 59.99 + 5.55,
                 'row_total' => 59.99,
-                'row_total_incl_tax' => 59.99 + 5.40,
+                'row_total_incl_tax' => 59.99 + 5.55,
                 'applied_taxes' => [
                     [
                         'id' => 'state - county - special',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 5.40,
-                        'base_amount' => 5.40,
-                        'percent' => 9.0,
+                        'amount' => 5.55,
+                        'base_amount' => 5.55,
+                        'percent' => 9.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
-                                'percent' => 6.5
+                                'percent' => 6.25
                             ],
                             [
                                 'code' => 'county',
@@ -269,7 +269,7 @@ $taxCalculationData['simple_product_multiple'] = [
                             [
                                 'code' => 'special',
                                 'title' => 'Special Tax',
-                                'percent' => 1.5
+                                'percent' => 2.0
                             ]
                         ]
                     ]
