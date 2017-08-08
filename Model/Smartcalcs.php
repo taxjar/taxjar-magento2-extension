@@ -345,7 +345,10 @@ class Smartcalcs
 
                     if ($extensionAttributes->getProductType() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
                         $parentQuantities[$id] = $quantity;
-                        continue;
+
+                        if ($extensionAttributes->getPriceType() == \Magento\Bundle\Model\Product\Price::PRICE_TYPE_DYNAMIC) {
+                            continue;
+                        }
                     }
 
                     if (isset($parentQuantities[$parentId])) {
