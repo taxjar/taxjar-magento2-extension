@@ -25,11 +25,6 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 class Client
 {
     /**
-     * @var string
-     */
-    const API_URL = 'https://api.taxjar.com/v2';
-
-    /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -195,7 +190,7 @@ class Client
      */
     private function _getApiUrl($resource)
     {
-        $apiUrl = self::API_URL;
+        $apiUrl = TaxjarConfig::TAXJAR_API_URL;
 
         switch ($resource) {
             case 'config':
