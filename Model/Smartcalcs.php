@@ -29,8 +29,6 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
  */
 class Smartcalcs
 {
-    const API_URL = 'https://api.taxjar.com/v2';
-
     /**
      * @var \Magento\Checkout\Model\Session
      */
@@ -169,7 +167,7 @@ class Smartcalcs
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
-            $client->setUri(self::API_URL . '/magento/taxes');
+            $client->setUri(TaxjarConfig::TAXJAR_API_URL . '/magento/taxes');
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
 
@@ -307,7 +305,7 @@ class Smartcalcs
             $customerTaxClass = $this->taxClassRepository->get($address->getQuote()->getCustomerTaxClassId());
             $customerTaxCode = $customerTaxClass->getTjSalestaxCode();
 
-            if ($customerTaxCode == '99999') {
+            if ($customerTaxCode == TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE) {
                 return true;
             }
         }
@@ -348,7 +346,7 @@ class Smartcalcs
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
                     } else {
-                        $taxCode = '99999';
+                        $taxCode = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
                     }
 
                     if ($this->productMetadata->getEdition() == 'Enterprise') {
@@ -360,7 +358,7 @@ class Smartcalcs
                                 $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
                                 $taxCode = $giftTaxClassCode;
                             } else {
-                                $taxCode = '99999';
+                                $taxCode = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
                             }
                         }
                     }
