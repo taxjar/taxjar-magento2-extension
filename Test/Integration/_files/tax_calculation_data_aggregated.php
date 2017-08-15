@@ -32,6 +32,7 @@ require_once __DIR__ . '/scenarios/countries/eu_calculation.php';
 require_once __DIR__ . '/scenarios/currencies/aud_with_usd_base_currency.php';
 require_once __DIR__ . '/scenarios/currencies/cad_with_usd_base_currency.php';
 require_once __DIR__ . '/scenarios/currencies/eur_with_usd_base_currency.php';
+require_once __DIR__ . '/scenarios/exemptions/none_tax_class_exemption.php';
 require_once __DIR__ . '/scenarios/exemptions/us_ca_grocery_exemption.php';
 require_once __DIR__ . '/scenarios/exemptions/us_ny_clothing_exemption.php';
 require_once __DIR__ . '/scenarios/fallbacks/invalid_token_fallback.php';
