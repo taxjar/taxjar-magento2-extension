@@ -347,6 +347,8 @@ class Smartcalcs
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
+                    } else {
+                        $taxCode = '99999';
                     }
 
                     if ($this->productMetadata->getEdition() == 'Enterprise') {
