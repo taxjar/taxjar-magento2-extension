@@ -248,7 +248,7 @@ class Client
             throw new LocalizedException(__($response->getBody()));
         }
 
-        throw new LocalizedException($errors[$statusCode] || $errors['default']);
+        throw new LocalizedException($errors[$statusCode] ?: $errors['default']);
     }
 
     /**
