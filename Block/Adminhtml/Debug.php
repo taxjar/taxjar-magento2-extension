@@ -109,10 +109,12 @@ class Debug extends Field
      */
     public function getBackupStates()
     {
-        return implode(
-            ', ',
-            $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
-        );
+        if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES)) {
+            return implode(
+                ', ',
+                $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
+            );
+        }
     }
 
     /**
