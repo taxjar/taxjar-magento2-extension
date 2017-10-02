@@ -5,7 +5,7 @@
     "version": "0.7.4",
     "license": "OSL-3.0",
     "require": {
-        "magento/framework": "^100.1.0 || ^100.2.0"
+        "magento/framework": "^100.1.0|^100.2.0"
     },
     "autoload": {
         "files": [ "registration.php" ],
