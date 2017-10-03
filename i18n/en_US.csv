@@ -17,6 +17,7 @@ Country,Country
 "Tax Class Information","Tax Class Information"
 "Class Name","Class Name"
 "TaxJar Exempt","TaxJar Exempt"
+"Fully exempts customer groups associated with this tax class from sales tax calculations through SmartCalcs. This setting does not apply to product exemptions or backup rates.","Fully exempts customer groups associated with this tax class from sales tax calculations through SmartCalcs. This setting does not apply to product exemptions or backup rates."
 Yes,Yes
 No,No
 "Manage Product Tax Classes","Manage Product Tax Classes"
