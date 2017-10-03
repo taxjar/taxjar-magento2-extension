@@ -15,16 +15,9 @@ composer require taxjar/module-taxjar
 If you're installing the extension manually, unzip the archive and upload the files to `/app/code/Taxjar/SalesTax`. After uploading, run the following [Magento CLI](http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands.html) commands:
 
 ```
-bin/magento module:enable Taxjar_SalesTax
+bin/magento module:enable Taxjar_SalesTax --clear-static-content
 bin/magento setup:upgrade
 bin/magento setup:di:compile
-```
-
-If the orange `Connect to TaxJar` button is unresponsive, you may need to clear and recompile your static content. Run the following commands:
-
-```
-rm -rf pub/static/*
-bin/magento setup:static-content:deploy
 ```
 
 These commands will enable the TaxJar extension, perform necessary database updates, and re-compile your Magento store. From there, you'll want to run through the pre-import checklist and set everything up using our [extension guide](http://www.taxjar.com/guides/integrations/magento2/)).
