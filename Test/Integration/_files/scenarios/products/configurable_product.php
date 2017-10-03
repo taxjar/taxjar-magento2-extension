@@ -73,33 +73,33 @@ $taxCalculationData['configurable_product'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 5.4,
+            'tax_amount' => 5.7,
             'subtotal' => 59.97,
-            'subtotal_incl_tax' => 59.97 + 5.4,
-            'grand_total' => 59.97 + 5.4
+            'subtotal_incl_tax' => 59.97 + 5.7,
+            'grand_total' => 59.97 + 5.7
         ],
         'items_data' => [
             'taxjar-configurable-tshirt' => [
-                'tax_amount' => 5.4,
-                'tax_percent' => 9.0,
+                'tax_amount' => 5.7,
+                'tax_percent' => 9.5,
                 'price' => 19.99,
-                'price_incl_tax' => 19.99 + (5.4 / 3),
+                'price_incl_tax' => 19.99 + (5.7 / 3),
                 'row_total' => 59.97,
-                'row_total_incl_tax' => 59.97 + 5.4,
+                'row_total_incl_tax' => 59.97 + 5.7,
                 'applied_taxes' => [
                     [
                         'id' => 'state - county - special',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 5.40,
-                        'base_amount' => 5.40,
-                        'percent' => 9.0,
+                        'amount' => 5.70,
+                        'base_amount' => 5.70,
+                        'percent' => 9.5,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
-                                'percent' => 6.5
+                                'percent' => 6.25
                             ],
                             [
                                 'code' => 'county',
@@ -109,7 +109,7 @@ $taxCalculationData['configurable_product'] = [
                             [
                                 'code' => 'special',
                                 'title' => 'Special Tax',
-                                'percent' => 1.5
+                                'percent' => 2.25
                             ]
                         ]
                     ]

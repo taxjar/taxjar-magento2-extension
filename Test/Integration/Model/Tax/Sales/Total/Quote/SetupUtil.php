@@ -581,6 +581,7 @@ class SetupUtil
             ->setSku($sku)
             ->setPrice($price)
             ->setTaxClassId($taxClassId)
+            ->setWebsiteIds([1])
             ->setStockData(
                 [
                     'use_config_manage_stock' => 1,
@@ -636,9 +637,17 @@ class SetupUtil
             ->setAttributeSetId($attributeSetId)
             ->setName('Configurable Product')
             ->setSku($sku)
+            ->setWebsiteIds([1])
             ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
             ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
-            ->setStockData(['use_config_manage_stock' => 1, 'is_in_stock' => 1])
+            ->setStockData(
+                [
+                    'use_config_manage_stock' => 1,
+                    'qty' => 100,
+                    'is_qty_decimal' => 0,
+                    'is_in_stock' => 1
+                ]
+            )
             ->setCanSaveConfigurableAttributes(true)
             ->setConfigurableAttributesData(
                 [
@@ -881,7 +890,7 @@ class SetupUtil
             $qty = isset($itemData['qty']) ? $itemData['qty'] : 1;
             $taxClassName =
                 isset($itemData['tax_class_name']) ? $itemData['tax_class_name'] : self::PRODUCT_DEFAULT_TAX_CLASS;
-            $taxClassId = $this->productTaxClasses[$taxClassName];
+            $taxClassId = isset($this->productTaxClasses[$taxClassName]) ? $this->productTaxClasses[$taxClassName] : 0;
 
             switch ($itemData['type']) {
                 case self::PRODUCT_TYPE_CONFIGURABLE:

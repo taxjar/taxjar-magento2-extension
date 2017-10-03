@@ -23,7 +23,7 @@ use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Module\ModuleList;
 use Magento\TestFramework\ObjectManager;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends \PHPUnit\Framework\TestCase
 {
     private $moduleName = 'Taxjar_SalesTax';
 

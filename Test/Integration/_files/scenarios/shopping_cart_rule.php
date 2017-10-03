@@ -66,19 +66,19 @@ $taxCalculationData['shopping_cart_rule'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 2.08,
+            'tax_amount' => 2.14,
             'subtotal' => 29.99,
-            'subtotal_incl_tax' => 29.99 + 2.08,
-            'grand_total' => 24.57
+            'subtotal_incl_tax' => 29.99 + 2.14,
+            'grand_total' => 24.63
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => 2.08,
-                'tax_percent' => 9.25,
+                'tax_amount' => 2.14,
+                'tax_percent' => 9.5,
                 'price' => 29.99,
-                'price_incl_tax' => 29.99 + 2.08,
+                'price_incl_tax' => 29.99 + 2.14,
                 'row_total' => 29.99,
-                'row_total_incl_tax' => 29.99 + 2.08,
+                'row_total_incl_tax' => 29.99 + 2.14,
                 'discount_amount' => 7.50
             ],
         ],
