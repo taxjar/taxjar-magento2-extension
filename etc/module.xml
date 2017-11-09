@@ -20,6 +20,7 @@
     <!-- Database Setup Version -->
     <module name="Taxjar_SalesTax" setup_version="0.7.0">
         <sequence>
+            <module name="Magento_Enterprise"/>
             <module name="Magento_Sales"/>
         </sequence>
     </module>
