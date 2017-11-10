@@ -39,7 +39,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             /**
             * Update table 'sales_order'
             */
-            $installer->getConnection()->addColumn(
+            $installer->getConnection('sales')->addColumn(
                 $installer->getTable('sales_order'),
                 'tj_salestax_sync_date',
                 [
@@ -52,7 +52,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             /**
             * Update table 'sales_credit_memo'
             */
-            $installer->getConnection()->addColumn(
+            $installer->getConnection('sales')->addColumn(
                 $installer->getTable('sales_creditmemo'),
                 'tj_salestax_sync_date',
                 [
