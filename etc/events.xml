@@ -20,4 +20,7 @@
     <event name="sales_order_save_after">
         <observer name="taxjar_salestax_sync_transaction" instance="Taxjar\SalesTax\Observer\SyncTransaction"/>
     </event>
+    <event name="sales_order_creditmemo_save_after">
+        <observer name="taxjar_salestax_sync_refund" instance="Taxjar\SalesTax\Observer\SyncRefund"/>
+    </event>
 </config>
