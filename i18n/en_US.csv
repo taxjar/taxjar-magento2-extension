@@ -86,6 +86,7 @@ Region,Region
 "Please select at least one product tax class and one customer tax class to import backup rates from TaxJar.","Please select at least one product tax class and one customer tax class to import backup rates from TaxJar."
 "TaxJar has added new rates to your database. Thanks for using TaxJar!","TaxJar has added new rates to your database. Thanks for using TaxJar!"
 "Could not write to your Magento temp directory under /var/tmp. Please make sure the directory is created and check permissions for %1.","Could not write to your Magento temp directory under /var/tmp. Please make sure the directory is created and check permissions for %1."
+"For backup shipping rates, please use a unique tax class for shipping.","For backup shipping rates, please use a unique tax class for shipping."
 "Your last backup rate sync from TaxJar was too recent. Please wait at least 5 minutes and try again.","Your last backup rate sync from TaxJar was too recent. Please wait at least 5 minutes and try again."
 "Order successfully synced to TaxJar.","Order successfully synced to TaxJar."
 "This order was not synced to TaxJar.","This order was not synced to TaxJar."

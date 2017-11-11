@@ -299,11 +299,6 @@ class ImportRates implements ObserverInterface
         $rule = $this->ruleFactory->create();
         $productTaxClasses = $this->productTaxClasses;
         $shippingClass = $this->scopeConfig->getValue('tax/classes/shipping_tax_class');
-        $backupShipping = in_array($shippingClass, $productTaxClasses);
-
-        if ($backupShipping) {
-            $productTaxClasses = array_diff($productTaxClasses, [$shippingClass]);
-        }
 
         $rule->create(
             'TaxJar Backup Rates',
@@ -313,14 +308,20 @@ class ImportRates implements ObserverInterface
             $this->newRates
         );
 
-        if ($backupShipping) {
-            $rule->create(
-                'TaxJar Backup Rates (Shipping)',
-                $this->customerTaxClasses,
-                [$shippingClass],
-                2,
-                $this->newShippingRates
-            );
+        if ($shippingClass) {
+            if (in_array($shippingClass, $productTaxClasses)) {
+                // @codingStandardsIgnoreStart
+                $this->messageManager->addErrorMessage(__('For backup shipping rates, please use a unique tax class for shipping.'));
+                // @codingStandardsIgnoreEnd
+            } else {
+                $rule->create(
+                    'TaxJar Backup Rates (Shipping)',
+                    $this->customerTaxClasses,
+                    [$shippingClass],
+                    2,
+                    $this->newShippingRates
+                );
+            }
         }
     }
 
