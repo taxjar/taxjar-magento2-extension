@@ -22,12 +22,11 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 
-class SyncTransaction implements ObserverInterface
+class SyncRefund implements ObserverInterface
 {
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -38,11 +37,6 @@ class SyncTransaction implements ObserverInterface
      * @var \Magento\Framework\Message\ManagerInterface
      */
     protected $messageManager;
-
-    /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
-     */
-    protected $orderRepository;
 
     /**
      * @var \Taxjar\SalesTax\Model\Transaction\OrderFactory
@@ -62,7 +56,6 @@ class SyncTransaction implements ObserverInterface
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param ManagerInterface $messageManager
-     * @param OrderRepositoryInterface $orderRepository
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Registry $registry
@@ -70,14 +63,12 @@ class SyncTransaction implements ObserverInterface
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ManagerInterface $messageManager,
-        OrderRepositoryInterface $orderRepository,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
         Registry $registry
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
-        $this->orderRepository = $orderRepository;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
         $this->registry = $registry;
@@ -103,36 +94,18 @@ class SyncTransaction implements ObserverInterface
             return $this;
         }
 
-        if ($observer->getData('order_id')) {
-            $order = $this->orderRepository->get($observer->getData('order_id'));
-        } else {
-            $order = $observer->getEvent()->getOrder();
-        }
+        $creditmemo = $observer->getEvent()->getCreditmemo();
+        $order = $creditmemo->getOrder();
 
         $orderTransaction = $this->orderFactory->create();
 
         if ($orderTransaction->isSyncable($order)) {
             try {
-                $orderTransaction->build($order);
-                $orderTransaction->push();
-
-                $creditmemos = $order->getCreditmemosCollection();
-
-                foreach ($creditmemos as $creditmemo) {
-                    $refundTransaction = $this->refundFactory->create();
-                    $refundTransaction->build($order, $creditmemo);
-                    $refundTransaction->push();
-                }
-
-                if ($observer->getData('order_id')) {
-                    $this->messageManager->addSuccessMessage(__('Order successfully synced to TaxJar.'));
-                }
+                $refundTransaction = $this->refundFactory->create();
+                $refundTransaction->build($order, $creditmemo);
+                $refundTransaction->push();
             } catch(\Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
-            }
-        } else {
-            if ($observer->getData('order_id')) {
-                $this->messageManager->addErrorMessage(__('This order was not synced to TaxJar.'));
             }
         }
 
