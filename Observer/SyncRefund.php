@@ -22,9 +22,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 
@@ -39,16 +37,6 @@ class SyncRefund implements ObserverInterface
      * @var \Magento\Framework\Message\ManagerInterface
      */
     protected $messageManager;
-
-    /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
-     */
-    protected $orderRepository;
-
-    /**
-     * @var \Taxjar\SalesTax\Model\Logger
-     */
-    protected $logger;
 
     /**
      * @var \Taxjar\SalesTax\Model\Transaction\OrderFactory
@@ -68,28 +56,22 @@ class SyncRefund implements ObserverInterface
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param ManagerInterface $messageManager
-     * @param OrderRepositoryInterface $orderRepository
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Registry $registry
-     * @param Logger $logger
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ManagerInterface $messageManager,
-        OrderRepositoryInterface $orderRepository,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
-        Registry $registry,
-        Logger $logger
+        Registry $registry
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
-        $this->orderRepository = $orderRepository;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
         $this->registry = $registry;
-        $this->logger = $logger;
     }
 
     /**

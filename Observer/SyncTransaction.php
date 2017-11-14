@@ -24,7 +24,6 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 
@@ -44,11 +43,6 @@ class SyncTransaction implements ObserverInterface
      * @var \Magento\Sales\Api\OrderRepositoryInterface
      */
     protected $orderRepository;
-
-    /**
-     * @var \Taxjar\SalesTax\Model\Logger
-     */
-    protected $logger;
 
     /**
      * @var \Taxjar\SalesTax\Model\Transaction\OrderFactory
@@ -72,7 +66,6 @@ class SyncTransaction implements ObserverInterface
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Registry $registry
-     * @param Logger $logger
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -80,8 +73,7 @@ class SyncTransaction implements ObserverInterface
         OrderRepositoryInterface $orderRepository,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
-        Registry $registry,
-        Logger $logger
+        Registry $registry
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
@@ -89,7 +81,6 @@ class SyncTransaction implements ObserverInterface
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
         $this->registry = $registry;
-        $this->logger = $logger;
     }
 
     /**
