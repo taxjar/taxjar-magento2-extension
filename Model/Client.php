@@ -149,7 +149,7 @@ class Client
     private function getClient($url, $method = \Zend_Http_Client::GET)
     {
         // @codingStandardsIgnoreStart
-        $client = new \Zend_Http_Client($url);
+        $client = new \Zend_Http_Client($url, ['timeout' => 30]);
         // @codingStandardsIgnoreEnd
         $client->setUri($url);
         $client->setMethod($method);
