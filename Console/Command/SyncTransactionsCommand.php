@@ -84,7 +84,7 @@ class SyncTransactionsCommand extends Command
                 'to_date' => $input->getArgument(self::TO_ARGUMENT)
             ]);
         } catch (\Exception $e) {
-            $output->writeln('Failed to sync transactions: ' . $e->getMessage());
+            $output->writeln(PHP_EOL . '<error>Failed to sync transactions: ' . $e->getMessage() . '</error>');
         }
     }
 }
