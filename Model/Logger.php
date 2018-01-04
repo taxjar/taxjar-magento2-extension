@@ -43,6 +43,11 @@ class Logger
     protected $isRecording;
 
     /**
+     * @var \Symfony\Component\Console\Output\OutputInterface
+     */
+    protected $console;
+
+    /**
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile
      */
@@ -83,6 +88,9 @@ class Logger
             if ($this->isRecording) {
                 $this->playback[] = $message;
             }
+            if ($this->console) {
+                $this->console->write($message);
+            }
         } catch (\Exception $e) {
             // @codingStandardsIgnoreStart
             throw new LocalizedException(__('Could not write to your Magento log directory under /var/log. Please make sure the directory is created and check permissions for %1.', $this->directoryList->getPath('log')));
@@ -108,5 +116,15 @@ class Logger
     public function playback()
     {
         return $this->playback;
+    }
+
+    /**
+     * Set console output interface
+     *
+     * @return void
+     */
+    public function console($output)
+    {
+        $this->console = $output;
     }
 }
