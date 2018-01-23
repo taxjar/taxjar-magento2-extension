@@ -27,37 +27,26 @@ $taxCalculationData['shipping_tax_calculation'] = [
             'shipping/origin/region_id' => SetupUtil::REGION_MO,
             'shipping/origin/country_id' => SetupUtil::COUNTRY_US,
             'shipping/origin/postcode' => '64111'
-        ]),
-        SetupUtil::NEXUS_OVERRIDES => [
-            [
-                'street' => '4525 Oak St',
-                'city' => 'Kansas City',
-                'country_id' => SetupUtil::COUNTRY_US,
-                'region' => 'Missouri',
-                'region_id' => SetupUtil::REGION_MO,
-                'region_code' => 'MO',
-                'postcode' => '64111'
-            ]
-        ]
+        ])
     ],
     'quote_data' => [
         'billing_address' => [
             'firstname' => 'Jake',
             'lastname' => 'Johnson',
-            'street' => '4750 Broadway St',
-            'city' => 'Kansas City',
-            'region_id' => SetupUtil::REGION_MO,
-            'postcode' => '64112',
+            'street' => '1100 Congress Ave',
+            'city' => 'Austin',
+            'region_id' => SetupUtil::REGION_TX,
+            'postcode' => '78701',
             'country_id' => SetupUtil::COUNTRY_US,
             'telephone' => '999-999-9999'
         ],
         'shipping_address' => [
             'firstname' => 'Jake',
             'lastname' => 'Johnson',
-            'street' => '4750 Broadway St',
-            'city' => 'Kansas City',
-            'region_id' => SetupUtil::REGION_MO,
-            'postcode' => '64112',
+            'street' => '1100 Congress Ave',
+            'city' => 'Austin',
+            'region_id' => SetupUtil::REGION_TX,
+            'postcode' => '78701',
             'country_id' => SetupUtil::COUNTRY_US,
             'telephone' => '999-999-9999'
         ],
@@ -78,25 +67,25 @@ $taxCalculationData['shipping_tax_calculation'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 4.66,
+            'tax_amount' => 4.53,
             'subtotal' => 49.99,
-            'subtotal_incl_tax' => 49.99 + (4.66 - 0.42),
-            'grand_total' => 49.99 + 4.66 + 5
+            'subtotal_incl_tax' => 49.99 + (4.53 - 0.41),
+            'grand_total' => 49.99 + 4.53 + 5
         ],
         'items_data' => [
             'taxjar-bbq' => [
-                'tax_amount' => 4.24,
-                'tax_percent' => 8.475,
+                'tax_amount' => 4.12,
+                'tax_percent' => 8.250,
                 'price' => 49.99,
-                'price_incl_tax' => 49.99 + 4.24,
+                'price_incl_tax' => 49.99 + 4.12,
                 'row_total' => 49.99,
-                'row_total_incl_tax' => 49.99 + 4.24
+                'row_total_incl_tax' => 49.99 + 4.12
             ],
             'shipping' => [
-                'tax_amount' => 0.42,
-                'tax_percent' => 8.475,
+                'tax_amount' => 0.41,
+                'tax_percent' => 8.250,
                 'row_total' => 5,
-                'row_total_incl_tax' => 5 + 0.42
+                'row_total_incl_tax' => 5 + 0.41
             ]
         ],
     ],
