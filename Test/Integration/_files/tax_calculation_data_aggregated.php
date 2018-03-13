@@ -41,6 +41,7 @@ require_once __DIR__ . '/scenarios/fallbacks/no_nexus_fallback.php';
 require_once __DIR__ . '/scenarios/fallbacks/smartcalcs_disabled_fallback.php';
 require_once __DIR__ . '/scenarios/products/configurable_product.php';
 require_once __DIR__ . '/scenarios/products/simple_product.php';
+require_once __DIR__ . '/scenarios/line_item_rounding_calculation.php';
 require_once __DIR__ . '/scenarios/shipping_tax_calculation.php';
 require_once __DIR__ . '/scenarios/shopping_cart_rule.php';
 

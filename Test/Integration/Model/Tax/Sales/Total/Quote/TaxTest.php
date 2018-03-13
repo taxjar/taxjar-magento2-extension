@@ -71,7 +71,7 @@ class TaxTest extends \PHPUnit\Framework\TestCase
     protected function verifyItem($item, $expectedItemData)
     {
         foreach ($expectedItemData as $key => $value) {
-            $this->assertEquals($value, $item->getData($key), 'item ' . $key . ' is incorrect');
+            $this->assertEquals($value, $item->getData($key), 'item ' . $key . ' is incorrect', 0.01);
         }
 
         return $this;
@@ -87,7 +87,7 @@ class TaxTest extends \PHPUnit\Framework\TestCase
     protected function verifyAppliedTaxRate($appliedTaxRate, $expectedAppliedTaxRate)
     {
         foreach ($expectedAppliedTaxRate as $key => $value) {
-            $this->assertEquals($value, $appliedTaxRate[$key], 'Applied tax rate ' . $key . ' is incorrect');
+            $this->assertEquals($value, $appliedTaxRate[$key], 'Applied tax rate ' . $key . ' is incorrect', 0.01);
         }
         return $this;
     }
@@ -107,7 +107,7 @@ class TaxTest extends \PHPUnit\Framework\TestCase
                     $this->verifyAppliedTaxRate($appliedTax['rates'][$index], $taxRate);
                 }
             } else {
-                $this->assertEquals($value, $appliedTax[$key], 'Applied tax ' . $key . ' is incorrect');
+                $this->assertEquals($value, $appliedTax[$key], 'Applied tax ' . $key . ' is incorrect', 0.01);
             }
         }
         return $this;
@@ -142,7 +142,7 @@ class TaxTest extends \PHPUnit\Framework\TestCase
             if ($key == 'applied_taxes') {
                 $this->verifyAppliedTaxes($quoteAddress->getAppliedTaxes(), $value);
             } else {
-                $this->assertEquals($value, $quoteAddress->getData($key), 'Quote address ' . $key . ' is incorrect');
+                $this->assertEquals($value, $quoteAddress->getData($key), 'Quote address ' . $key . ' is incorrect', 0.01);
             }
         }
 
