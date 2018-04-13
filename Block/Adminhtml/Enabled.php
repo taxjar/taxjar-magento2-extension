@@ -141,13 +141,7 @@ class Enabled extends PopupField
     public function getPopupUrl()
     {
         $popupUrl = $this->getAuthUrl() . '/smartcalcs/connect/magento/?store=' . urlencode($this->getStoreOrigin());
-
-        if ($this->getStoreGeneralEmail()) {
-            $popupUrl .= '&email=' . urlencode($this->getStoreGeneralEmail());
-        }
-
         $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
-
         return $popupUrl;
     }
 }
