@@ -223,7 +223,13 @@ class Backfill
         return $this;
     }
 
-    private function orderStateFilter($state)
+    /**
+     * Filter orders to sync by order state (e.g. completed, closed)
+     *
+     * @param string $state
+     * @return \Magento\Framework\Api\Filter
+     */
+    protected function orderStateFilter($state)
     {
         return $this->filterBuilder->setField('state')->setValue($state)->create();
     }
