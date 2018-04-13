@@ -88,18 +88,18 @@ class SyncRefund implements ObserverInterface
             return $this;
         }
 
-        if (!$this->registry->registry('taxjar_sync_' . $eventName)) {
-            $this->registry->register('taxjar_sync_' . $eventName, true);
-        } else {
-            return $this;
-        }
-
         $creditmemo = $observer->getEvent()->getCreditmemo();
         $order = $creditmemo->getOrder();
 
         $orderTransaction = $this->orderFactory->create();
 
         if ($orderTransaction->isSyncable($order)) {
+            if (!$this->registry->registry('taxjar_sync_' . $eventName)) {
+                $this->registry->register('taxjar_sync_' . $eventName, true);
+            } else {
+                return $this;
+            }
+
             try {
                 $refundTransaction = $this->refundFactory->create();
                 $refundTransaction->build($order, $creditmemo);
