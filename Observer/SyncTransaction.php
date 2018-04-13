@@ -97,12 +97,6 @@ class SyncTransaction implements ObserverInterface
             return $this;
         }
 
-        if (!$this->registry->registry('taxjar_sync_' . $eventName)) {
-            $this->registry->register('taxjar_sync_' . $eventName, true);
-        } else {
-            return $this;
-        }
-
         if ($observer->getData('order_id')) {
             $order = $this->orderRepository->get($observer->getData('order_id'));
         } else {
@@ -112,6 +106,12 @@ class SyncTransaction implements ObserverInterface
         $orderTransaction = $this->orderFactory->create();
 
         if ($orderTransaction->isSyncable($order)) {
+            if (!$this->registry->registry('taxjar_sync_' . $eventName)) {
+                $this->registry->register('taxjar_sync_' . $eventName, true);
+            } else {
+                return $this;
+            }
+
             try {
                 $orderTransaction->build($order);
                 $orderTransaction->push();

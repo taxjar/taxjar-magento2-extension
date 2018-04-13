@@ -131,6 +131,17 @@ class Client
     }
 
     /**
+     * Set API token for client requests
+     *
+     * @param string $key
+     * @return void
+     */
+    public function setApiKey($key)
+    {
+        $this->apiKey = $key;
+    }
+
+    /**
      * @param bool $toggle
      * @return void
      */

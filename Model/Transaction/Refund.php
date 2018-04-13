@@ -17,6 +17,8 @@
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+
 class Refund extends \Taxjar\SalesTax\Model\Transaction
 {
     /**
@@ -82,6 +84,10 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     public function push($forceMethod = null) {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
         $refundSyncedAt = $this->originalRefund->getTjSalestaxSyncDate();
+        $refundApiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $this->originalOrder->getStoreId()
+        ));
 
         if (!$this->isSynced($refundSyncedAt)) {
             $method = 'POST';
@@ -94,6 +100,10 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                                         . ' not updated since last sync', 'skip');
                 return;
             }
+        }
+
+        if ($refundApiKey) {
+            $this->client->setApiKey($refundApiKey);
         }
 
         if ($forceMethod) {
