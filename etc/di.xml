@@ -21,4 +21,11 @@
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
     <preference for="Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface" type="Taxjar\SalesTax\Model\Tax\Nexus\Repository" />
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="SyncTransactionsCommand" xsi:type="object">Taxjar\SalesTax\Console\Command\SyncTransactionsCommand</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
