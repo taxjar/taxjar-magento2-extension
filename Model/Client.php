@@ -259,7 +259,11 @@ class Client
             throw new LocalizedException(__($response->getBody()));
         }
 
-        throw new LocalizedException($errors[$statusCode] ?: $errors['default']);
+        if (isset($errors[$statusCode])) {
+            throw new LocalizedException($errors[$statusCode]);
+        }
+
+        throw new LocalizedException($errors['default']);
     }
 
     /**
@@ -272,6 +276,7 @@ class Client
         // @codingStandardsIgnoreStart
         return [
             '401' => __('Your TaxJar API token is invalid. Please review your TaxJar account at %1.', TaxjarConfig::TAXJAR_AUTH_URL),
+            '403' => __('Your TaxJar trial or subscription may have expired. Please review your TaxJar account at %1.', TaxjarConfig::TAXJAR_AUTH_URL),
             'default' => __('Could not connect to TaxJar.')
         ];
         // @codingStandardsIgnoreEnd
