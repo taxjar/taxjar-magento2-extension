@@ -76,27 +76,49 @@ $taxCalculationData['simple_product'] = [
                 'row_total_incl_tax' => 29.99 + 2.85,
                 'applied_taxes' => [
                     [
-                        'id' => 'state - county - special',
+                        'id' => 'state-sequence-1',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 2.85,
-                        'base_amount' => 2.85,
-                        'percent' => 9.5,
+                        'amount' => 1.87,
+                        'base_amount' => 1.87,
+                        'percent' => 6.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
                                 'percent' => 6.25
-                            ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'county-sequence-1',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.3,
+                        'base_amount' => 0.3,
+                        'percent' => 1.0,
+                        'rates' => [
                             [
                                 'code' => 'county',
                                 'title' => 'County Tax',
-                                'percent' => 1
-                            ],
+                                'percent' => 1.0
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'special-sequence-1',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.67,
+                        'base_amount' => 0.67,
+                        'percent' => 2.25,
+                        'rates' => [
                             [
                                 'code' => 'special',
-                                'title' => 'Special Tax',
+                                'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
                         ]
@@ -176,27 +198,49 @@ $taxCalculationData['simple_product_multiple'] = [
                 'row_total_incl_tax' => 29.99 + 2.85,
                 'applied_taxes' => [
                     [
-                        'id' => 'state - county - special',
+                        'id' => 'state-sequence-1',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 2.85,
-                        'base_amount' => 2.85,
-                        'percent' => 9.5,
+                        'amount' => 1.87,
+                        'base_amount' => 1.87,
+                        'percent' => 6.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
                                 'percent' => 6.25
-                            ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'county-sequence-1',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.3,
+                        'base_amount' => 0.3,
+                        'percent' => 1.0,
+                        'rates' => [
                             [
                                 'code' => 'county',
                                 'title' => 'County Tax',
-                                'percent' => 1
-                            ],
+                                'percent' => 1.0
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'special-sequence-1',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.67,
+                        'base_amount' => 0.67,
+                        'percent' => 2.25,
+                        'rates' => [
                             [
                                 'code' => 'special',
-                                'title' => 'Special Tax',
+                                'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
                         ]
@@ -212,27 +256,49 @@ $taxCalculationData['simple_product_multiple'] = [
                 'row_total_incl_tax' => 9.99 + 0.95,
                 'applied_taxes' => [
                     [
-                        'id' => 'state - county - special',
+                        'id' => 'state-sequence-2',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 0.95,
-                        'base_amount' => 0.95,
-                        'percent' => 9.5,
+                        'amount' => 0.62,
+                        'base_amount' => 0.62,
+                        'percent' => 6.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
                                 'percent' => 6.25
-                            ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'county-sequence-2',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.10,
+                        'base_amount' => 0.10,
+                        'percent' => 1.0,
+                        'rates' => [
                             [
                                 'code' => 'county',
                                 'title' => 'County Tax',
-                                'percent' => 1
-                            ],
+                                'percent' => 1.0
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'special-sequence-2',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.22,
+                        'base_amount' => 0.22,
+                        'percent' => 2.25,
+                        'rates' => [
                             [
                                 'code' => 'special',
-                                'title' => 'Special Tax',
+                                'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
                         ]
@@ -248,27 +314,49 @@ $taxCalculationData['simple_product_multiple'] = [
                 'row_total_incl_tax' => 59.99 + 5.7,
                 'applied_taxes' => [
                     [
-                        'id' => 'state - county - special',
+                        'id' => 'state-sequence-3',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 5.7,
-                        'base_amount' => 5.7,
-                        'percent' => 9.5,
+                        'amount' => 3.75,
+                        'base_amount' => 3.75,
+                        'percent' => 6.25,
                         'rates' => [
                             [
                                 'code' => 'state',
                                 'title' => 'State Tax',
                                 'percent' => 6.25
-                            ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'county-sequence-3',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.6,
+                        'base_amount' => 0.6,
+                        'percent' => 1.0,
+                        'rates' => [
                             [
                                 'code' => 'county',
                                 'title' => 'County Tax',
-                                'percent' => 1
-                            ],
+                                'percent' => 1.0
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'special-sequence-3',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 1.35,
+                        'base_amount' => 1.35,
+                        'percent' => 2.25,
+                        'rates' => [
                             [
                                 'code' => 'special',
-                                'title' => 'Special Tax',
+                                'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
                         ]

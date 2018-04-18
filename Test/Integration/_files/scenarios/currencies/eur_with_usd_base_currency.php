@@ -94,17 +94,17 @@ $taxCalculationData['eur_with_usd_base_currency'] = [
                 'base_row_total_incl_tax' => 29.99 + 6.00,
                 'applied_taxes' => [
                     [
-                        'id' => 'country',
+                        'id' => 'country-sequence-1',
                         'item_id' => '3',
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => (6.00 * 0.88),
-                        'base_amount' => (6.00 * 0.88), // Base amount remains the same
+                        'amount' => 6.0,
+                        'base_amount' => 6.0, // Base amount remains the same
                         'percent' => 20.0,
                         'rates' => [
                             [
                                 'code' => 'country',
-                                'title' => 'Country Tax',
+                                'title' => 'VAT',
                                 'percent' => 20.0
                             ]
                         ]

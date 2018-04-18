@@ -83,7 +83,7 @@ $taxCalculationData['eu_calculation'] = [
                 'row_total_incl_tax' => 29.99 + 6.00,
                 'applied_taxes' => [
                     [
-                        'id' => 'country',
+                        'id' => 'country-sequence-1',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -93,7 +93,7 @@ $taxCalculationData['eu_calculation'] = [
                         'rates' => [
                             [
                                 'code' => 'country',
-                                'title' => 'Country Tax',
+                                'title' => 'VAT',
                                 'percent' => 20.0
                             ]
                         ]

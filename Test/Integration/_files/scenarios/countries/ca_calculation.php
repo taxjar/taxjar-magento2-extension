@@ -87,19 +87,30 @@ $taxCalculationData['ca_calculation'] = [
                 'row_total_incl_tax' => 29.99 + 3.90,
                 'applied_taxes' => [
                     [
-                        'id' => 'gst - pst',
+                        'id' => 'gst-sequence-1',
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 3.90,
-                        'base_amount' => 3.90,
-                        'percent' => 13.0,
+                        'amount' => 1.5,
+                        'base_amount' => 1.5,
+                        'percent' => 5,
                         'rates' => [
                             [
                                 'code' => 'gst',
                                 'title' => 'GST',
                                 'percent' => 5
-                            ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 'pst-sequence-1',
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 2.4,
+                        'base_amount' => 2.4,
+                        'percent' => 8,
+                        'rates' => [
                             [
                                 'code' => 'pst',
                                 'title' => 'PST',
