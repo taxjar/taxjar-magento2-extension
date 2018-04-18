@@ -277,7 +277,9 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             ? $itemDataObject->getExtensionAttributes()
             : $this->extensionFactory->create();
 
-        $extensionAttributes->setTaxCollectable($lineItemTax['tax_collectable']);
+        $taxCollectable = $lineItemTax['taxable_amount'] * $lineItemTax['combined_tax_rate'];
+
+        $extensionAttributes->setTaxCollectable($taxCollectable);
         $extensionAttributes->setCombinedTaxRate($lineItemTax['combined_tax_rate'] * 100);
         $extensionAttributes->setProductType($item->getProductType());
         $extensionAttributes->setPriceType($item->getProduct()->getPriceType());
