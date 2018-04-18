@@ -76,7 +76,7 @@ $taxCalculationData['simple_product'] = [
                 'row_total_incl_tax' => 29.99 + 2.85,
                 'applied_taxes' => [
                     [
-                        'id' => 'state-sequence-1',
+                        'id' => 1,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -85,14 +85,14 @@ $taxCalculationData['simple_product'] = [
                         'percent' => 6.25,
                         'rates' => [
                             [
-                                'code' => 'state',
+                                'code' => 1,
                                 'title' => 'State Tax',
                                 'percent' => 6.25
                             ]
                         ]
                     ],
                     [
-                        'id' => 'county-sequence-1',
+                        'id' => 2,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -101,14 +101,14 @@ $taxCalculationData['simple_product'] = [
                         'percent' => 1.0,
                         'rates' => [
                             [
-                                'code' => 'county',
+                                'code' => 2,
                                 'title' => 'County Tax',
                                 'percent' => 1.0
                             ]
                         ]
                     ],
                     [
-                        'id' => 'special-sequence-1',
+                        'id' => 4,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -117,7 +117,7 @@ $taxCalculationData['simple_product'] = [
                         'percent' => 2.25,
                         'rates' => [
                             [
-                                'code' => 'special',
+                                'code' => 4,
                                 'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
@@ -198,7 +198,7 @@ $taxCalculationData['simple_product_multiple'] = [
                 'row_total_incl_tax' => 29.99 + 2.85,
                 'applied_taxes' => [
                     [
-                        'id' => 'state-sequence-1',
+                        'id' => 1,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -207,14 +207,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 6.25,
                         'rates' => [
                             [
-                                'code' => 'state',
+                                'code' => 1,
                                 'title' => 'State Tax',
                                 'percent' => 6.25
                             ]
                         ]
                     ],
                     [
-                        'id' => 'county-sequence-1',
+                        'id' => 2,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -223,14 +223,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 1.0,
                         'rates' => [
                             [
-                                'code' => 'county',
+                                'code' => 2,
                                 'title' => 'County Tax',
                                 'percent' => 1.0
                             ]
                         ]
                     ],
                     [
-                        'id' => 'special-sequence-1',
+                        'id' => 4,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -239,7 +239,7 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 2.25,
                         'rates' => [
                             [
-                                'code' => 'special',
+                                'code' => 4,
                                 'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
@@ -256,7 +256,7 @@ $taxCalculationData['simple_product_multiple'] = [
                 'row_total_incl_tax' => 9.99 + 0.95,
                 'applied_taxes' => [
                     [
-                        'id' => 'state-sequence-2',
+                        'id' => 1,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -265,14 +265,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 6.25,
                         'rates' => [
                             [
-                                'code' => 'state',
+                                'code' => 1,
                                 'title' => 'State Tax',
                                 'percent' => 6.25
                             ]
                         ]
                     ],
                     [
-                        'id' => 'county-sequence-2',
+                        'id' => 2,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -281,14 +281,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 1.0,
                         'rates' => [
                             [
-                                'code' => 'county',
+                                'code' => 2,
                                 'title' => 'County Tax',
                                 'percent' => 1.0
                             ]
                         ]
                     ],
                     [
-                        'id' => 'special-sequence-2',
+                        'id' => 4,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -297,7 +297,7 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 2.25,
                         'rates' => [
                             [
-                                'code' => 'special',
+                                'code' => 4,
                                 'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
@@ -314,7 +314,7 @@ $taxCalculationData['simple_product_multiple'] = [
                 'row_total_incl_tax' => 59.99 + 5.7,
                 'applied_taxes' => [
                     [
-                        'id' => 'state-sequence-3',
+                        'id' => 1,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -323,14 +323,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 6.25,
                         'rates' => [
                             [
-                                'code' => 'state',
+                                'code' => 1,
                                 'title' => 'State Tax',
                                 'percent' => 6.25
                             ]
                         ]
                     ],
                     [
-                        'id' => 'county-sequence-3',
+                        'id' => 2,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -339,14 +339,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 1.0,
                         'rates' => [
                             [
-                                'code' => 'county',
+                                'code' => 2,
                                 'title' => 'County Tax',
                                 'percent' => 1.0
                             ]
                         ]
                     ],
                     [
-                        'id' => 'special-sequence-3',
+                        'id' => 4,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -355,7 +355,7 @@ $taxCalculationData['simple_product_multiple'] = [
                         'percent' => 2.25,
                         'rates' => [
                             [
-                                'code' => 'special',
+                                'code' => 4,
                                 'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]

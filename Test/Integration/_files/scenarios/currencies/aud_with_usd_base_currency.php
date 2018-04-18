@@ -93,7 +93,7 @@ $taxCalculationData['aud_with_usd_base_currency'] = [
                 'base_row_total_incl_tax' => 29.99 + 3.00,
                 'applied_taxes' => [
                     [
-                        'id' => 'country-sequence-1',
+                        'id' => 0,
                         'item_id' => '1',
                         'associated_item_id' => null,
                         'item_type' => 'product',
@@ -102,7 +102,7 @@ $taxCalculationData['aud_with_usd_base_currency'] = [
                         'percent' => 10.0,
                         'rates' => [
                             [
-                                'code' => 'country',
+                                'code' => 0,
                                 'title' => 'VAT',
                                 'percent' => 10.0
                             ]
