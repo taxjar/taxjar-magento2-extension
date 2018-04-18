@@ -291,12 +291,24 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $rate = isset($lineItemTax[$jurisdiction . '_tax_rate']) ? $lineItemTax[$jurisdiction . '_tax_rate'] : 0;
             $amount = isset($lineItemTax[$jurisdiction . '_amount']) ? $lineItemTax[$jurisdiction . '_amount'] : 0;
 
+            // US state line item rates use `state_sales_tax_rate`
             if ($jurisdiction == 'state' && isset($lineItemTax['state_sales_tax_rate'])) {
                 $rate = $lineItemTax['state_sales_tax_rate'];
             }
 
+            // US special district tax line item amounts use `special_district_amount`
             if ($jurisdiction == 'special' && isset($lineItemTax['special_district_amount'])) {
                 $amount = $lineItemTax['special_district_amount'];
+            }
+
+            // Canada line item amounts include `gst`, `pst`, and `qst`
+            if (in_array($jurisdiction, ['gst', 'pst', 'qst']) && isset($lineItemTax[$jurisdiction])) {
+                $amount = $lineItemTax[$jurisdiction];
+            }
+
+            // Country line item amounts use `country_tax_collectable`
+            if ($jurisdiction == 'country' && isset($lineItemTax['country_tax_collectable'])) {
+                $amount = $lineItemTax['country_tax_collectable'];
             }
 
             if ($rate) {
