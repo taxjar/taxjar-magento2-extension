@@ -88,27 +88,49 @@ $taxCalculationData['configurable_product'] = [
                 'row_total_incl_tax' => 59.97 + 5.7,
                 'applied_taxes' => [
                     [
-                        'id' => 'state - county - special',
+                        'id' => 1,
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 5.70,
-                        'base_amount' => 5.70,
-                        'percent' => 9.5,
+                        'amount' => 3.75,
+                        'base_amount' => 3.75,
+                        'percent' => 6.25,
                         'rates' => [
                             [
-                                'code' => 'state',
+                                'code' => 1,
                                 'title' => 'State Tax',
                                 'percent' => 6.25
-                            ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 2,
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 0.6,
+                        'base_amount' => 0.6,
+                        'percent' => 1.0,
+                        'rates' => [
                             [
-                                'code' => 'county',
+                                'code' => 2,
                                 'title' => 'County Tax',
-                                'percent' => 1
-                            ],
+                                'percent' => 1.0
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 4,
+                        'item_id' => null,
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 1.35,
+                        'base_amount' => 1.35,
+                        'percent' => 2.25,
+                        'rates' => [
                             [
-                                'code' => 'special',
-                                'title' => 'Special Tax',
+                                'code' => 4,
+                                'title' => 'Special District Tax',
                                 'percent' => 2.25
                             ]
                         ]

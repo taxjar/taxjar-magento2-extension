@@ -204,10 +204,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $priceInclTax = $rowTotalInclTax / $quantity;
         $discountTaxCompensationAmount = 0;
 
-        $appliedTax = $this->getAppliedTax($item, $scope);
-        $appliedTaxes = [
-            $appliedTax->getTaxRateKey() => $appliedTax
-        ];
+        $appliedTaxes = $this->getAppliedTaxes($item, $scope);
 
         return $this->taxDetailsItemDataObjectFactory->create()
              ->setCode($item->getCode())
@@ -231,35 +228,48 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * @return \Magento\Tax\Api\Data\AppliedTaxInterface
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    protected function getAppliedTax(
+    protected function getAppliedTaxes(
         QuoteDetailsItemInterface $item,
         $scope
     ) {
         $extensionAttributes = $item->getExtensionAttributes();
-        $taxCollectable = $extensionAttributes ? $extensionAttributes->getTaxCollectable() : 0;
-        $taxCollectable = $this->priceCurrency->convert($taxCollectable, $scope);
-        $taxPercent = $extensionAttributes ? $extensionAttributes->getCombinedTaxRate() : 0;
         $jurisdictionTaxRates = $extensionAttributes ? $extensionAttributes->getJurisdictionTaxRates() : [];
-        $rateDataObjects = [];
+        $appliedTaxes = [];
 
-        foreach ($jurisdictionTaxRates as $jurisdiction => $jurisdictionTaxRate) {
+        foreach ($jurisdictionTaxRates as $jurisdiction => $jurisdictionTax) {
+            if ($jurisdictionTax['rate'] == 0) {
+                continue;
+            }
+
             // @codingStandardsIgnoreStart
             $jurisdictionTitle = (in_array($jurisdiction, ['gst', 'pst', 'qst'])) ? strtoupper($jurisdiction) : ucfirst($jurisdiction) . ' Tax';
             // @codingStandardsIgnoreEnd
 
-            $rateDataObjects[$jurisdiction] = $this->appliedTaxRateDataObjectFactory->create()
-                ->setPercent($jurisdictionTaxRate['rate'])
-                ->setCode($jurisdiction)
+            // Display "Special District Tax" instead of "Special Tax"
+            if ($jurisdiction == 'special') {
+                $jurisdictionTitle = 'Special District Tax';
+            }
+
+            // Display "VAT" instead of "Country Tax"
+            if ($jurisdiction == 'country') {
+                $jurisdictionTitle = 'VAT';
+            }
+
+            $rateDataObject = $this->appliedTaxRateDataObjectFactory->create()
+                ->setPercent($jurisdictionTax['rate'])
+                ->setCode($jurisdictionTax['id'])
                 ->setTitle($jurisdictionTitle);
+
+            $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
+            $appliedTaxDataObject->setAmount($jurisdictionTax['amount']);
+            $appliedTaxDataObject->setPercent($jurisdictionTax['rate']);
+            $appliedTaxDataObject->setTaxRateKey($jurisdictionTax['id']);
+            $appliedTaxDataObject->setRates([$rateDataObject]);
+
+            $appliedTaxes[$appliedTaxDataObject->getTaxRateKey()] = $appliedTaxDataObject;
         }
 
-        $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
-        $appliedTaxDataObject->setAmount($taxCollectable);
-        $appliedTaxDataObject->setPercent($taxPercent);
-        $appliedTaxDataObject->setTaxRateKey(implode(' - ', array_keys($jurisdictionTaxRates)));
-        $appliedTaxDataObject->setRates($rateDataObjects);
-
-        return $appliedTaxDataObject;
+        return $appliedTaxes;
     }
 
     /**

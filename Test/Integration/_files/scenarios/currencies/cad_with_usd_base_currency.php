@@ -98,23 +98,34 @@ $taxCalculationData['cad_with_usd_base_currency'] = [
                 'base_row_total_incl_tax' => 29.99 + 3.90,
                 'applied_taxes' => [
                     [
-                        'id' => 'gst - pst',
+                        'id' => 5,
                         'item_id' => '2',
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => (3.90 * 1.28),
-                        'base_amount' => (3.90 * 1.28), // Base amount remains the same
-                        'percent' => 13.0,
+                        'amount' => 1.5,
+                        'base_amount' => 1.5, // Base amount remains the same
+                        'percent' => 5.0,
                         'rates' => [
                             [
-                                'code' => 'gst',
+                                'code' => 5,
                                 'title' => 'GST',
-                                'percent' => 5
-                            ],
+                                'percent' => 5.0
+                            ]
+                        ]
+                    ],
+                    [
+                        'id' => 6,
+                        'item_id' => '2',
+                        'associated_item_id' => null,
+                        'item_type' => 'product',
+                        'amount' => 2.4,
+                        'base_amount' => 2.4, // Base amount remains the same
+                        'percent' => 8.0,
+                        'rates' => [
                             [
-                                'code' => 'pst',
+                                'code' => 6,
                                 'title' => 'PST',
-                                'percent' => 8
+                                'percent' => 8.0
                             ]
                         ]
                     ]
