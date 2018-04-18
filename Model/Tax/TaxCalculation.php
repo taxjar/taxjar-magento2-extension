@@ -257,13 +257,13 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
 
             $rateDataObject = $this->appliedTaxRateDataObjectFactory->create()
                 ->setPercent($jurisdictionTax['rate'])
-                ->setCode($jurisdiction)
+                ->setCode($jurisdictionTax['id'])
                 ->setTitle($jurisdictionTitle);
 
             $appliedTaxDataObject = $this->appliedTaxDataObjectFactory->create();
             $appliedTaxDataObject->setAmount($jurisdictionTax['amount']);
             $appliedTaxDataObject->setPercent($jurisdictionTax['rate']);
-            $appliedTaxDataObject->setTaxRateKey($jurisdiction . '-' . $item->getCode());
+            $appliedTaxDataObject->setTaxRateKey($jurisdictionTax['id']);
             $appliedTaxDataObject->setRates([$rateDataObject]);
 
             $appliedTaxes[$appliedTaxDataObject->getTaxRateKey()] = $appliedTaxDataObject;

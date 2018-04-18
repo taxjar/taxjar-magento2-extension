@@ -287,7 +287,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $jurisdictions = ['country', 'state', 'county', 'city', 'special', 'gst', 'pst', 'qst'];
         $jurisdictionRates = [];
 
-        foreach ($jurisdictions as $jurisdiction) {
+        foreach ($jurisdictions as $jurisdictionId => $jurisdiction) {
             $rate = isset($lineItemTax[$jurisdiction . '_tax_rate']) ? $lineItemTax[$jurisdiction . '_tax_rate'] : 0;
             $amount = isset($lineItemTax[$jurisdiction . '_amount']) ? $lineItemTax[$jurisdiction . '_amount'] : 0;
 
@@ -313,6 +313,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
             if ($rate) {
                 $jurisdictionRates[$jurisdiction] = [
+                    'id' => $jurisdictionId,
                     'rate' => $rate * 100,
                     'amount' => $amount
                 ];
@@ -344,6 +345,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         $extensionAttributes->setCombinedTaxRate($shippingTax['combined_tax_rate'] * 100);
         $extensionAttributes->setJurisdictionTaxRates([
             'shipping' => [
+                'id' => 'shipping',
                 'rate' => $shippingTax['combined_tax_rate'] * 100,
                 'amount' => $shippingTax['tax_collectable']
             ]
