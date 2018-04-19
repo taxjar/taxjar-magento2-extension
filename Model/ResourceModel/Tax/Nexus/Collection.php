@@ -111,8 +111,8 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
     {
         if (!empty($storeId)) {
             // Always include global nexus addresses
-            $storeId = array_merge([$storeId], [0]);
-            $this->addFieldToFilter('main_table.store_id', ['in' => $storeId]);
+            $storeIds = [0, $storeId];
+            $this->addFieldToFilter('main_table.store_id', ['in' => $storeIds]);
         }
         return $this;
     }
