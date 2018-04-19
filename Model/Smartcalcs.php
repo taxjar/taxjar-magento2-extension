@@ -118,7 +118,10 @@ class Smartcalcs
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
         $address = $shippingAssignment->getShipping()->getAddress();
-        $apiKey = preg_replace('/\s+/', '', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $apiKey = preg_replace('/\s+/', '', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $quote->getStoreId()
+        ));
 
         if (!$apiKey) {
             return;
@@ -128,7 +131,7 @@ class Smartcalcs
             return;
         }
 
-        if (!$this->_hasNexus($address->getRegionCode(), $address->getCountry())) {
+        if (!$this->_hasNexus($quote->getStoreId(), $address->getRegionCode(), $address->getCountry())) {
             return;
         }
 
@@ -161,7 +164,7 @@ class Smartcalcs
         $order = array_merge($fromAddress, $toAddress, [
             'shipping' => (float) $address->getShippingAmount(),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
-            'nexus_addresses' => $this->_getNexusAddresses(),
+            'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
             'plugin' => 'magento'
         ]);
 
@@ -269,20 +272,25 @@ class Smartcalcs
     /**
      * Verify if nexus is triggered for location
      *
+     * @param int $storeId
      * @param string $regionCode
      * @param string $country
      * @return bool
      */
-    private function _hasNexus($regionCode, $country)
+    private function _hasNexus($storeId, $regionCode, $country)
     {
         if ($country == 'US') {
-            $nexusInRegion = $this->nexusFactory->create()->getCollection()->addRegionCodeFilter($regionCode);
+            $nexusInRegion = $this->nexusFactory->create()->getCollection()
+                ->addStoreFilter($storeId)
+                ->addRegionCodeFilter($regionCode);
 
             if ($nexusInRegion->getSize()) {
                 return true;
             }
         } else {
-            $nexusInCountry = $this->nexusFactory->create()->getCollection()->addCountryFilter($country);
+            $nexusInCountry = $this->nexusFactory->create()->getCollection()
+                ->addStoreFilter($storeId)
+                ->addCountryFilter($country);
 
             if ($nexusInCountry->getSize()) {
                 return true;
@@ -395,11 +403,12 @@ class Smartcalcs
     /**
      * Get international nexus addresses for `nexus_addresses` param
      *
+     * @param int $storeId
      * @return array
      */
-    private function _getNexusAddresses()
+    private function _getNexusAddresses($storeId)
     {
-        $nexusAddresses = $this->nexusFactory->create()->getCollection();
+        $nexusAddresses = $this->nexusFactory->create()->getCollection()->addStoreFilter($storeId);
         $addresses = [];
 
         foreach ($nexusAddresses as $nexusAddress) {

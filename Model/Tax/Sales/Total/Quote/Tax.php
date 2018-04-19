@@ -114,7 +114,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
+        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $quote->getStoreId()
+        );
 
         if ($isEnabled) {
             $baseQuoteTaxDetails = $this->getQuoteTaxDetailsInterface($shippingAssignment, $total, true);
