@@ -64,6 +64,11 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
     protected $filterBuilder;
 
     /**
+     * @var \Magento\Framework\Api\Search\FilterGroupBuilder
+     */
+    protected $filterGroupBuilder;
+
+    /**
      * @var \Magento\Tax\Model\ResourceModel\TaxClass
      */
     protected $nexusResource;
@@ -76,6 +81,7 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
     /**
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
+     * @param \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder
      * @param NexusCollectionFactory $nexusCollectionFactory
      * @param \Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterfaceFactory $searchResultsFactory
      * @param NexusRegistry $nexusRegistry
@@ -85,6 +91,7 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
     public function __construct(
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
+        \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder,
         NexusCollectionFactory $nexusCollectionFactory,
         \Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterfaceFactory $searchResultsFactory,
         NexusRegistry $nexusRegistry,
@@ -93,6 +100,7 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
+        $this->filterGroupBuilder = $filterGroupBuilder;
         $this->nexusCollectionFactory = $nexusCollectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
         $this->nexusRegistry = $nexusRegistry;
@@ -176,35 +184,48 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         // @codingStandardsIgnoreEnd
 
         if (!\Zend_Validate::is(trim($nexus->getStreet()), 'NotEmpty')) {
-            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_STREET]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_STREET]));
         }
 
         if (!\Zend_Validate::is(trim($nexus->getCity()), 'NotEmpty')) {
-            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_CITY]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_CITY]));
         }
 
         if (!\Zend_Validate::is(trim($nexus->getCountryId()), 'NotEmpty')) {
-            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
         }
 
         if (!\Zend_Validate::is(trim($nexus->getPostcode()), 'NotEmpty')) {
-            $exception->addErrorMessage(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
+            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
         }
 
-        if (!$nexus->getId()) {
-            $filter = $this->filterBuilder
-                ->setField('country_id')
-                ->setValue($nexus->getCountryId())
-                ->create();
-            $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
+        $countryFilter = $this->filterBuilder
+            ->setField('country_id')
+            ->setValue($nexus->getCountryId())
+            ->create();
+        $storeFilter = $this->filterBuilder
+            ->setField('store_id')
+            ->setValue($nexus->getStoreId())
+            ->create();
 
-            $countryAddresses = $this->getList($searchCriteria);
+        $countryFilterGroup = $this->filterGroupBuilder
+            ->addFilter($countryFilter)
+            ->create();
 
-            if ($countryAddresses->getTotalCount()
-            && $nexus->getCountryId() != 'US'
-            && $nexus->getCountryId() != 'CA') {
-                $exception->addErrorMessage(__('Only one address per country (outside of US/CA) is currently supported.'));
-            }
+        $storeFilterGroup = $this->filterGroupBuilder
+            ->addFilter($storeFilter)
+            ->create();
+
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->setFilterGroups([$countryFilterGroup, $storeFilterGroup])
+            ->create();
+
+        $countryAddresses = $this->getList($searchCriteria);
+
+        if ($countryAddresses->getTotalCount()
+        && $nexus->getCountryId() != 'US'
+        && $nexus->getCountryId() != 'CA') {
+            $exception->addError(__('Only one address per country (outside of US/CA) is currently supported.'));
         }
 
         if ($exception->wasErrorAdded()) {

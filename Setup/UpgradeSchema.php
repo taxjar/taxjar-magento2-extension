@@ -64,5 +64,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->endSetup();
         }
+
+        if (version_compare($context->getVersion(), '1.0.0') < 0) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            /**
+            * Update table 'tax_nexus'
+            */
+            $installer->getConnection()->addColumn(
+                $installer->getTable('tax_nexus'),
+                'store_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                    'default' => 0,
+                    'nullable' => false,
+                    'unsigned' => true,
+                    'comment' => 'Store ID'
+                ]
+            );
+
+            $installer->endSetup();
+        }
     }
 }

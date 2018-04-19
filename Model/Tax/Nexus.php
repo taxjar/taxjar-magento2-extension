@@ -32,6 +32,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     const KEY_REGION_ID   = 'region_id';
     const KEY_REGION_CODE = 'region_code';
     const KEY_POSTCODE    = 'postcode';
+    const KEY_STORE_ID    = 'store_id';
     const KEY_CREATED_AT  = 'created_at';
     const KEY_UPDATED_AT  = 'updated_at';
     /**#@-*/
@@ -132,6 +133,16 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     public function getPostcode()
     {
         return $this->getData(self::KEY_POSTCODE);
+    }
+
+    /**
+     * Get nexus store ID
+     *
+     * @return int
+     */
+    public function getStoreId()
+    {
+        return $this->getData(self::KEY_STORE_ID);
     }
 
     /**
@@ -251,6 +262,17 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     public function setPostcode($postcode)
     {
         return $this->setData(self::KEY_POSTCODE, $postcode);
+    }
+
+    /**
+     * Set nexus store ID
+     *
+     * @param int $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId)
+    {
+        return $this->setData(self::KEY_STORE_ID, $storeId);
     }
 
     /**

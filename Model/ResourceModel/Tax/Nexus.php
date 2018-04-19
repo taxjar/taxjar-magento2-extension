@@ -26,20 +26,4 @@ class Nexus extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         $this->_init('tax_nexus', 'id');
     }
-
-    /**
-     * Initialize unique fields
-     *
-     * @return $this
-     */
-    protected function _initUniqueFields()
-    {
-        $this->_uniqueFields = [
-            [
-                'field' => 'region_id',
-                'title' => __('Region'),
-            ],
-        ];
-        return $this;
-    }
 }

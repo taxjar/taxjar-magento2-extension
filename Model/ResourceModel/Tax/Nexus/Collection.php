@@ -100,4 +100,20 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         }
         return $this;
     }
+
+    /**
+     * Filter by store_id
+     *
+     * @param int $storeId
+     * @return $this
+     */
+    public function addStoreFilter($storeId)
+    {
+        if (!empty($storeId)) {
+            // Always include global nexus addresses
+            $storeId = array_merge([$storeId], [0]);
+            $this->addFieldToFilter('main_table.store_id', ['in' => $storeId]);
+        }
+        return $this;
+    }
 }

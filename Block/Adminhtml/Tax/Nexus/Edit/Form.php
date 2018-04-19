@@ -56,11 +56,17 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     protected $scopeConfig;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Data\FormFactory $formFactory
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Directory\Model\Config\Source\Country $country
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory
      * @param \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexusRepository
      * @param array $data
@@ -72,6 +78,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         \Magento\Framework\Data\FormFactory $formFactory,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Directory\Model\Config\Source\Country $country,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory,
         \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexusRepository,
         array $data = []
@@ -80,6 +87,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $this->scopeConfig = $context->getScopeConfig();
         $this->country = $country;
         $this->regionFactory = $regionFactory;
+        $this->storeManager = $storeManager;
         $this->fieldsetFactory = $fieldsetFactory;
         $this->nexusRepository = $nexusRepository;
         parent::__construct($context, $registry, $formFactory, $data);
@@ -148,6 +156,21 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         );
 
         $regions = $regionCollection->toOptionArray();
+        $stores = [[
+            'label' => 'All Stores',
+            'value' => 0
+        ]];
+
+        foreach ($this->storeManager->getStores() as $store) {
+            $stores[] = [
+                'label' => $store->getName(),
+                'value' => $store->getId()
+            ];
+        }
+
+        usort($stores, function ($store1, $store2) {
+            return strcmp($store1['label'], $store2['label']);
+        });
 
         $legend = $this->getShowLegend() ? __('Nexus Address Information') : '';
         $fieldset = $form->addFieldset('base_fieldset', ['legend' => $legend, 'class' => 'form-inline']);
@@ -228,6 +251,19 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
+        $fieldset->addField(
+            'store_id',
+            'select',
+            [
+                'name' => 'store_id',
+                'label' => __('Store'),
+                'required' => false,
+                'value' => isset($formValues['store_id']) ? $formValues['store_id'] : '',
+                'values' => $stores,
+                'note' => __('Calculate sales tax for this nexus address in a specific Magento store. Set to "All Stores" to use this nexus address globally.')
+            ]
+        );
+
         $form->setAction($this->getUrl('taxjar/nexus/save'));
         $form->setUseContainer($this->getUseContainer());
         $this->setForm($form);
@@ -252,7 +288,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             'region' => $nexus->getRegion(),
             'region_id' => $nexus->getRegionId(),
             'region_code' => $nexus->getRegionCode(),
-            'postcode' => $nexus->getPostcode()
+            'postcode' => $nexus->getPostcode(),
+            'store_id' => $nexus->getStoreId()
         ];
         return $nexusData;
     }
