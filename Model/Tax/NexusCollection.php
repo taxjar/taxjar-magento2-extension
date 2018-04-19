@@ -97,7 +97,7 @@ class NexusCollection extends AbstractServiceCollection
         if ($nexus->getStoreId()) {
             $storeName = $this->storeManager->getStore($nexus->getStoreId())->getName();
         } else {
-            $storeName = 'All Stores';
+            $storeName = 'All Store Views';
         }
 
         $collectionItem->setId($nexus->getId());

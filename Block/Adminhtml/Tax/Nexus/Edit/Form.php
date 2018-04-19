@@ -156,21 +156,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         );
 
         $regions = $regionCollection->toOptionArray();
-        $stores = [[
-            'label' => 'All Stores',
-            'value' => 0
-        ]];
-
-        foreach ($this->storeManager->getStores() as $store) {
-            $stores[] = [
-                'label' => $store->getName(),
-                'value' => $store->getId()
-            ];
-        }
-
-        usort($stores, function ($store1, $store2) {
-            return strcmp($store1['label'], $store2['label']);
-        });
 
         $legend = $this->getShowLegend() ? __('Nexus Address Information') : '';
         $fieldset = $form->addFieldset('base_fieldset', ['legend' => $legend, 'class' => 'form-inline']);
@@ -256,11 +241,11 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             'select',
             [
                 'name' => 'store_id',
-                'label' => __('Store'),
+                'label' => __('Store View'),
                 'required' => false,
                 'value' => isset($formValues['store_id']) ? $formValues['store_id'] : '',
-                'values' => $stores,
-                'note' => __('Calculate sales tax for this nexus address in a specific Magento store. Set to "All Stores" to use this nexus address globally.')
+                'values' => $this->getStoreGroups(),
+                'note' => __('Calculate sales tax for this nexus address in a specific Magento store. Set to "All Store Views" to use this nexus address globally.')
             ]
         );
 
@@ -292,5 +277,46 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             'store_id' => $nexus->getStoreId()
         ];
         return $nexusData;
+    }
+
+    /**
+     * Retrieve list of store views
+     *
+     * @return array
+     */
+    protected function getStoreGroups()
+    {
+        $groups = [[
+            'label' => 'All Store Views',
+            'value' => 0
+        ]];
+
+        foreach ($this->storeManager->getWebsites() as $website) {
+            foreach ($website->getGroups() as $group) {
+                $stores = [];
+
+                foreach ($group->getStores() as $store) {
+                    $stores[] = [
+                        'label' => $store->getName(),
+                        'value' => $store->getId()
+                    ];
+                }
+
+                usort($stores, function ($store1, $store2) {
+                    return strcmp($store1['label'], $store2['label']);
+                });
+
+                $groups[] = [
+                    'label' => $group->getName(),
+                    'value' => $stores
+                ];
+            }
+
+            usort($groups, function ($group1, $group2) {
+                return strcmp($group1['label'], $group2['label']);
+            });
+        }
+
+        return $groups;
     }
 }
