@@ -199,9 +199,22 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
             $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
         }
 
+        // Only validate nexus updates if store ID changes
+        if ($nexus->getId()) {
+            $originalNexus = $this->get($nexus->getId());
+
+            if ($originalNexus->getStoreId() == $nexus->getStoreId()) {
+                return $this;
+            }
+        }
+
         $countryFilter = $this->filterBuilder
             ->setField('country_id')
             ->setValue($nexus->getCountryId())
+            ->create();
+        $regionFilter = $this->filterBuilder
+            ->setField('region_id')
+            ->setValue($nexus->getRegionId())
             ->create();
         $storeFilter = $this->filterBuilder
             ->setField('store_id')
@@ -211,21 +224,33 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         $countryFilterGroup = $this->filterGroupBuilder
             ->addFilter($countryFilter)
             ->create();
-
+        $regionFilterGroup = $this->filterGroupBuilder
+            ->addFilter($regionFilter)
+            ->create();
         $storeFilterGroup = $this->filterGroupBuilder
             ->addFilter($storeFilter)
             ->create();
 
-        $searchCriteria = $this->searchCriteriaBuilder
+        $countrySearchCriteria = $this->searchCriteriaBuilder
             ->setFilterGroups([$countryFilterGroup, $storeFilterGroup])
             ->create();
+        $regionSearchCriteria = $this->searchCriteriaBuilder
+            ->setFilterGroups([$regionFilterGroup, $storeFilterGroup])
+            ->create();
 
-        $countryAddresses = $this->getList($searchCriteria);
+        $countryAddresses = $this->getList($countrySearchCriteria);
+        $regionAddresses = $this->getList($regionSearchCriteria);
 
         if ($countryAddresses->getTotalCount()
         && $nexus->getCountryId() != 'US'
         && $nexus->getCountryId() != 'CA') {
             $exception->addError(__('Only one address per country (outside of US/CA) is currently supported.'));
+        }
+
+        if ($regionAddresses->getTotalCount()
+        && ($nexus->getCountryId() == 'US'
+        || $nexus->getCountryId() == 'CA')) {
+            $exception->addError(__('Only one address per region / state is currently supported.'));
         }
 
         if ($exception->wasErrorAdded()) {
