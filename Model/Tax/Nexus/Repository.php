@@ -199,15 +199,6 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
             $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
         }
 
-        // Only validate nexus updates if store ID changes
-        if ($nexus->getId()) {
-            $originalNexus = $this->get($nexus->getId());
-
-            if ($originalNexus->getStoreId() == $nexus->getStoreId()) {
-                return $this;
-            }
-        }
-
         $countryFilter = $this->filterBuilder
             ->setField('country_id')
             ->setValue($nexus->getCountryId())
@@ -218,24 +209,41 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
             ->create();
         $storeFilter = $this->filterBuilder
             ->setField('store_id')
-            ->setValue($nexus->getStoreId())
+            ->setValue(join(',', [0, $nexus->getStoreId()]))
+            ->setConditionType('in')
             ->create();
 
-        $countryFilterGroup = $this->filterGroupBuilder
-            ->addFilter($countryFilter)
-            ->create();
-        $regionFilterGroup = $this->filterGroupBuilder
-            ->addFilter($regionFilter)
-            ->create();
-        $storeFilterGroup = $this->filterGroupBuilder
-            ->addFilter($storeFilter)
-            ->create();
+        $countryFilterGroup = $this->filterGroupBuilder->addFilter($countryFilter)->create();
+        $regionFilterGroup = $this->filterGroupBuilder->addFilter($regionFilter)->create();
+        $storeFilterGroup = $this->filterGroupBuilder->addFilter($storeFilter)->create();
+
+        $countryFilterGroups = [$countryFilterGroup];
+        $regionFilterGroups = [$regionFilterGroup];
+
+        // Filter by store if nexus is tied to a specific store
+        // Otherwise, check all nexus addresses
+        if ($nexus->getStoreId() != 0) {
+            $countryFilterGroups[] = $storeFilterGroup;
+            $regionFilterGroups[] = $storeFilterGroup;
+        }
+
+        // Exclude current nexus address from total counts
+        if ($nexus->getId()) {
+            $selfFilter = $this->filterBuilder
+                ->setField('id')
+                ->setValue($nexus->getId())
+                ->setConditionType('neq')
+                ->create();
+            $selfFilterGroup = $this->filterGroupBuilder->addFilter($selfFilter)->create();
+            $countryFilterGroups[] = $selfFilterGroup;
+            $regionFilterGroups[] = $selfFilterGroup;
+        }
 
         $countrySearchCriteria = $this->searchCriteriaBuilder
-            ->setFilterGroups([$countryFilterGroup, $storeFilterGroup])
+            ->setFilterGroups($countryFilterGroups)
             ->create();
         $regionSearchCriteria = $this->searchCriteriaBuilder
-            ->setFilterGroups([$regionFilterGroup, $storeFilterGroup])
+            ->setFilterGroups($regionFilterGroups)
             ->create();
 
         $countryAddresses = $this->getList($countrySearchCriteria);
