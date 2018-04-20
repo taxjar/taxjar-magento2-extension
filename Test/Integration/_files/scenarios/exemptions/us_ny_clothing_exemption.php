@@ -59,13 +59,19 @@ $taxCalculationData['ny_clothing_exemption_under_110'] = [
                 'tax_class_name' => SetupUtil::PRODUCT_CLOTHING_TAX_CLASS
             ]
         ],
+        'shipping' => [
+            'method' => 'flatrate_flatrate',
+            'description' => 'Flat Rate - Fixed',
+            'amount' => 5,
+            'base_amount' => 5,
+        ],
     ],
     'expected_results' => [
         'address_data' => [
             'tax_amount' => 0,
             'subtotal' => 19.99,
             'subtotal_incl_tax' => 19.99,
-            'grand_total' => 19.99
+            'grand_total' => 19.99 + 5
         ],
         'items_data' => [
             'taxjar-tshirt' => [
@@ -76,6 +82,12 @@ $taxCalculationData['ny_clothing_exemption_under_110'] = [
                 'row_total' => 19.99,
                 'row_total_incl_tax' => 19.99
             ],
+        ],
+        'shipping' => [
+            'tax_amount' => 0,
+            'tax_percent' => 0,
+            'row_total' => 5,
+            'row_total_incl_tax' => 5
         ],
     ],
 ];
@@ -120,13 +132,19 @@ $taxCalculationData['ny_clothing_exemption_over_110'] = [
                 'tax_class_name' => SetupUtil::PRODUCT_CLOTHING_TAX_CLASS
             ]
         ],
+        'shipping' => [
+            'method' => 'flatrate_flatrate',
+            'description' => 'Flat Rate - Fixed',
+            'amount' => 5,
+            'base_amount' => 5,
+        ],
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 17.75,
+            'tax_amount' => 17.75 + 0.44,
             'subtotal' => 199.99,
             'subtotal_incl_tax' => 199.99 + 17.75,
-            'grand_total' => 199.99 + 17.75
+            'grand_total' => 199.99 + 17.75 + 5 + 0.44
         ],
         'items_data' => [
             'taxjar-jacket' => [
@@ -137,6 +155,12 @@ $taxCalculationData['ny_clothing_exemption_over_110'] = [
                 'row_total' => 199.99,
                 'row_total_incl_tax' => 199.99 + 17.75
             ],
+        ],
+        'shipping' => [
+            'tax_amount' => 0.44,
+            'tax_percent' => 8.875,
+            'row_total' => 5,
+            'row_total_incl_tax' => 5 + 0.44
         ],
     ],
 ];

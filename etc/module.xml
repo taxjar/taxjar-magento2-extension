@@ -22,6 +22,7 @@
         <sequence>
             <module name="Magento_Enterprise"/>
             <module name="Magento_Sales"/>
+            <module name="Temando_Shipping"/>
         </sequence>
     </module>
 </config>

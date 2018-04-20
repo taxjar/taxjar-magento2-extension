@@ -99,33 +99,50 @@ class Transaction
     /**
      * Build `from` address for SmartCalcs request
      *
+     * @param \Magento\Sales\Model\Order $order
      * @return array
      */
-    protected function buildFromAddress()
-    {
+    protected function buildFromAddress(
+        \Magento\Sales\Model\Order $order
+    ) {
         $fromCountry = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_COUNTRY_ID
+            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_COUNTRY_ID,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
         );
         $fromPostcode = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_POSTCODE
+            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_POSTCODE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
         );
         $region = $this->regionFactory->create();
         $regionId = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID
+            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
         );
         $region->load($regionId);
         $fromState = $region->getCode();
         $fromCity = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_CITY
+            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_CITY,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
         );
-        $fromStreet = $this->scopeConfig->getValue('shipping/origin/street_line1') . $this->scopeConfig->getValue('shipping/origin/street_line2');
+        $fromStreet1 = $this->scopeConfig->getValue('shipping/origin/street_line1',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
+        );
+        $fromStreet2 = $this->scopeConfig->getValue('shipping/origin/street_line2',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
+        );
 
         return [
             'from_country' => $fromCountry,
             'from_zip' => $fromPostcode,
             'from_state' => $fromState,
             'from_city' => $fromCity,
-            'from_street' => $fromStreet
+            'from_street' => $fromStreet1 . $fromStreet2
         ];
     }
 
