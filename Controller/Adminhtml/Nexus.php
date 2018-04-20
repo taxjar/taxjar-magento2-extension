@@ -164,6 +164,9 @@ abstract class Nexus extends \Magento\Backend\App\Action
         if (isset($postData['postcode'])) {
             $nexus->setPostcode($postData['postcode']);
         }
+        if (isset($postData['store_id'])) {
+            $nexus->setStoreId($postData['store_id']);
+        }
         return $nexus;
     }
 }

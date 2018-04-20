@@ -36,10 +36,10 @@ class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
             $nexus->setRegionCode($region->getCode());
 
             try {
-                if ($nexus->getCountryId() == 'US') {
-                    $nexusSync = $this->nexusSyncFactory->create(['data' => $nexus->getData()]);
-                    $nexusSync->sync();
-                }
+                // if ($nexus->getCountryId() == 'US') {
+                //     $nexusSync = $this->nexusSyncFactory->create(['data' => $nexus->getData()]);
+                //     $nexusSync->sync();
+                // }
                 $nexus = $this->nexusService->save($nexus);
 
                 $this->messageManager->addSuccessMessage(__('You saved the nexus address.'));

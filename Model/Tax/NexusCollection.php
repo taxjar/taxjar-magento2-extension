@@ -22,6 +22,7 @@ use Magento\Framework\Api\AbstractServiceCollection;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
+use Magento\Store\Model\StoreManagerInterface;
 use Taxjar\SalesTax\Api\Data\Tax\NexusInterface;
 use Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface;
 
@@ -37,21 +38,29 @@ class NexusCollection extends AbstractServiceCollection
     protected $nexusRepository;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @param EntityFactory $entityFactory
      * @param FilterBuilder $filterBuilder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param SortOrderBuilder $sortOrderBuilder
      * @param NexusRepositoryInterface $nexusService
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         EntityFactory $entityFactory,
         FilterBuilder $filterBuilder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         SortOrderBuilder $sortOrderBuilder,
-        NexusRepositoryInterface $nexusService
+        NexusRepositoryInterface $nexusService,
+        StoreManagerInterface $storeManager
     ) {
         parent::__construct($entityFactory, $filterBuilder, $searchCriteriaBuilder, $sortOrderBuilder);
         $this->nexusRepository = $nexusService;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -84,6 +93,13 @@ class NexusCollection extends AbstractServiceCollection
         // @codingStandardsIgnoreStart
         $collectionItem = new \Magento\Framework\DataObject();
         // @codingStandardsIgnoreEnd
+
+        if ($nexus->getStoreId()) {
+            $storeName = $this->storeManager->getStore($nexus->getStoreId())->getName();
+        } else {
+            $storeName = 'All Store Views';
+        }
+
         $collectionItem->setId($nexus->getId());
         $collectionItem->setApiId($nexus->getApiId());
         $collectionItem->setStreet($nexus->getStreet());
@@ -93,6 +109,7 @@ class NexusCollection extends AbstractServiceCollection
         $collectionItem->setRegionId($nexus->getRegionId());
         $collectionItem->setRegionCode($nexus->getRegionCode());
         $collectionItem->setPostcode($nexus->getPostcode());
+        $collectionItem->setStore($storeName);
 
         return $collectionItem;
     }

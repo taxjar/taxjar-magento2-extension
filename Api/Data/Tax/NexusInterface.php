@@ -159,6 +159,21 @@ interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface
     public function setPostcode($postcode);
 
     /**
+     * Get store ID.
+     *
+     * @return int
+     */
+    public function getStoreId();
+
+    /**
+     * Set store ID.
+     *
+     * @param int $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId);
+
+    /**
      * Set created at.
      *
      * @param string $createdAt
