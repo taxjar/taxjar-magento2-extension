@@ -143,14 +143,29 @@ class Smartcalcs
             return;
         }
 
-        $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id');
+        $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $quote->getStoreId()
+        );
 
         $fromAddress = [
-            'from_country' => $this->scopeConfig->getValue('shipping/origin/country_id'),
-            'from_zip' => $this->scopeConfig->getValue('shipping/origin/postcode'),
+            'from_country' => $this->scopeConfig->getValue('shipping/origin/country_id',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $quote->getStoreId()
+            ),
+            'from_zip' => $this->scopeConfig->getValue('shipping/origin/postcode',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $quote->getStoreId()
+            ),
             'from_state' => $this->regionFactory->create()->load($shippingRegionId)->getCode(),
-            'from_city' => $this->scopeConfig->getValue('shipping/origin/city'),
-            'from_street' => $this->scopeConfig->getValue('shipping/origin/street_line1'),
+            'from_city' => $this->scopeConfig->getValue('shipping/origin/city',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $quote->getStoreId()
+            ),
+            'from_street' => $this->scopeConfig->getValue('shipping/origin/street_line1',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $quote->getStoreId()
+            ),
         ];
 
         $toAddress = [
@@ -374,7 +389,10 @@ class Smartcalcs
 
                     if ($this->productMetadata->getEdition() == 'Enterprise') {
                         if ($extensionAttributes->getProductType() == \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD) {
-                            $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class');
+                            $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class',
+                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                                $quote->getStoreId()
+                            );
 
                             if ($giftTaxClassId) {
                                 $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
