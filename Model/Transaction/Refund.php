@@ -67,7 +67,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
 
         $this->request = array_merge(
             $refund,
-            $this->buildFromAddress(),
+            $this->buildFromAddress($order),
             $this->buildToAddress($order),
             $this->buildLineItems($order, $creditmemo->getAllItems(), 'refund')
         );

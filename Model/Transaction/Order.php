@@ -59,7 +59,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
 
         $this->request = array_merge(
             $newOrder,
-            $this->buildFromAddress(),
+            $this->buildFromAddress($order),
             $this->buildToAddress($order),
             $this->buildLineItems($order, $order->getAllItems())
         );
