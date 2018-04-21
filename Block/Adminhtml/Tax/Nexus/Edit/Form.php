@@ -66,7 +66,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * @param \Magento\Framework\Data\FormFactory $formFactory
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Directory\Model\Config\Source\Country $country
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory
      * @param \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexusRepository
      * @param array $data
@@ -78,16 +77,15 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         \Magento\Framework\Data\FormFactory $formFactory,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Directory\Model\Config\Source\Country $country,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory,
         \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexusRepository,
         array $data = []
     ) {
         $this->formKey = $context->getFormKey();
         $this->scopeConfig = $context->getScopeConfig();
+        $this->storeManager = $context->getStoreManager();
         $this->country = $country;
         $this->regionFactory = $regionFactory;
-        $this->storeManager = $storeManager;
         $this->fieldsetFactory = $fieldsetFactory;
         $this->nexusRepository = $nexusRepository;
         parent::__construct($context, $registry, $formFactory, $data);
