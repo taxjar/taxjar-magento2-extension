@@ -9,6 +9,8 @@ City,City
 State/Region,State/Region
 Country,Country
 "Zip/Post Code","Zip/Post Code"
+"Store View","Store View"
+"Calculate sales tax for this nexus address in a specific Magento store. Set to ""All Store Views"" to use this nexus address globally.","Calculate sales tax for this nexus address in a specific Magento store. Set to ""All Store Views"" to use this nexus address globally."
 "Manage Customer Tax Classes","Manage Customer Tax Classes"
 "Add New Customer Tax Class","Add New Customer Tax Class"
 "Save Customer Tax Class","Save Customer Tax Class"
@@ -65,11 +67,15 @@ Tax,Tax
 "We can't save this product tax class right now.","We can't save this product tax class right now."
 "Could not connect to TaxJar.","Could not connect to TaxJar."
 "Your TaxJar API token is invalid. Please review your TaxJar account at %1.","Your TaxJar API token is invalid. Please review your TaxJar account at %1."
+"Your TaxJar trial or subscription may have expired. Please review your TaxJar account at %1.","Your TaxJar trial or subscription may have expired. Please review your TaxJar account at %1."
 "Could not write to your Magento log directory under /var/log. Please make sure the directory is created and check permissions for %1.","Could not write to your Magento log directory under /var/log. Please make sure the directory is created and check permissions for %1."
 Region,Region
 "A nexus address with the same region already exists.","A nexus address with the same region already exists."
 "%fieldName is a required field.","%fieldName is a required field."
-"Only one address per country (outside of US/CA) is currently supported.","Only one address per country (outside of US/CA) is currently supported."
+"Only one address per country (outside of US/CA) is currently supported per store.","Only one address per country (outside of US/CA) is currently supported per store."
+"Only one address per country (outside of US/CA) is currently supported across all stores.","Only one address per country (outside of US/CA) is currently supported across all stores."
+"Only one address per region / state is currently supported per store.","Only one address per region / state is currently supported per store."
+"Only one address per region / state is currently supported across all stores.","Only one address per region / state is currently supported across all stores."
 "Your nexus address contains invalid data. Please verify the address in order to sync with TaxJar.","Your nexus address contains invalid data. Please verify the address in order to sync with TaxJar."
 "A nexus address already exists for this state/region. TaxJar currently supports one address per region.","A nexus address already exists for this state/region. TaxJar currently supports one address per region."
 "Your nexus address is missing one or more required fields. Please verify the address in order to sync with TaxJar.","Your nexus address is missing one or more required fields. Please verify the address in order to sync with TaxJar."
