@@ -42,7 +42,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     ) {
         $createdAt = new \DateTime($order->getCreatedAt());
         $subtotal = (float) $order->getSubtotal();
-        $shipping = (float) $order->getShippingAmount();
+        $shipping = (float) $order->getShippingAmount() - $order->getShippingDiscountAmount();
         $discount = (float) $order->getDiscountAmount();
         $salesTax = (float) $order->getTaxAmount();
 

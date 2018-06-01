@@ -48,7 +48,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         \Magento\Sales\Model\Order\Creditmemo $creditmemo
     ) {
         $subtotal = (float) $creditmemo->getSubtotal();
-        $shipping = (float) $creditmemo->getShippingAmount();
+        $shipping = (float) $creditmemo->getShippingAmount() - $creditmemo->getShippingDiscountAmount();
         $discount = (float) $creditmemo->getDiscountAmount();
         $salesTax = (float) $creditmemo->getTaxAmount();
 
