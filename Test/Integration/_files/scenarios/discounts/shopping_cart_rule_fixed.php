@@ -58,6 +58,12 @@ $taxCalculationData['shopping_cart_rule_fixed'] = [
                 'qty' => 1
             ]
         ],
+        'shipping' => [
+            'method' => 'flatrate_flatrate',
+            'description' => 'Flat Rate - Fixed',
+            'amount' => 5,
+            'base_amount' => 5,
+        ],
         'shopping_cart_rules' => [
             [
                 'discount_amount' => 20,
@@ -67,10 +73,10 @@ $taxCalculationData['shopping_cart_rule_fixed'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 0,
+            'tax_amount' => 0.44,
             'subtotal' => 19.99,
             'subtotal_incl_tax' => 19.99,
-            'grand_total' => 0
+            'grand_total' => 5 + 0.44
         ],
         'items_data' => [
             'taxjar-tshirt' => [
@@ -82,6 +88,12 @@ $taxCalculationData['shopping_cart_rule_fixed'] = [
                 'row_total_incl_tax' => 19.99,
                 'discount_amount' => 19.99
             ],
+        ],
+        'shipping' => [
+            'tax_amount' => 0.44,
+            'tax_percent' => 8.875,
+            'row_total' => 5,
+            'row_total_incl_tax' => 5 + 0.44
         ],
     ],
 ];
