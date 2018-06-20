@@ -233,15 +233,6 @@ class Transaction
             $lineItems['line_items'][] = $lineItem;
         }
 
-        if ($order->getShippingDiscountAmount() > 0) {
-            $shippingDiscount = (float) $order->getShippingDiscountAmount();
-
-            $lineItems['line_items'][] = [
-                'description' => 'Shipping Discount',
-                'discount' => $shippingDiscount
-            ];
-        }
-
         return $lineItems;
     }
 

@@ -143,7 +143,8 @@ class Smartcalcs
             return;
         }
 
-        $shipping = $address->getShippingAmount() - $address->getShippingDiscountAmount();
+        $shipping = (float) $address->getShippingAmount();
+        $shippingDiscount = (float) $address->getShippingDiscountAmount();
 
         $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
@@ -179,7 +180,7 @@ class Smartcalcs
         ];
 
         $order = array_merge($fromAddress, $toAddress, [
-            'shipping' => (float) $shipping,
+            'shipping' => $shipping - abs($shippingDiscount),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
             'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
             'plugin' => 'magento'
