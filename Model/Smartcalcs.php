@@ -309,6 +309,7 @@ class Smartcalcs
 
         if (isset($postCodes[$countryId]) && is_array($postCodes[$countryId])) {
             $patterns = $postCodes[$countryId];
+
             foreach ($patterns as $pattern) {
                 preg_match('/' . $pattern['pattern'] . '/', $postcode, $matches);
 
