@@ -243,10 +243,7 @@ class Transaction
      * @param array $items
      * @return array
      */
-    protected function getParentAmounts(
-        string $type,
-        array $items
-    ) {
+    protected function getParentAmounts($type, $items) {
         $parentAmounts = [];
 
         foreach ($items as $item) {

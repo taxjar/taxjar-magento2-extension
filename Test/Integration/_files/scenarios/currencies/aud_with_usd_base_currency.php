@@ -25,7 +25,7 @@ $taxCalculationData['aud_with_usd_base_currency'] = [
             'shipping/origin/street_line1' => '217 Kildare Rd',
             'shipping/origin/city' => 'Doonside',
             'shipping/origin/country_id' => 'AU',
-            'shipping/origin/postcode' => 'NSW 2767'
+            'shipping/origin/postcode' => '2767'
         ]),
         SetupUtil::NEXUS_OVERRIDES => [
             [
@@ -33,7 +33,7 @@ $taxCalculationData['aud_with_usd_base_currency'] = [
                 'city' => 'Doonside',
                 'region' => 'New South Wales',
                 'country_id' => 'AU',
-                'postcode' => 'NSW 2767'
+                'postcode' => '2767'
             ]
         ]
     ],
@@ -43,7 +43,7 @@ $taxCalculationData['aud_with_usd_base_currency'] = [
             'lastname' => 'Moss',
             'street' => '455 George St',
             'city' => 'Sydney',
-            'postcode' => 'NSW 2000',
+            'postcode' => '2000',
             'country_id' => 'AU',
             'telephone' => '999-999-9999'
         ],
@@ -52,7 +52,7 @@ $taxCalculationData['aud_with_usd_base_currency'] = [
             'lastname' => 'Moss',
             'street' => '455 George St',
             'city' => 'Sydney',
-            'postcode' => 'NSW 2000',
+            'postcode' => '2000',
             'country_id' => 'AU',
             'telephone' => '999-999-9999'
         ],
