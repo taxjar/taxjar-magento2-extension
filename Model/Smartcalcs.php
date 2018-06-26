@@ -65,6 +65,11 @@ class Smartcalcs
     protected $taxData;
 
     /**
+     * @var \Magento\Directory\Model\Country\Postcode\ConfigInterface
+     */
+    protected $postCodesConfig;
+
+    /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -92,7 +97,8 @@ class Smartcalcs
         ScopeConfigInterface $scopeConfig,
         ZendClientFactory $clientFactory,
         ProductMetadata $productMetadata,
-        \Magento\Tax\Helper\Data $taxData
+        \Magento\Tax\Helper\Data $taxData,
+        \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -102,6 +108,7 @@ class Smartcalcs
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
+        $this->postCodesConfig = $postCodesConfig;
     }
 
     /**
@@ -128,6 +135,10 @@ class Smartcalcs
         }
 
         if (!$address->getPostcode()) {
+            return;
+        }
+
+        if (!$this->_validatePostcode($address->getPostcode(), $address->getCountry())) {
             return;
         }
 
@@ -279,6 +290,33 @@ class Smartcalcs
 
         if (isset($response['body']['tax']) && $response['status'] == 200) {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate postcode based on country using patterns defined in
+     * app/code/Magento/Directory/etc/zip_codes.xml
+     *
+     * @param string $postcode
+     * @param string $countryId
+     * @return bool
+     */
+    private function _validatePostcode($postcode, $countryId)
+    {
+        $postCodes = $this->postCodesConfig->getPostCodes();
+
+        if (isset($postCodes[$countryId]) && is_array($postCodes[$countryId])) {
+            $patterns = $postCodes[$countryId];
+
+            foreach ($patterns as $pattern) {
+                preg_match('/' . $pattern['pattern'] . '/', $postcode, $matches);
+
+                if (count($matches)) {
+                    return true;
+                }
+            }
         }
 
         return false;
