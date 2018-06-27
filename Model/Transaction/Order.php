@@ -43,7 +43,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         $createdAt = new \DateTime($order->getCreatedAt());
         $subtotal = (float) $order->getSubtotal();
         $shipping = (float) $order->getShippingAmount();
-        $itemDiscount = (float) $order->getDiscountAmount();
+        $discount = (float) $order->getDiscountAmount();
         $shippingDiscount = (float) $order->getShippingDiscountAmount();
         $salesTax = (float) $order->getTaxAmount();
 
@@ -53,7 +53,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             'plugin' => 'magento',
             'transaction_id' => $order->getIncrementId(),
             'transaction_date' => $createdAt->format(\DateTime::ISO8601),
-            'amount' => $subtotal + $shipping - abs($itemDiscount),
+            'amount' => $subtotal + $shipping - abs($discount),
             'shipping' => $shipping - abs($shippingDiscount),
             'sales_tax' => $salesTax
         ];
