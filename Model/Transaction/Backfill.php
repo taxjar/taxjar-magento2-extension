@@ -168,7 +168,7 @@ class Backfill
         $fromDate->setTime(0, 0, 0);
         $toDate->setTime(23, 59, 59);
 
-        $fromFilter = $this->filterBuilder->setField('updated_at')
+        $fromFilter = $this->filterBuilder->setField('created_at')
             ->setConditionType('gteq')
             ->setValue($fromDate->format('Y-m-d H:i:s'))
             ->create();
@@ -177,7 +177,7 @@ class Backfill
             ->setFilters([$fromFilter])
             ->create();
 
-        $toFilter = $this->filterBuilder->setField('updated_at')
+        $toFilter = $this->filterBuilder->setField('created_at')
             ->setConditionType('lteq')
             ->setValue($toDate->format('Y-m-d H:i:s'))
             ->create();
