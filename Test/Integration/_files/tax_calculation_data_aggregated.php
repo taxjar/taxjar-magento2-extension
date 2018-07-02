@@ -32,6 +32,9 @@ require_once __DIR__ . '/scenarios/countries/eu_calculation.php';
 require_once __DIR__ . '/scenarios/currencies/aud_with_usd_base_currency.php';
 require_once __DIR__ . '/scenarios/currencies/cad_with_usd_base_currency.php';
 require_once __DIR__ . '/scenarios/currencies/eur_with_usd_base_currency.php';
+require_once __DIR__ . '/scenarios/discounts/shopping_cart_rule_percent.php';
+require_once __DIR__ . '/scenarios/discounts/shopping_cart_rule_fixed.php';
+require_once __DIR__ . '/scenarios/discounts/shopping_cart_rule_fixed_shipping.php';
 require_once __DIR__ . '/scenarios/exemptions/none_tax_class_exemption.php';
 require_once __DIR__ . '/scenarios/exemptions/us_ca_grocery_exemption.php';
 require_once __DIR__ . '/scenarios/exemptions/us_ny_clothing_exemption.php';
@@ -43,6 +46,5 @@ require_once __DIR__ . '/scenarios/products/configurable_product.php';
 require_once __DIR__ . '/scenarios/products/simple_product.php';
 require_once __DIR__ . '/scenarios/line_item_rounding_calculation.php';
 require_once __DIR__ . '/scenarios/shipping_tax_calculation.php';
-require_once __DIR__ . '/scenarios/shopping_cart_rule.php';
 
 // @codingStandardsIgnoreEnd

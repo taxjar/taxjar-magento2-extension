@@ -44,6 +44,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         $subtotal = (float) $order->getSubtotal();
         $shipping = (float) $order->getShippingAmount();
         $discount = (float) $order->getDiscountAmount();
+        $shippingDiscount = (float) $order->getShippingDiscountAmount();
         $salesTax = (float) $order->getTaxAmount();
 
         $this->originalOrder = $order;
@@ -53,7 +54,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             'transaction_id' => $order->getIncrementId(),
             'transaction_date' => $createdAt->format(\DateTime::ISO8601),
             'amount' => $subtotal + $shipping - abs($discount),
-            'shipping' => $shipping,
+            'shipping' => $shipping - abs($shippingDiscount),
             'sales_tax' => $salesTax
         ];
 

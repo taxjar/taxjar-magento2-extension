@@ -19,7 +19,7 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Taxjar\SalesTax\Test\Integration\Model\Tax\Sales\Total\Quote\SetupUtil;
 
-$taxCalculationData['shopping_cart_rule'] = [
+$taxCalculationData['shopping_cart_rule_percent'] = [
     'config_data' => [
         SetupUtil::CONFIG_OVERRIDES => array_merge($taxjarCredentials, [
             'shipping/origin/street_line1' => '600 Montgomery St',

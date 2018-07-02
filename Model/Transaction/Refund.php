@@ -50,6 +50,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         $subtotal = (float) $creditmemo->getSubtotal();
         $shipping = (float) $creditmemo->getShippingAmount();
         $discount = (float) $creditmemo->getDiscountAmount();
+        $shippingDiscount = (float) $creditmemo->getShippingDiscountAmount();
         $salesTax = (float) $creditmemo->getTaxAmount();
 
         $this->originalOrder = $order;
@@ -61,7 +62,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             'transaction_reference_id' => $order->getIncrementId(),
             'transaction_date' => $creditmemo->getCreatedAt(),
             'amount' => $subtotal + $shipping - abs($discount),
-            'shipping' => $shipping,
+            'shipping' => $shipping - abs($shippingDiscount),
             'sales_tax' => $salesTax
         ];
 
