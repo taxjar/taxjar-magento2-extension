@@ -21,7 +21,7 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.0.2';
+    const TAXJAR_VERSION              = '1.0.3';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
