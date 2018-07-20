@@ -17,6 +17,8 @@
 
 namespace Taxjar\SalesTax\Model;
 
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+
 class Transaction
 {
     /**
@@ -228,6 +230,8 @@ class Transaction
                 if ($taxClass->getTjSalestaxCode()) {
                     $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
                 }
+            } else {
+                $lineItem['product_tax_code'] = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
             }
 
             $lineItems['line_items'][] = $lineItem;
