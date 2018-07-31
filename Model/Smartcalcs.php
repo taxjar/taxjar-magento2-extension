@@ -218,12 +218,9 @@ class Smartcalcs
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
 
-                if ($response->getStatus() ==200 ) // Success
-                {
+                if (200 == $response->getStatus()) {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
-                }
-                else
-                {
+                } else {
                     $errorResponse = json_decode($response->getBody());
                     $this->logger->log($errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail, 'error');
                 }

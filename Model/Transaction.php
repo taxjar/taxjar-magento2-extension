@@ -18,7 +18,6 @@
 namespace Taxjar\SalesTax\Model;
 
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Tax\Sales\Total\Quote\Tax;
 
 class Transaction
 {
