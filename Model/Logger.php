@@ -58,12 +58,10 @@ class Logger
      */
     protected $filename = TaxjarConfig::TAXJAR_DEFAULT_LOG;
 
-
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     protected $storeManager;
-
 
     /**
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
@@ -82,9 +80,9 @@ class Logger
     }
 
     /**
-     * Sets the filename to save the log to
+     * Sets the log filename
      * @param string $filename
-     * @return string
+     * @return Logger
      */
     public function setFilename($filename)
     {
@@ -112,11 +110,16 @@ class Logger
      */
     public function log($message, $label = '')
     {
-        if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_DEBUG, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->storeManager->getStore()->getId())) {
+        if ($this->scopeConfig->getValue(
+            TaxjarConfig::TAXJAR_DEBUG,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $this->storeManager->getStore()->getId())
+        ) {
             try {
                 if (!empty($label)) {
                     $label = '[' . strtoupper($label) . '] ';
                 }
+
                 $timestamp = date('d M Y H:i:s', time());
                 $message = sprintf('%s%s - %s%s', PHP_EOL, $timestamp, $label, $message);
 
@@ -126,6 +129,7 @@ class Logger
                 }
 
                 $this->driverFile->filePutContents($this->getPath(), $message, FILE_APPEND);
+                
                 if ($this->isRecording) {
                     $this->playback[] = $message;
                 }
