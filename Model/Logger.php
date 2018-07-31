@@ -19,6 +19,7 @@ namespace Taxjar\SalesTax\Model;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\LocalizedException;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Logger
 {
@@ -48,9 +49,21 @@ class Logger
     protected $console;
 
     /**
-     * @var \Magento\Framework\App\State
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
-    protected $appState;
+    protected $scopeConfig;
+
+    /**
+     * @var string
+     */
+    protected $filename = TaxjarConfig::TAXJAR_DEFAULT_LOG;
+
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
 
     /**
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
@@ -59,11 +72,24 @@ class Logger
     public function __construct(
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Magento\Framework\Filesystem\Driver\File $driverFile,
-        \Magento\Framework\App\State $appState
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
-        $this->appState = $appState;
+        $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
+    }
+
+    /**
+     * Sets the filename to save the log to
+     * @param string $filename
+     * @return string
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+        return $this;
     }
 
     /**
@@ -73,7 +99,7 @@ class Logger
      */
     public function getPath()
     {
-        return $this->directoryList->getPath(DirectoryList::LOG) . DIRECTORY_SEPARATOR . 'taxjar.log';
+        return $this->directoryList->getPath(DirectoryList::LOG) . DIRECTORY_SEPARATOR . 'taxjar' . DIRECTORY_SEPARATOR . $this->filename;
     }
 
     /**
@@ -84,14 +110,21 @@ class Logger
      * @throws LocalizedException
      * @return void
      */
-    public function log($message, $label = '') {
-        if ($this->appState->getMode() == \Magento\Framework\App\State::MODE_DEVELOPER) {
+    public function log($message, $label = '')
+    {
+        if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_DEBUG, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->storeManager->getStore()->getId())) {
             try {
                 if (!empty($label)) {
                     $label = '[' . strtoupper($label) . '] ';
                 }
                 $timestamp = date('d M Y H:i:s', time());
                 $message = sprintf('%s%s - %s%s', PHP_EOL, $timestamp, $label, $message);
+
+                if (!is_dir(dirname($this->getPath()))) {
+                    // dir doesn't exist, make it
+                    mkdir(dirname($this->getPath()));
+                }
+
                 $this->driverFile->filePutContents($this->getPath(), $message, FILE_APPEND);
                 if ($this->isRecording) {
                     $this->playback[] = $message;
