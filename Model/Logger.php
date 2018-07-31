@@ -48,15 +48,22 @@ class Logger
     protected $console;
 
     /**
+     * @var \Magento\Framework\App\State
+     */
+    protected $appState;
+
+    /**
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile
      */
     public function __construct(
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
-        \Magento\Framework\Filesystem\Driver\File $driverFile
+        \Magento\Framework\Filesystem\Driver\File $driverFile,
+        \Magento\Framework\App\State $appState
     ) {
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
+        $this->appState = $appState;
     }
 
     /**
@@ -78,23 +85,25 @@ class Logger
      * @return void
      */
     public function log($message, $label = '') {
-        try {
-            if (!empty($label)) {
-                $label = '[' . strtoupper($label) . '] ';
+        if ($this->appState->getMode() == \Magento\Framework\App\State::MODE_DEVELOPER) {
+            try {
+                if (!empty($label)) {
+                    $label = '[' . strtoupper($label) . '] ';
+                }
+                $timestamp = date('d M Y H:i:s', time());
+                $message = sprintf('%s%s - %s%s', PHP_EOL, $timestamp, $label, $message);
+                $this->driverFile->filePutContents($this->getPath(), $message, FILE_APPEND);
+                if ($this->isRecording) {
+                    $this->playback[] = $message;
+                }
+                if ($this->console) {
+                    $this->console->write($message);
+                }
+            } catch (\Exception $e) {
+                // @codingStandardsIgnoreStart
+                throw new LocalizedException(__('Could not write to your Magento log directory under /var/log. Please make sure the directory is created and check permissions for %1.', $this->directoryList->getPath('log')));
+                // @codingStandardsIgnoreEnd
             }
-            $timestamp = date('d M Y H:i:s', time());
-            $message = sprintf('%s%s - %s%s', PHP_EOL, $timestamp, $label, $message);
-            $this->driverFile->filePutContents($this->getPath(), $message, FILE_APPEND);
-            if ($this->isRecording) {
-                $this->playback[] = $message;
-            }
-            if ($this->console) {
-                $this->console->write($message);
-            }
-        } catch (\Exception $e) {
-            // @codingStandardsIgnoreStart
-            throw new LocalizedException(__('Could not write to your Magento log directory under /var/log. Please make sure the directory is created and check permissions for %1.', $this->directoryList->getPath('log')));
-            // @codingStandardsIgnoreEnd
         }
     }
 

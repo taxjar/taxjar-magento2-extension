@@ -80,6 +80,11 @@ class Smartcalcs
     protected $response;
 
     /**
+     * @var \Taxjar\SalesTax\Model\Logger
+     */
+    protected $logger;
+
+    /**
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
@@ -98,7 +103,8 @@ class Smartcalcs
         ZendClientFactory $clientFactory,
         ProductMetadata $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
-        \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig
+        \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
+        \Taxjar\SalesTax\Model\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -109,6 +115,7 @@ class Smartcalcs
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
         $this->postCodesConfig = $postCodesConfig;
+        $this->logger = $logger;
     }
 
     /**
@@ -202,6 +209,7 @@ class Smartcalcs
             $client->setUri(TaxjarConfig::TAXJAR_API_URL . '/magento/taxes');
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
+            $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
 
             $this->_setSessionData('order', json_encode($order));
 
@@ -209,8 +217,19 @@ class Smartcalcs
                 $response = $client->request('POST');
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
+                if ($response->getStatus() ==200 ) // Success
+                {
+                    $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
+                }
+                else
+                {
+                    $errorResponse = json_decode($response->getBody());
+                    $this->logger->log($errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail, 'error');
+
+                }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
+                $this->_logger->log('There has been an api timeout or a network issue between you and taxjar, please try again later.', 'error');
                 $this->response = null;
                 $this->_unsetSessionData('response');
             }
