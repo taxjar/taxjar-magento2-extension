@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Model;
 
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Taxjar\SalesTax\Model\Tax\Sales\Total\Quote\Tax;
 
 class Transaction
 {
@@ -77,7 +78,7 @@ class Transaction
         $this->productFactory = $productFactory;
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
-        $this->logger = $logger;
+        $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);

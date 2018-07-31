@@ -115,7 +115,7 @@ class Smartcalcs
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
         $this->postCodesConfig = $postCodesConfig;
-        $this->logger = $logger;
+        $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
     }
 
     /**
@@ -217,6 +217,7 @@ class Smartcalcs
                 $response = $client->request('POST');
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
+
                 if ($response->getStatus() ==200 ) // Success
                 {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
@@ -225,11 +226,10 @@ class Smartcalcs
                 {
                     $errorResponse = json_decode($response->getBody());
                     $this->logger->log($errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail, 'error');
-
                 }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
-                $this->_logger->log('There has been an api timeout or a network issue between you and taxjar, please try again later.', 'error');
+                $this->_logger->log('API timeout or network issue between your store and TaxJar, please try again later.', 'error');
                 $this->response = null;
                 $this->_unsetSessionData('response');
             }
