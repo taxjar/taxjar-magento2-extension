@@ -42,7 +42,7 @@ class Configuration
     const TAXJAR_CALCULATIONS_LOG     = 'calculations.log';
     const TAXJAR_TRANSACTIONS_LOG     = 'transactions.log';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
-    const TAXJAR_FEED_URL             = 'www.taxjar.com/magento/feed.xml';
+    const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
