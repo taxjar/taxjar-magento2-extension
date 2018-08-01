@@ -39,7 +39,7 @@ class Configuration
     const TAXJAR_TRANSACTION_AUTH     = 'tax/taxjar/transaction_auth';
     const TAXJAR_TRANSACTION_SYNC     = 'tax/taxjar/transactions';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
-    const TAXJAR_FEED_URL             = 'www.taxjar.com/magento/feed.xml';
+    const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
