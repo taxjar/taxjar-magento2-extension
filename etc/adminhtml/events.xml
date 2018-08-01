@@ -35,4 +35,7 @@
     <event name="taxjar_salestax_import_rates">
         <observer name="taxjar_salestax_import_rates" instance="Taxjar\SalesTax\Observer\ImportRates"/>
     </event>
+    <event name="controller_action_predispatch">
+        <observer name="taxjar_salestax_predispatch_admin_action_controller_observer" instance="Taxjar\SalesTax\Observer\PredispatchAdminActionControllerObserver"/>
+    </event>
 </config>
