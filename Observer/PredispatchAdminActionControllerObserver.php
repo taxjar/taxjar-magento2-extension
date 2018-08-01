@@ -24,7 +24,7 @@ use Magento\Framework\Event\ObserverInterface;
 class PredispatchAdminActionControllerObserver implements ObserverInterface
 {
     /**
-     * @var \Magento\AdminNotification\Model\FeedFactory
+     * @var \Taxjar\SalesTax\Model\FeedFactory
      */
     protected $_feedFactory;
 
