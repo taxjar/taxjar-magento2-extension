@@ -17,7 +17,7 @@
 
 namespace Taxjar\SalesTax\Model;
 
-
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Feed extends \Magento\AdminNotification\Model\Feed
 {
@@ -30,7 +30,7 @@ class Feed extends \Magento\AdminNotification\Model\Feed
     {
         $httpPath = $this->_backendConfig->isSetFlag(self::XML_USE_HTTPS_PATH) ? 'https://' : 'http://';
         if ($this->_feedUrl === null) {
-            $this->_feedUrl = $httpPath . \Taxjar\SalesTax\Model\Configuration::TAXJAR_FEED_URL;
+            $this->_feedUrl = $httpPath . TaxjarConfig::TAXJAR_FEED_URL;
         }
         return $this->_feedUrl;
     }

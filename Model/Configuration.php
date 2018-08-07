@@ -24,6 +24,7 @@ class Configuration
     const TAXJAR_VERSION              = '1.0.3';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
+    const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
     const TAXJAR_CATEGORIES           = 'tax/taxjar/categories';
@@ -39,7 +40,6 @@ class Configuration
     const TAXJAR_TRANSACTION_AUTH     = 'tax/taxjar/transaction_auth';
     const TAXJAR_TRANSACTION_SYNC     = 'tax/taxjar/transactions';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
-    const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config

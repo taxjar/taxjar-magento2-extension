@@ -15,13 +15,11 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-
-
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 
-class PredispatchAdminActionControllerObserver implements ObserverInterface
+class AdminNotifications implements ObserverInterface
 {
     /**
      * @var \Taxjar\SalesTax\Model\FeedFactory
@@ -46,7 +44,7 @@ class PredispatchAdminActionControllerObserver implements ObserverInterface
     }
 
     /**
-     * Predispath admin action controller
+     * AdminNotifications admin action controller
      *
      * @param \Magento\Framework\Event\Observer $observer
      * @return void
