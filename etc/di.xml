@@ -28,4 +28,10 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Customer\Model\Customer">
+        <plugin name="taxjar_customer_plugin_customer" type="Taxjar\SalesTax\Plugin\CustomerPlugin" sortOrder="1" />
+    </type>
+    <type name="Magento\Customer\Model\Address">
+        <plugin name="taxjar_customer_plugin_addres" type="Taxjar\SalesTax\Plugin\AddressPlugin" sortOrder="1" />
+    </type>
 </config>

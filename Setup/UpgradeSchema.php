@@ -86,5 +86,42 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->endSetup();
         }
+
+
+        if (version_compare($context->getVersion(), '1.1.0') < 0) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            /**
+             * Update table 'tax_class'
+             */
+            $installer->getConnection()->addColumn(
+                $installer->getTable('tax_class'),
+                'tj_salestax_exempt_type',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'default' => 'non_exempt',
+                    'length' => 255,
+                    'nullable' => false,
+                    'comment' => 'TaxJar Sales Tax Exempt Type'
+                ]
+            );
+
+            /**
+             * Update table 'customer_entity'
+             */
+            $installer->getConnection()->addColumn(
+                $installer->getTable('customer_entity'),
+                'tj_salestax_sync_date',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    'default' => '',
+                    'nullable' => true,
+                    'comment' => 'TaxJar Sales Tax Last Sync Date'
+                ]
+            );
+
+            $installer->endSetup();
+        }
     }
 }

@@ -152,6 +152,41 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
+        $fieldset->addField(
+            'tj_salestax_exempt_type',
+            'select',
+            [
+                'name' => 'tj_salestax_exempt_type',
+                'label' => __('TaxJar Exemption Type'),
+                'note' => __('Sets the exemption type on the customer, this will be sent to your taxjar account when customers are synced. '),
+                'values' => [
+                    'wholesale' => 'Wholesale',
+                    'government' => 'Government',
+                    'other' => 'Other'
+                ],
+                'value' => isset($formValues['tj_salestax_exempt_type']) ? $formValues['tj_salestax_exempt_type'] : ''
+            ]
+        );
+
+        $this->setChild(
+            'form_after',
+            $this->getLayout()->createBlock(
+                'Magento\Backend\Block\Widget\Form\Element\Dependence'
+            )->addFieldMap(
+                'tj_salestax_code',
+                'tj_salestax_code'
+            )->addFieldMap(
+                'tj_salestax_exempt_type',
+                'tj_salestax_exempt_type'
+            )->addFieldDependence(
+                'tj_salestax_exempt_type',
+                'tj_salestax_code',
+                '99999'
+            )
+        );
+
+
+
         $form->setAction($this->getUrl('taxjar/taxclass_customer/save'));
         $form->setUseContainer($this->getUseContainer());
         $this->setForm($form);

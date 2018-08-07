@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Controller\Adminhtml;
 
 use Magento\Framework\Controller\ResultFactory;
+use TaxJar\SalesTax\Model\Configuration;
 
 abstract class Taxclass extends \Magento\Backend\App\Action
 {
@@ -119,6 +120,14 @@ abstract class Taxclass extends \Magento\Backend\App\Action
         if (isset($postData['tj_salestax_code'])) {
             $taxClass->setTjSalestaxCode($postData['tj_salestax_code']);
         }
+        if (isset($postData['tj_salestax_code']) && '99999' == $postData['tj_salestax_code'] ) {
+            if(isset($postData['tj_salestax_exempt_type'])) {
+                $taxClass->setTjSalestaxExemptType($postData['tj_salestax_exempt_type']);
+            }
+        } else {
+            $taxClass->setTjSalestaxExemptType(Configuration::TAXJAR_DEFAULT_EXEMPT_TYPE);
+        }
+
         return $taxClass;
     }
 }
