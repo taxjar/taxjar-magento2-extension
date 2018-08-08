@@ -45,11 +45,7 @@ class CustomerGroupPlugin
 
             // Ned to do a join on group to grab the right class
             $customers = $this->customerFactory->create();
-            $customers->getSelect()->join(
-                ['customer_group'=>$customers->getResource()->getTable('customer_group')],
-                'e.group_id = customer_group.customer_group_id',
-                ['tax_class_id'])
-                ->where('tax_class_id = ? ', $customerGroup->getTaxClassId());
+            $customers->addFieldToFilter('group_id', $customerGroup->getId());
 
             // This process can take awhile
             @set_time_limit(0);
