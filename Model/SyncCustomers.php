@@ -46,6 +46,16 @@ class SyncCustomers
      */
     protected $_logger;
 
+    /**
+     * @var Array
+     */
+    protected $_syncedCustomers;
+
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    protected $_registry;
+
 
     public function __construct(Logger $logger,
                                 ZendClientFactory $clientFactory,
@@ -53,18 +63,18 @@ class SyncCustomers
                                 TaxClassRepositoryInterface $taxClassRepo)
     {
         $this->_clientFactory = $clientFactory;
-        $this->_logger = $logger->setFilename('customers.log');
+        $this->_logger = $logger;
         $this->_scopeConfig = $scopeConfig;
         $this->_taxClassRepo = $taxClassRepo;
+        $this->_syncedCustomers = [];
     }
 
-    public function updateCustomer($customer)
+    public function updateCustomer(\Magento\Customer\Model\Customer $customer)
     {
-
         // Determine if taxjar touching is necessary
         // $customer = $this->_customer;
         // if no sync date or sync date is older than the current time run resync
-        if((!$customer->getTjSalestaxSyncDate() or $customer->getTjSalestaxSyncDate() < time()) && !$customer->getTjProcessed()) {
+        if((!$customer->getTjSalestaxSyncDate() or $customer->getTjSalestaxSyncDate() < time()) && !in_array($customer->getId(), $this->_syncedCustomers)) {
             if (!$customer->getTjSalestaxSyncDate()) {
                 $requestType = 'post';
                 $url = TaxjarConfig::TAXJAR_API_URL . '/customers';
@@ -119,7 +129,8 @@ class SyncCustomers
 
                 if (200 <= $response->getStatus() && 300 > $response->getStatus()) {
                     $this->_logger->log('Successful API response: ' . $response->getBody(), 'success');
-                    $customer->setTjSalestaxSyncDate(time())->setTjProcessed(true)->save();
+                    $this->_syncedCustomers[] = $customer->getId();
+                    $customer->setTjSalestaxSyncDate(time())->save();
                 } else {
                     $errorResponse = json_decode($response->getBody());
                     $this->_logger->log($errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail, 'error');

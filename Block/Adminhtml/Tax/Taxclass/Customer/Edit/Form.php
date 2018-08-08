@@ -205,7 +205,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $taxClassData = [
             'class_id' => $taxClass->getClassId(),
             'class_name' => $taxClass->getClassName(),
-            'tj_salestax_code' => $taxClass->getTjSalestaxCode()
+            'tj_salestax_code' => $taxClass->getTjSalestaxCode(),
+            'tj_salestax_exempt_type' => $taxClass->getTjSalestaxExemptType()
         ];
         return $taxClassData;
     }

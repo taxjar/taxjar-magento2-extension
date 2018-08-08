@@ -197,7 +197,9 @@ class Smartcalcs
         ]);
 
         $customer = $quote->getCustomer();
-
+        if ($customer_id = $customer->getId() and $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
+            $order['customer_id'] = $customer_id;
+        }
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();

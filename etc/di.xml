@@ -32,6 +32,12 @@
         <plugin name="taxjar_customer_plugin_customer" type="Taxjar\SalesTax\Plugin\CustomerPlugin" sortOrder="1" />
     </type>
     <type name="Magento\Customer\Model\Address">
-        <plugin name="taxjar_customer_plugin_addres" type="Taxjar\SalesTax\Plugin\AddressPlugin" sortOrder="1" />
+        <plugin name="taxjar_customer_address_plugin" type="Taxjar\SalesTax\Plugin\AddressPlugin" sortOrder="1" />
+    </type>
+    <type name="Magento\Tax\Api\TaxClassRepositoryInterface">
+        <plugin name="taxjar_tax_class_plugin" type="Taxjar\SalesTax\Plugin\TaxClassPlugin" sortOrder="1" />
+    </type>
+    <type name="Magento\Customer\Api\GroupRepositoryInterface">
+        <plugin name="taxjar_customer_group_plugin" type="Taxjar\SalesTax\Plugin\CustomerGroupPlugin" sortOrder="1" />
     </type>
 </config>
