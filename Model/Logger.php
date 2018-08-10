@@ -64,6 +64,11 @@ class Logger
     protected $storeManager;
 
     /**
+     * @var boolean
+     */
+    protected $isLoggingForced = false;
+
+    /**
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
      * @param \Magento\Framework\Filesystem\Driver\File $driverFile
      */
@@ -91,6 +96,16 @@ class Logger
     }
 
     /**
+     * Enables or disables the logger
+     * @param boolean $isForced
+     * @return Logger
+     */
+    public function setisLoggingForced($isForced)
+    {
+        $this->isLoggingForced = $isForced;
+    }
+
+    /**
      * Get the temp log filename
      *
      * @return string
@@ -114,6 +129,8 @@ class Logger
             TaxjarConfig::TAXJAR_DEBUG,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $this->storeManager->getStore()->getId())
+            ||
+            $this->isLoggingForced
         ) {
             try {
                 if (!empty($label)) {
@@ -129,7 +146,7 @@ class Logger
                 }
 
                 $this->driverFile->filePutContents($this->getPath(), $message, FILE_APPEND);
-                
+
                 if ($this->isRecording) {
                     $this->playback[] = $message;
                 }
