@@ -103,6 +103,7 @@ class Logger
     public function force($isForced=true)
     {
         $this->isForced = $isForced;
+        return $this;
     }
 
     /**
