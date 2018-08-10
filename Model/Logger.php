@@ -66,7 +66,7 @@ class Logger
     /**
      * @var boolean
      */
-    protected $isLoggingForced = false;
+    protected $isForced = false;
 
     /**
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
@@ -100,9 +100,9 @@ class Logger
      * @param boolean $isForced
      * @return Logger
      */
-    public function setisLoggingForced($isForced)
+    public function force($isForced=true)
     {
-        $this->isLoggingForced = $isForced;
+        $this->isForced = $isForced;
     }
 
     /**
@@ -130,7 +130,7 @@ class Logger
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $this->storeManager->getStore()->getId())
             ||
-            $this->isLoggingForced
+            $this->isForced
         ) {
             try {
                 if (!empty($label)) {
