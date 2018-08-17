@@ -17,7 +17,6 @@ class CustomerGroupPlugin
      */
     protected $customerFactory;
 
-
     /**
      * @var \Taxjar\SalesTax\Model\SyncCustomers
      */
@@ -29,7 +28,6 @@ class CustomerGroupPlugin
         $this->customerFactory = $customerFactory;
     }
 
-
     public function beforeSave($customerGroupRepo, $customerGroup)
     {
         $customerGroup = $customerGroupRepo->getById($customerGroup->getId());
@@ -39,10 +37,8 @@ class CustomerGroupPlugin
     public function afterSave($customerGroupRepo, $customerGroup)
     {
         if ($customerGroup->getTaxClassId() != $this->originalTaxClassId) {
-
             // On change we need to loop through all the affected customers and sync/resync them
             // First verify that it's a change we care about
-
             // Ned to do a join on group to grab the right class
             $customers = $this->customerFactory->create();
             $customers->addFieldToFilter('group_id', $customerGroup->getId());
@@ -50,10 +46,12 @@ class CustomerGroupPlugin
             // This process can take awhile
             @set_time_limit(0);
             @ignore_user_abort(true);
+
             foreach ($customers as $customer) {
                 $this->customerSync->updateCustomer($customer);
             }
         }
+        
         return $customerGroup;
     }
 }

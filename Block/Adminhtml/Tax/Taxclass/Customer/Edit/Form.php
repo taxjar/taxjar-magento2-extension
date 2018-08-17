@@ -158,7 +158,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             [
                 'name' => 'tj_salestax_exempt_type',
                 'label' => __('TaxJar Exemption Type'),
-                'note' => __('Sets the exemption type on the customer, this will be sent to your taxjar account when customers are synced. '),
+                'note' => __('If exempt from TaxJar, select an exemption type for this customer tax class.'),
                 'values' => [
                     'wholesale' => 'Wholesale',
                     'government' => 'Government',
@@ -184,8 +184,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 '99999'
             )
         );
-
-
 
         $form->setAction($this->getUrl('taxjar/taxclass_customer/save'));
         $form->setUseContainer($this->getUseContainer());
