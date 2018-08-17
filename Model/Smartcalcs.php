@@ -209,6 +209,7 @@ class Smartcalcs
             $client->setUri(TaxjarConfig::TAXJAR_API_URL . '/magento/taxes');
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
+
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
 
             $this->_setSessionData('order', json_encode($order));

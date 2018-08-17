@@ -86,6 +86,7 @@ class Logger
 
     /**
      * Sets the log filename
+     *
      * @param string $filename
      * @return Logger
      */
@@ -97,10 +98,11 @@ class Logger
 
     /**
      * Enables or disables the logger
+     *
      * @param boolean $isForced
      * @return Logger
      */
-    public function force($isForced=true)
+    public function force($isForced = true)
     {
         $this->isForced = $isForced;
         return $this;
