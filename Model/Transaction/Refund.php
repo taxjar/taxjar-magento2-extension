@@ -74,7 +74,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         );
 
         $customer = $order->getCustomer();
-        if ($customer_id = $customer->getId() and $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
+        if ($customer_id = $customer->getId() && $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
             $this->request['customer_id'] = $customer_id;
         }
 

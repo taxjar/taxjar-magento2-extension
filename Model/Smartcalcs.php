@@ -129,6 +129,7 @@ class Smartcalcs
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $quote->getStoreId()
         ));
+
         if (!$apiKey) {
             return;
         }
@@ -197,7 +198,8 @@ class Smartcalcs
         ]);
 
         $customer = $quote->getCustomer();
-        if ($customer_id = $customer->getId() and $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
+        
+        if ($customer_id = $customer->getId() && $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
             $order['customer_id'] = $customer_id;
         }
 

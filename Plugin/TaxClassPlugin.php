@@ -1,4 +1,19 @@
 <?php
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
 
 namespace TaxJar\SalesTax\Plugin;
 
@@ -18,7 +33,6 @@ class TaxClassPlugin
      */
     protected $customerFactory;
 
-
     /**
      * @var \Taxjar\SalesTax\Model\SyncCustomers
      */
@@ -28,9 +42,7 @@ class TaxClassPlugin
     {
         $this->customerSync = $customerSync;
         $this->customerFactory = $customerFactory;
-
     }
-
 
     public function beforeSave($taxClassRepo, $taxClass)
     {
@@ -40,14 +52,12 @@ class TaxClassPlugin
     public function afterSave($taxClassRepo, $id, $taxClass)
     {
         if ('CUSTOMER' == $taxClass->getClassType()) {
-
             // On change we need to loop through all the affected customers and sync/resync them
             // First verify that it's a change we care about
-
-            // Ned to do a join on group to grab the right class
+            // Need to do a join on group to grab the right class
             $customers = $this->customerFactory->create();
             $customers->getSelect()->join(
-                ['customer_group'=>$customers->getResource()->getTable('customer_group')],
+                ['customer_group' => $customers->getResource()->getTable('customer_group')],
                 'e.group_id = customer_group.customer_group_id',
                 ['tax_class_id'])
                 ->where('tax_class_id = ? ', $taxClass->getId());
@@ -63,6 +73,7 @@ class TaxClassPlugin
             // This process can take awhile
             @set_time_limit(0);
             @ignore_user_abort(true);
+
             foreach ($customers as $customer) {
                 $this->customerSync->updateCustomer($customer);
             }
