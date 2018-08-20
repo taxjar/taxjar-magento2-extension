@@ -50,6 +50,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $taxCalculation;
 
     /**
+     * @var \Magento\Framework\Registry
+     */
+    protected $registry;
+
+    /**
      * @param \Magento\Tax\Model\Config $taxConfig
      * @param \Magento\Tax\Api\TaxCalculationInterface $taxCalculationService
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
@@ -63,6 +68,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
      * @param \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation
+     * @param \Magento\Framework\Registry $registry
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -78,13 +84,16 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
-        \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation
+        \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation,
+        \Magento\Framework\Registry $registry
     ) {
         $this->smartCalcs = $smartCalcs;
         $this->scopeConfig = $scopeConfig;
         $this->priceCurrency = $priceCurrency;
         $this->extensionFactory = $extensionFactory;
         $this->taxCalculation = $taxCalculation;
+        $this->registry = $registry;
+
 
         parent::__construct(
             $taxConfig,
@@ -119,9 +128,17 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $quote->getStoreId()
         );
 
-        if ($isEnabled) {
+        /**
+         * This registry check is to resolve bug https://github.com/magento/magento2/issues/9580
+         * In case of infinite loop we make sure the taxjar api is only hit once to avoid billing customers 
+         * for accidental transactions. 
+         */
+        $taxJarCollectTotalsHasRun = $this->registry->registry('taxjar_collect_totals_has_run');
+
+        if ($isEnabled && is_null($taxJarCollectTotalsHasRun)) {
             $baseQuoteTaxDetails = $this->getQuoteTaxDetailsInterface($shippingAssignment, $total, true);
             $this->smartCalcs->getTaxForOrder($quote, $baseQuoteTaxDetails, $shippingAssignment);
+            $this->registry->register('taxjar_collect_totals_has_run', true);
         }
 
         if ($this->smartCalcs->isValidResponse()) {
