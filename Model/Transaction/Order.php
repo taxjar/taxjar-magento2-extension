@@ -65,6 +65,11 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             $this->buildLineItems($order, $order->getAllItems())
         );
 
+        $customer = $order->getCustomer();
+        if ($customer_id = $customer->getId() && $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
+            $this->request['customer_id'] = $customer_id;
+        }
+
         return $this->request;
     }
 

@@ -18,7 +18,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module:etc/module.xsd">
     <!-- Database Setup Version -->
-    <module name="Taxjar_SalesTax" setup_version="1.0.0">
+    <module name="Taxjar_SalesTax" setup_version="1.1.0">
         <sequence>
             <module name="Magento_Enterprise"/>
             <module name="Magento_Sales"/>

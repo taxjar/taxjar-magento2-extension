@@ -197,6 +197,12 @@ class Smartcalcs
             'plugin' => 'magento'
         ]);
 
+        $customer = $quote->getCustomer();
+        
+        if ($customer_id = $customer->getId() && $customer->getCustomAttribute('tj_salestax_sync_date')->getValue()) {
+            $order['customer_id'] = $customer_id;
+        }
+
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
             $client->setUri(TaxjarConfig::TAXJAR_API_URL . '/magento/taxes');
