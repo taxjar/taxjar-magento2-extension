@@ -267,10 +267,10 @@ class Transaction
             if (isset($parentItemId)) {
                 switch ($attr) {
                     case 'discount':
-                        $amount = (float) ($type == 'order') ? $item->getDiscountAmount() : $item->getDiscountRefunded();
+                        $amount = (float) (($type == 'order') ? $item->getDiscountAmount() : $item->getDiscountRefunded());
                         break;
                     case 'tax':
-                        $amount = (float) ($type == 'order') ? $item->getTaxAmount() : $item->getTaxRefunded();
+                        $amount = (float) (($type == 'order') ? $item->getTaxAmount() : $item->getTaxRefunded());
                         break;
                 }
 
