@@ -50,8 +50,9 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         $subtotal = (float) $creditmemo->getSubtotal();
         $shipping = (float) $creditmemo->getShippingAmount();
         $discount = (float) $creditmemo->getDiscountAmount();
-        $shippingDiscount = (float) $creditmemo->getShippingDiscountAmount();
         $salesTax = (float) $creditmemo->getTaxAmount();
+        $adjustment = (float) $creditmemo->getAdjustment();
+        $itemDiscounts = 0;
 
         $this->originalOrder = $order;
         $this->originalRefund = $creditmemo;
@@ -61,8 +62,8 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             'transaction_id' => $creditmemo->getIncrementId() . '-refund',
             'transaction_reference_id' => $order->getIncrementId(),
             'transaction_date' => $creditmemo->getCreatedAt(),
-            'amount' => $subtotal + $shipping - abs($discount),
-            'shipping' => $shipping - abs($shippingDiscount),
+            'amount' => $subtotal + $shipping - abs($discount) + $adjustment,
+            'shipping' => $shipping,
             'sales_tax' => $salesTax
         ];
 
@@ -72,6 +73,15 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $this->buildToAddress($order),
             $this->buildLineItems($order, $creditmemo->getAllItems(), 'refund')
         );
+
+        foreach ($this->request['line_items'] as $lineItem) {
+            $itemDiscounts += $lineItem['discount'];
+        }
+
+        if ((abs($discount) - $itemDiscounts) > 0) {
+            $shippingDiscount = abs($discount) - $itemDiscounts;
+            $this->request['shipping'] = $shipping - $shippingDiscount;
+        }
 
         return $this->request;
     }
