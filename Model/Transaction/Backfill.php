@@ -110,7 +110,7 @@ class Backfill
         $this->transactionFactory = $transactionFactory;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
-        $this->logger = $logger;
+        $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG)->force();
         $this->orderRepository = $orderRepository;
         $this->filterBuilder = $filterBuilder;
         $this->filterGroupBuilder = $filterGroupBuilder;
