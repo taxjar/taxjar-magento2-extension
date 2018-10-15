@@ -26,7 +26,7 @@
     <script>
         require([
             'jquery',
-            'popup'
+            'taxjarPopup'
         ], function($, popup) {
             $('#tax_taxjar_transactions').bind('DOMSubtreeModified', function(e) {
                 $(this).prop('disabled', true);
@@ -57,7 +57,7 @@
     <script>
         require([
             'jquery',
-            'clipboard',
+            'taxjarClipboard',
             'Magento_Ui/js/modal/modal'
         ], function($, clipboard, modal) {
             var options = {
