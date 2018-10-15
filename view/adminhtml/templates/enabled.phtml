@@ -42,7 +42,7 @@
 
   <script>
     require([
-        'popup'
+        'taxjarPopup'
     ], function(popup) {
         window.addEventListener('message', function(e) {
             if (e.origin !== '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>')
