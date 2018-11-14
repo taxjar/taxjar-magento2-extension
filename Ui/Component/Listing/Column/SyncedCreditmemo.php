@@ -7,6 +7,7 @@ use \Magento\Framework\View\Element\UiComponentFactory;
 use \Magento\Ui\Component\Listing\Columns\Column;
 use \Magento\Framework\Api\SearchCriteriaBuilder;
 use \Magento\Framework\Stdlib\DateTime\Timezone;
+use \Magento\Framework\Exception\NoSuchEntityException;
 
 class SyncedCreditmemo extends Column
 {
@@ -57,8 +58,13 @@ class SyncedCreditmemo extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
-                $creditmemo = $this->creditmemoRepository->get($item['entity_id']);
                 $creditmemoSyncDate = '';
+
+                try {
+                    $creditmemo = $this->creditmemoRepository->get($item['entity_id']);
+                } catch( NoSuchEntityException $e) {
+                    $this->logger->log($e->getMessage() . ', entity id: ' . $item['entity_id']);
+                }
 
                 if ($creditmemo->getTjSalestaxSyncDate()) {
                     $creditmemoSyncDate = $this->timezone->formatDate(
