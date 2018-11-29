@@ -39,6 +39,7 @@ class SyncedCreditmemo extends Column
      * @param CreditmemoRepositoryInterface $creditmemoRepository
      * @param SearchCriteriaBuilder $criteria
      * @param Timezone $timezone
+     * @param \Taxjar\SalesTax\Model\Logger $logger
      * @param array $components
      * @param array $data
      */
