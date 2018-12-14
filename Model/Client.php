@@ -222,6 +222,9 @@ class Client
             case 'refunds':
                 $apiUrl .= '/transactions/refunds';
                 break;
+            case 'addressValidation':
+                $apiUrl .= '/addresses/validate';
+                break;
         }
 
         return $apiUrl;

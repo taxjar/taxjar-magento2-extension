@@ -53,6 +53,12 @@
                     <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Multiselect</frontend_model>
                     <depends><field id="connected">1</field></depends>
                 </field>
+                <field id="address_validation" translate="label" sortOrder="6" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation</label>
+                    <comment>Turn on/off automatic address validation.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends><field id="connected">1</field></depends>
+                </field>
                 <field id="debug" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Debug Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

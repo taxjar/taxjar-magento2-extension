@@ -21,6 +21,7 @@
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
     <preference for="Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface" type="Taxjar\SalesTax\Model\Tax\Nexus\Repository" />
+    <preference for="Taxjar\SalesTax\Api\AddressValidationInterface" type="Taxjar\SalesTax\Model\AddressValidation" />
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">

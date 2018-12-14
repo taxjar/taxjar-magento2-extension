@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -15,15 +14,29 @@
  * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module:etc/module.xsd">
-    <!-- Database Setup Version -->
-    <module name="Taxjar_SalesTax" setup_version="1.0.0">
-        <sequence>
-            <module name="Magento_Checkout"/>
-            <module name="Magento_Enterprise"/>
-            <module name="Magento_Sales"/>
-            <module name="Temando_Shipping"/>
-        </sequence>
-    </module>
-</config>
+
+namespace Taxjar\SalesTax\Api;
+
+interface AddressValidationInterface
+{
+
+    /**
+     * @api
+     *
+     * @return mixed
+     */
+    public function canValidateAddress();
+
+    /**
+     * @api
+     *
+     * @param string $street0
+     * @param string $street1
+     * @param string $city
+     * @param string $region
+     * @param string $country
+     * @param string $postcode
+     * @return mixed
+     */
+    public function validateAddress($street0 = null, $street1 = null, $city = null, $region = null, $country = null, $postcode = null);
+}

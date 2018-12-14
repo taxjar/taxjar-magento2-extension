@@ -61,4 +61,9 @@ class Data extends AbstractHelper
 
         return $newArray;
     }
+
+    public function getConfig($path)
+    {
+        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
 }
