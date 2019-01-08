@@ -184,7 +184,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             [
                 'name' => 'street',
                 'label' => __('Street Address'),
-                'required' => true,
                 'value' => isset($formValues['street']) ? $formValues['street'] : ''
             ]
         );
@@ -195,7 +194,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             [
                 'name' => 'city',
                 'label' => __('City'),
-                'required' => true,
                 'value' => isset($formValues['city']) ? $formValues['city'] : ''
             ]
         );
@@ -229,7 +227,6 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             [
                 'name' => 'postcode',
                 'label' => __('Zip/Post Code'),
-                'required' => true,
                 'value' => isset($formValues['postcode']) ? $formValues['postcode'] : ''
             ]
         );

@@ -183,20 +183,8 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         $exception = new InputException();
         // @codingStandardsIgnoreEnd
 
-        if (!\Zend_Validate::is(trim($nexus->getStreet()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_STREET]));
-        }
-
-        if (!\Zend_Validate::is(trim($nexus->getCity()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_CITY]));
-        }
-
         if (!\Zend_Validate::is(trim($nexus->getCountryId()), 'NotEmpty')) {
             $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
-        }
-
-        if (!\Zend_Validate::is(trim($nexus->getPostcode()), 'NotEmpty')) {
-            $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_POSTCODE]));
         }
 
         $countryFilter = $this->filterBuilder
