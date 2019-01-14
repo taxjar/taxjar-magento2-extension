@@ -54,7 +54,7 @@ class Category implements \Magento\Framework\Option\ArrayInterface
 
         $output = [
             [
-                'label' => 'None',
+                'label' => 'Fully Taxable',
                 'value' => ''
             ]
         ];
