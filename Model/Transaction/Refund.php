@@ -74,8 +74,10 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $this->buildLineItems($order, $creditmemo->getAllItems(), 'refund')
         );
 
-        foreach ($this->request['line_items'] as $lineItem) {
-            $itemDiscounts += $lineItem['discount'];
+        if (isset($this->request['line_items'])) {
+            foreach ($this->request['line_items'] as $lineItem) {
+                $itemDiscounts += $lineItem['discount'];
+            }
         }
 
         if ((abs($discount) - $itemDiscounts) > 0) {
