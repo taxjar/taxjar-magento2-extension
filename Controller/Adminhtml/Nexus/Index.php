@@ -28,7 +28,7 @@ class Index extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
         $resultPage->addBreadcrumb(__('Manage Nexus Addresses'), __('Manage Nexus Addresses'));
         $resultPage->getConfig()->getTitle()->prepend(__('Nexus Addresses'));
 
-        $this->_reviewNexusAddresses();
+//        $this->_reviewNexusAddresses();
 
         return $resultPage;
     }
