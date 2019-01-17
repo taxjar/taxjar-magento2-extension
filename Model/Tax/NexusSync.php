@@ -164,6 +164,14 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
             $addresses = $nexusJson['addresses'];
 
             foreach ($addresses as $address) {
+                if (!isset($address['country']) || empty($address['country'])) {
+                    continue;
+                }
+
+                if (($address['country'] == 'US' || $address['country'] == 'CA') && (!isset($address['state']) || empty($address['state']))) {
+                    continue;
+                }
+
                 $addressRegion = $this->regionFactory->create()->loadByCode($address['state'], $address['country']);
                 $addressCountry = $this->countryFactory->create()->loadByCode($address['country']);
                 $addressCollection = $this->nexusFactory->create()->getCollection();
