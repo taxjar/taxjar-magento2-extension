@@ -25,6 +25,7 @@ use Magento\Framework\Registry;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class SyncRefund implements ObserverInterface
 {
@@ -54,6 +55,11 @@ class SyncRefund implements ObserverInterface
     protected $registry;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param ManagerInterface $messageManager
      * @param OrderFactory $orderFactory
@@ -65,12 +71,14 @@ class SyncRefund implements ObserverInterface
         ManagerInterface $messageManager,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
+        TaxjarHelper $helper,
         Registry $registry
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
+        $this->helper = $helper;
         $this->registry = $registry;
     }
 
@@ -81,15 +89,15 @@ class SyncRefund implements ObserverInterface
     public function execute(
         Observer $observer
     ) {
-        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
+        $creditmemo = $observer->getEvent()->getCreditmemo();
+        $order = $creditmemo->getOrder();
+//        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
+        $syncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId());
         $eventName = $observer->getEvent()->getName();
 
         if (!$syncEnabled) {
             return $this;
         }
-
-        $creditmemo = $observer->getEvent()->getCreditmemo();
-        $order = $creditmemo->getOrder();
 
         $orderTransaction = $this->orderFactory->create();
 

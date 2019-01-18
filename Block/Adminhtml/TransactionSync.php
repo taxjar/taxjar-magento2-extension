@@ -42,6 +42,11 @@ class TransactionSync extends PopupField
     protected $scopeConfig;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param array $data
@@ -49,10 +54,12 @@ class TransactionSync extends PopupField
     public function __construct(
         Context $context,
         UrlInterface $backendUrl,
+        \Taxjar\SalesTax\Helper\Data $helper,
         array $data = []
     ) {
         $this->scopeConfig = $context->getScopeConfig();
         $this->backendUrl = $backendUrl;
+        $this->helper = $helper;
         parent::__construct($context, $backendUrl, $data);
     }
 
@@ -110,13 +117,7 @@ class TransactionSync extends PopupField
      */
     public function isEnabled()
     {
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
-
-        if ($isEnabled) {
-            return true;
-        }
-
-        return false;
+        return $this->helper->isTransactionSyncEnabled();
     }
 
     /**

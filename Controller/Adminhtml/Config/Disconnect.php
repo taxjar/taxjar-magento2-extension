@@ -73,6 +73,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     public function execute()
     {
+        //TODO: delete from all websites/stores, not just default
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_EMAIL, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);

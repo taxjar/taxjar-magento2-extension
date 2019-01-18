@@ -26,6 +26,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class SyncTransaction implements ObserverInterface
 {
@@ -60,6 +61,11 @@ class SyncTransaction implements ObserverInterface
     protected $registry;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param ManagerInterface $messageManager
      * @param OrderRepositoryInterface $orderRepository
@@ -73,7 +79,8 @@ class SyncTransaction implements ObserverInterface
         OrderRepositoryInterface $orderRepository,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
-        Registry $registry
+        Registry $registry,
+        TaxjarHelper $helper
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
@@ -81,6 +88,7 @@ class SyncTransaction implements ObserverInterface
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
         $this->registry = $registry;
+        $this->helper = $helper;
     }
 
     /**
@@ -90,17 +98,18 @@ class SyncTransaction implements ObserverInterface
     public function execute(
         Observer $observer
     ) {
-        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
-        $eventName = $observer->getEvent()->getName();
-
-        if (!$syncEnabled) {
-            return $this;
-        }
-
         if ($observer->getData('order_id')) {
             $order = $this->orderRepository->get($observer->getData('order_id'));
         } else {
             $order = $observer->getEvent()->getOrder();
+        }
+
+//        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
+        $syncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId());
+        $eventName = $observer->getEvent()->getName();
+
+        if (!$syncEnabled) {
+            return $this;
         }
 
         $orderTransaction = $this->orderFactory->create();
