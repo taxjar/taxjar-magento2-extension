@@ -17,24 +17,17 @@
 
 namespace Taxjar\SalesTax\Observer;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class SyncTransaction implements ObserverInterface
 {
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
@@ -66,7 +59,6 @@ class SyncTransaction implements ObserverInterface
     protected $helper;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
      * @param ManagerInterface $messageManager
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderFactory $orderFactory
@@ -74,7 +66,6 @@ class SyncTransaction implements ObserverInterface
      * @param Registry $registry
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
         ManagerInterface $messageManager,
         OrderRepositoryInterface $orderRepository,
         OrderFactory $orderFactory,
@@ -82,7 +73,6 @@ class SyncTransaction implements ObserverInterface
         Registry $registry,
         TaxjarHelper $helper
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
         $this->orderRepository = $orderRepository;
         $this->orderFactory = $orderFactory;
@@ -104,7 +94,6 @@ class SyncTransaction implements ObserverInterface
             $order = $observer->getEvent()->getOrder();
         }
 
-//        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
         $syncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId());
         $eventName = $observer->getEvent()->getName();
 

@@ -17,6 +17,7 @@ namespace Taxjar\SalesTax\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Data extends AbstractHelper
@@ -74,21 +75,14 @@ class Data extends AbstractHelper
     }
 
     /**
-     * @param int $storeId
+     * @param int $scopeCode
+     * @param string $scope
      * @return bool
      */
-    public function isTransactionSyncEnabled($storeId = 0)
+    public function isTransactionSyncEnabled($scopeCode = 0, $scope = ScopeInterface::SCOPE_STORE)
     {
-//        $websiteId = (int) $this->request->getParam('website', 0);
-
-        if (empty($storeId)) {
-            $storeId = (int)$this->request->getParam('store', 0);
-        }
-
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId);
-
-        return (bool)$isEnabled;
+        $scopeCode = $scopeCode ?: (int)$this->request->getParam($scope, 0);
+        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
+        return (bool)$syncEnabled;
     }
 }
