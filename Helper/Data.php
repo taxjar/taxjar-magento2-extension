@@ -22,7 +22,6 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Data extends AbstractHelper
 {
-
     protected $request;
 
     public function __construct(Context $context, \Magento\Framework\App\Request\Http $request)
@@ -81,8 +80,8 @@ class Data extends AbstractHelper
      */
     public function isTransactionSyncEnabled($scopeCode = 0, $scope = ScopeInterface::SCOPE_STORE)
     {
-        $scopeCode = $scopeCode ?: (int)$this->request->getParam($scope, 0);
+        $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
         $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
-        return (bool)$syncEnabled;
+        return (bool) $syncEnabled;
     }
 }

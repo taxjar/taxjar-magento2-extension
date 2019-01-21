@@ -92,13 +92,21 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
 
         // Erase config values with the "websites" scope
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
-        foreach($this->storeManager->getWebsites() as $websiteId => $website) {
+        foreach ($this->storeManager->getWebsites() as $websiteId => $website) {
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, $scope, $websiteId);
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, $scope, $websiteId);
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, $scope, $websiteId);
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, $scope, $websiteId);
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $websiteId);
         }
 
         // Erase config values with the "stores" scope
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
-        foreach($this->storeManager->getStores() as $storeId => $store) {
+        foreach ($this->storeManager->getStores() as $storeId => $store) {
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, $scope, $storeId);
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, $scope, $storeId);
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, $scope, $storeId);
+            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, $scope, $storeId);
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $storeId);
         }
 
