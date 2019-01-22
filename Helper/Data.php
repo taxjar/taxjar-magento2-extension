@@ -15,10 +15,21 @@
 
 namespace Taxjar\SalesTax\Helper;
 
-use \Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Store\Model\ScopeInterface;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Data extends AbstractHelper
 {
+    protected $request;
+
+    public function __construct(Context $context, \Magento\Framework\App\Request\Http $request)
+    {
+        $this->request = $request;
+        parent::__construct($context);
+    }
+
     /**
      * Sort a multidimensional array by key
      *
@@ -60,5 +71,17 @@ class Data extends AbstractHelper
         }
 
         return $newArray;
+    }
+
+    /**
+     * @param int $scopeCode
+     * @param string $scope
+     * @return bool
+     */
+    public function isTransactionSyncEnabled($scopeCode = 0, $scope = ScopeInterface::SCOPE_STORE)
+    {
+        $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
+        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
+        return (bool) $syncEnabled;
     }
 }
