@@ -82,13 +82,13 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     public function execute()
     {
         // Erase config values with the "default" scope
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_EMAIL);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_EMAIL, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH, 'default', 0);
+        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, 'default', 0);
 
         // Erase config values with the "websites" scope
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
