@@ -120,6 +120,7 @@ class TransactionSync extends PopupField
     public function isEnabled()
     {
         $scopeCode = $this->request->getParam(ScopeInterface::SCOPE_WEBSITE, 0);
+
         if ($scopeCode) {
             return $this->helper->isTransactionSyncEnabled($scopeCode, ScopeInterface::SCOPE_WEBSITE);
         }
