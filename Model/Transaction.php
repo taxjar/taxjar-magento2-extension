@@ -17,6 +17,7 @@
 
 namespace Taxjar\SalesTax\Model;
 
+use Magento\Bundle\Model\Product\Price;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Transaction
@@ -188,8 +189,21 @@ class Transaction
         $parentTaxes = $this->getParentAmounts('tax', $items, $type);
 
         foreach ($items as $item) {
-            if ($item->getParentItemId()) {
-                continue;
+            $itemType = $item->getProductType();
+            $parentItem = $item->getParentItem();
+
+            if (($itemType == 'simple' || $itemType == 'virtual') && $item->getParentItemId()) {
+                if (!empty($parentItem) && $parentItem->getProductType() == 'bundle') {
+                    if ($parentItem->getProduct()->getPriceType() == Price::PRICE_TYPE_FIXED) {
+                        continue;  // Skip children of fixed price bundles
+                    }
+                } else {
+                    continue;  // Skip children of configurable products
+                }
+            }
+
+            if ($itemType == 'bundle' && $item->getProduct()->getPriceType() != Price::PRICE_TYPE_FIXED) {
+                continue;  // Skip dynamic bundle parent item
             }
 
             if (method_exists($item, 'getOrderItem') && $item->getOrderItem()->getParentItemId()) {
