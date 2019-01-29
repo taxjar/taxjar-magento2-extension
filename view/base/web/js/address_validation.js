@@ -21,6 +21,8 @@ define([
 ], function (ko, $, suggestedAddresses) {
     'use strict';
 
+    console.log('address_validation');
+
 
     return function (addressValidation) {
 

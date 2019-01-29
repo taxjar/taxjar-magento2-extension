@@ -21,6 +21,8 @@ define([
 ], function (ko, $, customerData) {
     'use strict';
 
+    console.log('suggested_addresses');
+
 
     $().ready(function () {
 
