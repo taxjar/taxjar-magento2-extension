@@ -19,7 +19,16 @@
 
 /** @var \Magento\Customer\Block\Address\Edit $block */
 
+$path = \Taxjar\SalesTax\Model\AddressValidation::ADDRESS_VALIDATION_SCOPE_PATH;
+$validateAddress = (bool)$this->helper('Taxjar\SalesTax\Helper\Data')->getConfig($path);
 ?>
 
-<div id="tj-suggested-addresses" class="field">
-</div>
+<script>
+    var taxjar_validate_address = <?php echo $validateAddress ? "true" : "false"; ?>;
+
+    require([
+        "jquery",
+        "taxjarAddressValidationAdmin"
+    ], function ($, taxjarAddressValidationAdmin) {
+    });
+</script>

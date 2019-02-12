@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <referenceContainer name="js">
+        <block class="Magento\Sales\Block\Adminhtml\Order\Create\Shipping\Address"
+               name="taxjar_customer_address_edit_address_validation_head"
+               template="Taxjar_SalesTax::address/address_validation_head.phtml" cacheable="false"/>
+    </referenceContainer>
+    <referenceContainer name="content">
+        <block class="Magento\Sales\Block\Adminhtml\Order\Create\Shipping\Address"
+               name="taxjar_customer_address_edit_address_validation_content"
+               template="Taxjar_SalesTax::address/address_validation_content.phtml" cacheable="false"/>
+    </referenceContainer>
+</page>

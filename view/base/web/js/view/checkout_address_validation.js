@@ -44,7 +44,7 @@ define([
             saveNewAddress: function (event) {
                 var addressData,
                     newShippingAddress;
-                addressData = this.source.get('shippingAddress');  //todo: move this
+                addressData = this.source.get('shippingAddress');
 
                 if (window.isValidated) {
                     this.source.set('params.invalid', false);
@@ -67,8 +67,6 @@ define([
 
                     return;
                 }
-
-                // event.preventDefault();  //TODO: remove this?
 
                 let addr = {
                     'street0': addressData.street[0],

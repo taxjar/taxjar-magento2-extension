@@ -120,8 +120,8 @@ class AddressValidation implements AddressValidationInterface
         // a number of options:  https://stackoverflow.com/questions/321294/highlight-the-difference-between-two-strings-in-php
 
         foreach ($orig as $k => $v) {
-            if ($orig[$k] !== $address[$k]) {
-                $changes[$k] = $orig[$k] . ' <span class="diff">' . str_replace($orig[$k], '', $address[$k]) . '</span>';
+            if (isset($orig[$k]) && isset($address[$k]) && $orig[$k] !== $address[$k]) {
+                $changes[$k] = '<span class="diff" style="background-color: yellow;">' . $address[$k] . '</span>';
             }
         }
 

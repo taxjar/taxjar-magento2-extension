@@ -16,9 +16,8 @@
 
 define([
     'ko',
-    'jquery',
-    'Magento_Customer/js/customer-data'
-], function (ko, $, customerData) {
+    'jquery'
+], function (ko, $) {
     'use strict';
 
     $().ready(function () {
@@ -33,14 +32,25 @@ define([
                 return;
             }
 
+            if ($('#order-shipping_same_as_billing').is(':checked')) {
+                $('input[name*="order[billing_address][street]"]:first').val(addr.street);
+                $('input[name="order[billing_address][city]"]').val(addr.city);
+                $('input[name="order[billing_address][region_id]"]').val(addr.state);
+                $('input[name="order[billing_address][postcode]"]').val(addr.zip);
+                $('input[name="order[billing_address][country_id]"]').val(addr.country);
+            }
+
+            $('input[name*="order[shipping_address][street]"]:first').val(addr.street);
+            $('input[name="order[shipping_address][city]"]').val(addr.city);
+            $('input[name="order[shipping_address][region_id]"]').val(addr.state);
+            $('input[name="order[shipping_address][postcode]"]').val(addr.zip);
+            $('input[name="order[shipping_address][country_id]"]').val(addr.country);
+
             $('input[name*="street"]:first').val(addr.street);
             $('input[name="city"]').val(addr.city);
             $('input[name="region_id"]').val(addr.state);
             $('input[name="postcode"]').val(addr.zip);
             $('input[name="country_id"]').val(addr.country);
-
-            // Force KO to acknowledge the address data changed
-            ko.utils.triggerEvent($('input[name="postcode"]').get(0), 'change');
 
             window.isValidated = true;
         });
@@ -60,10 +70,11 @@ define([
             let n = 1;
 
             if (response.suggestions) {
+
                 responseJson = Object.assign(responseJson, {"tj-suggestion-0": addr.original});
 
                 for (let addr of response.suggestions) {
-                    let suggestion = $.extend({}, addr.address, addr.changes);
+                    let suggestion = $.extend({}, addr.changes, addr.address);
 
                     addrHTML += '<div>';
                     addrHTML += '<input type="radio" name="suggested-address" id="tj-suggestion-' + n + '" value="' + n + '" />';
@@ -92,15 +103,7 @@ define([
         },
 
         displayError: function (msg) {
-
             console.log(msg);
-
-            customerData.set('messages', {
-                messages: [{
-                    type: 'error',
-                    text: msg
-                }]
-            });
         }
     };
 });
