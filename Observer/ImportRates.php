@@ -242,6 +242,7 @@ class ImportRates implements ObserverInterface
 
         try {
             $dir = $this->directoryList->getPath(DirectoryList::TMP);
+
             if (!$this->driverFile->isDirectory($dir)) {
                 $this->driverFile->createDirectory($dir);
             }
