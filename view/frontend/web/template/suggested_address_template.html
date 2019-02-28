@@ -1,0 +1,16 @@
+<div class="base-validate-address" data-bind="">
+    <div data-bind="foreach: suggestedAddresses">
+        <div class="suggested-address" style="padding: 10px;">
+            <input type="radio" name="suggested-address"
+                   data-bind="attr: {id: 'suggested-address-' + id}, value: id,
+                   checked: $parent.suggestedAddressRadio, afterRender: $parent.rearrangeSteps"/>
+            <label data-bind="attr: {for: 'suggested-address-' + id}">
+                <span data-bind="html: changes.street"></span>
+                <span data-bind="html: changes.city"></span>
+                <span data-bind="html: changes.regionCode"></span>
+                <span data-bind="html: changes.countryId"></span>
+                <span data-bind="html: changes.postcode"></span>
+            </label>
+        </div>
+    </div>
+</div>

@@ -56,8 +56,7 @@ class AddressValidation implements AddressValidationInterface
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Directory\Model\CountryFactory $countryFactory
-    )
-    {
+    ) {
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_ADDRVALIDATION_LOG);
         $this->client = $clientFactory->create();
         $this->client->showResponseErrors(true);
@@ -79,15 +78,28 @@ class AddressValidation implements AddressValidationInterface
         return (bool)$validateAddress;
     }
 
-    public function validateAddress($street0 = null, $street1 = null, $city = null, $region = null, $country = null, $postcode = null)
-    {
+    public function validateAddress(
+        $street0 = null,
+        $street1 = null,
+        $city = null,
+        $region = null,
+        $country = null,
+        $postcode = null
+    ) {
         $errorResponse = ['error' => true, 'error_msg' => 'Unable to validate your address.'];
 
         if (!$this->canValidateAddress()) {
             return json_encode($errorResponse);
         }
 
-        $addr = ['street0' => $street0, 'street1' => $street1, 'city' => $city, 'region' => $region, 'country' => $country, 'postcode' => $postcode];
+        $addr = [
+            'street0' => $street0,
+            'street1' => $street1,
+            'city' => $city,
+            'region' => $region,
+            'country' => $country,
+            'postcode' => $postcode
+        ];
 
         // Validate address data locally
         $addr = $this->validateInput($addr);
@@ -97,35 +109,75 @@ class AddressValidation implements AddressValidationInterface
         }
 
         // Send address to Taxjar for validation
-        $response = $this->validateWithTaxjar($addr);
+//        $response = $this->validateWithTaxjar($addr);
+        //TODO: remove this debugging code
+        $response = [
+            'addresses' => [[
+                'street' => ['10 W 14th Avenue Pkwy'],
+                'city' => 'Denver',
+                'regionCode' => 'CO',
+                'regionId' => '13',
+                'countryId' => 'US',
+                'postcode' => '80204-2749',
+            ]]
+        ];
 
         // Respond with address suggestions (if any)
         if ($response !== false && isset($response['addresses']) && is_array($response['addresses'])) {
 
-            $results = ['original' => $addr, 'suggestions' => []];
-            foreach ($response['addresses'] as $address) {
-                $results['suggestions'][] = $this->highlightChanges($addr, $address);
+            $results = [];
+            $original = [
+                'street' => [$street0],
+                'city' => $city,
+                'regionCode' => $this->getRegionById($region)->getCode(),
+                'regionId' => $region,
+                'countryId' => $country,
+                'postcode' => $postcode
+            ];
+
+//            $results[] = $this->highlightChanges($original, $original, 0);
+            $results[] = ['id' => 0, 'address' => $original, 'changes' => $original];
+
+            foreach ($response['addresses'] as $n => $address) {
+                $results[] = $this->highlightChanges($original, $address, ($n + 1));
             }
+
+            foreach($results as $k => $v) {
+                if(empty($v)) {
+                    unset($results[$k]);
+                }
+            }
+
             return json_encode($results);
         }
 
         return json_encode($errorResponse);
     }
 
-    protected function highlightChanges($orig, $address)
+    protected function highlightChanges($orig, $address, $n)
     {
-        $changes = [];
+        $changes = $address;
+        $changesMade = false;
 
         //TODO: a better diff implementation
         // a number of options:  https://stackoverflow.com/questions/321294/highlight-the-difference-between-two-strings-in-php
 
         foreach ($orig as $k => $v) {
             if (isset($orig[$k]) && isset($address[$k]) && $orig[$k] !== $address[$k]) {
-                $changes[$k] = '<span class="diff" style="background-color: yellow;">' . $address[$k] . '</span>';
+                $changesMade = true;
+                if (is_array($orig[$k])) {
+                    $changes[$k][0] = '<span class="diff" style="background-color: yellow;">' . $address[$k][0] . '</span>';
+                } else {
+                    $changes[$k] = '<span class="diff" style="background-color: yellow;">' . $address[$k] . '</span>';
+                }
             }
         }
 
-        return ['address' => $address, 'changes' => $changes];
+        if($changesMade) {
+            return ['id' => $n, 'address' => $address, 'changes' => $changes];
+        }
+
+        return [];
     }
 
 
@@ -133,6 +185,10 @@ class AddressValidation implements AddressValidationInterface
     protected function validateInput($addr)
     {
         if (!is_array($addr)) {
+            return false;
+        }
+
+        if (empty($addr['country']) || $addr['country'] !== 'US') {
             return false;
         }
 
@@ -180,13 +236,38 @@ class AddressValidation implements AddressValidationInterface
 
     protected function validateWithTaxjar($data)
     {
+        //TODO: 404 errors mean no addresses were found
+        // 422/500 errors should throw generic error message
         try {
             $response = $this->client->postResource('addressValidation', $data);
+            $response = $this->formatResponse($response);
         } catch (\Exception $e) {
             $this->logger->log($e->getMessage());
             //TODO: add error message to response if it's relevant to user
             $response = false;
         }
+        return $response;
+    }
+
+    // format the response to match Magento's format
+    protected function formatResponse($response)
+    {
+        if (isset($response['addresses']) && is_array($response['addresses'])) {
+            foreach ($response['addresses'] as $k => $address) {
+
+                $region = $this->getRegionByCode($address['state'], $address['country']);
+                $response['addresses'][$k] = [
+                    'street' => [$address['street']],
+                    'city' => $address['city'],
+                    'regionCode' => $address['state'],
+                    'regionId' => $region->getId(),
+                    'countryId' => $address['country'],
+                    'postcode' => $address['zip'],
+
+                ];
+            }
+        }
+
         return $response;
     }
 
@@ -199,6 +280,14 @@ class AddressValidation implements AddressValidationInterface
         /** @var \Magento\Directory\Model\Region $region */
         $region = $this->regionFactory->create();
         $region->load($regionId);
+        return $region;
+    }
+
+    protected function getRegionByCode($regionCode, $countryId)
+    {
+        /** @var \Magento\Directory\Model\Region $region */
+        $region = $this->regionFactory->create();
+        $region->loadByCode($regionCode, $countryId);
         return $region;
     }
 
