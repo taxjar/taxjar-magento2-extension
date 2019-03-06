@@ -89,7 +89,7 @@ class AddressValidation implements AddressValidationInterface
         $errorResponse = ['error' => true, 'error_msg' => 'Unable to validate your address.'];
 
         if (!$this->canValidateAddress()) {
-            return json_encode($errorResponse);
+            return $errorResponse;
         }
 
         $addr = [
@@ -105,7 +105,7 @@ class AddressValidation implements AddressValidationInterface
         $addr = $this->validateInput($addr);
 
         if ($addr === false) {
-            return json_encode($errorResponse);
+            return $errorResponse;
         }
 
         // Send address to Taxjar for validation
@@ -148,10 +148,10 @@ class AddressValidation implements AddressValidationInterface
                 }
             }
 
-            return json_encode($results);
+            return $results;
         }
 
-        return json_encode($errorResponse);
+        return $errorResponse;
     }
 
     protected function highlightChanges($orig, $address, $n)

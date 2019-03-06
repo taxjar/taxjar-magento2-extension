@@ -79,8 +79,6 @@ define([
                             contentType: 'application/json; charset=utf-8',
                             dataType: 'json',
                             success: function (response) {
-                                response = JSON.parse(response);
-
                                 if (response.error === true) {
                                     suggestedAddresses.hideLoader(button);
                                     suggestedAddresses.displayError(response.error_msg);

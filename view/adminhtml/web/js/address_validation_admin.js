@@ -65,8 +65,6 @@ define([
                     // Intentionally empty to prevent the form_key from being appended to the body of the request
                 },
                 success: function (response) {
-                    response = JSON.parse(response);
-
                     if (response.error === true) {
                         suggestedAddresses.hideLoader(button);
                         suggestedAddresses.displayError(response.error_msg);

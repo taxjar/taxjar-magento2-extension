@@ -48,7 +48,6 @@ define([
             },
 
             updateSuggestedAddresses: function (addr) {
-                addr = JSON.parse(addr);
                 this.suggestedAddresses(addr);
             },
 
