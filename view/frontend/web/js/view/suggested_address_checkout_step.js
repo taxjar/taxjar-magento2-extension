@@ -38,8 +38,9 @@ define([
             },
 
             subscribeToSuggestedAddesses: function () {
+                let self = this;
                 this.suggestedAddresses.subscribe(function (newValue) {
-                    // console.log(newValue);
+                    self.suggestedAddressRadio(0);
                 });
             },
 
