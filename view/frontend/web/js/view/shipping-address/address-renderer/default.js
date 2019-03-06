@@ -8,20 +8,19 @@ define([
         'use strict';
 
         var mixin = {
-            selectAddress: function (orig) {
-
-                // start original code
-                selectShippingAddressAction(this.address());
-                checkoutData.setSelectedShippingAddress(this.address().getKey());
-                // end original code
-
-                // Call AV when switching between saved addresses
+            initObservable: function () {
+                this._super();
                 avCore.getSuggestedAddresses();
+                return this;
             },
+            selectAddress: function (orig) {
+                this._super();
+                avCore.getSuggestedAddresses();
+            }
         };
 
         return function (target) {
-            return target.extend(mixin);  // returns uiComponent
+            return target.extend(mixin);
         };
     }
 );
