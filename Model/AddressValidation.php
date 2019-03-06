@@ -22,9 +22,6 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class AddressValidation implements AddressValidationInterface
 {
-
-    const ADDRESS_VALIDATION_SCOPE_PATH = 'tax/taxjar/address_validation';
-
     /**
      * @var \Taxjar\SalesTax\Model\Client $client
      */
@@ -73,7 +70,7 @@ class AddressValidation implements AddressValidationInterface
     public function canValidateAddress()
     {
         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $validateAddress = $this->scopeConfig->getValue(self::ADDRESS_VALIDATION_SCOPE_PATH, $storeScope);
+        $validateAddress = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION, $storeScope);
 
         return (bool)$validateAddress;
     }
