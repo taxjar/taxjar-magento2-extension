@@ -16,7 +16,7 @@ define([
                 template: 'Taxjar_SalesTax/suggested_address_checkout_step',
                 suggestedAddressTemplate: 'Taxjar_SalesTax/suggested_address_template',
                 suggestedAddresses: avCore.suggestedAddresses,
-                suggestedAddressRadio: ko.observable(false)
+                suggestedAddressRadio: ko.observable(0)
                 //listens:
             },
 
