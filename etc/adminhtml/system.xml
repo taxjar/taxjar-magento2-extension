@@ -32,21 +32,27 @@
                     <frontend_model>Taxjar\SalesTax\Block\Adminhtml\TransactionSync</frontend_model>
                     <depends><field id="connected">1</field></depends>
                 </field>
-                <field id="backup" translate="label" sortOrder="3" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="address_validation" translate="label" sortOrder="3" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Address Validation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <frontend_model>Taxjar\SalesTax\Block\Adminhtml\AddressValidation</frontend_model>
+                    <depends><field id="connected">1</field></depends>
+                </field>
+                <field id="backup" translate="label" sortOrder="4" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Backup Rates</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Backup</frontend_model>
                     <comment/>
                     <depends><field id="connected">1</field></depends>
                 </field>
-                <field id="product_tax_classes" translate="label" sortOrder="4" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="product_tax_classes" translate="label" sortOrder="5" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Backup Product Tax Classes</label>
                     <comment>When creating or updating backup tax rules, TaxJar will use these product tax classes.</comment>
                     <source_model>Taxjar\SalesTax\Model\Config\Taxclass\Source\Product</source_model>
                     <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Multiselect</frontend_model>
                     <depends><field id="connected">1</field></depends>
                 </field>
-                <field id="customer_tax_classes" translate="label" sortOrder="5" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="customer_tax_classes" translate="label" sortOrder="6" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Backup Customer Tax Classes</label>
                     <comment>When creating or updating backup tax rules, TaxJar will use these customer tax classes.</comment>
                     <source_model>Taxjar\SalesTax\Model\Config\Taxclass\Source\Customer</source_model>
@@ -57,12 +63,6 @@
                     <label>Debug Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Debug</frontend_model>
-                    <depends><field id="connected">1</field></depends>
-                </field>
-                <field id="address_validation" translate="label" sortOrder="6" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Address Validation</label>
-                    <comment>Validate shipping addresses and return back suggested addresses at checkout. Ensures the customer data sent to TaxJar is accurate for calculations. Address validation requires a TaxJar Plus subscription. Learn more.</comment>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends><field id="connected">1</field></depends>
                 </field>
                 <field id="apikey" translate="label" sortOrder="11" type="text" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -25,6 +25,7 @@ class Configuration
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
+    const TAXJAR_ADDRESS_VALIDATION   = 'tax/taxjar/address_validation';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
     const TAXJAR_CATEGORIES           = 'tax/taxjar/categories';
@@ -35,6 +36,7 @@ class Configuration
     const TAXJAR_ENABLED              = 'tax/taxjar/enabled';
     const TAXJAR_FREIGHT_TAXABLE      = 'tax/taxjar/freight_taxable';
     const TAXJAR_LAST_UPDATE          = 'tax/taxjar/last_update';
+    const TAXJAR_PLUS                 = 'tax/taxjar/plus';
     const TAXJAR_PRODUCT_TAX_CLASSES  = 'tax/taxjar/product_tax_classes';
     const TAXJAR_STATES               = 'tax/taxjar/states';
     const TAXJAR_TRANSACTION_AUTH     = 'tax/taxjar/transaction_auth';
