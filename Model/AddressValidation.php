@@ -166,9 +166,9 @@ class AddressValidation implements AddressValidationInterface
             if (isset($orig[$k]) && isset($address[$k]) && $orig[$k] !== $address[$k]) {
                 $changesMade = true;
                 if (is_array($orig[$k])) {
-                    $changes[$k][0] = '<span class="diff" style="background-color: yellow;">' . $address[$k][0] . '</span>';
+                    $changes[$k][0] = '<span class="suggested-address-diff">' . $address[$k][0] . '</span>';
                 } else {
-                    $changes[$k] = '<span class="diff" style="background-color: yellow;">' . $address[$k] . '</span>';
+                    $changes[$k] = '<span class="suggested-address-diff">' . $address[$k] . '</span>';
                 }
             }
         }
@@ -302,4 +302,3 @@ class AddressValidation implements AddressValidationInterface
         return $country;
     }
 }
-
