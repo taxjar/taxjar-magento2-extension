@@ -34,12 +34,6 @@ define([
                 this.subscribeToSuggestedAddesses();
                 this.subscribeToSuggestedAddressRadio();
 
-                quote.shippingAddress.subscribe(function (address) {
-                    if (!address.suggested) {
-                        avCore.getSuggestedAddresses();
-                    }
-                });
-
                 return this;
             },
 
@@ -65,7 +59,7 @@ define([
                 let addrs = avCore.suggestedAddresses();
 
                 if (addrs !== undefined) {
-                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { suggested: true });
+                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address);
 
                     // Force shipping rates to recalculate
                     // https://alanstorm.com/refresh-shipping-rates-for-the-magento-2-checkout/
