@@ -30,6 +30,8 @@ define([
              * @returns {*}
              */
             initialize: function () {
+                let self = this;
+
                 this._super();
                 this.subscribeToSuggestedAddesses();
                 this.subscribeToSuggestedAddressRadio();
@@ -38,6 +40,10 @@ define([
                     if (!address.suggested) {
                         avCore.getSuggestedAddresses();
                     }
+                });
+
+                quote.shippingMethod.subscribe(function () {
+                    self.rearrangeSteps();
                 });
 
                 return this;
