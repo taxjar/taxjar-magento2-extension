@@ -9,17 +9,11 @@
                             <item name="children" xsi:type="array">
                                 <item name="steps" xsi:type="array">
                                     <item name="children" xsi:type="array">
-                                        <item name="shipping-step" xsi:type="array">
-                                            <item name="sortOrder" xsi:type="string">1</item>
-                                        </item>
                                         <item name="suggested-address-step" xsi:type="array">
                                             <item name="component" xsi:type="string">
                                                 Taxjar_SalesTax/js/view/suggested_address_checkout_step
                                             </item>
-                                            <item name="sortOrder" xsi:type="string">0</item>
-                                        </item>
-                                        <item name="billing-step" xsi:type="array">
-                                            <item name="sortOrder" xsi:type="string">3</item>
+                                            <item name="sortOrder" xsi:type="string">5</item>
                                         </item>
                                     </item>
                                 </item>
@@ -33,7 +27,8 @@
         <referenceContainer name="head.components">
             <block class="Magento\Customer\Block\Address\Edit"
                    name="taxjar_customer_address_edit_address_validation_head"
-                   template="Taxjar_SalesTax::address/address_validation_head.phtml"/>
+                   template="Taxjar_SalesTax::address/address_validation_head.phtml"
+                   ifconfig="tax/taxjar/address_validation"/>
         </referenceContainer>
     </body>
 </page>
