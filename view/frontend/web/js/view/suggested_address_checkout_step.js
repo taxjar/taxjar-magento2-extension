@@ -55,6 +55,8 @@ define([
 
                     if (self.isVisible()) {
                         $('#address-validation').show();
+                    } else {
+                        $('#address-validation').hide();
                     }
                 });
             },
