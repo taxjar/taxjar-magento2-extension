@@ -22,7 +22,7 @@ define([
                 var self = this;
                 let addr = quote.shippingAddress();
 
-                if (addr !== null) {
+                if (addr && addr.street && addr.city && addr.regionId) {
                     addr = {
                         'street0': addr.street[0],
                         'city': addr.city,
