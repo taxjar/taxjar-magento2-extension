@@ -35,8 +35,6 @@ define([
              * @returns {*}
              */
             initialize: function () {
-                let self = this;
-
                 this._super();
                 this.subscribeToSuggestedAddesses();
                 this.subscribeToSuggestedAddressRadio();
@@ -47,10 +45,6 @@ define([
                     }
                 });
 
-                quote.shippingMethod.subscribe(function () {
-                    self.rearrangeSteps();
-                });
-
                 return this;
             },
 
@@ -58,6 +52,10 @@ define([
                 let self = this;
                 this.suggestedAddresses.subscribe(function (newValue) {
                     self.suggestedAddressRadio(0);
+
+                    if (self.isVisible()) {
+                        $('#address-validation').show();
+                    }
                 });
             },
 
@@ -91,12 +89,6 @@ define([
 
             rearrangeSteps: function () {
                 $('#shipping').after($('#address-validation'));
-
-                if (this.isVisible && this.isVisible()) {
-                    $('#address-validation').show();
-                } else {
-                    $('#address-validation').hide();
-                }
             }
         });
     }
