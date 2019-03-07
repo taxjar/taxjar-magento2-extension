@@ -24,7 +24,4 @@
         <attribute code="product_type" type="string" />
         <attribute code="price_type" type="string" />
     </extension_attributes>
-    <extension_attributes for="Magento\Quote\Api\Data\AddressInterface">
-        <attribute code="suggested_address" type="Taxjar\SalesTax\Api\SuggestedAddressInterface" />
-    </extension_attributes>
 </config>

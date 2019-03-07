@@ -40,7 +40,7 @@ define([
                 this.subscribeToSuggestedAddressRadio();
 
                 quote.shippingAddress.subscribe(function (address) {
-                    if (!address.extension_attributes || !address.extension_attributes.suggestedAddress) {
+                    if (!address.custom_attributes || !address.custom_attributes.suggestedAddress) {
                         avCore.getSuggestedAddresses();
                     }
                 });
@@ -74,7 +74,7 @@ define([
                 let addrs = avCore.suggestedAddresses();
 
                 if (addrs !== undefined) {
-                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { extension_attributes: { suggestedAddress: true } });
+                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { custom_attributes: { suggestedAddress: true } });
 
                     // Force shipping rates to recalculate
                     // https://alanstorm.com/refresh-shipping-rates-for-the-magento-2-checkout/
