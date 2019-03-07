@@ -21,12 +21,6 @@ define([
                     this.source.set('shippingAddress.region_id', originalAddress.regionId);
                     this.source.set('shippingAddress.postcode', originalAddress.postcode);
                     this.source.set('shippingAddress.country_id', originalAddress.countryId);
-
-                    if (this._super() !== false) {
-                        return true;
-                    } else {
-                        return false;
-                    }
                 }
 
                 return this._super();
