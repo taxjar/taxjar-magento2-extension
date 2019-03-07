@@ -2,13 +2,20 @@ define([
         'ko',
         'jquery',
         'uiComponent',
-        'mage/storage',
         'Magento_Checkout/js/model/step-navigator',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/shipping-rate-registry',
         'Taxjar_SalesTax/js/model/address_validation_core'
     ],
-    function (ko, $, Component, storage, stepNavigator, quote, rateRegistry, avCore) {
+    function (
+        ko,
+        $,
+        Component,
+        stepNavigator,
+        quote,
+        rateRegistry,
+        avCore
+    ) {
         'use strict';
 
         return Component.extend({
@@ -17,12 +24,10 @@ define([
                 suggestedAddressTemplate: 'Taxjar_SalesTax/suggested_address_template',
                 suggestedAddresses: avCore.suggestedAddresses,
                 suggestedAddressRadio: ko.observable(0)
-                //listens:
             },
 
             isVisible: function () {
-                //TODO: hide Suggested Addresses when first loading the page
-                return !quote.isVirtual() && !stepNavigator.isProcessed('shipping');
+                return !quote.isVirtual() && !stepNavigator.isProcessed('shipping') && this.suggestedAddresses().length > 1;
             },
 
             /**
@@ -37,7 +42,7 @@ define([
                 this.subscribeToSuggestedAddressRadio();
 
                 quote.shippingAddress.subscribe(function (address) {
-                    if (!address.suggested) {
+                    if (!address.extension_attributes || !address.extension_attributes.suggestedAddress) {
                         avCore.getSuggestedAddresses();
                     }
                 });
@@ -71,7 +76,7 @@ define([
                 let addrs = avCore.suggestedAddresses();
 
                 if (addrs !== undefined) {
-                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { suggested: true });
+                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { extension_attributes: { suggestedAddress: true } });
 
                     // Force shipping rates to recalculate
                     // https://alanstorm.com/refresh-shipping-rates-for-the-magento-2-checkout/
@@ -86,7 +91,12 @@ define([
 
             rearrangeSteps: function () {
                 $('#shipping').after($('#address-validation'));
-                $('#address-validation').show();
+
+                if (this.isVisible && this.isVisible()) {
+                    $('#address-validation').show();
+                } else {
+                    $('#address-validation').hide();
+                }
             }
         });
     }
