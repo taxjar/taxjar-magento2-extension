@@ -8,34 +8,44 @@ define([
     function (ko, $, storage, quote, alert) {
         'use strict';
 
-        var suggestedAddresses = ko.observable([]);
-
         return {
-
-            suggestedAddresses: suggestedAddresses,
+            suggestedAddresses: ko.observable([]),
+            activeAddress: {},
 
             getAddressValidationUrl: function () {
                 return '/rest/V1/Taxjar/address_validation/';
             },
 
             getSuggestedAddresses: function () {
-                var self = this;
+                let self = this;
                 let addr = quote.shippingAddress();
 
                 if (addr && addr.street && addr.city && addr.regionId) {
-                    addr = {
+                    let formattedAddr = JSON.stringify({
                         'street0': addr.street[0],
                         'city': addr.city,
                         'region': addr.regionId,
                         'country': addr.countryId,
                         'postcode': addr.postcode
-                    };
+                    });
+
+                    // Skip if already suggested
+                    if (formattedAddr == this.activeAddress) {
+                        return;
+                    }
+
+                    // Skip if selected address is a suggestion
+                    if (addr.custom_attributes && addr.custom_attributes.suggestedAddress) {
+                        this.activeAddress = formattedAddr;
+                        return;
+                    }
 
                     storage.post(
                         this.getAddressValidationUrl(),
-                        JSON.stringify(addr),
+                        formattedAddr,
                         false
                     ).done(function (response) {
+                        self.activeAddress = formattedAddr;
                         self.updateSuggestedAddresses(response);
                     }).fail(function (response) {
                         alert({
@@ -48,8 +58,7 @@ define([
 
             updateSuggestedAddresses: function (addr) {
                 this.suggestedAddresses(addr);
-            },
-
+            }
         };
     }
 );

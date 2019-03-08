@@ -39,14 +39,22 @@ define([
              * @returns {*}
              */
             initialize: function () {
+                let self = this;
+
                 this._super();
                 this.subscribeToSuggestedAddesses();
                 this.subscribeToSuggestedAddressRadio();
 
                 quote.shippingAddress.subscribe(function (address) {
-                    if (!address.custom_attributes || !address.custom_attributes.suggestedAddress) {
-                        avCore.getSuggestedAddresses();
-                    }
+                    avCore.getSuggestedAddresses();
+                });
+
+                quote.shippingMethod.subscribe(function () {
+                    self.rearrangeSteps();
+                });
+
+                $(window).on('hashchange', function () {
+                    self.toggleDisplay();
                 });
 
                 return this;
@@ -56,12 +64,7 @@ define([
                 let self = this;
                 this.suggestedAddresses.subscribe(function (newValue) {
                     self.suggestedAddressRadio(0);
-
-                    if (self.isVisible()) {
-                        $('#address-validation').show();
-                    } else {
-                        $('#address-validation').hide();
-                    }
+                    self.toggleDisplay();
                 });
             },
 
@@ -95,6 +98,14 @@ define([
 
             rearrangeSteps: function () {
                 $('#shipping').after($('#address-validation'));
+            },
+
+            toggleDisplay: function () {
+                if (this.isVisible()) {
+                    $('#address-validation').show();
+                } else {
+                    $('#address-validation').hide();
+                }
             }
         });
     }
