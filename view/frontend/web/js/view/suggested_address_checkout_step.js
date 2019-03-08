@@ -91,6 +91,7 @@ define([
                     rateRegistry.set(newAddr.getCacheKey(), null);
 
                     quote.shippingAddress(newAddr);
+                    quote.billingAddress(newAddr);
                 }
 
                 return true;
