@@ -18,6 +18,7 @@ define([
     ) {
         'use strict';
 
+        // Only extend the Component if validation is enabled in the admin
         if (typeof(taxjar_validate_address) == 'undefined' || taxjar_validate_address !== true) {
             return Component;
         }

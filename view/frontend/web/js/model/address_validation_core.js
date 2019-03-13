@@ -40,6 +40,7 @@ define([
                         return;
                     }
 
+                    // Post to the API and handle the response
                     storage.post(
                         this.getAddressValidationUrl(),
                         formattedAddr,

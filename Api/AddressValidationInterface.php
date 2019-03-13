@@ -19,14 +19,6 @@ namespace Taxjar\SalesTax\Api;
 
 interface AddressValidationInterface
 {
-
-    /**
-     * @api
-     *
-     * @return mixed
-     */
-    public function canValidateAddress();
-
     /**
      * @api
      *
