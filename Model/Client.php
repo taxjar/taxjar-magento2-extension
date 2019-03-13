@@ -225,6 +225,9 @@ class Client
             case 'addressValidation':
                 $apiUrl .= '/addresses/validate';
                 break;
+            case 'verify':
+                $apiUrl .= '/verify';
+                break;
         }
 
         return $apiUrl;

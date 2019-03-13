@@ -48,21 +48,29 @@ class Connect extends \Magento\Backend\App\AbstractAction
     protected $reinitableConfig;
 
     /**
+     * @var \Taxjar\SalesTax\Model\Client $client
+     */
+    protected $client;
+
+    /**
      * @param Context $context
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param ReinitableConfigInterface $reinitableConfig
+     * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      */
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
-        ReinitableConfigInterface $reinitableConfig
+        ReinitableConfigInterface $reinitableConfig,
+        \Taxjar\SalesTax\Model\ClientFactory $clientFactory
     ) {
         $this->eventManager = $context->getEventManager();
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
+        $this->client = $clientFactory->create();
         parent::__construct($context);
     }
 
@@ -77,7 +85,7 @@ class Connect extends \Magento\Backend\App\AbstractAction
         $apiEmail = (string) $this->getRequest()->getParam('api_email');
         $reportingAccess = (string) $this->getRequest()->getParam('reporting_access');
 
-        if ($apiKey && $apiEmail) {
+        if ($apiKey && $apiEmail && $this->isVerified($apiKey)) {
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_EMAIL, $apiEmail, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
@@ -96,5 +104,26 @@ class Connect extends \Magento\Backend\App\AbstractAction
         }
 
         $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
+    }
+
+    protected function isVerified($apiKey)
+    {
+        try {
+            $this->client->setApiKey($apiKey);
+
+            $response = $this->client->postResource('verify', ['token' => $apiKey]);
+
+            if ($response['enabled'] && $response['valid']) {
+                if ($response['plus']) {
+                    $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_PLUS, true, 'default', 0);
+                }
+
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Noop
+        }
+
+        return false;
     }
 }
