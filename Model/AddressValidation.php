@@ -279,35 +279,99 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Calculate the difference between two addresses and wrap the changes in HTML for highlighting
      *
-     * @param $orig
-     * @param $address
+     * @param array $original
+     * @param array $new
      * @param $id
      * @return array
      */
-    protected function highlightChanges($orig, $address, $id)
+    protected function highlightChanges($original, $new, $id)
     {
-        $changes = $address;
+        $changes = $new;
         $changesMade = false;
 
-        //TODO: a better diff implementation
-        // a number of options:  https://stackoverflow.com/questions/321294/highlight-the-difference-between-two-strings-in-php
-
-        foreach ($orig as $k => $v) {
-            if (isset($orig[$k]) && isset($address[$k]) && $orig[$k] !== $address[$k]) {
+        foreach ($original as $k => $v) {
+            if (isset($new[$k]) && $original[$k] !== $new[$k]) {
                 $changesMade = true;
-                if (is_array($orig[$k])) {
-                    $changes[$k][0] = '<span class="suggested-address-diff">' . $address[$k][0] . '</span>';
+                if (is_array($original[$k])) {
+                    $changes[$k][0] = $this->htmlDiff($original[$k][0], $new[$k][0]);
                 } else {
-                    $changes[$k] = '<span class="suggested-address-diff">' . $address[$k] . '</span>';
+                    $changes[$k] = $this->htmlDiff($original[$k], $new[$k]);
                 }
             }
         }
 
         if ($changesMade) {
-            return ['id' => $id, 'address' => $address, 'changes' => $changes];
+            return ['id' => $id, 'address' => $new, 'changes' => $changes];
         }
 
         return [];
+    }
+
+    /**
+     * Paul's Simple Diff Algorithm v 0.1
+     * https://github.com/paulgb/simplediff
+     *
+     * @param array $old
+     * @param array $new
+     * @return array
+     */
+    function simplediff($old, $new)
+    {
+        $matrix = [];
+        $maxlen = 0;
+        $oMax = 0;
+        $nMax = 0;
+
+        foreach ($old as $oIndex => $oValue) {
+            foreach (array_keys($new, $oValue) as $nIndex) {
+                $matrix[$oIndex][$nIndex] = isset($matrix[$oIndex - 1][$nIndex - 1]) ?
+                    $matrix[$oIndex - 1][$nIndex - 1] + 1 : 1;
+                if ($matrix[$oIndex][$nIndex] > $maxlen) {
+                    $maxlen = $matrix[$oIndex][$nIndex];
+                    $oMax = $oIndex + 1 - $maxlen;
+                    $nMax = $nIndex + 1 - $maxlen;
+                }
+            }
+        }
+
+        if ($maxlen == 0) {
+            return [['d' => $old, 'i' => $new]];
+        }
+
+        return array_merge(
+            $this->simplediff(array_slice($old, 0, $oMax), array_slice($new, 0, $nMax)),
+            array_slice($new, $nMax, $maxlen),
+            $this->simplediff(array_slice($old, $oMax + $maxlen), array_slice($new, $nMax + $maxlen))
+        );
+    }
+
+    /**
+     * Wrap differences between two strings in html
+     * https://github.com/paulgb/simplediff
+     *
+     * @param $old
+     * @param $new
+     * @return string
+     */
+    function htmlDiff($old, $new)
+    {
+        $ret = '';
+        $pattern = "/[\s]+/";
+
+        // Explode $old and $new into arrays based on whitespace
+        $simplediff = $this->simplediff(preg_split($pattern, $old), preg_split($pattern, $new));
+
+        // Wrap each difference in a span for highlighting
+        foreach ($simplediff as $diff) {
+            if (is_array($diff)) {
+                $ret .= (!empty($diff['i']) ? '<span class="suggested-address-diff">' .
+                    implode(' ', $diff['i']) . '</span>' : '');
+            } else {
+                $ret .= $diff . ' ';
+            }
+        }
+
+        return $ret;
     }
 
     /**
