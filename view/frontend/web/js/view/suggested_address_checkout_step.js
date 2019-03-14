@@ -18,7 +18,7 @@ define([
     ) {
         'use strict';
 
-        // Only extend the Component if validation is enabled in the admin
+        // Only extend the Component if validation` is enabled in the admin
         if (typeof(taxjar_validate_address) == 'undefined' || taxjar_validate_address !== true) {
             return Component;
         }
@@ -40,7 +40,7 @@ define([
              * @returns {*}
              */
             initialize: function () {
-                let self = this;
+                var self = this;
 
                 this._super();
                 this.subscribeToSuggestedAddesses();
@@ -62,7 +62,7 @@ define([
             },
 
             subscribeToSuggestedAddesses: function () {
-                let self = this;
+                var self = this;
                 this.suggestedAddresses.subscribe(function (newValue) {
                     self.suggestedAddressRadio(0);
                     self.toggleDisplay();
@@ -70,7 +70,7 @@ define([
             },
 
             subscribeToSuggestedAddressRadio: function () {
-                let self = this;
+                var self = this;
                 this.suggestedAddressRadio.subscribe(function (id) {
                     self.updateQuoteAddress(id);
                 });
@@ -81,10 +81,10 @@ define([
             },
 
             updateQuoteAddress: function (id) {
-                let addrs = avCore.suggestedAddresses();
+                var addrs = avCore.suggestedAddresses();
 
                 if (addrs !== undefined) {
-                    let newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { custom_attributes: { suggestedAddress: true } });
+                    var newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { custom_attributes: { suggestedAddress: true } });
 
                     // Force shipping rates to recalculate
                     // https://alanstorm.com/refresh-shipping-rates-for-the-magento-2-checkout/

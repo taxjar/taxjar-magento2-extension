@@ -14,7 +14,7 @@ define([
         var mixin = {
             validateShippingInformation: function () {
                 if (addressList().length === 0) {
-                    let originalAddress = quote.shippingAddress();
+                    var originalAddress = quote.shippingAddress();
 
                     this.source.set('shippingAddress.street.0', originalAddress.street[0]);
                     this.source.set('shippingAddress.city', originalAddress.city);

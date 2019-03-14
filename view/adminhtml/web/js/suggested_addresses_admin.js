@@ -24,8 +24,8 @@ define([
 
         // Watch for suggested address being selected
         $('#tj-suggested-addresses').on('change', 'input[name=suggested-address]:checked', function (event) {
-            let data = $.data(document.body);
-            let addr = data[this.id];
+            var data = $.data(document.body);
+            var addr = data[this.id];
 
             if ($.isEmptyObject(addr)) {
                 console.log('empty object');
@@ -65,16 +65,16 @@ define([
         },
 
         buildHtml: function (response, addr) {
-            let addrHTML = '<div><input type="radio" name="suggested-address" id="tj-suggestion-0" value="0" checked="checked"/><label for="0">Original</label></div>';
-            let responseJson = {};
-            let n = 1;
+            var addrHTML = '<div><input type="radio" name="suggested-address" id="tj-suggestion-0" value="0" checked="checked"/><label for="0">Original</label></div>';
+            var responseJson = {};
+            var n = 1;
 
             if (response.suggestions) {
 
                 responseJson = Object.assign(responseJson, {"tj-suggestion-0": addr.original});
 
-                for (let addr of response.suggestions) {
-                    let suggestion = $.extend({}, addr.changes, addr.address);
+                for (var addr of response.suggestions) {
+                    var suggestion = $.extend({}, addr.changes, addr.address);
 
                     addrHTML += '<div>';
                     addrHTML += '<input type="radio" name="suggested-address" id="tj-suggestion-' + n + '" value="' + n + '" />';
@@ -86,7 +86,7 @@ define([
                     addrHTML += '<div class="country">' + suggestion.country + '</div>';
                     addrHTML += '</label></div>';
 
-                    let key = "tj-suggestion-" + n;
+                    var key = "tj-suggestion-" + n;
                     responseJson = Object.assign(responseJson, {[key]: addr.address});
 
                     n++;
