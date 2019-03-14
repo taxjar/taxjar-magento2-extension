@@ -29,6 +29,11 @@ define([
                         'postcode': addr.postcode
                     });
 
+                    // Skip if non-US shipping address
+                    if (addr.countryId !== 'US') {
+                        return;
+                    }
+
                     // Skip if already suggested
                     if (formattedAddr == this.activeAddress) {
                         return;
