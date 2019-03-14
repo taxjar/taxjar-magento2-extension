@@ -47,7 +47,7 @@ define([
                 this.subscribeToSuggestedAddressRadio();
 
                 quote.shippingAddress.subscribe(function (address) {
-                    avCore.getSuggestedAddresses();
+                    avCore.getSuggestedAddresses(quote.shippingAddress());
                 });
 
                 quote.shippingMethod.subscribe(function () {

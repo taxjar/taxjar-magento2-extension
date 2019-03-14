@@ -20,6 +20,22 @@
 /** @var \Magento\Customer\Block\Address\Edit $block */
 
 ?>
-
-<div id="tj-suggested-addresses" class="field">
+<div id="tj-suggested-addresses" class="field" data-bind="scope: 'addressValidation'" style="display: none">
+    <legend class="legend"><span>Suggested Addresses</span></legend>
+    <!-- ko template: getTemplate() --><!-- /ko -->
 </div>
+
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "addressValidation": {
+                    "component": "Taxjar_SalesTax/js/suggested_addresses",
+                    "template": "Taxjar_SalesTax/suggested_address_template"
+                }
+            }
+        }
+    }
+}
+</script>

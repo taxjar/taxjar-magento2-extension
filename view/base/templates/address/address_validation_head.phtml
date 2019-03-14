@@ -25,4 +25,5 @@ $validateAddress = (bool) $this->helper('Taxjar\SalesTax\Helper\Data')->getConfi
 
 <script>
     var taxjar_validate_address = <?php echo $validateAddress ? "true" : "false"; ?>;
+    var taxjar_validate_endpoint = '/rest/V1/Taxjar/address_validation/';
 </script>
