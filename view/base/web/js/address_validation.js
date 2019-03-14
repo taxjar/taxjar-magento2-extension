@@ -17,87 +17,88 @@
 define([
     'ko',
     'jquery',
-    'Taxjar_SalesTax/js/suggested_addresses',
-], function (ko, $, suggestedAddresses) {
+    'uiRegistry',
+    'taxjarModal',
+    'Taxjar_SalesTax/js/model/address_validation_core'
+], function (ko, $, uiRegistry, taxjarModal, avCore) {
     'use strict';
 
-    console.log('address_validation');
-
-
     return function (addressValidation) {
-
+        // Only extend widget if validation is enabled in the admin
         if (taxjar_validate_address !== true) {
             return $.mage.addressValidation;
         }
 
-        window.isValidated = false;
-
-        $.widget('mage.addressValidation', {
-            options: {
-                selectors: {
-                    button: '[data-action=save-address]'
-                }
-            },
-
+        $.widget('mage.addressValidation', $.mage.addressValidation, {
             /**
              * Validation creation
              * @protected
              */
             _create: function () {
+                var body = $('body');
+                var button = $(this.options.selectors.button, this.element);
+                var addressModal = taxjarModal({
+                    buttons: [
+                        {
+                            text: $.mage.__('Edit Address'),
+                            class: '',
+                            click: function () {
+                                this.closeModal();
+                            }
+                        },
+                        {
+                            text: $.mage.__('Save Address'),
+                            class: 'action primary',
+                            click: function () {
+                                var addrs = avCore.suggestedAddresses();;
+                                var selectedAddressId = uiRegistry.get('addressValidation').suggestedAddressRadio();
+                                var selectedAddress = addrs[selectedAddressId].address;
 
-                let body = $('body');
-                let button = $(this.options.selectors.button, this.element);
+                                this.data.form.street_1.value = selectedAddress.street;
+                                this.data.form.city.value = selectedAddress.city;
+                                this.data.form.region_id.value = selectedAddress.regionId;
+                                this.data.form.postcode.value = selectedAddress.postcode;
+                                this.data.form.country_id.value = selectedAddress.countryId;
+                                this.data.form.submit();
+                            }
+                        }
+                    ]
+                }, $('#tj-suggested-addresses'));
 
                 this.element.validation({
-
                     /**
                      * Submit Handler
                      * @param {Element} form - address form
                      */
                     submitHandler: function (form) {
-
                         button.attr('disabled', true);
                         body.trigger('processStart');
 
-
-                        if (window.isValidated === true) {
-                            form.submit();
-                        }
-
-                        let addr = {
-                            'street0': form.street_1.value,
-                            'city': form.city.value,
-                            'region': form.region_id.value,
-                            'country': form.country_id.value,
-                            'postcode': form.postcode.value
+                        var addr = {
+                            street: [form.street_1.value],
+                            city: form.city.value,
+                            regionId: form.region_id.value,
+                            countryId: form.country_id.value,
+                            postcode: form.postcode.value
                         };
 
-                        $.ajax({
-                            type: 'POST',
-                            url: '/rest/V1/Taxjar/address_validation/',  //TODO: make global variable
-                            data: JSON.stringify(addr),
-                            contentType: 'application/json; charset=utf-8',
-                            dataType: 'json',
-                            success: function (response) {
-                                if (response.error === true) {
-                                    suggestedAddresses.hideLoader(button);
-                                    suggestedAddresses.displayError(response.error_msg);
-                                    return;
-                                }
+                        avCore.getSuggestedAddresses(addr, function (res) {
+                            button.attr('disabled', false);
+                            body.trigger('processStop');
 
-                                let tj_suggested_addresses = $('#tj-suggested-addresses');
-                                let addrHTML = suggestedAddresses.buildHtml(response, addr);
+                            if (uiRegistry.get('addressValidation').isVisible()) {
+                                addressModal.openModal({ 'form': form });
+                            } else {
+                                form.submit();
+                            }
+                        }, function (res) {
+                            button.attr('disabled', false);
+                            body.trigger('processStop');
 
-                                tj_suggested_addresses.html('');
-                                tj_suggested_addresses.append('<ul>' + addrHTML + '</ul>');
-                                $('#form-validate fieldset:nth-child(2) > div:last-child').after(tj_suggested_addresses);
-
-                                suggestedAddresses.hideLoader(button);
-                                window.isValidated = true;
-                            },
-                            failure: function (err) {
-                                suggestedAddresses.hideLoader(button);
-                                suggestedAddresses.displayError(err);
+                            if (uiRegistry.get('addressValidation').isVisible()) {
+                                addressModal.openModal({ 'form': form });
+                            } else {
+                                form.submit();
                             }
                         });
                     }
@@ -105,7 +106,6 @@ define([
             }
         });
 
-
         return $.mage.addressValidation;
-    }
+    };
 });
