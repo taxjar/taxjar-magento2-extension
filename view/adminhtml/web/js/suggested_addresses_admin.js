@@ -16,94 +16,142 @@
 
 define([
     'ko',
-    'jquery'
-], function (ko, $) {
+    'jquery',
+    'uiComponent',
+    'uiRegistry',
+    'taxjarModal',
+    'Taxjar_SalesTax/js/model/address_validation_core'
+], function (ko, $, Component, uiRegistry, taxjarModal, avCore) {
     'use strict';
 
-    $().ready(function () {
+    // Only extend the Component if validation is enabled in the admin
+    if (typeof(taxjar_validate_address) == 'undefined' || taxjar_validate_address !== true) {
+        return Component;
+    }
 
-        // Watch for suggested address being selected
-        $('#tj-suggested-addresses').on('change', 'input[name=suggested-address]:checked', function (event) {
-            var data = $.data(document.body);
-            var addr = data[this.id];
+    return Component.extend({
+        defaults: {
+            addressModal: {},
+            addressButton: '#tj-validate-address-button',
+            suggestedAddresses: avCore.suggestedAddresses || ko.observable([]),
+            suggestedAddressRadio: ko.observable(0)
+        },
 
-            if ($.isEmptyObject(addr)) {
-                console.log('empty object');
-                return;
-            }
+        getTemplate: function () {
+            return 'Taxjar_SalesTax/suggested_address_template';
+        },
 
-            if ($('#order-shipping_same_as_billing').is(':checked')) {
-                $('input[name*="order[billing_address][street]"]:first').val(addr.street);
-                $('input[name="order[billing_address][city]"]').val(addr.city);
-                $('input[name="order[billing_address][region_id]"]').val(addr.state);
-                $('input[name="order[billing_address][postcode]"]').val(addr.zip);
-                $('input[name="order[billing_address][country_id]"]').val(addr.country);
-            }
-
-            $('input[name*="order[shipping_address][street]"]:first').val(addr.street);
-            $('input[name="order[shipping_address][city]"]').val(addr.city);
-            $('input[name="order[shipping_address][region_id]"]').val(addr.state);
-            $('input[name="order[shipping_address][postcode]"]').val(addr.zip);
-            $('input[name="order[shipping_address][country_id]"]').val(addr.country);
-
-            $('input[name*="street"]:first').val(addr.street);
-            $('input[name="city"]').val(addr.city);
-            $('input[name="region_id"]').val(addr.state);
-            $('input[name="postcode"]').val(addr.zip);
-            $('input[name="country_id"]').val(addr.country);
-
-            window.isValidated = true;
-        });
-    });
-
-
-    return {
+        isVisible: function () {
+            return this.suggestedAddresses().length > 1;
+        },
 
         initialize: function () {
             this._super();
-            return this;
-        },
 
-        buildHtml: function (response, addr) {
-            var addrHTML = '<div><input type="radio" name="suggested-address" id="tj-suggestion-0" value="0" checked="checked"/><label for="0">Original</label></div>';
-            var responseJson = {};
-            var n = 1;
+            var self = this;
 
-            if (response.suggestions) {
+            this.addressModal = taxjarModal({
+                buttons: [
+                    {
+                        text: $.mage.__('Edit Address'),
+                        class: '',
+                        click: function () {
+                            this.closeModal();
+                        }
+                    },
+                    {
+                        text: $.mage.__('Save Address'),
+                        class: 'action primary',
+                        click: function () {
+                            var addrs = avCore.suggestedAddresses();
+                            var selectedAddressId = uiRegistry.get('addressValidation').suggestedAddressRadio();
+                            var selectedAddress = addrs[selectedAddressId].address;
+                            var button = $('[data-index="validateAddressButton"]:visible');
+                            var form = button.closest('.address-item-edit-content fieldset, .order-shipping-address fieldset');
 
-                responseJson = Object.assign(responseJson, {"tj-suggestion-0": addr.original});
+                            $(form).find('input[name*="[street][0]"]').val(selectedAddress.street);
+                            $(form).find('input[name*="[city]"]').val(selectedAddress.city);
+                            $(form).find('input[name*="[region_id]"]').val(selectedAddress.regionId);
+                            $(form).find('input[name*="[postcode]"]').val(selectedAddress.postcode);
+                            $(form).find('input[name*="[country_id]"]').val(selectedAddress.countryId);
 
-                for (var addr of response.suggestions) {
-                    var suggestion = $.extend({}, addr.changes, addr.address);
+                            this.closeModal();
+                        }
+                    }
+                ]
+            }, $('#tj-suggested-addresses'));
 
-                    addrHTML += '<div>';
-                    addrHTML += '<input type="radio" name="suggested-address" id="tj-suggestion-' + n + '" value="' + n + '" />';
-                    addrHTML += '<label for="' + n + '">';
-                    addrHTML += '<div class="addr">' + suggestion.street + '</div>';
-                    addrHTML += '<div class="city">' + suggestion.city + '</div>';
-                    addrHTML += '<div class="state">' + suggestion.state + '</div>';
-                    addrHTML += '<div class="postal">' + suggestion.zip + '</div>';
-                    addrHTML += '<div class="country">' + suggestion.country + '</div>';
-                    addrHTML += '</label></div>';
+            if ($(this.addressButton).length) {
+                var button = $(this.addressButton).clone();
 
-                    var key = "tj-suggestion-" + n;
-                    responseJson = Object.assign(responseJson, {[key]: addr.address});
+                $(this.addressButton).remove();
+                this.appendButton(button);
 
-                    n++;
+                if ('MutationObserver' in window) {
+                    var observer = new MutationObserver(function(mutations) {
+                        self.appendButton(button);
+                    });
+
+                    observer.observe($('#order-shipping_address').get(0), { childList: true });
                 }
             }
 
-            $.data(document.body, responseJson);
-            return addrHTML;
+            return this;
         },
 
-        hideLoader: function (button) {
-            $('body').trigger('processStop');
-            button.attr('disabled', false);
+        appendButton: function (button) {
+            var self = this;
+
+            $('#order-shipping_address_fields').find(button.attr('id')).remove();
+
+            button.appendTo('#order-shipping_address_fields');
+
+            $(this.addressButton).click(function (e) {
+                e.preventDefault();
+                self.validateAddress();
+            });
         },
 
-        displayError: function (msg) {
-            console.log(msg);
+        validateAddress: function () {
+            var self = this;
+            var body = $('body');
+            var button = $('[data-index="validateAddressButton"]:visible');
+            var form = button.closest('.address-item-edit-content fieldset, .order-shipping-address fieldset');
+            var formValues = $(form).serializeArray();
+            var addr = {
+                street: [this.getAddressFormValue(formValues, '[street][0]')],
+                city: this.getAddressFormValue(formValues, '[city]'),
+                regionId: this.getAddressFormValue(formValues, '[region_id]'),
+                countryId: this.getAddressFormValue(formValues, '[country_id]'),
+                postcode: this.getAddressFormValue(formValues, '[postcode]')
+            };
+
+            button.attr('disabled', true);
+            body.trigger('processStart');
+
+            avCore.getSuggestedAddresses(addr, function (res) {
+                button.attr('disabled', false);
+                body.trigger('processStop');
+
+                if (uiRegistry.get('addressValidation').isVisible()) {
+                    self.addressModal.openModal({ 'form': form });
+                }
+            }, function (res) {
+                button.attr('disabled', false);
+                body.trigger('processStop');
+
+                if (uiRegistry.get('addressValidation').isVisible()) {
+                    self.addressModal.openModal({ 'form': form });
+                }
+            });
+        },
+
+        getAddressFormValue: function (formValues, key) {
+            for (var x = 0; x < formValues.length; x++) {
+                if (formValues[x].name.indexOf(key) !== -1) {
+                    return formValues[x].value;
+                }
+            }
         }
-    };
+    });
 });

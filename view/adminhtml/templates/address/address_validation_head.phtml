@@ -20,15 +20,9 @@
 /** @var \Magento\Customer\Block\Address\Edit $block */
 
 $path = \Taxjar\SalesTax\Model\Configuration::TAXJAR_ADDRESS_VALIDATION;
-$validateAddress = (bool)$this->helper('Taxjar\SalesTax\Helper\Data')->getConfig($path);
+$validateAddress = (bool) $this->helper('Taxjar\SalesTax\Helper\Data')->getConfig($path);
 ?>
 
 <script>
     var taxjar_validate_address = <?php echo $validateAddress ? "true" : "false"; ?>;
-
-    require([
-        "jquery",
-        "taxjarAddressValidationAdmin"
-    ], function ($, taxjarAddressValidationAdmin) {
-    });
 </script>
