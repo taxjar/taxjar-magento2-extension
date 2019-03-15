@@ -32,7 +32,6 @@ define([
     return Component.extend({
         defaults: {
             addressModal: {},
-            addressButton: '#tj-validate-address-button',
             suggestedAddresses: avCore.suggestedAddresses || ko.observable([]),
             suggestedAddressRadio: ko.observable(0)
         },
@@ -45,7 +44,7 @@ define([
             return this.suggestedAddresses().length > 1;
         },
 
-        initialize: function () {
+        initialize: function (config) {
             this._super();
 
             var self = this;
@@ -66,14 +65,19 @@ define([
                             var addrs = avCore.suggestedAddresses();
                             var selectedAddressId = uiRegistry.get('addressValidation').suggestedAddressRadio();
                             var selectedAddress = addrs[selectedAddressId].address;
-                            var button = $('[data-index="validateAddressButton"]:visible');
-                            var form = button.closest('.address-item-edit-content fieldset, .order-shipping-address fieldset');
+                            var forms = [this.data.form];
 
-                            $(form).find('input[name*="[street][0]"]').val(selectedAddress.street);
-                            $(form).find('input[name*="[city]"]').val(selectedAddress.city);
-                            $(form).find('input[name*="[region_id]"]').val(selectedAddress.regionId);
-                            $(form).find('input[name*="[postcode]"]').val(selectedAddress.postcode);
-                            $(form).find('input[name*="[country_id]"]').val(selectedAddress.countryId);
+                            if (window.order && window.order.shippingAsBilling) {
+                                forms.push($('.order-shipping-address > fieldset'));
+                            }
+
+                            for (var x = 0; x < forms.length; x++) {
+                                forms[x].find('input[name*="[street][0]"]').val(selectedAddress.street);
+                                forms[x].find('input[name*="[city]"]').val(selectedAddress.city);
+                                forms[x].find('input[name*="[region_id]"]').val(selectedAddress.regionId);
+                                forms[x].find('input[name*="[postcode]"]').val(selectedAddress.postcode);
+                                forms[x].find('input[name*="[country_id]"]').val(selectedAddress.countryId);
+                            }
 
                             this.closeModal();
                         }
@@ -81,42 +85,47 @@ define([
                 ]
             }, $('#tj-suggested-addresses'));
 
-            if ($(this.addressButton).length) {
-                var button = $(this.addressButton).clone();
+            if (config.controller === 'order_create') {
+                var button = $('<button class="action-basic" data-index="validateAddressButton">Validate Address</button>');
 
-                $(this.addressButton).remove();
-                this.appendButton(button);
+                this.appendButtonToOrder(button);
 
                 if ('MutationObserver' in window) {
                     var observer = new MutationObserver(function(mutations) {
-                        self.appendButton(button);
+                        self.appendButtonToOrder(button);
                     });
 
-                    observer.observe($('#order-shipping_address').get(0), { childList: true });
+                    observer.observe($('#order-shipping_address').get(0), {
+                        attributes: true
+                    });
                 }
             }
 
             return this;
         },
 
-        appendButton: function (button) {
+        appendButtonToOrder: function (button) {
             var self = this;
 
-            $('#order-shipping_address_fields').find(button.attr('id')).remove();
+            $('[data-index="validateAddressButton"]:visible').remove();
 
-            button.appendTo('#order-shipping_address_fields');
-
-            $(this.addressButton).click(function (e) {
+            button.unbind('click').bind('click', function (e) {
                 e.preventDefault();
-                self.validateAddress();
+                self.validateAddress($(this));
             });
+
+            if (window.order && window.order.shippingAsBilling) {
+                button.appendTo('.order-billing-address > fieldset');
+            } else {
+                button.appendTo('.order-billing-address > fieldset, .order-shipping-address > fieldset');
+            }
         },
 
-        validateAddress: function () {
+        validateAddress: function (button) {
             var self = this;
             var body = $('body');
-            var button = $('[data-index="validateAddressButton"]:visible');
-            var form = button.closest('.address-item-edit-content fieldset, .order-shipping-address fieldset');
+            button = button || $('[data-index="validateAddressButton"]:visible');
+            var form = button.closest('fieldset');
             var formValues = $(form).serializeArray();
             var addr = {
                 street: [this.getAddressFormValue(formValues, '[street][0]')],

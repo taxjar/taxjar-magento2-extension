@@ -18,18 +18,12 @@
 // @codingStandardsIgnoreFile
 
 /** @var \Magento\Customer\Block\Address\Edit $block */
-
-$controller = $block->getRequest()->getControllerName();
-$action = $block->getRequest()->getActionName();
 ?>
 <div id="tj-suggested-addresses" class="field" data-bind="scope: 'addressValidation'" style="display: none">
     <fieldset class="fieldset">
         <legend class="legend"><span>Suggested Addresses</span></legend>
         <!-- ko template: getTemplate() --><!-- /ko -->
     </fieldset>
-    <?php if ($controller == 'order_create' && $action == 'index') { ?>
-        <button id="tj-validate-address-button" class="action-basic" data-index="validateAddressButton">Validate Address</button>
-    <?php } ?>
 </div>
 
 <script type="text/x-magento-init">
@@ -39,7 +33,11 @@ $action = $block->getRequest()->getActionName();
             "components": {
                 "addressValidation": {
                     "component": "Taxjar_SalesTax/js/suggested_addresses_admin",
-                    "template": "Taxjar_SalesTax/suggested_address_template"
+                    "template": "Taxjar_SalesTax/suggested_address_template",
+                    "config": {
+                        "controller": "<?php echo $block->getRequest()->getControllerName(); ?>",
+                        "action": "<?php echo $block->getRequest()->getActionName(); ?>"
+                    }
                 }
             }
         }
