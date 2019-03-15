@@ -50,7 +50,7 @@ define([
                             text: $.mage.__('Save Address'),
                             class: 'action primary',
                             click: function () {
-                                var addrs = avCore.suggestedAddresses();;
+                                var addrs = avCore.suggestedAddresses();
                                 var selectedAddressId = uiRegistry.get('addressValidation').suggestedAddressRadio();
                                 var selectedAddress = addrs[selectedAddressId].address;
 
@@ -71,9 +71,6 @@ define([
                      * @param {Element} form - address form
                      */
                     submitHandler: function (form) {
-                        button.attr('disabled', true);
-                        body.trigger('processStart');
-
                         var addr = {
                             street: [form.street_1.value],
                             city: form.city.value,
@@ -81,6 +78,9 @@ define([
                             countryId: form.country_id.value,
                             postcode: form.postcode.value
                         };
+
+                        button.attr('disabled', true);
+                        body.trigger('processStart');
 
                         avCore.getSuggestedAddresses(addr, function (res) {
                             button.attr('disabled', false);
