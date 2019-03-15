@@ -24,9 +24,9 @@ define([
     $().ready(function () {
 
         $('#tj-test-button').on('click', function (event) {
-            let form = $('#edit_form');
-            let body = $('body');
-            let button = $('#tj-test-button');
+            var form = $('#edit_form');
+            var body = $('body');
+            var button = $('#tj-test-button');
 
             button.attr('disabled', true);
             body.trigger('processStart');
@@ -36,7 +36,7 @@ define([
                 form.submit();
             }
 
-            let addr = {};
+            var addr = {};
             if ($(location).attr('href').indexOf('order_create') !== -1) {
                 addr = {
                     'street0': $("#edit_form input[name='order[shipping_address][street][0]']").val(),
@@ -71,8 +71,8 @@ define([
                         return;
                     }
 
-                    let tj_suggested_addresses = $('#tj-suggested-addresses');
-                    let addrHTML = suggestedAddresses.buildHtml(response, addr);
+                    var tj_suggested_addresses = $('#tj-suggested-addresses');
+                    var addrHTML = suggestedAddresses.buildHtml(response, addr);
 
                     tj_suggested_addresses.html('');
                     tj_suggested_addresses.append('<ul>' + addrHTML + '</ul>');
