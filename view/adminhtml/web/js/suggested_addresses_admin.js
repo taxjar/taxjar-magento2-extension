@@ -81,26 +81,33 @@ define([
             }, $('#tj-suggested-addresses'));
 
             if (config.controller === 'order_create') {
-                var button = $('<button class="action-basic" data-index="validateAddressButton">Validate Address</button>');
-
-                this.appendButtonToOrder(button);
+                this.appendButtonToOrder();
 
                 if ('MutationObserver' in window) {
-                    var observer = new MutationObserver(function(mutations) {
-                        self.appendButtonToOrder(button);
+                    var orderObserver = new MutationObserver(function (mutations) {
+                        var addressObserver = new MutationObserver(function (mutations) {
+                            self.appendButtonToOrder();
+                            orderObserver.disconnect();
+                        });
+
+                        self.appendButtonToOrder();
+
+                        if ($('.order-billing-address, .order-shipping-address').length) {
+                            addressObserver.observe($('.order-billing-address').get(0), { childList: true });
+                            addressObserver.observe($('.order-shipping-address').get(0), { childList: true });
+                        }
                     });
 
-                    observer.observe($('#order-shipping_address').get(0), {
-                        attributes: true
-                    });
+                    orderObserver.observe($('#order-data').get(0), { childList: true });
                 }
             }
 
             return this;
         },
 
-        appendButtonToOrder: function (button) {
+        appendButtonToOrder: function () {
             var self = this;
+            var button = $('<button class="action-basic" data-index="validateAddressButton">Validate Address</button>');
 
             $('[data-index="validateAddressButton"]:visible').remove();
 
