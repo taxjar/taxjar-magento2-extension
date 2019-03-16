@@ -20,15 +20,12 @@
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <update handle="customer_account"/>
     <body>
-        <referenceContainer name="head.components">
-            <block class="Magento\Framework\View\Element\Template"
-                   name="taxjar_customer_address_edit_address_validation_head"
-                   template="Taxjar_SalesTax::address/address_validation_head.phtml" cacheable="false"/>
-        </referenceContainer>
         <referenceContainer name="content">
             <block class="Magento\Framework\View\Element\Template"
                    name="taxjar_customer_address_edit_address_validation_content"
-                   template="Taxjar_SalesTax::address/address_validation_content.phtml" cacheable="false"/>
+                   template="Taxjar_SalesTax::address/address_validation_content.phtml"
+                   ifconfig="tax/taxjar/address_validation"
+                   cacheable="false"/>
         </referenceContainer>
     </body>
 </page>

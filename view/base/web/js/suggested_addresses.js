@@ -22,11 +22,6 @@ define([
 ], function (ko, $, Component, avCore) {
     'use strict';
 
-    // Only extend the Component if validation is enabled in the admin
-    if (typeof(taxjar_validate_address) == 'undefined' || taxjar_validate_address !== true) {
-        return Component;
-    }
-
     return Component.extend({
         defaults: {
             suggestedAddresses: avCore.suggestedAddresses,

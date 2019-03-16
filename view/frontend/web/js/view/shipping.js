@@ -46,11 +46,6 @@ define([
         };
 
         return function (target) {
-            // Only extend if validation is enabled in the admin
-            if (taxjar_validate_address !== true) {
-                return target;
-            }
-
             return target.extend(mixin);
         };
     }

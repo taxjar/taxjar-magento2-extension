@@ -23,11 +23,5 @@
                 </argument>
             </arguments>
         </referenceBlock>
-
-        <referenceContainer name="head.components">
-            <block class="Magento\Framework\View\Element\Template"
-                   name="taxjar_customer_address_edit_address_validation_head"
-                   template="Taxjar_SalesTax::address/address_validation_head.phtml"/>
-        </referenceContainer>
     </body>
 </page>

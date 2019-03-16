@@ -24,11 +24,6 @@ define([
     'use strict';
 
     return function (addressValidation) {
-        // Only extend widget if validation is enabled in the admin
-        if (taxjar_validate_address !== true) {
-            return $.mage.addressValidation;
-        }
-
         $.widget('mage.addressValidation', $.mage.addressValidation, {
             /**
              * Validation creation
