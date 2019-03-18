@@ -69,9 +69,9 @@ define([
                             for (var x = 0; x < forms.length; x++) {
                                 forms[x].find('input[name*="[street][0]"]').val(selectedAddress.street);
                                 forms[x].find('input[name*="[city]"]').val(selectedAddress.city);
-                                forms[x].find('input[name*="[region_id]"]').val(selectedAddress.regionId);
+                                forms[x].find('select[name*="[region_id]"]').val(selectedAddress.regionId);
                                 forms[x].find('input[name*="[postcode]"]').val(selectedAddress.postcode);
-                                forms[x].find('input[name*="[country_id]"]').val(selectedAddress.countryId);
+                                forms[x].find('select[name*="[country_id]"]').val(selectedAddress.countryId);
                             }
 
                             this.closeModal();
