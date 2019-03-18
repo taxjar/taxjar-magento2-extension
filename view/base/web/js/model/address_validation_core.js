@@ -1,10 +1,8 @@
 define([
     'ko',
-    'jquery',
-    'mage/storage',
-    'Magento_Ui/js/modal/alert',
+    'jquery'
 ],
-function (ko, $, storage, alert) {
+function (ko, $) {
     'use strict';
 
     return {
@@ -18,6 +16,14 @@ function (ko, $, storage, alert) {
         getSuggestedAddresses: function (addr, onDone, onFail) {
             var self = this;
 
+            // Skip if non-US shipping address
+            if (addr && addr.countryId !== 'US') {
+                if (typeof onFail === 'function') {
+                    onFail('NON_US_SHIPPING_ADDRESS');
+                }
+                return;
+            }
+
             if (addr && addr.street && addr.city && addr.regionId) {
                 var formattedAddr = {
                     'street0': addr.street[0],
@@ -27,18 +33,10 @@ function (ko, $, storage, alert) {
                     'postcode': addr.postcode
                 };
 
-                // Skip if non-US shipping address
-                if (addr.countryId !== 'US') {
-                    if (typeof onDone === 'function') {
-                        onDone();
-                    }
-                    return;
-                }
-
                 // Skip if already suggested
                 if (formattedAddr == this.activeAddress) {
-                    if (typeof onDone === 'function') {
-                        onDone();
+                    if (typeof onFail === 'function') {
+                        onFail('ADDRESS_ALREADY_VALIDATED');
                     }
                     return;
                 }
@@ -66,15 +64,14 @@ function (ko, $, storage, alert) {
                         onDone(response);
                     }
                 }).fail(function (response) {
-                    alert({
-                        title: $.mage.__('An error occurred'),
-                        content: 'Unfortunately we were unable to validate your address.'
-                    });
-
                     if (typeof onFail === 'function') {
                         onFail(response);
                     }
                 });
+            } else {
+                if (typeof onFail === 'function') {
+                    onFail('MISSING_ADDRESS_FIELDS');
+                }
             }
         },
 

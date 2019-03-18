@@ -19,9 +19,10 @@ define([
     'jquery',
     'uiComponent',
     'uiRegistry',
+    'Magento_Ui/js/modal/alert',
     'taxjarModal',
     'Taxjar_SalesTax/js/model/address_validation_core'
-], function (ko, $, Component, uiRegistry, taxjarModal, avCore) {
+], function (ko, $, Component, uiRegistry, alert, taxjarModal, avCore) {
     'use strict';
 
     return Component.extend({
@@ -150,6 +151,27 @@ define([
             }, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');
+
+                if (res === 'NON_US_SHIPPING_ADDRESS') {
+                    return alert({
+                        title: $.mage.__('Address Validation'),
+                        content: $.mage.__('At this time only US addresses can be validated.')
+                    });
+                }
+
+                if (res === 'MISSING_ADDRESS_FIELDS') {
+                    return alert({
+                        title: $.mage.__('Address Validation'),
+                        content: $.mage.__('Please provide a street address, city, and state before validating an address.')
+                    });
+                }
+
+                if (res === 'ADDRESS_ALREADY_VALIDATED') {
+                    return alert({
+                        title: $.mage.__('Address Validation'),
+                        content: $.mage.__('This address has already been validated.')
+                    });
+                }
 
                 if (uiRegistry.get('addressValidation').isVisible()) {
                     self.addressModal.openModal({ 'form': form });
