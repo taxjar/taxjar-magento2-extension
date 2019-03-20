@@ -23,11 +23,16 @@ define([
                 template: 'Taxjar_SalesTax/suggested_address_checkout_step',
                 suggestedAddressTemplate: 'Taxjar_SalesTax/suggested_address_template',
                 suggestedAddresses: avCore.suggestedAddresses,
-                suggestedAddressRadio: ko.observable(0)
+                suggestedAddressRadio: ko.observable(0),
+                validatedAddresses: ko.computed(function() {
+                    return ko.utils.arrayFilter(avCore.suggestedAddresses(), function(addr) {
+                        return addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
+                    });
+                })
             },
 
             isVisible: function () {
-                return !quote.isVirtual() && !stepNavigator.isProcessed('shipping') && this.suggestedAddresses().length > 1;
+                return !quote.isVirtual() && !stepNavigator.isProcessed('shipping') && this.suggestedAddresses().length && this.validatedAddresses().length !== this.suggestedAddresses().length;
             },
 
             /**

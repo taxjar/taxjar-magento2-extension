@@ -145,6 +145,8 @@ class AddressValidation implements AddressValidationInterface
                 $result = $this->highlightChanges($original, $address, ++$id);
                 if (!empty($result)) {
                     $results[] = $result;
+                } else {
+                    $results[0]['address']['custom_attributes']['suggestedAddress'] = true;
                 }
             }
         }
@@ -268,7 +270,9 @@ class AddressValidation implements AddressValidationInterface
                     'regionId' => $region->getId(),
                     'countryId' => $address['country'],
                     'postcode' => $address['zip'],
-
+                    'custom_attributes' => [
+                        'suggestedAddress' => true
+                    ]
                 ];
             }
         }
