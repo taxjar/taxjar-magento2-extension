@@ -70,19 +70,6 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Return if address validation is currently enabled
-     *
-     * @return bool|mixed
-     */
-    public function canValidateAddress()
-    {
-        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-        $validateAddress = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION, $storeScope);
-
-        return (bool)$validateAddress;
-    }
-
-    /**
      * Endpoint that accepts an address and returns suggestions to improve it's accuracy
      *
      * @param null $street0
@@ -152,6 +139,19 @@ class AddressValidation implements AddressValidationInterface
         }
 
         return $results;
+    }
+
+    /**
+     * Return if address validation is currently enabled
+     *
+     * @return bool|mixed
+     */
+    protected function canValidateAddress()
+    {
+        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $validateAddress = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION, $storeScope);
+
+        return (bool)$validateAddress;
     }
 
     /**
@@ -235,13 +235,14 @@ class AddressValidation implements AddressValidationInterface
     {
         try {
             $response = $this->client->postResource('addressValidation', $data);
+            $this->logger->log(implode("\n", $response));
             $response = $this->formatResponse($response);
         } catch (\Exception $e) {
             $msg = json_decode($e->getMessage());
-
             switch ($msg->status) {
                 case 404:  // no suggested addresses found
                     $response = false;
+                    $this->logger->log($e->getMessage());
                     break;
                 default:
                     $this->logger->log($e->getMessage());
