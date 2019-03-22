@@ -48,18 +48,25 @@ class AddressValidation implements AddressValidationInterface
     protected $countryFactory;
 
     /**
+     * @var \Magento\Framework\App\CacheInterface
+     */
+    protected $cache;
+
+    /**
      * @param ClientFactory $clientFactory
      * @param Logger $logger
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Directory\Model\CountryFactory $countryFactory
+     * @param \Magento\Framework\App\CacheInterface
      */
     public function __construct(
         \Taxjar\SalesTax\Model\ClientFactory $clientFactory,
         \Taxjar\SalesTax\Model\Logger $logger,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Directory\Model\RegionFactory $regionFactory,
-        \Magento\Directory\Model\CountryFactory $countryFactory
+        \Magento\Directory\Model\CountryFactory $countryFactory,
+        \Magento\Framework\App\CacheInterface $cache
     ) {
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_ADDRVALIDATION_LOG);
         $this->client = $clientFactory->create();
@@ -67,6 +74,7 @@ class AddressValidation implements AddressValidationInterface
         $this->scopeConfig = $scopeConfig;
         $this->regionFactory = $regionFactory;
         $this->countryFactory = $countryFactory;
+        $this->cache = $cache;
     }
 
     /**
@@ -234,21 +242,30 @@ class AddressValidation implements AddressValidationInterface
     protected function validateWithTaxjar($data)
     {
         try {
-            $response = $this->client->postResource('addressValidation', $data);
-            $this->logger->log(implode("\n", $response));
-            $response = $this->formatResponse($response);
+            $cacheKey = implode(";", $data);
+            $response = $this->cache->load($cacheKey);
+
+            if (empty($response)) {
+                $response = $this->client->postResource('addressValidation', $data);
+                $this->logger->log(json_encode($response), 'address_validation');
+                $response = $this->formatResponse($response);
+                $this->cache->save(json_encode($response), $cacheKey, [], 3600);
+            } else {
+                $response = json_decode($response, true);
+            }
         } catch (\Exception $e) {
             $msg = json_decode($e->getMessage());
             switch ($msg->status) {
                 case 404:  // no suggested addresses found
                     $response = false;
-                    $this->logger->log($e->getMessage());
+                    $this->logger->log($e->getMessage(), 'address_validation');
                     break;
                 default:
-                    $this->logger->log($e->getMessage());
+                    $this->logger->log($e->getMessage(), 'address_validation');
                     $response = false;
             }
         }
+
         return $response;
     }
 
