@@ -227,7 +227,7 @@ class Smartcalcs
                 }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
-                $this->_logger->log('API timeout or network issue between your store and TaxJar, please try again later.', 'error');
+                $this->logger->log('API timeout or network issue between your store and TaxJar, please try again later.', 'error');
                 $this->response = null;
                 $this->_unsetSessionData('response');
             }

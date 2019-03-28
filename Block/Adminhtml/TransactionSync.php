@@ -20,7 +20,9 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class TransactionSync extends PopupField
 {
@@ -42,6 +44,11 @@ class TransactionSync extends PopupField
     protected $scopeConfig;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param array $data
@@ -49,10 +56,12 @@ class TransactionSync extends PopupField
     public function __construct(
         Context $context,
         UrlInterface $backendUrl,
+        TaxjarHelper $helper,
         array $data = []
     ) {
         $this->scopeConfig = $context->getScopeConfig();
         $this->backendUrl = $backendUrl;
+        $this->helper = $helper;
         parent::__construct($context, $backendUrl, $data);
     }
 
@@ -110,13 +119,13 @@ class TransactionSync extends PopupField
      */
     public function isEnabled()
     {
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
+        $scopeCode = $this->request->getParam(ScopeInterface::SCOPE_WEBSITE, 0);
 
-        if ($isEnabled) {
-            return true;
+        if ($scopeCode) {
+            return $this->helper->isTransactionSyncEnabled($scopeCode, ScopeInterface::SCOPE_WEBSITE);
         }
 
-        return false;
+        return $this->helper->isTransactionSyncEnabled();
     }
 
     /**

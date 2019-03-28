@@ -17,23 +17,17 @@
 
 namespace Taxjar\SalesTax\Observer;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class SyncTransaction implements ObserverInterface
 {
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
@@ -60,7 +54,11 @@ class SyncTransaction implements ObserverInterface
     protected $registry;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param ManagerInterface $messageManager
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderFactory $orderFactory
@@ -68,19 +66,19 @@ class SyncTransaction implements ObserverInterface
      * @param Registry $registry
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
         ManagerInterface $messageManager,
         OrderRepositoryInterface $orderRepository,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
-        Registry $registry
+        Registry $registry,
+        TaxjarHelper $helper
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->messageManager = $messageManager;
         $this->orderRepository = $orderRepository;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
         $this->registry = $registry;
+        $this->helper = $helper;
     }
 
     /**
@@ -90,17 +88,17 @@ class SyncTransaction implements ObserverInterface
     public function execute(
         Observer $observer
     ) {
-        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC);
-        $eventName = $observer->getEvent()->getName();
-
-        if (!$syncEnabled) {
-            return $this;
-        }
-
         if ($observer->getData('order_id')) {
             $order = $this->orderRepository->get($observer->getData('order_id'));
         } else {
             $order = $observer->getEvent()->getOrder();
+        }
+
+        $syncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId());
+        $eventName = $observer->getEvent()->getName();
+
+        if (!$syncEnabled) {
+            return $this;
         }
 
         $orderTransaction = $this->orderFactory->create();

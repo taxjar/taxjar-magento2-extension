@@ -241,6 +241,12 @@ class ImportRates implements ObserverInterface
         $this->_purgeRates();
 
         try {
+            $dir = $this->directoryList->getPath(DirectoryList::TMP);
+
+            if (!$this->driverFile->isDirectory($dir)) {
+                $this->driverFile->createDirectory($dir);
+            }
+
             if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), serialize($ratesJson)) !== false) {
                 ignore_user_abort(true);
 
