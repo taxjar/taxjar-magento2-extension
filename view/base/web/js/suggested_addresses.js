@@ -25,11 +25,12 @@ define([
     return Component.extend({
         defaults: {
             suggestedAddresses: avCore.suggestedAddresses,
-            suggestedAddressRadio: ko.observable(0)
-        },
-
-        isVisible: function () {
-            return this.suggestedAddresses().length > 1;
+            suggestedAddressRadio: ko.observable(0),
+            validatedAddresses: ko.computed(function() {
+                return ko.utils.arrayFilter(avCore.suggestedAddresses(), function(addr) {
+                    return addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
+                });
+            })
         }
     });
 });

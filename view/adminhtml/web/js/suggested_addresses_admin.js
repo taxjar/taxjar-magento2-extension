@@ -29,15 +29,16 @@ define([
         defaults: {
             addressModal: {},
             suggestedAddresses: avCore.suggestedAddresses || ko.observable([]),
-            suggestedAddressRadio: ko.observable(0)
+            suggestedAddressRadio: ko.observable(0),
+            validatedAddresses: ko.computed(function() {
+                return ko.utils.arrayFilter(avCore.suggestedAddresses(), function(addr) {
+                    return addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
+                });
+            })
         },
 
         getTemplate: function () {
             return 'Taxjar_SalesTax/suggested_address_template';
-        },
-
-        isVisible: function () {
-            return this.suggestedAddresses().length > 1;
         },
 
         initialize: function (config) {
@@ -144,10 +145,7 @@ define([
             avCore.getSuggestedAddresses(addr, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');
-
-                if (uiRegistry.get('addressValidation').isVisible()) {
-                    self.addressModal.openModal({ 'form': form });
-                }
+                self.addressModal.openModal({ 'form': form });
             }, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');
@@ -171,10 +169,6 @@ define([
                         title: $.mage.__('Address Validation'),
                         content: $.mage.__('This address has already been validated.')
                     });
-                }
-
-                if (uiRegistry.get('addressValidation').isVisible()) {
-                    self.addressModal.openModal({ 'form': form });
                 }
             });
         },

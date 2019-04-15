@@ -80,21 +80,11 @@ define([
                         avCore.getSuggestedAddresses(addr, function (res) {
                             button.attr('disabled', false);
                             body.trigger('processStop');
-
-                            if (uiRegistry.get('addressValidation').isVisible()) {
-                                addressModal.openModal({ 'form': form });
-                            } else {
-                                form.submit();
-                            }
+                            addressModal.openModal({ 'form': form });
                         }, function (res) {
                             button.attr('disabled', false);
                             body.trigger('processStop');
-
-                            if (uiRegistry.get('addressValidation').isVisible()) {
-                                addressModal.openModal({ 'form': form });
-                            } else {
-                                form.submit();
-                            }
+                            form.submit();
                         });
                     }
                 });
