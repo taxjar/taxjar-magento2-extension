@@ -11,6 +11,9 @@ var config = {
             },
             'Magento_Checkout/js/view/shipping': {
                 'Taxjar_SalesTax/js/view/shipping': true
+            },
+            'Aheadworks_OneStepCheckout/js/view/shipping-method': {
+                'Taxjar_SalesTax/js/view/shipping': true
             }
         }
     }

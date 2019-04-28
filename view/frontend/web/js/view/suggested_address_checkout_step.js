@@ -20,8 +20,6 @@ define([
 
         return Component.extend({
             defaults: {
-                template: 'Taxjar_SalesTax/suggested_address_checkout_step',
-                suggestedAddressTemplate: 'Taxjar_SalesTax/suggested_address_template',
                 suggestedAddresses: avCore.suggestedAddresses,
                 suggestedAddressRadio: ko.observable(0),
                 validatedAddresses: ko.computed(function() {
@@ -32,7 +30,19 @@ define([
             },
 
             isVisible: function () {
-                return !quote.isVirtual() && !stepNavigator.isProcessed('shipping') && this.suggestedAddresses().length && this.validatedAddresses().length !== this.suggestedAddresses().length;
+                return !quote.isVirtual() && this.checkStepNavigator() && this.suggestedAddresses().length && this.validatedAddresses().length !== this.suggestedAddresses().length;
+            },
+
+            isOneStepCheckout: function () {
+                return $('.am-checkout, .aw-onestep').length;
+            },
+
+            checkStepNavigator: function () {
+                if (this.isOneStepCheckout()) {
+                    return true;
+                }
+
+                return !stepNavigator.isProcessed('shipping');
             },
 
             /**
@@ -99,7 +109,7 @@ define([
             },
 
             rearrangeSteps: function () {
-                $('#shipping').after($('#address-validation'));
+                $('#shipping, .onestep-shipping-address').after($('#address-validation'));
             },
 
             toggleDisplay: function () {

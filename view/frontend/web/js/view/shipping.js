@@ -30,7 +30,7 @@ define([
                 });
             },
 
-            validateShippingInformation: function () {
+            setShippingAddressForm: function () {
                 if (addressList().length === 0) {
                     var originalAddress = quote.shippingAddress();
 
@@ -40,7 +40,17 @@ define([
                     this.source.set('shippingAddress.postcode', originalAddress.postcode);
                     this.source.set('shippingAddress.country_id', originalAddress.countryId);
                 }
+            },
 
+            // Aheadworks One Step Checkout
+            validate: function () {
+                this.setShippingAddressForm();
+                return this._super();
+            },
+
+            // Native Checkout
+            validateShippingInformation: function () {
+                this.setShippingAddressForm();
                 return this._super();
             }
         };
