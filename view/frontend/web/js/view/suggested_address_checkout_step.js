@@ -24,7 +24,7 @@ define([
                 suggestedAddressRadio: ko.observable(0),
                 validatedAddresses: ko.computed(function() {
                     return ko.utils.arrayFilter(avCore.suggestedAddresses(), function(addr) {
-                        return addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
+                        return addr.address && addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
                     });
                 })
             },
