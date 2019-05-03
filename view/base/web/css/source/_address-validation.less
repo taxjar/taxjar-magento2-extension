@@ -48,6 +48,39 @@
     }
 }
 
+body[class*="page-layout-admin"] {
+    .page-create-order button[data-index="validateAddressButton"] {
+        margin-top: 1.5rem;
+    }
+
+    #tj-suggested-addresses {
+        .fieldset {
+            border: 0;
+        }
+
+        .fieldset > .legend {
+            padding: 0 0 10px;
+            border-bottom: 1px solid #c6c6c6;
+            width: 100%;
+            box-sizing: border-box;
+
+            span {
+                font-size: 2.2rem;
+                font-weight: 300;
+            }
+        }
+
+        .checkout-suggested-addresses {
+            .suggested-address {
+                input[type="radio"] {
+                    margin-right: 5px;
+                    vertical-align: 1px;
+                }
+            }
+        }
+    }
+}
+
 .am-checkout {
     #address-validation {
         padding-bottom: 0;
