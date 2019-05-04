@@ -246,24 +246,19 @@ class AddressValidation implements AddressValidationInterface
             $response = $this->cache->load($cacheKey);
 
             if (empty($response)) {
+                $this->logger->log('Validating address: ' . json_encode($data), 'post');
                 $response = $this->client->postResource('addressValidation', $data);
-                $this->logger->log(json_encode($response), 'address_validation');
+                $this->logger->log('Successful API response: ' . json_encode($response), 'success');
                 $response = $this->formatResponse($response);
                 $this->cache->save(json_encode($response), $cacheKey, [], 3600);
             } else {
                 $response = json_decode($response, true);
             }
         } catch (\Exception $e) {
-            $msg = json_decode($e->getMessage());
-            switch ($msg->status) {
-                case 404:  // no suggested addresses found
-                    $response = false;
-                    $this->logger->log($e->getMessage(), 'address_validation');
-                    break;
-                default:
-                    $this->logger->log($e->getMessage(), 'address_validation');
-                    $response = false;
-            }
+            $response = false;
+            $errorMessage = json_decode($e->getMessage());
+
+            $this->logger->log($errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail, 'error');
         }
 
         return $response;
