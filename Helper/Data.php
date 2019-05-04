@@ -84,9 +84,4 @@ class Data extends AbstractHelper
         $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
         return (bool) $syncEnabled;
     }
-
-    public function getConfig($path)
-    {
-        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-    }
 }

@@ -106,6 +106,12 @@ class Connect extends \Magento\Backend\App\AbstractAction
         $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
     }
 
+    /**
+     * Verify TaxJar API token and designate Plus subscription
+     *
+     * @param string $apiKey
+     * @return boolean
+     */
     protected function isVerified($apiKey)
     {
         try {
