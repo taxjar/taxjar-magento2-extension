@@ -26,11 +26,9 @@ use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Logger;
 
 class Connect extends AbstractAction
 {
@@ -62,25 +60,18 @@ class Connect extends AbstractAction
     protected $client;
 
     /**
-     * @var Logger
-     */
-    protected $logger;
-
-    /**
      * @param Context $context
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param ReinitableConfigInterface $reinitableConfig
      * @param ClientFactory $clientFactory
-     * @param Logger $logger
      */
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
         ReinitableConfigInterface $reinitableConfig,
-        ClientFactory $clientFactory,
-        Logger $logger
+        ClientFactory $clientFactory
     ) {
         $this->eventManager = $context->getEventManager();
         $this->scopeConfig = $scopeConfig;
@@ -123,11 +114,10 @@ class Connect extends AbstractAction
     }
 
     /**
-     * * Verify if user is subscribed to Plus
+     * Verify TaxJar API token and designate Plus subscription
      *
-     * @param $apiKey
-     * @return bool
-     * @throws LocalizedException
+     * @param string $apiKey
+     * @return boolean
      */
     protected function isVerified($apiKey)
     {
@@ -144,7 +134,7 @@ class Connect extends AbstractAction
                 return true;
             }
         } catch (Exception $e) {
-            $this->logger->log($e->getMessage());
+            // Noop
         }
 
         return false;

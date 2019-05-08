@@ -29,9 +29,6 @@
             </argument>
         </arguments>
     </type>
-    <type name="Magento\Checkout\Block\Checkout\LayoutProcessor">
-        <plugin name="manage_address_validation_checkout_step" type="Taxjar\SalesTax\Plugin\Checkout\LayoutProcessor" sortOrder="100"/>
-    </type>
     <type name="Magento\Framework\RequireJs\Config\File\Collector\Aggregated">
         <plugin name="manage_address_validation_mixins" type="Taxjar\SalesTax\Plugin\RequireJs\AfterFiles" sortOrder="100"/>
     </type>

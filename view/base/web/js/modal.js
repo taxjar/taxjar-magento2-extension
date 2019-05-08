@@ -19,6 +19,8 @@ define([
     'jquery/ui',
     'Magento_Ui/js/modal/modal'
 ], function ($) {
+    'use strict';
+
     $.widget('taxjar.modal', $.mage.modal, {
         data: {},
         openModal: function (data) {

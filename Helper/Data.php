@@ -25,10 +25,6 @@ class Data extends AbstractHelper
 {
     protected $request;
 
-    /**
-     * @param Context $context
-     * @param Http $request
-     */
     public function __construct(Context $context, Http $request)
     {
         $this->request = $request;
@@ -79,8 +75,6 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Transaction Sync enabled check
-     *
      * @param int $scopeCode
      * @param string $scope
      * @return bool
@@ -90,16 +84,5 @@ class Data extends AbstractHelper
         $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
         $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
         return (bool) $syncEnabled;
-    }
-
-    /**
-     * Return the config value for a given $path
-     *
-     * @param $path
-     * @return mixed
-     */
-    public function getConfig($path)
-    {
-        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE);
     }
 }

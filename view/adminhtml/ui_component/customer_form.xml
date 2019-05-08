@@ -18,7 +18,7 @@
 -->
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <fieldset name="address">
-        <field name="validateAddressButton"  class="Taxjar\SalesTax\Ui\Component\Customer\ValidateAddressButton">
+        <field name="validateAddressButton" class="Taxjar\SalesTax\Ui\Component\Customer\ValidateAddressButton">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="id" xsi:type="string">validate-address-button</item>

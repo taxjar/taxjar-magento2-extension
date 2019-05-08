@@ -87,7 +87,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Parse an address and returns suggestions to improve it's accuracy
+     * Endpoint that accepts an address and returns suggestions to improve it's accuracy
      *
      * @param null $street0
      * @param null $street1
@@ -255,24 +255,19 @@ class AddressValidation implements AddressValidationInterface
             $response = $this->cache->load($cacheKey);
 
             if (empty($response)) {
+                $this->logger->log('Validating address: ' . json_encode($data), 'post');
                 $response = $this->client->postResource('addressValidation', $data);
-                $this->logger->log(json_encode($response), 'address_validation');
+                $this->logger->log('Successful API response: ' . json_encode($response), 'success');
                 $response = $this->formatResponse($response);
                 $this->cache->save(json_encode($response), $cacheKey, [], 3600);
             } else {
                 $response = json_decode($response, true);
             }
         } catch (Exception $e) {
-            $msg = json_decode($e->getMessage());
-            switch ($msg->status) {
-                case 404:  // no suggested addresses found
-                    $response = false;
-                    $this->logger->log($e->getMessage(), 'address_validation');
-                    break;
-                default:
-                    $this->logger->log($e->getMessage(), 'address_validation');
-                    $response = false;
-            }
+            $response = false;
+            $errorMessage = json_decode($e->getMessage());
+
+            $this->logger->log($errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail, 'error');
         }
 
         return $response;
@@ -406,8 +401,6 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Return Region by id
-     *
      * @param $regionId
      * @return Region
      */
@@ -420,8 +413,6 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Return Region by code
-     *
      * @param $regionCode
      * @param $countryId
      * @return Region
@@ -435,14 +426,11 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Return Country by id
-     *
      * @param $countryId
      * @return Country
      */
     protected function getCountryById($countryId)
     {
-        /** @var Country $country */
         $country = $this->countryFactory->create();
         $country->load($countryId);
         return $country;
