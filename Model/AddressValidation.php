@@ -87,7 +87,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Endpoint that accepts an address and returns suggestions to improve it's accuracy
+     * Parse an address and return suggestions to improve it's accuracy
      *
      * @param null $street0
      * @param null $street1

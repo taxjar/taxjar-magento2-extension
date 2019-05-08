@@ -25,6 +25,10 @@ class Data extends AbstractHelper
 {
     protected $request;
 
+    /**
+     * @param Context $context
+     * @param Http $request
+     */
     public function __construct(Context $context, Http $request)
     {
         $this->request = $request;
@@ -75,6 +79,8 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Transaction Sync enabled check
+     *
      * @param int $scopeCode
      * @param string $scope
      * @return bool
