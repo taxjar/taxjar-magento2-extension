@@ -17,56 +17,65 @@
 
 namespace Taxjar\SalesTax\Model;
 
+use Exception;
+use Magento\Directory\Model\Country;
+use Magento\Directory\Model\CountryFactory;
+use Magento\Directory\Model\Region;
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Api\AddressValidationInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class AddressValidation implements AddressValidationInterface
 {
     /**
-     * @var \Taxjar\SalesTax\Model\Client $client
+     * @var Client $client
      */
     protected $client;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Logger $logger
+     * @var Logger $logger
      */
     protected $logger;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Directory\Model\RegionFactory
+     * @var RegionFactory
      */
     protected $regionFactory;
 
     /**
-     * @var \Magento\Directory\Model\CountryFactory
+     * @var CountryFactory
      */
     protected $countryFactory;
 
     /**
-     * @var \Magento\Framework\App\CacheInterface
+     * @var CacheInterface
      */
     protected $cache;
 
     /**
      * @param ClientFactory $clientFactory
      * @param Logger $logger
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Directory\Model\RegionFactory $regionFactory
-     * @param \Magento\Directory\Model\CountryFactory $countryFactory
-     * @param \Magento\Framework\App\CacheInterface
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RegionFactory $regionFactory
+     * @param CountryFactory $countryFactory
+     * @param CacheInterface
      */
     public function __construct(
-        \Taxjar\SalesTax\Model\ClientFactory $clientFactory,
-        \Taxjar\SalesTax\Model\Logger $logger,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Directory\Model\RegionFactory $regionFactory,
-        \Magento\Directory\Model\CountryFactory $countryFactory,
-        \Magento\Framework\App\CacheInterface $cache
+        ClientFactory $clientFactory,
+        Logger $logger,
+        ScopeConfigInterface $scopeConfig,
+        RegionFactory $regionFactory,
+        CountryFactory $countryFactory,
+        CacheInterface $cache
     ) {
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_ADDRVALIDATION_LOG);
         $this->client = $clientFactory->create();
@@ -78,7 +87,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Endpoint that accepts an address and returns suggestions to improve it's accuracy
+     * Parse an address and returns suggestions to improve it's accuracy
      *
      * @param null $street0
      * @param null $street1
@@ -87,7 +96,7 @@ class AddressValidation implements AddressValidationInterface
      * @param null $country
      * @param null $postcode
      * @return array|mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function validateAddress(
         $street0 = null,
@@ -156,7 +165,7 @@ class AddressValidation implements AddressValidationInterface
      */
     protected function canValidateAddress()
     {
-        $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
+        $storeScope = ScopeInterface::SCOPE_STORE;
         $validateAddress = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION, $storeScope);
 
         return (bool)$validateAddress;
@@ -237,7 +246,7 @@ class AddressValidation implements AddressValidationInterface
      *
      * @param $data
      * @return array|bool|mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     protected function validateWithTaxjar($data)
     {
@@ -253,7 +262,7 @@ class AddressValidation implements AddressValidationInterface
             } else {
                 $response = json_decode($response, true);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $msg = json_decode($e->getMessage());
             switch ($msg->status) {
                 case 404:  // no suggested addresses found
@@ -397,36 +406,43 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
+     * Return Region by id
+     *
      * @param $regionId
-     * @return \Magento\Directory\Model\Region
+     * @return Region
      */
     protected function getRegionById($regionId)
     {
-        /** @var \Magento\Directory\Model\Region $region */
+        /** @var Region $region */
         $region = $this->regionFactory->create();
         $region->load($regionId);
         return $region;
     }
 
     /**
+     * Return Region by code
+     *
      * @param $regionCode
      * @param $countryId
-     * @return \Magento\Directory\Model\Region
+     * @return Region
      */
     protected function getRegionByCode($regionCode, $countryId)
     {
-        /** @var \Magento\Directory\Model\Region $region */
+        /** @var Region $region */
         $region = $this->regionFactory->create();
         $region->loadByCode($regionCode, $countryId);
         return $region;
     }
 
     /**
+     * Return Country by id
+     *
      * @param $countryId
-     * @return \Magento\Directory\Model\Country
+     * @return Country
      */
     protected function getCountryById($countryId)
     {
+        /** @var Country $country */
         $country = $this->countryFactory->create();
         $country->load($countryId);
         return $country;

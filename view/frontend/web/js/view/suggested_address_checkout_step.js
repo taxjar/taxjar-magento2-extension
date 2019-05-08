@@ -1,3 +1,19 @@
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
 define([
         'ko',
         'jquery',
@@ -6,8 +22,7 @@ define([
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/shipping-rate-registry',
         'Taxjar_SalesTax/js/model/address_validation_core'
-    ],
-    function (
+    ], function (
         ko,
         $,
         Component,
@@ -22,8 +37,8 @@ define([
             defaults: {
                 suggestedAddresses: avCore.suggestedAddresses,
                 suggestedAddressRadio: ko.observable(0),
-                validatedAddresses: ko.computed(function() {
-                    return ko.utils.arrayFilter(avCore.suggestedAddresses(), function(addr) {
+                validatedAddresses: ko.computed(function () {
+                    return ko.utils.arrayFilter(avCore.suggestedAddresses(), function (addr) {
                         return addr.address && addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
                     });
                 })
@@ -94,7 +109,7 @@ define([
                 var addrs = avCore.suggestedAddresses();
 
                 if (addrs !== undefined) {
-                    var newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { custom_attributes: { suggestedAddress: true } });
+                    var newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, {custom_attributes: {suggestedAddress: true}});
 
                     // Force shipping rates to recalculate
                     // https://alanstorm.com/refresh-shipping-rates-for-the-magento-2-checkout/

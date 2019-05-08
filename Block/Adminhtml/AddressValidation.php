@@ -19,6 +19,7 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -32,11 +33,11 @@ class AddressValidation extends Field
     // @codingStandardsIgnoreEnd
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
-     /**
+    /**
      * @param Context $context
      * @param array $data
      */

@@ -18,14 +18,18 @@
 // @codingStandardsIgnoreFile
 
 ?>
-<p class='note'><span>Validate shipping addresses and return back suggested addresses at checkout. Ensures the customer data sent to TaxJar is accurate for calculations. <?php if (!$block->isAuthorized()) { ?>Address validation requires a TaxJar Plus subscription. <a href="https://www.taxjar.com/plus/" target="_blank">Learn more.</a><?php } ?></span></p>
+<p class='note'>
+    <span>Validate shipping addresses and return back suggested addresses at checkout. Ensures the customer data sent to
+        TaxJar is accurate for calculations. <?php if (!$block->isAuthorized()) { ?>Address validation requires a TaxJar
+            Plus subscription. <a href="https://www.taxjar.com/plus/" target="_blank">Learn more.</a><?php } ?></span>
+</p>
 
 <?php if (!$block->isAuthorized()) { ?>
     <script>
         require([
             'jquery'
-        ], function($) {
-            $('#tax_taxjar_address_validation').bind('DOMSubtreeModified', function(e) {
+        ], function ($) {
+            $('#tax_taxjar_address_validation').bind('DOMSubtreeModified', function (e) {
                 $(this).prop('disabled', true);
             });
         });

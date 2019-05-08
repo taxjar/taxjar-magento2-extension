@@ -17,30 +17,44 @@
 
 namespace Taxjar\SalesTax\Plugin\RequireJs;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\State;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\RequireJs\Config\File\Collector\Aggregated;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class AfterFiles
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\App\State
+     * @var State
      */
     protected $state;
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param State $state
+     */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\App\State $state
+        ScopeConfigInterface $scopeConfig,
+        State $state
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->state = $state;
     }
 
+    /**
+     * @param Aggregated $subject
+     * @param $result
+     * @return mixed
+     * @throws LocalizedException
+     */
     public function afterGetFiles(
-        \Magento\Framework\RequireJs\Config\File\Collector\Aggregated $subject,
+        Aggregated $subject,
         $result
     ) {
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);

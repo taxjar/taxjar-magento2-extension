@@ -23,16 +23,24 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 class LayoutProcessor
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     */
     public function __construct(
         ScopeConfigInterface $scopeConfig
     ) {
         $this->scopeConfig = $scopeConfig;
     }
 
+    /**
+     * @param \Magento\Checkout\Block\Checkout\LayoutProcessor $subject
+     * @param array $jsLayout
+     * @return array
+     */
     public function afterProcess(
         \Magento\Checkout\Block\Checkout\LayoutProcessor $subject,
         array $jsLayout

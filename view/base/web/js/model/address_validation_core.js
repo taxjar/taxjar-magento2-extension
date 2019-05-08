@@ -1,3 +1,19 @@
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
 define([
     'ko',
     'jquery'
@@ -41,7 +57,7 @@ function (ko, $) {
                     return;
                 }
 
-                // Skip if selected address is a suggestion
+                // Skip if the selected address is a suggestion
                 if (addr.custom_attributes && addr.custom_attributes.suggestedAddress) {
                     this.activeAddress = formattedAddr;
                     return;
@@ -50,7 +66,7 @@ function (ko, $) {
                 $.ajax({
                     type: 'POST',
                     url: this.getAddressValidationUrl(),
-                    data: JSON.stringify($.extend({}, { form_key: window.FORM_KEY }, formattedAddr)),
+                    data: JSON.stringify($.extend({}, {form_key: window.FORM_KEY}, formattedAddr)),
                     contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
                     beforeSend: function (xhr) {

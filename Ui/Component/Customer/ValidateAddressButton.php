@@ -18,19 +18,29 @@
 namespace Taxjar\SalesTax\Ui\Component\Customer;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Form\Field;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class ValidateAddressButton extends Field
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
+    /**
+     * @param ContextInterface $context
+     * @param UiComponentFactory $uiComponentFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param array $components
+     * @param array $data
+     */
     public function __construct(
-        \Magento\Framework\View\Element\UiComponent\ContextInterface $context,
-        \Magento\Framework\View\Element\UiComponentFactory $uiComponentFactory,
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
         ScopeConfigInterface $scopeConfig,
         array $components = [],
         array $data = []
@@ -39,6 +49,9 @@ class ValidateAddressButton extends Field
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
+    /**
+     * @throws LocalizedException
+     */
     public function prepare()
     {
         parent::prepare();

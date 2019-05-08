@@ -17,6 +17,7 @@ namespace Taxjar\SalesTax\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -24,7 +25,11 @@ class Data extends AbstractHelper
 {
     protected $request;
 
-    public function __construct(Context $context, \Magento\Framework\App\Request\Http $request)
+    /**
+     * @param Context $context
+     * @param Http $request
+     */
+    public function __construct(Context $context, Http $request)
     {
         $this->request = $request;
         parent::__construct($context);
@@ -74,6 +79,8 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Transaction Sync enabled check
+     *
      * @param int $scopeCode
      * @param string $scope
      * @return bool
@@ -85,8 +92,14 @@ class Data extends AbstractHelper
         return (bool) $syncEnabled;
     }
 
+    /**
+     * Return the config value for a given $path
+     *
+     * @param $path
+     * @return mixed
+     */
     public function getConfig($path)
     {
-        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE);
     }
 }

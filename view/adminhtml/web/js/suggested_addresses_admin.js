@@ -30,8 +30,8 @@ define([
             addressModal: {},
             suggestedAddresses: avCore.suggestedAddresses || ko.observable([]),
             suggestedAddressRadio: ko.observable(0),
-            validatedAddresses: ko.computed(function() {
-                return ko.utils.arrayFilter(avCore.suggestedAddresses(), function(addr) {
+            validatedAddresses: ko.computed(function () {
+                return ko.utils.arrayFilter(avCore.suggestedAddresses(), function (addr) {
                     return addr.address.custom_attributes && addr.address.custom_attributes.suggestedAddress === true;
                 });
             })
@@ -95,12 +95,12 @@ define([
                         self.appendButtonToOrder();
 
                         if ($('.order-billing-address, .order-shipping-address').length) {
-                            addressObserver.observe($('.order-billing-address').get(0), { childList: true });
-                            addressObserver.observe($('.order-shipping-address').get(0), { childList: true });
+                            addressObserver.observe($('.order-billing-address').get(0), {childList: true});
+                            addressObserver.observe($('.order-shipping-address').get(0), {childList: true});
                         }
                     });
 
-                    orderObserver.observe($('#order-data').get(0), { childList: true });
+                    orderObserver.observe($('#order-data').get(0), {childList: true});
                 }
             }
 
@@ -145,7 +145,7 @@ define([
             avCore.getSuggestedAddresses(addr, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');
-                self.addressModal.openModal({ 'form': form });
+                self.addressModal.openModal({'form': form});
             }, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');

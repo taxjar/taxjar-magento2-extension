@@ -80,7 +80,7 @@ define([
                         avCore.getSuggestedAddresses(addr, function (res) {
                             button.attr('disabled', false);
                             body.trigger('processStop');
-                            addressModal.openModal({ 'form': form });
+                            addressModal.openModal({'form': form});
                         }, function (res) {
                             button.attr('disabled', false);
                             body.trigger('processStop');
