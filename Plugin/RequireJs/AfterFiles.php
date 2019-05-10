@@ -22,6 +22,7 @@ use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\RequireJs\Config\File\Collector\Aggregated;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Taxjar\SalesTax\Model\Logger;
 
 class AfterFiles
 {
@@ -36,15 +37,22 @@ class AfterFiles
     protected $state;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param State $state
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        State $state
+        State $state,
+        Logger $logger
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->state = $state;
+        $this->logger = $logger;
     }
 
     /**
@@ -59,13 +67,17 @@ class AfterFiles
     ) {
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
 
-        // If address validation is disabled, remove frontend RequireJs dependencies
-        if (!$isEnabled && $this->state->getAreaCode() == 'frontend') {
-            foreach ($result as $key => &$file) {
-                if ($file->getModule() == 'Taxjar_SalesTax') {
-                    unset($result[$key]);
+        try {
+            // If address validation is disabled, remove frontend RequireJs dependencies
+            if (!$isEnabled && $this->state->getAreaCode() == 'frontend') {
+                foreach ($result as $key => &$file) {
+                    if ($file->getModule() == 'Taxjar_SalesTax') {
+                        unset($result[$key]);
+                    }
                 }
             }
+        } catch (LocalizedException $e) {
+            $this->logger->log($e->getMessage());
         }
 
         return $result;
