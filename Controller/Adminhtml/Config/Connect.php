@@ -87,6 +87,7 @@ class Connect extends AbstractAction
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
         $this->client = $clientFactory->create();
+        $this->logger = $logger;
         parent::__construct($context);
     }
 
@@ -123,9 +124,9 @@ class Connect extends AbstractAction
     }
 
     /**
-     * * Verify if user is subscribed to Plus
+     * Verify if user is subscribed to Plus
      *
-     * @param $apiKey
+     * @param string $apiKey
      * @return bool
      * @throws LocalizedException
      */
