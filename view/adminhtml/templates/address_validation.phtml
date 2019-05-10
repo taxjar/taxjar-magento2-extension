@@ -19,9 +19,10 @@
 
 ?>
 <p class='note'>
-    <span>Validate shipping addresses and return back suggested addresses at checkout. Ensures the customer data sent to
-        TaxJar is accurate for calculations. <?php if (!$block->isAuthorized()) { ?>Address validation requires a TaxJar
-            Plus subscription. <a href="https://www.taxjar.com/plus/" target="_blank">Learn more.</a><?php } ?></span>
+    <span>Validate shipping addresses and return back suggested addresses at checkout. Ensures the customer data sent to TaxJar is accurate for calculations.</span>
+    <?php if (!$block->isAuthorized()) { ?>
+        <span>Address validation requires a TaxJar Plus subscription. <a href="https://www.taxjar.com/plus/" target="_blank">Learn more.</a></span>
+    <?php } ?>
 </p>
 
 <?php if (!$block->isAuthorized()) { ?>

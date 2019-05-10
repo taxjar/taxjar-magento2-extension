@@ -87,7 +87,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Parse an address and return suggestions to improve it's accuracy
+     * Parse an address and return suggestions to improve accuracy
      *
      * @param null $street0
      * @param null $street1
@@ -186,24 +186,28 @@ class AddressValidation implements AddressValidationInterface
         }
 
         $street = [];
+
         if (isset($addr['street0']) || array_key_exists('street0', $addr)) {
             if (!is_null($addr['street0'])) {
                 $street[] = $addr['street0'];
             }
             unset($addr['street0']);
         }
+
         if (isset($addr['street1']) || array_key_exists('street1', $addr)) {
             if (!is_null($addr['street1'])) {
                 $street[] = $addr['street1'];
             }
             unset($addr['street1']);
         }
+
         if (isset($addr['street2']) || array_key_exists('street1', $addr)) {
             if (!is_null($addr['street2'])) {
                 $street[] = $addr['street2'];
             }
             unset($addr['street2']);
         }
+
         $addr['street'] = implode(", ", $street);
 
         if (isset($addr['postcode']) || array_key_exists('postcode', $addr)) {
@@ -244,7 +248,7 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Post the request to the TaxJar API and handle any responses
      *
-     * @param $data
+     * @param mixed $data
      * @return array|bool|mixed
      * @throws LocalizedException
      */
@@ -264,8 +268,8 @@ class AddressValidation implements AddressValidationInterface
                 $response = json_decode($response, true);
             }
         } catch (Exception $e) {
-            $response = false;
             $errorMessage = json_decode($e->getMessage());
+            $response = false;
 
             $this->logger->log($errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail, 'error');
         }
@@ -276,14 +280,13 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Format the response to match Magento's expectations
      *
-     * @param $response
+     * @param array $response
      * @return mixed
      */
     protected function formatResponse($response)
     {
         if (isset($response['addresses']) && is_array($response['addresses'])) {
             foreach ($response['addresses'] as $k => $address) {
-
                 $region = $this->getRegionByCode($address['state'], $address['country']);
                 $response['addresses'][$k] = [
                     'street' => [$address['street']],
@@ -307,7 +310,7 @@ class AddressValidation implements AddressValidationInterface
      *
      * @param array $original
      * @param array $new
-     * @param $id
+     * @param int $id
      * @return array
      */
     protected function highlightChanges($original, $new, $id)
