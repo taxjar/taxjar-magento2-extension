@@ -22,7 +22,6 @@ use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\RequireJs\Config\File\Collector\Aggregated;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Logger;
 
 class AfterFiles
 {
@@ -37,22 +36,15 @@ class AfterFiles
     protected $state;
 
     /**
-     * @var Logger
-     */
-    protected $logger;
-
-    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param State $state
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        State $state,
-        Logger $logger
+        State $state
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->state = $state;
-        $this->logger = $logger;
     }
 
     /**
@@ -77,7 +69,7 @@ class AfterFiles
                 }
             }
         } catch (LocalizedException $e) {
-            $this->logger->log($e->getMessage());
+            // no-op
         }
 
         return $result;
