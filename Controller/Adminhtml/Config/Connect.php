@@ -17,59 +17,84 @@
 
 namespace Taxjar\SalesTax\Controller\Adminhtml\Config;
 
+use Exception;
+use Magento\Backend\App\AbstractAction;
 use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Taxjar\SalesTax\Model\Client;
+use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Taxjar\SalesTax\Model\Logger;
 
-class Connect extends \Magento\Backend\App\AbstractAction
+class Connect extends AbstractAction
 {
     const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
-     * @var \Magento\Framework\Event\ManagerInterface
+     * @var ManagerInterface
      */
     protected $eventManager;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config
+     * @var Config
      */
     protected $resourceConfig;
 
     /**
-     * @var \Magento\Framework\App\Config\ReinitableConfigInterface
+     * @var ReinitableConfigInterface
      */
     protected $reinitableConfig;
+
+    /**
+     * @var Client $client
+     */
+    protected $client;
+
+    /**
+     * @var Logger
+     */
+    protected $logger;
 
     /**
      * @param Context $context
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param ReinitableConfigInterface $reinitableConfig
+     * @param ClientFactory $clientFactory
+     * @param Logger $logger
      */
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
-        ReinitableConfigInterface $reinitableConfig
+        ReinitableConfigInterface $reinitableConfig,
+        ClientFactory $clientFactory,
+        Logger $logger
     ) {
         $this->eventManager = $context->getEventManager();
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
+        $this->client = $clientFactory->create();
+        $this->logger = $logger;
         parent::__construct($context);
     }
 
     /**
      * Connect to TaxJar
      *
-     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect
+     * @return Page|Redirect
      */
     public function execute()
     {
@@ -77,7 +102,7 @@ class Connect extends \Magento\Backend\App\AbstractAction
         $apiEmail = (string) $this->getRequest()->getParam('api_email');
         $reportingAccess = (string) $this->getRequest()->getParam('reporting_access');
 
-        if ($apiKey && $apiEmail) {
+        if ($apiKey && $apiEmail && $this->isVerified($apiKey)) {
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_EMAIL, $apiEmail, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
@@ -96,5 +121,33 @@ class Connect extends \Magento\Backend\App\AbstractAction
         }
 
         $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
+    }
+
+    /**
+     * Verify if user is subscribed to Plus
+     *
+     * @param string $apiKey
+     * @return bool
+     * @throws LocalizedException
+     */
+    protected function isVerified($apiKey)
+    {
+        try {
+            $this->client->setApiKey($apiKey);
+
+            $response = $this->client->postResource('verify', ['token' => $apiKey]);
+
+            if ($response['enabled'] && $response['valid']) {
+                if ($response['plus']) {
+                    $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_PLUS, true, 'default', 0);
+                }
+
+                return true;
+            }
+        } catch (Exception $e) {
+            $this->logger->log($e->getMessage());
+        }
+
+        return false;
     }
 }

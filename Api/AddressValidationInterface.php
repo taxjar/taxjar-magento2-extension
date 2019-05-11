@@ -1,3 +1,4 @@
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -14,12 +15,20 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-var config = {
-    map: {
-        '*': {
-            taxjarClipboard: 'Taxjar_SalesTax/js/clipboard',
-            taxjarPopup: 'Taxjar_SalesTax/js/popup',
-            taxjarModal: 'Taxjar_SalesTax/js/modal'
-        }
-    }
-};
+namespace Taxjar\SalesTax\Api;
+
+interface AddressValidationInterface
+{
+    /**
+     * @api
+     *
+     * @param string $street0
+     * @param string $street1
+     * @param string $city
+     * @param string $region
+     * @param string $country
+     * @param string $postcode
+     * @return mixed
+     */
+    public function validateAddress($street0 = null, $street1 = null, $city = null, $region = null, $country = null, $postcode = null);
+}

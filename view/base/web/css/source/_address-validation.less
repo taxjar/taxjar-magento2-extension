@@ -1,0 +1,111 @@
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+#address-validation {
+    padding-bottom: 33px;
+}
+
+.checkout-suggested-addresses {
+    > p {
+        margin-top: 1rem;
+    }
+
+    .suggested-address {
+        padding: 10px;
+        line-height: 30px;
+        border: 1px solid transparent;
+        cursor: pointer;
+
+        label {
+            cursor: pointer;
+        }
+
+        &.selected-address {
+            background: #f5f5f5;
+            border: 1px solid #ccc;
+        }
+
+        .suggested-address-details {
+            padding: 0 0 0 22px;
+            cursor: pointer;
+        }
+
+        .suggested-address-diff {
+            background-color: yellow;
+        }
+    }
+}
+
+body[class*="page-layout-admin"] {
+    .page-create-order button[data-index="validateAddressButton"] {
+        margin-top: 1.5rem;
+    }
+
+    #tj-suggested-addresses {
+        .fieldset {
+            border: 0;
+        }
+
+        .fieldset > .legend {
+            padding: 0 0 10px;
+            border-bottom: 1px solid #c6c6c6;
+            width: 100%;
+            box-sizing: border-box;
+
+            span {
+                font-size: 2.2rem;
+                font-weight: 300;
+            }
+        }
+
+        .checkout-suggested-addresses {
+            .suggested-address {
+                input[type="radio"] {
+                    margin-right: 5px;
+                    vertical-align: 1px;
+                }
+            }
+        }
+    }
+}
+
+.am-checkout {
+    #address-validation {
+        padding-bottom: 0;
+    }
+}
+
+.aw-onestep {
+    #address-validation {
+        margin: 5px;
+        padding-bottom: 0;
+
+        .step-title {
+            display: none;
+        }
+    }
+
+    .checkout-suggested-addresses {
+        label:before {
+            margin-top: 0 !important;
+            margin-left: 14px !important;
+        }
+
+        .suggested-address-details {
+            padding-left: 14px;
+        }
+    }
+}

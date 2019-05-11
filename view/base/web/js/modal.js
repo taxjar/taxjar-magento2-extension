@@ -14,12 +14,22 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-var config = {
-    map: {
-        '*': {
-            taxjarClipboard: 'Taxjar_SalesTax/js/clipboard',
-            taxjarPopup: 'Taxjar_SalesTax/js/popup',
-            taxjarModal: 'Taxjar_SalesTax/js/modal'
+define([
+    'jquery',
+    'jquery/ui',
+    'Magento_Ui/js/modal/modal'
+], function ($) {
+    'use strict';
+
+    $.widget('taxjar.modal', $.mage.modal, {
+        data: {},
+        openModal: function (data) {
+            if (data) {
+                this.data = data;
+            }
+            this._super();
         }
-    }
-};
+    });
+
+    return $.taxjar.modal;
+});
