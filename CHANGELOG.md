@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2019-05-10
+- **Address validation for TaxJar Plus.** Validate and suggest shipping addresses in the checkout process, customer address book, backend orders, and backend customer addresses. Improves accuracy of sales tax calculations.
+
 ## [1.2.1] - 2019-02-19
 - Create /var/tmp if the directory does not exist on Magento Commerce Cloud for backup rates.
 - Fix broken product tax classes link under "Getting Started" in the TaxJar configuration.
@@ -114,7 +117,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.1.0...v1.1.1
