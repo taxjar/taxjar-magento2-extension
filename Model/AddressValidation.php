@@ -89,12 +89,12 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Parse an address and return suggestions to improve accuracy
      *
-     * @param null $street0
-     * @param null $street1
-     * @param null $city
-     * @param null $region
-     * @param null $country
-     * @param null $postcode
+     * @param string $street0
+     * @param string $street1
+     * @param string $city
+     * @param string $region
+     * @param string $country
+     * @param string $postcode
      * @return array|mixed
      * @throws LocalizedException
      */
@@ -174,7 +174,7 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Format the input to match the API's expectations
      *
-     * @param $addr
+     * @param array $addr
      * @return mixed
      */
     protected function formatInput($addr)
@@ -223,7 +223,7 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Ensure the address is eligible for validation
      *
-     * @param $addr
+     * @param array $addr
      * @return bool
      */
     protected function validateInput($addr)
@@ -378,8 +378,8 @@ class AddressValidation implements AddressValidationInterface
      * Wrap differences between two strings in html
      * https://github.com/paulgb/simplediff
      *
-     * @param $old
-     * @param $new
+     * @param string $old
+     * @param string $new
      * @return string
      */
     function htmlDiff($old, $new)
@@ -404,7 +404,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * @param $regionId
+     * @param int $regionId
      * @return Region
      */
     protected function getRegionById($regionId)
@@ -416,8 +416,8 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * @param $regionCode
-     * @param $countryId
+     * @param int $regionCode
+     * @param int $countryId
      * @return Region
      */
     protected function getRegionByCode($regionCode, $countryId)
@@ -429,7 +429,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * @param $countryId
+     * @param int $countryId
      * @return Country
      */
     protected function getCountryById($countryId)

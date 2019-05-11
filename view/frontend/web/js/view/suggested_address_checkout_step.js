@@ -61,10 +61,6 @@ function (
             return !stepNavigator.isProcessed('shipping');
         },
 
-        /**
-         *
-         * @returns {*}
-         */
         initialize: function () {
             var self = this;
 
