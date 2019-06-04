@@ -49,7 +49,7 @@ class UpgradeData implements UpgradeDataInterface
             /** @var EavSetup $eavSetup */
             $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-            // *** exemption_type
+
             $exemptionTypeCode = 'tj_exemption_type';
             $eavSetup->addAttribute(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
@@ -69,9 +69,7 @@ class UpgradeData implements UpgradeDataInterface
                     'sort_order' => 50,
                     'default_value' => 'non_exempt',
 
-                    // attribute
                     'source' => 'Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType',
-//                    'frontend' => 'Taxjar\SalesTax\Model\Attribute\Frontend\CustomerExemptionType',
                     'backend' => 'Taxjar\SalesTax\Model\Attribute\Backend\CustomerExemptionType',
                     'global' => 'Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL',
 
@@ -93,7 +91,7 @@ class UpgradeData implements UpgradeDataInterface
             $exemptionType->setData('used_in_forms', ['adminhtml_customer']);
             $exemptionType->getResource()->save($exemptionType);
 
-            // *** regions
+
             $regionsCode = 'tj_regions';
             $eavSetup->addAttribute(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
@@ -111,8 +109,7 @@ class UpgradeData implements UpgradeDataInterface
                     'system' => 0,
                     'sort_order' => 51,
 
-                    'source' => 'Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType',
-//                    'frontend' => 'Taxjar\SalesTax\Model\Attribute\Frontend\CustomerExemptionType',
+                    'source' => 'Taxjar\SalesTax\Model\Attribute\Source\Regions',
                     'backend' => 'Taxjar\SalesTax\Model\Attribute\Backend\CustomerExemptionType',
                     'global' => 'Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL',
 
@@ -137,7 +134,6 @@ class UpgradeData implements UpgradeDataInterface
             $regionsCodeId->getResource()->save($regionsCodeId);
 
 
-            // *** last sync
             $lastSyncCode = 'tj_last_sync';
             $eavSetup->addAttribute(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
@@ -155,17 +151,14 @@ class UpgradeData implements UpgradeDataInterface
                     'system' => 0,
                     'sort_order' => 52,
 
-//                    'source' => 'Magento\Config\Model\Config\Source\Date\Short',
                     'source' => 'Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType',
-//                    'frontend' => 'Taxjar\SalesTax\Model\Attribute\Frontend\CustomerExemptionType',
-//                    'backend' => 'Taxjar\SalesTax\Model\Attribute\Backend\CustomerExemptionType',
                     'global' => 'Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL',
 
                     'is_used_in_grid' => false,
                     'is_visible_in_grid' => false,
                     'is_filterable_in_grid' => false,
                     'is_html_allowed_on_front' => true,
-                    'visible_on_front' => true
+                    'visible_on_front' => false
                 ]
             );
 

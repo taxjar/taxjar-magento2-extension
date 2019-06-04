@@ -18,27 +18,17 @@
 -->
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <fieldset name="customer">
-<!--        <field name="tj_customer_id">-->
-<!--            <argument name="data" xsi:type="array">-->
-<!--                <item name="config" xsi:type="array">-->
-<!--                    <item name="label" xsi:type="string" translate="true">TaxJar Customer Id XML</item>-->
-<!--                    <item name="dataType" xsi:type="string">text</item>-->
-<!--                    <item name="formElement" xsi:type="string">input</item>-->
-<!--                    <item name="dataScope" xsi:type="string">extension_attributes.tj_customer_id</item>-->
-<!--                </item>-->
-<!--            </argument>-->
-<!--        </field>-->
-        <field name="tj_exemption_type" formElement="input">
+        <field name="tj_exemption_type" formElement="select">
             <settings>
                 <visible>true</visible>
             </settings>
         </field>
-        <field name="tj_regions" formElement="input">
+        <field name="tj_regions" formElement="multiselect">
             <settings>
                 <visible>true</visible>
             </settings>
         </field>
-        <field name="tj_last_sync" formElement="input">
+        <field name="tj_last_sync" formElement="date">
             <settings>
                 <visible>true</visible>
             </settings>
