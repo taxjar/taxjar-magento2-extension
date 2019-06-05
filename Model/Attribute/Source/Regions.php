@@ -20,7 +20,6 @@ namespace Taxjar\SalesTax\Model\Attribute\Source;
 
 class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
-
     private $allRegion;
 
     public function __construct(\Magento\Directory\Model\Config\Source\Allregion $allRegion)
@@ -34,6 +33,14 @@ class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
      */
     public function getAllOptions()
     {
-        return $this->allRegion->toOptionArray(true);
+        $regions = $this->allRegion->toOptionArray(true);
+
+        foreach($regions as $region) {
+            if($region['label'] == 'United States') {
+                return [$region];
+            }
+        }
+
+        return $regions;
     }
 }
