@@ -58,12 +58,18 @@ class Transaction
     protected $client;
 
     /**
+     * @var \Magento\Framework\Pricing\PriceCurrencyInterface
+     */
+    protected $priceCurrency;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Taxjar\SalesTax\Model\Logger $logger
+     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -71,7 +77,8 @@ class Transaction
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Taxjar\SalesTax\Model\Logger $logger
+        \Taxjar\SalesTax\Model\Logger $logger,
+        \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -79,6 +86,7 @@ class Transaction
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
+        $this->priceCurrency = $priceCurrency;
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
@@ -227,7 +235,7 @@ class Transaction
                 'quantity' => (int) $item->getQtyOrdered(),
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
-                'unit_price' => (float) $item->getPrice(),
+                'unit_price' => (float) round($item->getPrice(), $this->priceCurrency::DEFAULT_PRECISION),
                 'discount' => $discount,
                 'sales_tax' => $tax
             ];

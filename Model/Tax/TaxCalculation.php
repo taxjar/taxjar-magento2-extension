@@ -187,21 +187,22 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $useBaseCurrency,
         $scope
     ) {
-        $price = $item->getUnitPrice();
+        $price = (float) round($item->getUnitPrice(), $this->priceCurrency::DEFAULT_PRECISION);
         $quantity = $this->getTotalQuantity($item);
 
         $extensionAttributes = $item->getExtensionAttributes();
-        $taxCollectable = $extensionAttributes ? $extensionAttributes->getTaxCollectable() : 0;
+        $taxCollectable = $extensionAttributes ?
+            (float) round($extensionAttributes->getTaxCollectable(), $this->priceCurrency::DEFAULT_PRECISION) : 0;
         $taxPercent = $extensionAttributes ? $extensionAttributes->getCombinedTaxRate() : 0;
 
         if (!$useBaseCurrency) {
-            $taxCollectable = $this->priceCurrency->convert($taxCollectable, $scope);
+            $taxCollectable = $this->priceCurrency->convertAndRound($taxCollectable, $scope);
         }
 
-        $rowTotal = $price * $quantity;
+        $rowTotal = (float) round($price * $quantity, $this->priceCurrency::DEFAULT_PRECISION);
         $rowTotalInclTax = $rowTotal + $taxCollectable;
 
-        $priceInclTax = $rowTotalInclTax / $quantity;
+        $priceInclTax = (float) round($rowTotalInclTax / $quantity, $this->priceCurrency::DEFAULT_PRECISION);
         $discountTaxCompensationAmount = 0;
 
         $appliedTaxes = $this->getAppliedTaxes($item, $scope);

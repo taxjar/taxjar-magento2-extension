@@ -85,6 +85,11 @@ class Smartcalcs
     protected $logger;
 
     /**
+     * @var \Magento\Framework\Pricing\PriceCurrencyInterface
+     */
+    protected $priceCurrency;
+
+    /**
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
@@ -93,6 +98,7 @@ class Smartcalcs
      * @param ZendClientFactory $clientFactory
      * @param ProductMetadata $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
+     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -104,7 +110,8 @@ class Smartcalcs
         ProductMetadata $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
-        \Taxjar\SalesTax\Model\Logger $logger
+        \Taxjar\SalesTax\Model\Logger $logger,
+        \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -116,6 +123,7 @@ class Smartcalcs
         $this->taxData = $taxData;
         $this->postCodesConfig = $postCodesConfig;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
+        $this->priceCurrency = $priceCurrency;
     }
 
     /**
@@ -417,7 +425,7 @@ class Smartcalcs
                     $id = $item->getCode();
                     $parentId = $item->getParentCode();
                     $quantity = $item->getQuantity();
-                    $unitPrice = (float) $item->getUnitPrice();
+                    $unitPrice = (float) round($item->getUnitPrice(), $this->priceCurrency::DEFAULT_PRECISION);
                     $discount = (float) $item->getDiscountAmount();
                     $extensionAttributes = $item->getExtensionAttributes();
                     $taxCode = '';
