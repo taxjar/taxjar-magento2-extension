@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <container name="content" label="Root">
-        <block class="Taxjar\SalesTax\Block\Adminhtml\Edit\Tab\CustomerExemptions" name="taxjar.edit.tab.customerexemptions"
-               template="Taxjar_SalesTax::customer_exemptions.phtml"/>
-    </container>
-</layout>

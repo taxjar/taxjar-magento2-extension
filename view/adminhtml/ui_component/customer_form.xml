@@ -19,21 +19,59 @@
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <fieldset name="customer">
         <field name="tj_exemption_type" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Exemption Type</item>
+                    <item name="source" xsi:type="string">tj_customer</item>
+                </item>
+            </argument>
             <settings>
                 <visible>true</visible>
             </settings>
         </field>
         <field name="tj_regions" formElement="multiselect">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Regions</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                </item>
+            </argument>
             <settings>
                 <visible>true</visible>
             </settings>
         </field>
         <field name="tj_last_sync" formElement="date">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Last Sync</item>
+                    <item name="dataType" xsi:type="string">datetime</item>
+                </item>
+            </argument>
             <settings>
                 <visible>true</visible>
             </settings>
         </field>
     </fieldset>
+
+    <fieldset name="tj_customer">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">TaxJar</item>
+                <item name="sort_order" xsi:type="string">100</item>
+            </item>
+        </argument>
+        <field name="tj_test">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="label" xsi:type="string">Test</item>
+                    <item name="dataScope" xsi:type="string">customer</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
+
     <fieldset name="address">
         <field name="validateAddressButton" class="Taxjar\SalesTax\Ui\Component\Customer\ValidateAddressButton">
             <argument name="data" xsi:type="array">

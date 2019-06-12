@@ -24,12 +24,4 @@
                ifconfig="tax/taxjar/address_validation"
                cacheable="false"/>
     </referenceContainer>
-    <referenceBlock name="customer_form">
-        <block class="Taxjar\SalesTax\Block\Adminhtml\Edit\Tab\CustomerExemptions"
-               name="customer_edit_tab_customerexemptions">
-            <action method="setTabLabel">
-                <argument name="label" xsi:type="string">TaxJar</argument>
-            </action>
-        </block>
-    </referenceBlock>
 </page>

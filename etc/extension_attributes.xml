@@ -27,6 +27,6 @@
     <extension_attributes for="Magento\Customer\Api\Data\CustomerInterface">
         <attribute code="tj_exemption_type" type="string" />
         <attribute code="tj_regions" type="string" />
-        <attribute code="tj_last_sync" type="string" />
+        <attribute code="tj_last_sync" type="datetime" />
     </extension_attributes>
 </config>

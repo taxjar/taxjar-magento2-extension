@@ -19,6 +19,8 @@ namespace Taxjar\SalesTax\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Customer implements ObserverInterface
@@ -79,6 +81,7 @@ class Customer implements ObserverInterface
         $customer = $this->customer->load($observer->getCustomer()->getId());
 
         $customerAddress = $customer->getDefaultShippingAddress();
+
         if (!$customerAddress) {
             $customerAddress = $customer->getAddresses();
             $customerAddress = reset($customerAddress);
@@ -91,6 +94,7 @@ class Customer implements ObserverInterface
         ];
 
         $regions = $customer->getTjRegions();
+
         if (!empty($regions)) {
             $r = [];
             foreach (explode(',', $regions) as $region) {
@@ -109,26 +113,42 @@ class Customer implements ObserverInterface
             ];
         }
 
-        try {
-            if ($event->getName() == 'adminhtml_customer_save_after') {
-                if (empty($customer->getTjLastSync())) {
-//                    $this->logger->log('POST customerId ' . $customer->getId(), 'customers');
-                    $this->client->postResource('customers', $data);  //create a new customer
-                } else {
-//                    $this->logger->log('PUT customerId ' . $customer->getId(), 'customers');
-                    $this->client->putResource('customers', $customer->getId(), $data);  //update existing customer
-                }
-                $customer->setData('tj_last_sync', $this->date->timestamp());
-                $customer->save();
-            }
+        if ($event->getName() == 'adminhtml_customer_save_after' && empty($customer->getTjLastSync())) {
+            try {
+                $response = $this->client->postResource('customers', $data);  //create a new customer
+            } catch (LocalizedException $e) {
+                $message = json_decode($e->getMessage());
 
-            if ($event->getName() == 'customer_delete_before') {
-//                $this->logger->log('DELETE customerId ' . $customer->getId(), 'customers');
-                $this->client->deleteResource('customers', $customer->getId());  //delete customer
+                if ($message->status = 422) {  //unprocessable
+                    try {
+                        $response = $this->client->putResource('customers', $customer->getId(), $data);
+                    } catch (LocalizedException $e) {
+                        $this->logger->log('PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+                    }
+                }
             }
-        } catch (\Exception $exception) {
-            $msg = $exception->getMessage();
-            $this->logger->log('FAILED customerId ' . $customer->getId() . "" . $msg, 'customers');
+        } elseif ($event->getName() == 'adminhtml_customer_save_after') {
+            try {
+                //update existing customer
+                $response = $this->client->putResource('customers', $customer->getId(), $data);
+            } catch (LocalizedException $e) {
+                $this->logger->log('PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+            }
+        }
+
+        if ($event->getName() == 'customer_delete_before') {
+            try {
+                $response = $this->client->deleteResource('customers', $customer->getId());  //delete customer
+            } catch (LocalizedException $e) {
+                $this->logger->log('DELETE customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+            }
+        } else {
+            $customer->setData('tj_last_sync', $this->date->timestamp());
+            $customer->save();
+        }
+
+        if (isset($response)) {
+            $this->logger->log('SUCCESS customerId ' . $customer->getId(), 'customers');
         }
     }
 }

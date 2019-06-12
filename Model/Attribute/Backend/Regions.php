@@ -15,19 +15,19 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Controller\Adminhtml\Index;
+namespace Taxjar\SalesTax\Model\Attribute\Backend;
 
-class CustomerExemptions extends \Magento\Customer\Controller\Adminhtml\Index
+class Regions extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
-     * Customer compare grid
-     *
-     * @return \Magento\Framework\View\Result\Layout
+     * Validate
+     * @param \Magento\Catalog\Model\Product $object
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function execute()
+    public function validate($object)
     {
-        $this->initCurrentCustomer();
-        $resultLayout = $this->resultLayoutFactory->create();
-        return $resultLayout;
+        //TODO: validate exemption type
+        return true;
     }
 }
