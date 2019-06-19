@@ -68,13 +68,11 @@ class UpgradeData implements UpgradeDataInterface
                     'default' => 'non_exempt',
 
                     'source' => 'Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType',
-                    'backend' => 'Taxjar\SalesTax\Model\Attribute\Backend\CustomerExemptionType',
-                    'frontend' => 'Taxjar\SalesTax\Model\Attribute\Frontend\CustomerExemptionType',
                     'global' => 'Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL',
 
-                    'is_used_in_grid' => false,
-                    'is_visible_in_grid' => false,
-                    'is_filterable_in_grid' => false,
+                    'is_used_in_grid' => true,
+                    'is_visible_in_grid' => true,
+                    'is_filterable_in_grid' => true,
                     'is_html_allowed_on_front' => true,
                     'visible_on_front' => true
                 ]
@@ -107,11 +105,9 @@ class UpgradeData implements UpgradeDataInterface
                     'position' => 502,
                     'system' => 0,
                     'sort_order' => 51,
+                    'disabled' => false,
 
                     'source' => 'Taxjar\SalesTax\Model\Attribute\Source\Regions',
-                    'frontend' => 'Taxjar\SalesTax\Model\Attribute\Frontend\Regions',
-//                    'backend' => 'Taxjar\SalesTax\Model\Attribute\Backend\Regions',
-                    'backend' => 'Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend',
                     'global' => 'Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL',
 
                     'is_used_in_grid' => false,

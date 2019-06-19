@@ -38,8 +38,8 @@
     <event name="controller_action_predispatch">
         <observer name="taxjar_salestax_predispatch_admin_action_controller_observer" instance="Taxjar\SalesTax\Observer\AdminNotifications"/>
     </event>
-    <event name="adminhtml_customer_save_after">
-        <observer name="taxjar_salestax_adminhtml_customer_save_after" instance="Taxjar\SalesTax\Observer\Customer"/>
+    <event name="customer_save_after_data_object">
+        <observer name="taxjar_salestax_customer_save_after_data_object" instance="Taxjar\SalesTax\Observer\Customer"/>
     </event>
     <event name="customer_delete_before">
         <observer name="taxjar_salestax_customer_delete_before" instance="Taxjar\SalesTax\Observer\Customer"/>

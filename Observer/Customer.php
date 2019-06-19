@@ -78,11 +78,13 @@ class Customer implements ObserverInterface
         $event = $observer->getEvent();
 
         /** @var \Magento\Customer\Model\Customer $customer */
-        $customer = $this->customer->load($observer->getCustomer()->getId());
+        $customer = $this->customer->load($observer->getCustomerDataObject()->getId());
 
+        /** @var \Magento\Customer\Model\Address $customerAddress */
         $customerAddress = $customer->getDefaultShippingAddress();
 
         if (!$customerAddress) {
+            //TODO: confirm correct customer addr returned
             $customerAddress = $customer->getAddresses();
             $customerAddress = reset($customerAddress);
         }
@@ -113,7 +115,7 @@ class Customer implements ObserverInterface
             ];
         }
 
-        if ($event->getName() == 'adminhtml_customer_save_after' && empty($customer->getTjLastSync())) {
+        if ($event->getName() == 'customer_save_after_data_object' && empty($customer->getTjLastSync())) {
             try {
                 $response = $this->client->postResource('customers', $data);  //create a new customer
             } catch (LocalizedException $e) {
@@ -123,16 +125,16 @@ class Customer implements ObserverInterface
                     try {
                         $response = $this->client->putResource('customers', $customer->getId(), $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log('PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+                        $this->logger->log('ERROR PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
                     }
                 }
             }
-        } elseif ($event->getName() == 'adminhtml_customer_save_after') {
+        } elseif ($event->getName() == 'customer_save_after_data_object') {
             try {
                 //update existing customer
                 $response = $this->client->putResource('customers', $customer->getId(), $data);
             } catch (LocalizedException $e) {
-                $this->logger->log('PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+                $this->logger->log('ERROR PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
             }
         }
 

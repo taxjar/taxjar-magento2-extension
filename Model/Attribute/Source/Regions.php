@@ -17,21 +17,13 @@
 
 namespace Taxjar\SalesTax\Model\Attribute\Source;
 
-
 class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
     private $allRegion;
-    private $customer;
-    private $request;
 
-    public function __construct(
-        \Magento\Directory\Model\Config\Source\Allregion $allRegion,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Framework\App\RequestInterface $request
-    )    {
+    public function __construct(\Magento\Directory\Model\Config\Source\Allregion $allRegion)
+    {
         $this->allRegion = $allRegion;
-        $this->customer = $customerFactory->create();
-        $this->request = $request;
     }
 
     /**
@@ -40,23 +32,11 @@ class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
      */
     public function getAllOptions()
     {
-        $customerId = $this->request->getParam('id');
-        $customer = $this->customer->load($customerId);
-
         $regions = $this->allRegion->toOptionArray(true);
 
-        foreach($regions as $region) {
-            if($region['label'] == 'United States') {
-
-                $regionIds = explode(',',$customer->getData('tj_regions'));
-
-                foreach($region['value'] as $k => $state) {
-                    if (in_array($state['value'], $regionIds)) {
-                        $region['value'][$k]['selected'] = 'selected';
-                    }
-                }
-
-                return [$region];
+        foreach ($regions as $region) {
+            if ($region['label'] == 'United States') {
+                return $region['value'];
             }
         }
 

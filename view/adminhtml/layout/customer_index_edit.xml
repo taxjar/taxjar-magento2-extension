@@ -17,6 +17,9 @@
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="Taxjar_SalesTax::js/customer.js"/>
+    </head>
     <referenceContainer name="content">
         <block class="Magento\Framework\View\Element\Template"
                name="taxjar_customer_address_edit_address_validation_content"
