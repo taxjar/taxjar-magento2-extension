@@ -63,6 +63,11 @@ class Transaction
     protected $customerRepository;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
@@ -77,6 +82,7 @@ class Transaction
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Magento\Customer\Api\CustomerRepositoryInterfaceFactory $customerRepositoryFactory,
+        \Taxjar\SalesTax\Helper\Data $helper,
         \Taxjar\SalesTax\Model\Logger $logger
     ) {
         $this->scopeConfig = $scopeConfig;
@@ -85,6 +91,7 @@ class Transaction
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
         $this->customerRepository = $customerRepositoryFactory->create();
+        $this->helper = $helper;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
 
         $this->client = $this->clientFactory->create();
@@ -273,11 +280,11 @@ class Transaction
     {
         $customer = $this->customerRepository->getById($order->getCustomerId());
 
-        //TODO: refactor to it's own method
         $exemptionType = $customer->getCustomAttribute('tj_exemption_type')->getValue();
-        if ($exemptionType && in_array($exemptionType, ['wholesale', 'government', 'other'])) {
+        if ($exemptionType && $this->helper->isValidCustomerExemptionType($exemptionType)) {
             return ['customer_id' => $customer->getId()];
         }
+
         return [];
     }
 

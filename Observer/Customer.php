@@ -84,7 +84,6 @@ class Customer implements ObserverInterface
         $customerAddress = $customer->getDefaultShippingAddress();
 
         if (!$customerAddress) {
-            //TODO: confirm correct customer addr returned
             $customerAddress = $customer->getAddresses();
             $customerAddress = reset($customerAddress);
         }
@@ -98,11 +97,11 @@ class Customer implements ObserverInterface
         $regions = $customer->getTjRegions();
 
         if (!empty($regions)) {
-            $r = [];
+            $customerRegions = [];
             foreach (explode(',', $regions) as $region) {
-                $r[] = ['country' => 'US', 'state' => $this->region->load($region)->getCode()];
+                $customerRegions[] = ['country' => 'US', 'state' => $this->region->load($region)->getCode()];
             }
-            $data['exempt_regions'] = $r;
+            $data['exempt_regions'] = $customerRegions;
         }
 
         if ($customerAddress) {
@@ -121,20 +120,29 @@ class Customer implements ObserverInterface
             } catch (LocalizedException $e) {
                 $message = json_decode($e->getMessage());
 
-                if ($message->status = 422) {  //unprocessable
+                if (isset($message->status) && $message->status == 422) {  //unprocessable
                     try {
                         $response = $this->client->putResource('customers', $customer->getId(), $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log('ERROR PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+                        $this->logger->log('ERROR PUT customerId ' . $customer->getId() . " " . $e->getMessage(),
+                            'customers');
                     }
                 }
             }
         } elseif ($event->getName() == 'customer_save_after_data_object') {
             try {
-                //update existing customer
                 $response = $this->client->putResource('customers', $customer->getId(), $data);
             } catch (LocalizedException $e) {
-                $this->logger->log('ERROR PUT customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+                $message = json_decode($e->getMessage());
+
+                if (isset($message->status) && $message->status == 404) {  //unprocessable
+                    try {
+                        $response = $this->client->postResource('customers', $customer->getId(), $data);
+                    } catch (LocalizedException $e) {
+                        $this->logger->log('ERROR POST customerId ' . $customer->getId() . " " . $e->getMessage(),
+                            'customers');
+                    }
+                }
             }
         }
 
@@ -150,7 +158,7 @@ class Customer implements ObserverInterface
         }
 
         if (isset($response)) {
-            $this->logger->log('SUCCESS customerId ' . $customer->getId(), 'customers');
+            $this->logger->log('SUCCESS customerId ' . $customer->getId() . " " . json_encode($response), 'customers');
         }
     }
 }

@@ -85,6 +85,11 @@ class Smartcalcs
     protected $customerRepository;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @var \Taxjar\SalesTax\Model\Logger
      */
     protected $logger;
@@ -111,6 +116,7 @@ class Smartcalcs
         \Magento\Tax\Helper\Data $taxData,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Magento\Customer\Api\CustomerRepositoryInterfaceFactory $customerRepositoryFactory,
+        \Taxjar\SalesTax\Helper\Data $helper,
         \Taxjar\SalesTax\Model\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
@@ -123,6 +129,7 @@ class Smartcalcs
         $this->taxData = $taxData;
         $this->postCodesConfig = $postCodesConfig;
         $this->customerRepository = $customerRepositoryFactory->create();
+        $this->helper = $helper;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
     }
 
@@ -214,9 +221,8 @@ class Smartcalcs
         ]);
 
 
-        //TODO: refactor to it's own method
         $exemptionType = $customer->getCustomAttribute('tj_exemption_type')->getValue();
-        if ($exemptionType && in_array($exemptionType, ['wholesale', 'government', 'other'])) {
+        if ($exemptionType && $this->helper->isValidCustomerExemptionType($exemptionType)) {
             $order['customer_id'] = $customer->getId();
         }
 
