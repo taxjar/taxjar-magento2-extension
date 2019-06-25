@@ -137,7 +137,7 @@ class Customer implements ObserverInterface
 
                 if (isset($message->status) && $message->status == 404) {  //unprocessable
                     try {
-                        $response = $this->client->postResource('customers', $customer->getId(), $data);
+                        $response = $this->client->postResource('customers', $data);
                     } catch (LocalizedException $e) {
                         $this->logger->log('ERROR POST customerId ' . $customer->getId() . " " . $e->getMessage(),
                             'customers');

@@ -25,16 +25,19 @@
                     <item name="source" xsi:type="string">tj_customer</item>
                     <item name="formElement" xsi:type="string">select</item>
                     <item name="visible" xsi:type="boolean">true</item>
+                    <item name="additionalClasses" xsi:type="string">tj-exemption-type</item>
                 </item>
             </argument>
         </field>
         <field name="tj_regions">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Taxjar\SalesTax\Model\Attribute\Source\Regions</item>
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">TaxJar Exempt Regions</item>
                     <item name="source" xsi:type="string">tj_regions</item>
                     <item name="formElement" xsi:type="string">multiselect</item>
                     <item name="visible" xsi:type="boolean">true</item>
+                    <item name="additionalClasses" xsi:type="string">tj-regions</item>
                 </item>
             </argument>
         </field>

@@ -27,10 +27,10 @@ class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
     }
 
     /**
-     * Get all options
+     * Return options as an array
      * @return array
      */
-    public function getAllOptions()
+    public function toOptionArray()
     {
         $regions = $this->allRegion->toOptionArray(true);
 
@@ -41,5 +41,14 @@ class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
         }
 
         return $regions;
+    }
+
+    /**
+     * Get all options
+     * @return array
+     */
+    public function getAllOptions()
+    {
+        return [];
     }
 }
