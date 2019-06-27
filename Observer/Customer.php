@@ -77,8 +77,14 @@ class Customer implements ObserverInterface
         /** @var \Magento\Framework\Event $event */
         $event = $observer->getEvent();
 
+        if ($observer->getCustomerDataObject()) {
+            $customerId = $observer->getCustomerDataObject()->getId();
+        } else {
+            $customerId = $observer->getCustomer()->getId();
+        }
+
         /** @var \Magento\Customer\Model\Customer $customer */
-        $customer = $this->customer->load($observer->getCustomerDataObject()->getId());
+        $customer = $this->customer->load($customerId);
 
         /** @var \Magento\Customer\Model\Address $customerAddress */
         $customerAddress = $customer->getDefaultShippingAddress();
@@ -150,7 +156,8 @@ class Customer implements ObserverInterface
             try {
                 $response = $this->client->deleteResource('customers', $customer->getId());  //delete customer
             } catch (LocalizedException $e) {
-                $this->logger->log('DELETE customerId ' . $customer->getId() . "" . $e->getMessage(), 'customers');
+                $this->logger->log('ERROR DELETE customerId ' . $customer->getId() . "" . $e->getMessage(),
+                    'customers');
             }
         } else {
             $customer->setData('tj_last_sync', $this->date->timestamp());
