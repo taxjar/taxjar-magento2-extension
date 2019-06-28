@@ -80,16 +80,6 @@ class Smartcalcs
     protected $response;
 
     /**
-     * @var \Magento\Customer\Model\ResourceModel\CustomerRepository\Interceptor
-     */
-    protected $customerRepository;
-
-    /**
-     * @var \Taxjar\SalesTax\Helper\Data
-     */
-    protected $helper;
-
-    /**
      * @var \Taxjar\SalesTax\Model\Logger
      */
     protected $logger;
@@ -103,7 +93,6 @@ class Smartcalcs
      * @param ZendClientFactory $clientFactory
      * @param ProductMetadata $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
-     * @param \Magento\Customer\Model\ResourceModel\CustomerRepository\Interceptor $customerRepositoryFactory
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -115,8 +104,6 @@ class Smartcalcs
         ProductMetadata $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
-        \Magento\Customer\Api\CustomerRepositoryInterfaceFactory $customerRepositoryFactory,
-        \Taxjar\SalesTax\Helper\Data $helper,
         \Taxjar\SalesTax\Model\Logger $logger
     ) {
         $this->checkoutSession = $checkoutSession;
@@ -128,8 +115,6 @@ class Smartcalcs
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
         $this->postCodesConfig = $postCodesConfig;
-        $this->customerRepository = $customerRepositoryFactory->create();
-        $this->helper = $helper;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
     }
 
@@ -151,7 +136,6 @@ class Smartcalcs
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $quote->getStoreId()
         ));
-        $customer = $this->customerRepository->getById($quote->getCustomerId());
 
         if (!$apiKey) {
             return;
@@ -217,14 +201,9 @@ class Smartcalcs
             'shipping' => $shipping - abs($shippingDiscount),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
             'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
+            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : 0,
             'plugin' => 'magento'
         ]);
-
-
-        $exemptionType = $customer->getCustomAttribute('tj_exemption_type')->getValue();
-        if ($exemptionType && $this->helper->isValidCustomerExemptionType($exemptionType)) {
-            $order['customer_id'] = $customer->getId();
-        }
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();

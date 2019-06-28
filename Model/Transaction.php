@@ -58,16 +58,6 @@ class Transaction
     protected $client;
 
     /**
-     * @var \Magento\Customer\Model\ResourceModel\CustomerRepository\Interceptor
-     */
-    protected $customerRepository;
-
-    /**
-     * @var \Taxjar\SalesTax\Helper\Data
-     */
-    protected $helper;
-
-    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
@@ -81,8 +71,6 @@ class Transaction
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Magento\Customer\Api\CustomerRepositoryInterfaceFactory $customerRepositoryFactory,
-        \Taxjar\SalesTax\Helper\Data $helper,
         \Taxjar\SalesTax\Model\Logger $logger
     ) {
         $this->scopeConfig = $scopeConfig;
@@ -90,8 +78,6 @@ class Transaction
         $this->productFactory = $productFactory;
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
-        $this->customerRepository = $customerRepositoryFactory->create();
-        $this->helper = $helper;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
 
         $this->client = $this->clientFactory->create();
@@ -271,18 +257,15 @@ class Transaction
     }
 
     /**
-     * Check if customer should be exempt
+     * Add customer_id to transaction
      *
      * @param \Magento\Sales\Model\Order $order
      * @return array
      */
     function buildCustomerExemption($order)
     {
-        $customer = $this->customerRepository->getById($order->getCustomerId());
-
-        $exemptionType = $customer->getCustomAttribute('tj_exemption_type')->getValue();
-        if ($exemptionType && $this->helper->isValidCustomerExemptionType($exemptionType)) {
-            return ['customer_id' => $customer->getId()];
+        if ($order->getCustomerId()) {
+            return ['customer_id' => $order->getCustomerId()];
         }
 
         return [];

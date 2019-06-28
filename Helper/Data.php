@@ -91,21 +91,4 @@ class Data extends AbstractHelper
         $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
         return (bool) $syncEnabled;
     }
-
-    /**
-     * Check if exemption is a valid type
-     *
-     * @param string $exemption
-     * @return bool
-     */
-    public function isValidCustomerExemptionType($exemption)
-    {
-        $validExemptionTypes = [
-            \Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType::WHOLESALE,
-            \Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType::GOVERNMENT,
-            \Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType::OTHER
-        ];
-
-        return in_array($exemption, $validExemptionTypes);
-    }
 }
