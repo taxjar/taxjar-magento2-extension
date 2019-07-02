@@ -97,7 +97,11 @@ class Customer implements ObserverInterface
         $data = [
             'customer_id' => $customer->getId(),
             'exemption_type' => $customer->getTjExemptionType(),
-            'name' => $customer->getFirstname() . ' ' . $customer->getLastname()
+            'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
+            'street' => '',
+            'city' => '',
+            'state' => '',
+            'zip' => ''
         ];
 
         $regions = $customer->getTjRegions();
@@ -128,11 +132,16 @@ class Customer implements ObserverInterface
 
                 if (isset($message->status) && $message->status == 422) {  //unprocessable
                     try {
+                        $this->logger->log('Could not update customer #' . $customer->getId() . ', attempting to create instead',
+                            'fallback');
                         $response = $this->client->putResource('customers', $customer->getId(), $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log('ERROR PUT customerId ' . $customer->getId() . " " . $e->getMessage(),
-                            'customers');
+                        $this->logger->log('Could not update customer #' . $customer->getId() . ": " . $e->getMessage(),
+                            'error');
                     }
+                } else {
+                    $this->logger->log('Could not create customer #' . $customer->getId() . ': ' . $e->getMessage(),
+                        'error');
                 }
             }
         } elseif ($event->getName() == 'customer_save_after_data_object') {
@@ -143,11 +152,16 @@ class Customer implements ObserverInterface
 
                 if (isset($message->status) && $message->status == 404) {  //unprocessable
                     try {
+                        $this->logger->log('Could not create customer #' . $customer->getId() . ', attempting to update instead',
+                            'fallback');
                         $response = $this->client->postResource('customers', $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log('ERROR POST customerId ' . $customer->getId() . " " . $e->getMessage(),
-                            'customers');
+                        $this->logger->log('Could not create customer #' . $customer->getId() . ": " . $e->getMessage(),
+                            'error');
                     }
+                } else {
+                    $this->logger->log('Could not update customer #' . $customer->getId() . ': ' . $e->getMessage(),
+                        'error');
                 }
             }
         }
@@ -156,16 +170,15 @@ class Customer implements ObserverInterface
             try {
                 $response = $this->client->deleteResource('customers', $customer->getId());  //delete customer
             } catch (LocalizedException $e) {
-                $this->logger->log('ERROR DELETE customerId ' . $customer->getId() . "" . $e->getMessage(),
-                    'customers');
+                $this->logger->log('Could not delete customer #' . $customer->getId() . ": " . $e->getMessage(),
+                    'error');
             }
-        } else {
-            $customer->setData('tj_last_sync', $this->date->timestamp());
-            $customer->save();
         }
 
-        if (isset($response)) {
-            $this->logger->log('SUCCESS customerId ' . $customer->getId() . " " . json_encode($response), 'customers');
+        if (isset($response) && isset($response['customer']) && !is_null($response['customer'])) {
+            $this->logger->log('Successful API response: ' . json_encode($response), 'success');
+            $customer->setData('tj_last_sync', $this->date->timestamp());
+            $customer->save();
         }
     }
 }

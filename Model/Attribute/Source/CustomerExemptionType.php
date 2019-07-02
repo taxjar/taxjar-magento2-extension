@@ -19,10 +19,10 @@ namespace Taxjar\SalesTax\Model\Attribute\Source;
 
 class CustomerExemptionType extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
-    public const WHOLESALE = 'wholesale';
-    public const GOVERNMENT = 'government';
-    public const OTHER = 'other';
-    public const NONEXEMPT = 'non_exempt';
+    const WHOLESALE = 'wholesale';
+    const GOVERNMENT = 'government';
+    const OTHER = 'other';
+    const NONEXEMPT = 'non_exempt';
 
     /**
      * Get all options

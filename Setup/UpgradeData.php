@@ -45,7 +45,6 @@ class UpgradeData implements UpgradeDataInterface
         ModuleContextInterface $context
     ) {
         if (version_compare($context->getVersion(), '1.0.2', '<')) {
-
             /** @var EavSetup $eavSetup */
             $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
@@ -88,7 +87,6 @@ class UpgradeData implements UpgradeDataInterface
             $exemptionType->setData('used_in_forms', ['adminhtml_customer']);
             $exemptionType->getResource()->save($exemptionType);
 
-
             $regionsCode = 'tj_regions';
             $eavSetup->addAttribute(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
@@ -117,20 +115,16 @@ class UpgradeData implements UpgradeDataInterface
                     'visible_on_front' => true
                 ]
             );
-
             $eavSetup->addAttributeToSet(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
                 null,
                 $regionsCode);
-
             $regionsCodeId = $this->eavConfig->getAttribute(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 $regionsCode);
             $regionsCodeId->setData('used_in_forms', ['adminhtml_customer']);
-
             $regionsCodeId->getResource()->save($regionsCodeId);
-
 
             $lastSyncCode = 'tj_last_sync';
             $eavSetup->addAttribute(
@@ -158,19 +152,16 @@ class UpgradeData implements UpgradeDataInterface
                     'visible_on_front' => false
                 ]
             );
-
             $eavSetup->addAttributeToSet(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
                 null,
                 $lastSyncCode);
-
-            $lastSyncCodeId = $this->eavConfig->getAttribute(CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            $lastSyncCodeId = $this->eavConfig->getAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 $lastSyncCode);
             $lastSyncCodeId->setData('used_in_forms', ['adminhtml_customer',]);
-
             $lastSyncCodeId->getResource()->save($lastSyncCodeId);
-
         }
     }
 }
