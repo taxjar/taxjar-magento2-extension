@@ -110,14 +110,19 @@ class Customer implements ObserverInterface
 
         if (!empty($regions)) {
             $customerRegions = [];
+
             foreach (explode(',', $regions) as $region) {
-                $customerRegions[] = ['country' => 'US', 'state' => $this->region->load($region)->getCode()];
+                $customerRegions[] = [
+                    'country' => 'US',
+                    'state' => $this->region->load($region)->getCode()
+                ];
             }
+
             $data['exempt_regions'] = $customerRegions;
         }
 
         if ($customerAddress) {
-            $data = array_merge($data,[
+            $data = array_merge($data, [
                 'country' => $customerAddress->getCountry(),
                 'state' => $customerAddress->getRegionCode(),
                 'zip' => $customerAddress->getPostcode(),
@@ -196,7 +201,6 @@ class Customer implements ObserverInterface
             case 'customer_save_after_data_object':
             case 'customer_address_save_after':
                 return 'update';
-
             case 'customer_delete_before':
                 return 'delete';
         }
