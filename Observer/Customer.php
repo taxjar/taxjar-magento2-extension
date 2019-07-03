@@ -72,15 +72,17 @@ class Customer implements ObserverInterface
         $this->region = $regionFactory->create();
     }
 
+    /**
+     * @param Observer $observer
+     * @throws LocalizedException
+     */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Framework\Event $event */
-        $event = $observer->getEvent();
+        $eventType = $this->checkEventType($observer->getEvent()->getName());
+        $customerId = $this->getCustomerIdFromObserver($observer);
 
-        if ($observer->getCustomerDataObject()) {
-            $customerId = $observer->getCustomerDataObject()->getId();
-        } else {
-            $customerId = $observer->getCustomer()->getId();
+        if (!$customerId) {
+            return;
         }
 
         /** @var \Magento\Customer\Model\Customer $customer */
@@ -115,16 +117,16 @@ class Customer implements ObserverInterface
         }
 
         if ($customerAddress) {
-            $data += [
+            $data = array_merge($data,[
                 'country' => $customerAddress->getCountry(),
                 'state' => $customerAddress->getRegionCode(),
                 'zip' => $customerAddress->getPostcode(),
                 'city' => $customerAddress->getCity(),
                 'street' => $customerAddress->getStreetFull()
-            ];
+            ]);
         }
 
-        if ($event->getName() == 'customer_save_after_data_object' && empty($customer->getTjLastSync())) {
+        if ($eventType == 'update' && empty($customer->getTjLastSync())) {
             try {
                 $response = $this->client->postResource('customers', $data);  //create a new customer
             } catch (LocalizedException $e) {
@@ -144,7 +146,7 @@ class Customer implements ObserverInterface
                         'error');
                 }
             }
-        } elseif ($event->getName() == 'customer_save_after_data_object') {
+        } elseif ($eventType == 'update') {
             try {
                 $response = $this->client->putResource('customers', $customer->getId(), $data);
             } catch (LocalizedException $e) {
@@ -166,7 +168,7 @@ class Customer implements ObserverInterface
             }
         }
 
-        if ($event->getName() == 'customer_delete_before') {
+        if ($eventType == 'delete') {
             try {
                 $response = $this->client->deleteResource('customers', $customer->getId());  //delete customer
             } catch (LocalizedException $e) {
@@ -175,10 +177,49 @@ class Customer implements ObserverInterface
             }
         }
 
-        if (isset($response) && isset($response['customer']) && !is_null($response['customer'])) {
+        if ($eventType !== 'delete' && isset($response)) {
             $this->logger->log('Successful API response: ' . json_encode($response), 'success');
             $customer->setData('tj_last_sync', $this->date->timestamp());
             $customer->save();
         }
+    }
+
+    /**
+     * Determine if the customer is being created/updated or deleted
+     *
+     * @param string $eventName
+     * @return bool|string
+     */
+    protected function checkEventType($eventName)
+    {
+        switch ($eventName) {
+            case 'customer_save_after_data_object':
+            case 'customer_address_save_after':
+                return 'update';
+
+            case 'customer_delete_before':
+                return 'delete';
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the customerId from the observer
+     *
+     * @param Observer $observer
+     * @return int|bool
+     */
+    protected function getCustomerIdFromObserver($observer)
+    {
+        if ($observer->getCustomerDataObject()) {
+            return $observer->getCustomerDataObject()->getId();
+        } elseif ($observer->getCustomerAddress()) {
+            return $observer->getCustomerAddress()->getCustomerId();
+        } elseif ($observer->getCustomer()) {
+            return $observer->getCustomer()->getId();
+        }
+
+        return false;
     }
 }
