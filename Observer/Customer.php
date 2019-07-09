@@ -51,6 +51,11 @@ class Customer implements ObserverInterface
     protected $region;
 
     /**
+     * @var \Magento\Framework\Registry
+     */
+    protected $registry;
+
+    /**
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Customer\Model\CustomerFactory $customerFactory
      * @param \\Magento\Framework\Stdlib\DateTime\DateTime $date
@@ -62,7 +67,8 @@ class Customer implements ObserverInterface
         \Magento\Customer\Model\CustomerFactory $customerFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $date,
         \Taxjar\SalesTax\Model\Logger $logger,
-        \Magento\Directory\Model\RegionFactory $regionFactory
+        \Magento\Directory\Model\RegionFactory $regionFactory,
+        \Magento\Framework\Registry $registry
     ) {
         $this->client = $clientFactory->create();
         $this->client->showResponseErrors(true);
@@ -70,6 +76,7 @@ class Customer implements ObserverInterface
         $this->date = $date;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CUSTOMER_LOG);
         $this->region = $regionFactory->create();
+        $this->registry = $registry;
     }
 
     /**
@@ -80,6 +87,12 @@ class Customer implements ObserverInterface
     {
         $eventType = $this->checkEventType($observer->getEvent()->getName());
         $customerId = $this->getCustomerIdFromObserver($observer);
+
+        if (!$this->registry->registry('taxjar_sync_customer_' . $eventType)) {
+            $this->registry->register('taxjar_sync_customer_' . $eventType, true);
+        } else {
+            return;
+        }
 
         if (!$customerId) {
             return;
