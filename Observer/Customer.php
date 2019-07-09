@@ -88,13 +88,13 @@ class Customer implements ObserverInterface
         $eventType = $this->checkEventType($observer->getEvent()->getName());
         $customerId = $this->getCustomerIdFromObserver($observer);
 
-        if (!$this->registry->registry('taxjar_sync_customer_' . $eventType)) {
-            $this->registry->register('taxjar_sync_customer_' . $eventType, true);
-        } else {
+        if (!$customerId) {
             return;
         }
 
-        if (!$customerId) {
+        if (!$this->registry->registry('taxjar_sync_customer_' . $eventType)) {
+            $this->registry->register('taxjar_sync_customer_' . $eventType, true);
+        } else {
             return;
         }
 
