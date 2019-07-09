@@ -236,6 +236,10 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $jurisdictionTaxRates = $extensionAttributes ? $extensionAttributes->getJurisdictionTaxRates() : [];
         $appliedTaxes = [];
 
+        if (empty($jurisdictionTaxRates)) {
+            return $appliedTaxes;
+        }
+
         foreach ($jurisdictionTaxRates as $jurisdiction => $jurisdictionTax) {
             if ($jurisdictionTax['rate'] == 0) {
                 continue;

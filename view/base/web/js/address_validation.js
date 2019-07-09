@@ -24,6 +24,10 @@ define([
     'use strict';
 
     return function (addressValidation) {
+        if (!$('#tj-suggested-addresses').length) {
+            return $.mage.addressValidation;
+        }
+
         $.widget('mage.addressValidation', $.mage.addressValidation, {
             /**
              * Validation creation
