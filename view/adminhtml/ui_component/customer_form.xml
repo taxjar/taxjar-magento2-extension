@@ -24,7 +24,10 @@
                     <item name="id" xsi:type="string">validate-address-button</item>
                     <item name="title" xsi:type="string" translate="true">Validate Address</item>
                     <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">button</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="component" xsi:type="string">Taxjar_SalesTax/js/form/element/input_button</item>
+                    <item name="template" xsi:type="string">ui/form/field</item>
+                    <item name="elementTmpl" xsi:type="string">Taxjar_SalesTax/form/element/input_button</item>
                     <item name="actions" xsi:type="array">
                         <item name="0" xsi:type="array">
                             <item name="targetName" xsi:type="string">addressValidation</item>
