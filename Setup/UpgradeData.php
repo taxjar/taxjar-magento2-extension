@@ -55,7 +55,7 @@ class UpgradeData implements UpgradeDataInterface
                 [
                     'group' => 'General',
                     'type' => 'varchar',
-                    'label' => 'Exemption Type',
+                    'label' => 'TaxJar Exemption Type',
                     'input' => 'select',
 
                     'required' => false,
@@ -94,7 +94,7 @@ class UpgradeData implements UpgradeDataInterface
                 [
                     'group' => 'General',
                     'type' => 'text',
-                    'label' => 'Regions',
+                    'label' => 'TaxJar Exempt Regions',
                     'input' => 'multiselect',
 
                     'required' => false,
@@ -133,7 +133,7 @@ class UpgradeData implements UpgradeDataInterface
                 [
                     'group' => 'General',
                     'type' => 'datetime',
-                    'label' => 'Last Sync Date',
+                    'label' => 'TaxJar Last Sync Date',
                     'input' => 'date',
 
                     'required' => false,
