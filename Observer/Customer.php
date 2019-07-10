@@ -92,8 +92,8 @@ class Customer implements ObserverInterface
             return;
         }
 
-        if (!$this->registry->registry('taxjar_sync_customer_' . $eventType)) {
-            $this->registry->register('taxjar_sync_customer_' . $eventType, true);
+        if (!$this->registry->registry('taxjar_sync_customer_' . $eventType . '_' . $customerId)) {
+            $this->registry->register('taxjar_sync_customer_' . $eventType . '_' . $customerId, true);
         } else {
             return;
         }
