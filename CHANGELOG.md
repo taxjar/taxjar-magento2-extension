@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.4.0]
+## [1.4.0] - 2019-07-11
 - **Customer exemption support for reporting / filing.** Sync wholesale / resale and government exempt customers for sales tax calculations, reporting, and filing. Exempt customers individually or in bulk using the customer admin grid.
 - Customer tax class "TaxJar Exempt" setting is now discouraged in favor of customer-specific exemptions. This setting will continue to skip tax calculations if needed, but we highly recommend updating your customers directly and choosing an exemption type for reporting / filing support.
 - Fix front-end form validation after saving customers in admin panel when address validation is enabled.
@@ -125,7 +125,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.1.1...v1.2.0
