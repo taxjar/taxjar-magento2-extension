@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Ui\Component\Customer;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
@@ -32,6 +33,11 @@ class ValidateAddressButton extends Field
     protected $scopeConfig;
 
     /**
+     * @var ProductMetadataInterface
+     */
+    protected $productMetadata;
+
+    /**
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
      * @param ScopeConfigInterface $scopeConfig
@@ -42,10 +48,12 @@ class ValidateAddressButton extends Field
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         ScopeConfigInterface $scopeConfig,
+        ProductMetadataInterface $productMetadata,
         array $components = [],
         array $data = []
     ) {
         $this->scopeConfig = $scopeConfig;
+        $this->productMetadata = $productMetadata;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
@@ -58,10 +66,13 @@ class ValidateAddressButton extends Field
 
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
 
-        $newData = array_replace_recursive(
-            ['componentDisabled' => !$isEnabled],
-            (array) $this->getData('config')
-        );
+        // If address validation is disabled or version >= 2.3, hide this button
+        if (!$isEnabled || floatval($this->productMetadata->getVersion()) >= 2.3) {
+            $newData = array_replace_recursive(
+                ['componentDisabled' => true],
+                (array) $this->getData('config')
+            );
+        }
 
         $this->setData('config', $newData);
     }
