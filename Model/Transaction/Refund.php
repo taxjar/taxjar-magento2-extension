@@ -71,7 +71,8 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $refund,
             $this->buildFromAddress($order),
             $this->buildToAddress($order),
-            $this->buildLineItems($order, $creditmemo->getAllItems(), 'refund')
+            $this->buildLineItems($order, $creditmemo->getAllItems(), 'refund'),
+            $this->buildCustomerExemption($order)
         );
 
         if (isset($this->request['line_items'])) {

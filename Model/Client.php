@@ -228,6 +228,9 @@ class Client
             case 'verify':
                 $apiUrl .= '/verify';
                 break;
+            case 'customers':
+                $apiUrl .= '/customers';
+                break;
         }
 
         return $apiUrl;

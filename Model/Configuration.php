@@ -45,6 +45,7 @@ class Configuration
     const TAXJAR_CALCULATIONS_LOG     = 'calculations.log';
     const TAXJAR_TRANSACTIONS_LOG     = 'transactions.log';
     const TAXJAR_ADDRVALIDATION_LOG   = 'address_validation.log';
+    const TAXJAR_CUSTOMER_LOG         = 'customers.log';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
 
     /**

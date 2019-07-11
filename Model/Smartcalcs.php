@@ -201,6 +201,7 @@ class Smartcalcs
             'shipping' => $shipping - abs($shippingDiscount),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
             'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
+            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : 0,
             'plugin' => 'magento'
         ]);
 

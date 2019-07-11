@@ -257,6 +257,21 @@ class Transaction
     }
 
     /**
+     * Add customer_id to transaction
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    function buildCustomerExemption($order)
+    {
+        if ($order->getCustomerId()) {
+            return ['customer_id' => $order->getCustomerId()];
+        }
+
+        return [];
+    }
+
+    /**
      * Get parent amounts (discounts, tax, etc) for configurable / bundle products
      *
      * @param string $attr
