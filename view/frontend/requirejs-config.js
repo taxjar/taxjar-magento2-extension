@@ -15,11 +15,6 @@
  */
 
 var config = {
-    map: {
-        '*': {
-            taxjarModal: 'Taxjar_SalesTax/js/modal'
-        }
-    },
     config: {
         mixins: {
             'Magento_Customer/js/addressValidation': {

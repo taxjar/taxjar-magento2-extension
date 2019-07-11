@@ -18,9 +18,9 @@ define([
     'ko',
     'jquery',
     'uiRegistry',
-    'taxjarModal',
+    'Taxjar_SalesTax/js/modal',
     'Taxjar_SalesTax/js/model/address_validation_core'
-], function (ko, $, uiRegistry, taxjarModal, avCore) {
+], function (ko, $, uiRegistry, modal, avCore) {
     'use strict';
 
     return function (addressValidation) {
@@ -36,7 +36,7 @@ define([
             _create: function () {
                 var body = $('body');
                 var button = $(this.options.selectors.button, this.element);
-                var addressModal = taxjarModal({
+                var addressModal = $('#tj-suggested-addresses').modal({
                     buttons: [
                         {
                             text: $.mage.__('Edit Address'),
@@ -62,7 +62,7 @@ define([
                             }
                         }
                     ]
-                }, $('#tj-suggested-addresses'));
+                });
 
                 this.element.validation({
                     /**
@@ -84,7 +84,7 @@ define([
                         avCore.getSuggestedAddresses(addr, function (res) {
                             button.attr('disabled', false);
                             body.trigger('processStop');
-                            addressModal.openModal({'form': form});
+                            addressModal.data('mage-modal').openModal({'form': form});
                         }, function (res) {
                             button.attr('disabled', false);
                             body.trigger('processStop');
