@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.0]
+- **Customer exemption support for reporting / filing.** Sync wholesale / resale and government exempt customers for sales tax calculations, reporting, and filing. Exempt customers individually or in bulk using the customer admin grid.
+- Customer tax class "TaxJar Exempt" setting is now discouraged in favor of customer-specific exemptions. This setting will continue to skip tax calculations if needed, but we highly recommend updating your customers directly and choosing an exemption type for reporting / filing support.
+- Fix front-end form validation after saving customers in admin panel when address validation is enabled.
+- Fix JS error after a customer attempts to add / edit an address when address validation is disabled.
+- Fix product tax class scoping to specific website when syncing transactions.
+- Fix PHP warning when iterating over an empty array during tax calculation.
+
 ## [1.3.0] - 2019-05-10
 - **Address validation for TaxJar Plus.** Validate and suggest shipping addresses in the checkout process, customer address book, backend orders, and backend customer addresses. Improves accuracy of sales tax calculations.
 
