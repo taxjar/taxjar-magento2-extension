@@ -72,8 +72,8 @@ class ValidateAddressButton extends Field
                 ['componentDisabled' => true],
                 (array) $this->getData('config')
             );
-        }
 
-        $this->setData('config', $newData);
+            $this->setData('config', $newData);
+        }
     }
 }
