@@ -124,7 +124,10 @@ define([
 
             button.unbind('click').bind('click', function (e) {
                 e.preventDefault();
-                self.validateAddress($(this));
+
+                if (!button.is(':hidden')) {
+                    self.validateAddress($(this));
+                }
             });
 
             if (window.order && window.order.shippingAsBilling) {
