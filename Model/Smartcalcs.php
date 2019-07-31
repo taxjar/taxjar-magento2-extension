@@ -442,8 +442,6 @@ class Smartcalcs
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
-                    } else {
-                        $taxCode = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
                     }
 
                     if ($this->productMetadata->getEdition() == 'Enterprise') {
