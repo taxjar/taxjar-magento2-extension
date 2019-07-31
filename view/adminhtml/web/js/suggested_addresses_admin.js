@@ -118,16 +118,13 @@ define([
 
         appendButtonToOrder: function () {
             var self = this;
-            var button = $('<button class="action-basic" data-index="validateAddressButton">Validate Address</button>');
+            var button = $('<button type="button" class="action-basic" data-index="validateAddressButton">Validate Address</button>');
 
             $('[data-index="validateAddressButton"]:visible').remove();
 
             button.unbind('click').bind('click', function (e) {
                 e.preventDefault();
-
-                if (!button.is(':hidden')) {
-                    self.validateAddress($(this));
-                }
+                self.validateAddress($(this));
             });
 
             if (window.order && window.order.shippingAsBilling) {
