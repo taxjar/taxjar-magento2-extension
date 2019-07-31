@@ -118,7 +118,7 @@ define([
 
         appendButtonToOrder: function () {
             var self = this;
-            var button = $('<button class="action-basic" data-index="validateAddressButton">Validate Address</button>');
+            var button = $('<button type="button" class="action-basic" data-index="validateAddressButton">Validate Address</button>');
 
             $('[data-index="validateAddressButton"]:visible').remove();
 
