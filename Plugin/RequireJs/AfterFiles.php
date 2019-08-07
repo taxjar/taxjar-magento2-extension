@@ -18,7 +18,6 @@
 namespace Taxjar\SalesTax\Plugin\RequireJs;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\RequireJs\Config\File\Collector\Aggregated;
 use Magento\Theme\Model\Theme;
@@ -32,20 +31,12 @@ class AfterFiles
     protected $scopeConfig;
 
     /**
-     * @var State
-     */
-    protected $state;
-
-    /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param State $state
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        State $state
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->scopeConfig = $scopeConfig;
-        $this->state = $state;
     }
 
     /**
