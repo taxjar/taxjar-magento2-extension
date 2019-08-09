@@ -69,6 +69,7 @@ class AddressValidation extends Field
         if (!$this->isAuthorized()) {
             $element->setDisabled('disabled');
         }
+
         $this->_cacheElementValue($element);
 
         return parent::_getElementHtml($element) . $this->_toHtml();

@@ -130,7 +130,7 @@ class ConfigReview implements ObserverInterface
 
         if (isset($prevEnabled) && $prevEnabled != $enabled) {
             // @codingStandardsIgnoreStart
-            $this->messageManager->addErrorMessage(__('Please redeploy production mode (bin/magento deploy:mode:set production) to ensure Address Validation works correctly.'));
+            $this->messageManager->addErrorMessage(__('Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly.'));
             // @codingStandardsIgnoreEnd
         }
     }
