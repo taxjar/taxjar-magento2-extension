@@ -22,7 +22,7 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Module\ModuleListInterface;
-use Magento\Framework\Unserialize\Unserialize;
+use Magento\Framework\Serialize\Serializer\Serialize;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Debug extends Field
@@ -50,28 +50,28 @@ class Debug extends Field
     protected $productMetadata;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
+     * @var Serialize
      */
-    protected $unserialize;
+    protected $serializer;
 
     /**
      * @param Context $context
      * @param ModuleListInterface $moduleList
      * @param ProductMetadata $productMetadata
-     * @param Unserialize $unserialize
+     * @param Serialize $serializer
      * @param array $data
      */
     public function __construct(
         Context $context,
         ModuleListInterface $moduleList,
         ProductMetadata $productMetadata,
-        Unserialize $unserialize,
+        Serialize $serializer,
         array $data = []
     ) {
         $this->scopeConfig = $context->getScopeConfig();
         $this->moduleList = $moduleList;
         $this->productMetadata = $productMetadata;
-        $this->unserialize = $unserialize;
+        $this->serializer = $serializer;
         parent::__construct($context, $data);
     }
 
@@ -112,7 +112,7 @@ class Debug extends Field
         if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES)) {
             return implode(
                 ', ',
-                $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
+                $this->serializer->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
             );
         }
     }

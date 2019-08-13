@@ -22,7 +22,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Unserialize\Unserialize;
+use Magento\Framework\Serialize\Serializer\Serialize;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -64,9 +64,9 @@ class Rate
     protected $searchCriteriaBuilder;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
+     * @var Serialize
      */
-    protected $unserialize;
+    protected $serializer;
 
     /**
      * @param CacheInterface $cache
@@ -77,7 +77,7 @@ class Rate
      * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
-     * @param Unserialize $unserialize
+     * @param Serialize $serializer
      */
     public function __construct(
         CacheInterface $cache,
@@ -88,7 +88,7 @@ class Rate
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
-        Unserialize $unserialize
+        Serialize $serializer
     ) {
         $this->cache = $cache;
         $this->scopeConfig = $scopeConfig;
@@ -98,7 +98,7 @@ class Rate
         $this->regionFactory = $regionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
-        $this->unserialize = $unserialize;
+        $this->serializer = $serializer;
         return $this;
     }
 
@@ -194,7 +194,7 @@ class Rate
     private function getRegionFilter()
     {
         $filter = [];
-        $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+        $states = $this->serializer->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
         $region = $this->regionFactory->create();
 
         foreach (array_unique($states) as $state) {

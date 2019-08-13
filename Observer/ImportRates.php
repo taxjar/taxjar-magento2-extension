@@ -25,7 +25,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
-use Magento\Framework\Unserialize\Unserialize;
+use Magento\Framework\Serialize\Serializer\Serialize;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\RateFactory;
@@ -82,11 +82,6 @@ class ImportRates implements ObserverInterface
     protected $driverFile;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
-     */
-    protected $unserialize;
-
-    /**
      * @var string
      */
     protected $apiKey;
@@ -122,6 +117,11 @@ class ImportRates implements ObserverInterface
     protected $newShippingRates = [];
 
     /**
+     * @var Serialize
+     */
+    protected $serializer;
+
+    /**
      * @param ManagerInterface $eventManager
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
@@ -131,7 +131,7 @@ class ImportRates implements ObserverInterface
      * @param RuleFactory $ruleFactory
      * @param DirectoryList $directoryList
      * @param DriverFile $driverFile
-     * @param Unserialize $unserialize
+     * @param Serialize $serializer
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -143,7 +143,7 @@ class ImportRates implements ObserverInterface
         RuleFactory $ruleFactory,
         DirectoryList $directoryList,
         DriverFile $driverFile,
-        Unserialize $unserialize
+        Serialize $serializer
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -154,7 +154,7 @@ class ImportRates implements ObserverInterface
         $this->ruleFactory = $ruleFactory;
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
-        $this->unserialize = $unserialize;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -182,7 +182,7 @@ class ImportRates implements ObserverInterface
             );
             $this->_importRates();
         } else {
-            $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+            $states = $this->serializer->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
 
             if (!empty($states)) {
                 $this->_purgeRates();
@@ -247,11 +247,11 @@ class ImportRates implements ObserverInterface
                 $this->driverFile->createDirectory($dir);
             }
 
-            if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), serialize($ratesJson)) !== false) {
+            if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), $this->serializer->serialize($ratesJson)) !== false) {
                 ignore_user_abort(true);
 
                 $filename = $this->_getTempRatesFileName();
-                $ratesJson = $this->unserialize->unserialize($this->driverFile->fileGetContents($filename));
+                $ratesJson = $this->serializer->unserialize($this->driverFile->fileGetContents($filename));
 
                 // Create new TaxJar rates and rules
                 $this->_createRates($ratesJson);

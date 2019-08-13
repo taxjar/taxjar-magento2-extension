@@ -23,7 +23,7 @@ use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Framework\Unserialize\Unserialize;
+use Magento\Framework\Serialize\Serializer\Serialize;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Backend\Model\UrlInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -79,9 +79,9 @@ class Backup extends Field
     protected $searchCriteriaBuilder;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
+     * @var Serialize
      */
-    protected $unserialize;
+    protected $serializer;
 
     /**
      * @param Context $context
@@ -91,7 +91,7 @@ class Backup extends Field
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param UrlInterface $backendUrl
-     * @param Unserialize $unserialize
+     * @param Serialize $serializer
      * @param array $data
      */
     public function __construct(
@@ -102,7 +102,7 @@ class Backup extends Field
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
         UrlInterface $backendUrl,
-        Unserialize $unserialize,
+        Serialize $serializer,
         array $data = []
     ) {
         $this->cache = $context->getCache();
@@ -113,7 +113,7 @@ class Backup extends Field
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
         $this->backendUrl = $backendUrl;
-        $this->unserialize = $unserialize;
+        $this->serializer = $serializer;
 
         $region = $this->regionFactory->create();
         $regionId = $this->scopeConfig->getValue('shipping/origin/region_id');
@@ -174,7 +174,7 @@ class Backup extends Field
      */
     public function getStateList()
     {
-        $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+        $states = $this->serializer->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
         $states[] = $this->_regionCode;
         $statesHtml = '';
         $lastUpdate = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
