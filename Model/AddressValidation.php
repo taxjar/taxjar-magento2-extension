@@ -106,11 +106,9 @@ class AddressValidation implements AddressValidationInterface
         $country = null,
         $postcode = null
     ) {
-        $errorResponse = ['error' => true, 'error_msg' => 'Unable to validate your address.'];
-
         // Ensure address validation is enabled
         if (!$this->canValidateAddress()) {
-            return $errorResponse;
+            return [];
         }
 
         // Format the address to match the endpoint's naming convention
@@ -125,7 +123,7 @@ class AddressValidation implements AddressValidationInterface
 
         // Validate address data locally
         if ($this->validateInput($addr) === false) {
-            return $errorResponse;
+            return [];
         }
 
         $results = [];
@@ -168,7 +166,7 @@ class AddressValidation implements AddressValidationInterface
         $storeScope = ScopeInterface::SCOPE_STORE;
         $validateAddress = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION, $storeScope);
 
-        return (bool)$validateAddress;
+        return (bool) $validateAddress;
     }
 
     /**
@@ -242,7 +240,7 @@ class AddressValidation implements AddressValidationInterface
             return false;
         }
 
-        return $addr;
+        return true;
     }
 
     /**

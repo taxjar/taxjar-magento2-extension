@@ -73,6 +73,10 @@ function (ko, $) {
                         // Intentionally empty to prevent the form_key from being appended to the body of the request
                     }
                 }).done(function (response) {
+                    if(response.length === 0) {
+                        return;
+                    }
+
                     self.activeAddress = formattedAddr;
                     self.updateSuggestedAddresses(response);
 
