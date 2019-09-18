@@ -354,6 +354,10 @@ class Smartcalcs
     private function _hasNexus($storeId, $regionCode, $country)
     {
         if ($country == 'US') {
+            if (empty($regionCode)) {
+                return false;
+            }
+
             $nexusInRegion = $this->nexusFactory->create()->getCollection()
                 ->addStoreFilter($storeId)
                 ->addRegionCodeFilter($regionCode);
