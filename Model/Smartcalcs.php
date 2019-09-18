@@ -17,7 +17,7 @@
 
 namespace Taxjar\SalesTax\Model;
 
-use Magento\Framework\App\ProductMetadata;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClientFactory;
@@ -55,7 +55,7 @@ class Smartcalcs
     protected $taxClassRepository;
 
     /**
-     * @var \Magento\Framework\App\ProductMetadata
+     * @var \Magento\Framework\App\ProductMetadataInterface
      */
     protected $productMetadata;
 
@@ -91,7 +91,7 @@ class Smartcalcs
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface
      * @param ScopeConfigInterface $scopeConfig
      * @param ZendClientFactory $clientFactory
-     * @param ProductMetadata $productMetadata
+     * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      */
     public function __construct(
@@ -101,7 +101,7 @@ class Smartcalcs
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface,
         ScopeConfigInterface $scopeConfig,
         ZendClientFactory $clientFactory,
-        ProductMetadata $productMetadata,
+        ProductMetadataInterface $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Taxjar\SalesTax\Model\Logger $logger
