@@ -47,7 +47,7 @@ cp app/code/Taxjar/SalesTax/Test/Integration/credentials.php.dist app/code/Taxja
 Finally, run the TaxJar test suite using PHPUnit:
 
 ```
-vendor/bin/phpunit -c ~/OSS/magento2/dev/tests/integration/phpunit.xml --testsuite “Taxjar”
+vendor/bin/phpunit -c dev/tests/integration/phpunit.xml --testsuite “Taxjar”
 ```
 
 Notice that the configuration flag should include the full path to `phpunit.xml`.
