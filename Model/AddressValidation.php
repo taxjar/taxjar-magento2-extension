@@ -392,7 +392,7 @@ class AddressValidation implements AddressValidationInterface
         foreach ($simplediff as $diff) {
             if (is_array($diff)) {
                 $ret .= (!empty($diff['i']) ? '<span class="suggested-address-diff">' .
-                    implode(' ', $diff['i']) . '</span>' : '');
+                    implode(' ', $diff['i']) . '</span> ' : '');
             } else {
                 $ret .= $diff . ' ';
             }
