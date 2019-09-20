@@ -19,7 +19,7 @@
 
 namespace Taxjar\SalesTax\Test\Unit;
 
-class GetterSetterTest extends \PHPUnit_Framework_TestCase
+class GetterSetterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @param string $className
