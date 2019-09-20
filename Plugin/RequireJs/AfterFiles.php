@@ -49,13 +49,15 @@ class AfterFiles
     public function afterGetFiles(
         Aggregated $subject,
         $result,
-        Theme $theme
+        Theme $theme = null
     ) {
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
         $areaCode = '';
 
         try {
-            $areaCode = $theme->getArea();
+            if (!is_null($theme)) {
+                $areaCode = $theme->getArea();
+            }
         } catch (LocalizedException $e) {
             // no-op
         }
