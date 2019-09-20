@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.2] - 2019-09-20
+- Improve address validation error handling when missing address data.
+- Improve support for deploying production mode when address validation is enabled.
+- Fix the `hasNexus` check from succeeding if the region is empty.
+- Fix Enterprise and B2B gift card exemptions not being applied during checkout.
+- Update namespace for PHPUnit 6.x compatibility.
+
 ## [1.4.1] - 2019-07-31
 - Products set to "None" tax class will no longer pass a fully exempt `99999` tax code for calculations and transaction sync in order to support AutoFile.
 - Add description to product tax class field explaining that a TaxJar category is required to exempt products from sales tax.
@@ -130,7 +137,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.2.1...v1.3.0
