@@ -20,9 +20,9 @@ define([
     'uiComponent',
     'uiRegistry',
     'Magento_Ui/js/modal/alert',
-    'taxjarModal',
+    'Taxjar_SalesTax/js/modal',
     'Taxjar_SalesTax/js/model/address_validation_core'
-], function (ko, $, Component, uiRegistry, alert, taxjarModal, avCore) {
+], function (ko, $, Component, uiRegistry, alert, modal, avCore) {
     'use strict';
 
     return Component.extend({
@@ -46,7 +46,7 @@ define([
 
             var self = this;
 
-            this.addressModal = taxjarModal({
+            this.addressModal = $('#tj-suggested-addresses').modal({
                 buttons: [
                     {
                         text: $.mage.__('Edit Address'),
@@ -63,6 +63,7 @@ define([
                             var selectedAddressId = uiRegistry.get('addressValidation').suggestedAddressRadio();
                             var selectedAddress = addrs[selectedAddressId].address;
                             var forms = [this.data.form];
+                            var formScope = 'customer_address_form.customer_address_form.general';
 
                             if (window.order && window.order.shippingAsBilling) {
                                 forms.push($('.order-shipping-address > fieldset'));
@@ -76,11 +77,19 @@ define([
                                 forms[x].find('select[name*="[country_id]"]').val(selectedAddress.countryId);
                             }
 
+                            if (uiRegistry.get(formScope)) {
+                                uiRegistry.get(formScope + '.street.street_0').value(selectedAddress.street[0]);
+                                uiRegistry.get(formScope + '.city').value(selectedAddress.city);
+                                uiRegistry.get(formScope + '.region_id').value(selectedAddress.regionId);
+                                uiRegistry.get(formScope + '.country_id').value(selectedAddress.countryId);
+                                uiRegistry.get(formScope + '.postcode').value(selectedAddress.postcode);
+                            }
+
                             this.closeModal();
                         }
                     }
                 ]
-            }, $('#tj-suggested-addresses'));
+            });
 
             if (config.controller === 'order_create') {
                 this.appendButtonToOrder();
@@ -109,7 +118,7 @@ define([
 
         appendButtonToOrder: function () {
             var self = this;
-            var button = $('<button class="action-basic" data-index="validateAddressButton">Validate Address</button>');
+            var button = $('<button type="button" class="action-basic" data-index="validateAddressButton">Validate Address</button>');
 
             $('[data-index="validateAddressButton"]:visible').remove();
 
@@ -130,14 +139,27 @@ define([
             var body = $('body');
             button = button || $('[data-index="validateAddressButton"]:visible');
             var form = button.closest('fieldset');
+            var formScope = 'customer_address_form.customer_address_form.general';
             var formValues = $(form).serializeArray();
-            var addr = {
-                street: [this.getAddressFormValue(formValues, '[street][0]')],
-                city: this.getAddressFormValue(formValues, '[city]'),
-                regionId: this.getAddressFormValue(formValues, '[region_id]'),
-                countryId: this.getAddressFormValue(formValues, '[country_id]'),
-                postcode: this.getAddressFormValue(formValues, '[postcode]')
-            };
+            var addr = {};
+
+            if (uiRegistry.get(formScope)) {
+                addr = {
+                    street: [uiRegistry.get(formScope + '.street.street_0').value()],
+                    city: uiRegistry.get(formScope + '.city').value(),
+                    regionId: uiRegistry.get(formScope + '.region_id').value(),
+                    countryId: uiRegistry.get(formScope + '.country_id').value(),
+                    postcode: uiRegistry.get(formScope + '.postcode').value()
+                };
+            } else {
+                addr = {
+                    street: [this.getAddressFormValue(formValues, '[street][0]')],
+                    city: this.getAddressFormValue(formValues, '[city]'),
+                    regionId: this.getAddressFormValue(formValues, '[region_id]'),
+                    countryId: this.getAddressFormValue(formValues, '[country_id]'),
+                    postcode: this.getAddressFormValue(formValues, '[postcode]')
+                };
+            }
 
             button.attr('disabled', true);
             body.trigger('processStart');
@@ -145,7 +167,7 @@ define([
             avCore.getSuggestedAddresses(addr, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');
-                self.addressModal.openModal({'form': form});
+                self.addressModal.data('mage-modal').openModal({'form': form});
             }, function (res) {
                 button.attr('disabled', false);
                 body.trigger('processStop');

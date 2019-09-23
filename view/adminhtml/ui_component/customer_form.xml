@@ -17,6 +17,31 @@
  */
 -->
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="customer">
+        <field name="tj_exemption_type">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">TaxJar Exemption Type</item>
+                    <item name="source" xsi:type="string">tj_customer</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="additionalClasses" xsi:type="string">tj-exemption-type</item>
+                </item>
+            </argument>
+        </field>
+        <field name="tj_regions">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Taxjar\SalesTax\Model\Attribute\Source\Regions</item>
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">TaxJar Exempt Regions</item>
+                    <item name="source" xsi:type="string">tj_regions</item>
+                    <item name="formElement" xsi:type="string">multiselect</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="additionalClasses" xsi:type="string">tj-regions</item>
+                </item>
+            </argument>
+        </field>
+    </fieldset>
     <fieldset name="address">
         <field name="validateAddressButton" class="Taxjar\SalesTax\Ui\Component\Customer\ValidateAddressButton">
             <argument name="data" xsi:type="array">
@@ -24,7 +49,10 @@
                     <item name="id" xsi:type="string">validate-address-button</item>
                     <item name="title" xsi:type="string" translate="true">Validate Address</item>
                     <item name="dataType" xsi:type="string">text</item>
-                    <item name="formElement" xsi:type="string">button</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="component" xsi:type="string">Taxjar_SalesTax/js/form/element/input_button</item>
+                    <item name="template" xsi:type="string">ui/form/field</item>
+                    <item name="elementTmpl" xsi:type="string">Taxjar_SalesTax/form/element/input_button</item>
                     <item name="actions" xsi:type="array">
                         <item name="0" xsi:type="array">
                             <item name="targetName" xsi:type="string">addressValidation</item>

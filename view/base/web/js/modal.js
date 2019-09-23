@@ -21,7 +21,7 @@ define([
 ], function ($) {
     'use strict';
 
-    $.widget('taxjar.modal', $.mage.modal, {
+    $.widget('mage.modal', $.mage.modal, {
         data: {},
         openModal: function (data) {
             if (data) {
@@ -31,5 +31,5 @@ define([
         }
     });
 
-    return $.taxjar.modal;
+    return $.mage.modal;
 });

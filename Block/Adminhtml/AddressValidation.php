@@ -19,12 +19,18 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class AddressValidation extends Field
 {
+    /**
+     * @var \Magento\Framework\App\CacheInterface
+     */
+    protected $cache;
+
     /**
      * @var string
      */
@@ -38,13 +44,16 @@ class AddressValidation extends Field
     protected $scopeConfig;
 
     /**
+     * @param CacheInterface $cache
      * @param Context $context
      * @param array $data
      */
     public function __construct(
+        CacheInterface $cache,
         Context $context,
         array $data = []
     ) {
+        $this->cache = $cache;
         $this->scopeConfig = $context->getScopeConfig();
         parent::__construct($context, $data);
     }
@@ -61,7 +70,21 @@ class AddressValidation extends Field
             $element->setDisabled('disabled');
         }
 
+        $this->_cacheElementValue($element);
+
         return parent::_getElementHtml($element) . $this->_toHtml();
+    }
+
+    /**
+     * Cache the element value
+     *
+     * @param AbstractElement $element
+     * @return void
+     */
+    protected function _cacheElementValue(AbstractElement $element)
+    {
+        $elementValue = (string) $element->getValue();
+        $this->cache->save($elementValue, 'taxjar_salestax_config_address_validation');
     }
 
     /**

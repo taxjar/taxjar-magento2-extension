@@ -62,7 +62,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             $newOrder,
             $this->buildFromAddress($order),
             $this->buildToAddress($order),
-            $this->buildLineItems($order, $order->getAllItems())
+            $this->buildLineItems($order, $order->getAllItems()),
+            $this->buildCustomerExemption($order)
         );
 
         return $this->request;

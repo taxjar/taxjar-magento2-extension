@@ -32,8 +32,9 @@
 
   <p><b>Getting Started</b></p>
   <p><a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/nexus/index')) ?>'>Nexus Addresses</a><br/><span style='font-size: 0.9em'>Before enabling SmartCalcs, set up your nexus addresses so TaxJar knows where to collect sales tax.</span></p>
-  <p><a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/taxclass_product')) ?>'>Product Tax Classes</a><br/><span style='font-size: 0.9em'>If some of your products are tax-exempt, assign a TaxJar category tax code for new or existing product tax classes.</span></p>
-  <p><a href='http://www.taxjar.com/contact/' target='_blank'>Help & Support</a><br/><span style='font-size: 0.9em'>Need help setting up SmartCalcs? Get in touch with our Magento sales tax experts.</span></p><br/>
+  <p><a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/taxclass_product')) ?>'>Product Exemptions</a><br/><span style='font-size: 0.9em'>If some of your products are tax exempt, assign a TaxJar product tax code to new or existing product tax classes.</span></p>
+  <p><a href='<?php echo $block->escapeUrl($block->getStoreUrl('customer/index')) ?>'>Customer Exemptions</a><br/><span style='font-size: 0.9em'>If some of your customers are tax exempt, assign a TaxJar exemption type to each customer individually or multiple customers at once.</span></p>
+  <p><a href='http://www.taxjar.com/contact/' target='_blank'>Help & Support</a><br/><span style='font-size: 0.9em'>Need help setting up SmartCalcs with TaxJar? Get in touch with our Magento sales tax experts.</span></p><br/>
 
   <p><button type='button' class='scalable delete' onclick='if (window.confirm("Are you sure you want to disconnect from TaxJar? This will remove all TaxJar rates from your Magento store. If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com.")) window.location="<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/disconnect')) ?>"'><span>Disconnect TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p><br/>
 <?php } else { ?>

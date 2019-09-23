@@ -110,3 +110,4 @@ Region,Region
 "Debug Mode","Debug Mode"
 "API Token","API Token"
 "TaxJar Category Code","TaxJar Category Code"
+"Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly.","Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly."

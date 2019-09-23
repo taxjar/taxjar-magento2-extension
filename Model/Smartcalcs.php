@@ -17,7 +17,7 @@
 
 namespace Taxjar\SalesTax\Model;
 
-use Magento\Framework\App\ProductMetadata;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClientFactory;
@@ -55,7 +55,7 @@ class Smartcalcs
     protected $taxClassRepository;
 
     /**
-     * @var \Magento\Framework\App\ProductMetadata
+     * @var \Magento\Framework\App\ProductMetadataInterface
      */
     protected $productMetadata;
 
@@ -96,7 +96,7 @@ class Smartcalcs
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface
      * @param ScopeConfigInterface $scopeConfig
      * @param ZendClientFactory $clientFactory
-     * @param ProductMetadata $productMetadata
+     * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
      */
@@ -107,7 +107,7 @@ class Smartcalcs
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface,
         ScopeConfigInterface $scopeConfig,
         ZendClientFactory $clientFactory,
-        ProductMetadata $productMetadata,
+        ProductMetadataInterface $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Taxjar\SalesTax\Model\Logger $logger,
@@ -209,6 +209,7 @@ class Smartcalcs
             'shipping' => $shipping - abs($shippingDiscount),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
             'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
+            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : 0,
             'plugin' => 'magento'
         ]);
 
@@ -361,6 +362,10 @@ class Smartcalcs
     private function _hasNexus($storeId, $regionCode, $country)
     {
         if ($country == 'US') {
+            if (empty($regionCode)) {
+                return false;
+            }
+
             $nexusInRegion = $this->nexusFactory->create()->getCollection()
                 ->addStoreFilter($storeId)
                 ->addRegionCodeFilter($regionCode);
@@ -449,11 +454,9 @@ class Smartcalcs
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
-                    } else {
-                        $taxCode = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
                     }
 
-                    if ($this->productMetadata->getEdition() == 'Enterprise') {
+                    if ($this->productMetadata->getEdition() == 'Enterprise' || $this->productMetadata->getEdition() == 'B2B') {
                         if ($extensionAttributes->getProductType() == \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD) {
                             $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class',
                                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE,

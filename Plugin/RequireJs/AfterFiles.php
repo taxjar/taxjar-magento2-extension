@@ -18,9 +18,9 @@
 namespace Taxjar\SalesTax\Plugin\RequireJs;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\RequireJs\Config\File\Collector\Aggregated;
+use Magento\Theme\Model\Theme;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class AfterFiles
@@ -31,45 +31,44 @@ class AfterFiles
     protected $scopeConfig;
 
     /**
-     * @var State
-     */
-    protected $state;
-
-    /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param State $state
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        State $state
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->scopeConfig = $scopeConfig;
-        $this->state = $state;
     }
 
     /**
      * @param Aggregated $subject
-     * @param $result
+     * @param array $result
+     * @param Theme $theme
      * @return mixed
      * @throws LocalizedException
      */
     public function afterGetFiles(
         Aggregated $subject,
-        $result
+        $result,
+        Theme $theme = null
     ) {
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
+        $areaCode = '';
 
         try {
-            // If address validation is disabled, remove frontend RequireJs dependencies
-            if (!$isEnabled && $this->state->getAreaCode() == 'frontend') {
-                foreach ($result as $key => &$file) {
-                    if ($file->getModule() == 'Taxjar_SalesTax') {
-                        unset($result[$key]);
-                    }
-                }
+            if (!is_null($theme)) {
+                $areaCode = $theme->getArea();
             }
         } catch (LocalizedException $e) {
             // no-op
+        }
+
+        // If address validation is disabled, remove frontend RequireJs dependencies
+        if (!$isEnabled && $areaCode == 'frontend') {
+            foreach ($result as $key => &$file) {
+                if ($file->getModule() == 'Taxjar_SalesTax') {
+                    unset($result[$key]);
+                }
+            }
         }
 
         return $result;

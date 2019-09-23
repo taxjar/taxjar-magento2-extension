@@ -43,9 +43,9 @@ class Transaction
     protected $clientFactory;
 
     /**
-     * @var \Magento\Catalog\Model\ProductFactory
+     * @var \Magento\Catalog\Model\ProductRepository
      */
-    protected $productFactory;
+    protected $productRepository;
 
     /**
      * @var \Magento\Tax\Api\TaxClassRepositoryInterface
@@ -65,7 +65,7 @@ class Transaction
     /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
-     * @param \Magento\Catalog\Model\ProductFactory $productFactory
+     * @param \Magento\Catalog\Model\ProductRepository $productRepository
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Taxjar\SalesTax\Model\Logger $logger
@@ -74,7 +74,7 @@ class Transaction
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Taxjar\SalesTax\Model\ClientFactory $clientFactory,
-        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Catalog\Model\ProductRepository $productRepository,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Taxjar\SalesTax\Model\Logger $logger,
@@ -82,7 +82,7 @@ class Transaction
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
-        $this->productFactory = $productFactory;
+        $this->productRepository = $productRepository;
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
@@ -246,7 +246,7 @@ class Transaction
                 $lineItem['unit_price'] = $orderItem->getAmountRefunded() / $lineItem['quantity'];
             }
 
-            $product = $this->productFactory->create()->load($item->getProductId());
+            $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
             if ($product->getTaxClassId()) {
                 $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
@@ -254,14 +254,27 @@ class Transaction
                 if ($taxClass->getTjSalestaxCode()) {
                     $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
                 }
-            } else {
-                $lineItem['product_tax_code'] = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
             }
 
             $lineItems['line_items'][] = $lineItem;
         }
 
         return $lineItems;
+    }
+
+    /**
+     * Add customer_id to transaction
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    function buildCustomerExemption($order)
+    {
+        if ($order->getCustomerId()) {
+            return ['customer_id' => $order->getCustomerId()];
+        }
+
+        return [];
     }
 
     /**

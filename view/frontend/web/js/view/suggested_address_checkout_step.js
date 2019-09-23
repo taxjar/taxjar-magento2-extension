@@ -105,7 +105,7 @@ function (
         updateQuoteAddress: function (id) {
             var addrs = avCore.suggestedAddresses();
 
-            if (addrs !== undefined) {
+            if (addrs && addrs.length) {
                 var newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { custom_attributes: { suggestedAddress: true } });
 
                 // Force shipping rates to recalculate
