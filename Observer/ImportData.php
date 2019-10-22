@@ -24,7 +24,6 @@ use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Serialize\Serializer\Serialize;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\ConfigurationFactory;
@@ -75,11 +74,6 @@ class ImportData implements ObserverInterface
     protected $client;
 
     /**
-     * @var Serialize
-     */
-    private $serializer;
-
-    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param RegionFactory $regionFactory
@@ -93,8 +87,7 @@ class ImportData implements ObserverInterface
         RegionFactory $regionFactory,
         ClientFactory $clientFactory,
         ConfigurationFactory $configFactory,
-        ReinitableConfigInterface $reinitableConfig,
-        Serialize $serializer
+        ReinitableConfigInterface $reinitableConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
@@ -102,7 +95,6 @@ class ImportData implements ObserverInterface
         $this->clientFactory = $clientFactory;
         $this->configFactory = $configFactory;
         $this->reinitableConfig = $reinitableConfig;
-        $this->serializer = $serializer;
     }
 
     /**
@@ -172,7 +164,7 @@ class ImportData implements ObserverInterface
 
         $this->resourceConfig->saveConfig(
             TaxjarConfig::TAXJAR_STATES,
-            $this->serializer->serialize(explode(',', $configJson['states'])),
+            json_encode(explode(',', $configJson['states'])),
             'default',
             0
         );

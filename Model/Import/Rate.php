@@ -22,7 +22,6 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Serialize\Serializer\Serialize;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -64,11 +63,6 @@ class Rate
     protected $searchCriteriaBuilder;
 
     /**
-     * @var Serialize
-     */
-    protected $serializer;
-
-    /**
      * @param CacheInterface $cache
      * @param ScopeConfigInterface $scopeConfig
      * @param \Magento\Tax\Model\Calculation\RateFactory $rateFactory
@@ -77,7 +71,6 @@ class Rate
      * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
-     * @param Serialize $serializer
      */
     public function __construct(
         CacheInterface $cache,
@@ -87,8 +80,7 @@ class Rate
         TaxRateRepositoryInterface $rateService,
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder,
-        Serialize $serializer
+        FilterBuilder $filterBuilder
     ) {
         $this->cache = $cache;
         $this->scopeConfig = $scopeConfig;
@@ -98,7 +90,6 @@ class Rate
         $this->regionFactory = $regionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
-        $this->serializer = $serializer;
         return $this;
     }
 
@@ -194,7 +185,7 @@ class Rate
     private function getRegionFilter()
     {
         $filter = [];
-        $states = $this->serializer->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+        $states = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES), true);
         $region = $this->regionFactory->create();
 
         foreach (array_unique($states) as $state) {
