@@ -20,6 +20,7 @@ namespace Taxjar\SalesTax\Setup;
 use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Setup\EavSetup;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -54,24 +55,32 @@ class UpgradeData implements UpgradeDataInterface
     private $resourceConfig;
 
     /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
      * @param \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory
      * @param \Magento\Eav\Model\AttributeRepository $attributeRepository
      * @param Config $eavConfig
      * @param ClientFactory $clientFactory
      * @param \Magento\Config\Model\ResourceModel\Config $resourceConfig
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
         \Magento\Eav\Model\AttributeRepository $attributeRepository,
         Config $eavConfig,
         ClientFactory $clientFactory,
-        \Magento\Config\Model\ResourceModel\Config $resourceConfig
+        \Magento\Config\Model\ResourceModel\Config $resourceConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->eavSetupFactory = $eavSetupFactory;
         $this->attributeRepository = $attributeRepository;
         $this->eavConfig = $eavConfig;
         $this->client = $clientFactory->create();
         $this->resourceConfig = $resourceConfig;
+        $this->scopeConfig = $scopeConfig;
     }
 
     public function upgrade(
@@ -199,15 +208,17 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         if (version_compare($context->getVersion(), '1.0.3', '<')) {
-            $configJson = $this->client->getResource('config');
+            if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY)) {
+                $configJson = $this->client->getResource('config');
 
-            if (isset($configJson['configuration']) && isset($configJson['configuration']['states'])) {
-                $this->resourceConfig->saveConfig(
-                    TaxjarConfig::TAXJAR_STATES,
-                    json_encode(explode(',', $configJson['configuration']['states'])),
-                    'default',
-                    0
-                );
+                if (is_array($configJson) && isset($configJson['configuration']) && isset($configJson['configuration']['states'])) {
+                    $this->resourceConfig->saveConfig(
+                        TaxjarConfig::TAXJAR_STATES,
+                        json_encode(explode(',', $configJson['configuration']['states'])),
+                        'default',
+                        0
+                    );
+                }
             }
         }
     }
