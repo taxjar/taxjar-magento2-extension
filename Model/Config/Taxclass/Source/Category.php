@@ -11,14 +11,13 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2019 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Model\Config\Taxclass\Source;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Category implements \Magento\Framework\Option\ArrayInterface
 {
@@ -32,16 +31,21 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     protected $helper;
 
+    /** @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection  */
+    protected $categories;
+
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Helper\Data $helper
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        \Taxjar\SalesTax\Helper\Data $helper
+        \Taxjar\SalesTax\Helper\Data $helper,
+        \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection $categories
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->helper = $helper;
+        $this->categories = $categories;
     }
 
     /**
@@ -49,9 +53,6 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
-        $categories = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CATEGORIES), true);
-        $categories = $this->helper->sortArray($categories, 'product_tax_code', SORT_ASC);
-
         $output = [
             [
                 'label' => 'Fully Taxable',
@@ -59,10 +60,10 @@ class Category implements \Magento\Framework\Option\ArrayInterface
             ]
         ];
 
-        foreach ($categories as $category) {
+        foreach ($this->categories as $category) {
             $output[] = [
-                'label' => $category['name'] . ' (' . $category['product_tax_code'] . ')',
-                'value' => $category['product_tax_code']
+                'label' => $category->getName() . ' (' . $category->getProductTaxCode() . ')',
+                'value' => $category->getProductTaxCode()
             ];
         }
 
