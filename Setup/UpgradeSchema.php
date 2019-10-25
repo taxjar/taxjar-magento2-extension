@@ -86,5 +86,51 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->endSetup();
         }
+
+        if (version_compare($context->getVersion(), '1.0.3', '<')) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            /**
+             * Create table 'tj_product_tax_categories'
+             */
+            $table = $installer->getConnection()
+                ->newTable($installer->getTable('tj_product_tax_categories'))
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
+                    'Product Tax Code'
+                )->addColumn(
+                    'product_tax_code',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    null,
+                    ['nullable' => false, 'default' => ''],
+                    'Product Tax Code'
+                )->addColumn(
+                    'name',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => false, 'default' => ''],
+                    'Name'
+                )->addColumn(
+                    'description',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable' => false, 'default' => ''],
+                    'Description'
+                )->addColumn(
+                    'plus_only',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                    null,
+                    ['nullable' => false, 'default' => false],
+                    'Plus only'
+                )->setComment("TaxJar Product Tax Codes");
+
+            $setup->getConnection()->createTable($table);
+
+            $installer->endSetup();
+        }
     }
 }
