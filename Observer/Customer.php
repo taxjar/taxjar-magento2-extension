@@ -26,19 +26,14 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 class Customer implements ObserverInterface
 {
     /**
-     * @var \Magento\Customer\Api\AddressRepositoryInterface
-     */
-    protected $addressRepository;
-
-    /**
      * @var \Taxjar\SalesTax\Model\Client
      */
     protected $client;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var \Magento\Customer\Model\Customer
      */
-    protected $customerRepository;
+    protected $customer;
 
     /**
      * @var \Magento\Framework\Stdlib\DateTime\DateTime
@@ -61,26 +56,23 @@ class Customer implements ObserverInterface
     protected $registry;
 
     /**
-     * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
+     * @param \Magento\Customer\Model\CustomerFactory $customerFactory
      * @param \\Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      *
      */
     public function __construct(
-        \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
         \Taxjar\SalesTax\Model\ClientFactory $clientFactory,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        \Magento\Customer\Model\CustomerFactory $customerFactory,
         \Magento\Framework\Stdlib\DateTime\DateTime $date,
         \Taxjar\SalesTax\Model\Logger $logger,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Framework\Registry $registry
     ) {
-        $this->addressRepository = $addressRepository;
         $this->client = $clientFactory->create();
         $this->client->showResponseErrors(true);
-        $this->customerRepository = $customerRepository;
+        $this->customer = $customerFactory->create();
         $this->date = $date;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CUSTOMER_LOG);
         $this->region = $regionFactory->create();
@@ -106,26 +98,20 @@ class Customer implements ObserverInterface
             return;
         }
 
-        /** @var \Magento\Customer\Model\Data\Customer $customer */
-        $customer = $this->customerRepository->getById($customerId);
-        $lastSync = $customer->getCustomAttribute('tj_last_sync');
-        $regions = $customer->getCustomAttribute('tj_regions');
-        $customerAddress = $customer->getAddresses();
-        $customerAddress = reset($customerAddress);
+        /** @var \Magento\Customer\Model\Customer $customer */
+        $customer = $this->customer->load($customerId);
 
-        try {
-            $shippingAddressId = $customer->getDefaultShipping();
+        /** @var \Magento\Customer\Model\Address $customerAddress */
+        $customerAddress = $customer->getDefaultShippingAddress();
 
-            if (!empty($shippingAddressId)) {
-                $customerAddress = $this->addressRepository->getById($shippingAddressId);
-            }
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            // noop
+        if (!$customerAddress) {
+            $customerAddress = $customer->getAddresses();
+            $customerAddress = reset($customerAddress);
         }
 
         $data = [
             'customer_id' => $customer->getId(),
-            'exemption_type' => $customer->getCustomAttribute('tj_exemption_type')->getValue(),
+            'exemption_type' => $customer->getTjExemptionType(),
             'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
             'street' => '',
             'city' => '',
@@ -133,10 +119,12 @@ class Customer implements ObserverInterface
             'zip' => ''
         ];
 
+        $regions = $customer->getTjRegions();
+
         if (!empty($regions)) {
             $customerRegions = [];
 
-            foreach (explode(',', $regions->getValue()) as $region) {
+            foreach (explode(',', $regions) as $region) {
                 $customerRegions[] = [
                     'country' => 'US',
                     'state' => $this->region->load($region)->getCode()
@@ -148,15 +136,15 @@ class Customer implements ObserverInterface
 
         if ($customerAddress) {
             $data = array_merge($data, [
-                'country' => $customerAddress->getCountryId(),
-                'state' => $customerAddress->getRegion()->getRegionCode(),
+                'country' => $customerAddress->getCountry(),
+                'state' => $customerAddress->getRegionCode(),
                 'zip' => $customerAddress->getPostcode(),
                 'city' => $customerAddress->getCity(),
-                'street' => implode(", ", $customerAddress->getStreet())
+                'street' => $customerAddress->getStreetFull()
             ]);
         }
 
-        if ($eventType == 'update' && empty($lastSync)) {
+        if ($eventType == 'update' && empty($customer->getTjLastSync())) {
             try {
                 $response = $this->client->postResource('customers', $data);  //create a new customer
             } catch (LocalizedException $e) {
@@ -209,8 +197,8 @@ class Customer implements ObserverInterface
 
         if ($eventType !== 'delete' && isset($response)) {
             $this->logger->log('Successful API response: ' . json_encode($response), 'success');
-            $customer->setCustomAttribute('tj_last_sync', $this->date->timestamp());
-            $this->customerRepository->save($customer);
+            $customer->setData('tj_last_sync', $this->date->timestamp());
+            $customer->save();
         }
     }
 
