@@ -52,25 +52,33 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     protected $storeManager;
 
+    /** @var
+     * \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection
+     */
+    protected $categories;
+
     /**
      * @param Context $context
      * @param Config $resourceConfig
      * @param ReinitableConfigInterface $reinitableConfig
      * @param NexusFactory $nexusFactory
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection $categories
      */
     public function __construct(
         Context $context,
         Config $resourceConfig,
         ReinitableConfigInterface $reinitableConfig,
         NexusFactory $nexusFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection $categories
     ) {
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
         $this->eventManager = $context->getEventManager();
         $this->nexusFactory = $nexusFactory;
         $this->storeManager = $storeManager;
+        $this->categories = $categories;
         parent::__construct($context);
     }
 
@@ -112,6 +120,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
 
         $this->reinitableConfig->reinit();
         $this->_purgeNexusAddresses();
+        $this->_purgeProductTaxCategories();
 
         $this->messageManager->addSuccessMessage(__('Your TaxJar account has been disconnected.'));
 
@@ -131,5 +140,13 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
             $nexusAddress->delete();
             // @codingStandardsIgnoreEnd
         }
+    }
+
+    /**
+     * Purge product tax categories on disconnect
+     */
+    private function _purgeProductTaxCategories()
+    {
+        $this->categories->walk('delete');
     }
 }

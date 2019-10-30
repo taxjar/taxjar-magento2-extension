@@ -101,11 +101,11 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     null,
                     ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
-                    'Product Tax Code'
+                    'ID'
                 )->addColumn(
                     'product_tax_code',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    null,
+                    32,
                     ['nullable' => false, 'default' => ''],
                     'Product Tax Code'
                 )->addColumn(
@@ -126,9 +126,12 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     null,
                     ['nullable' => false, 'default' => false],
                     'Plus only'
-                )->setComment("TaxJar Product Tax Codes");
+                )->addIndex(
+                    $installer->getIdxName('tj_product_tax_categories', 'product_tax_code'),
+                    'product_tax_code'
+                )->setComment('TaxJar Product Tax Codes');
 
-            $setup->getConnection()->createTable($table);
+            $installer->getConnection()->createTable($table);
 
             $installer->endSetup();
         }

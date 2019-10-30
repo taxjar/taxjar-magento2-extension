@@ -20,24 +20,30 @@ namespace Taxjar\SalesTax\Setup;
 use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Setup\EavSetup;
-use Magento\Framework\Setup\UpgradeDataInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\UpgradeDataInterface;
 
 class UpgradeData implements UpgradeDataInterface
 {
-    private $eavSetupFactory;
     private $attributeRepository;
     private $eavConfig;
+    private $eavSetupFactory;
+    private $eventManager;
+    private $resourceConfig;
 
     public function __construct(
-        \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
         \Magento\Eav\Model\AttributeRepository $attributeRepository,
-        Config $eavConfig
+        Config $eavConfig,
+        \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Magento\Config\Model\ResourceModel\Config $resourceConfig
     ) {
-        $this->eavSetupFactory = $eavSetupFactory;
         $this->attributeRepository = $attributeRepository;
         $this->eavConfig = $eavConfig;
+        $this->eavSetupFactory = $eavSetupFactory;
+        $this->eventManager = $eventManager;
+        $this->resourceConfig = $resourceConfig;
     }
 
     public function upgrade(
@@ -162,6 +168,11 @@ class UpgradeData implements UpgradeDataInterface
                 $lastSyncCode);
             $lastSyncCodeId->setData('used_in_forms', ['adminhtml_customer',]);
             $lastSyncCodeId->getResource()->save($lastSyncCodeId);
+        }
+
+        if (version_compare($context->getVersion(), '1.0.3', '<')) {
+            $this->resourceConfig->deleteConfig('tax/taxjar/categories', 'default', '');
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
         }
     }
 }
