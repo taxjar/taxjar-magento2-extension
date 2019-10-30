@@ -135,6 +135,7 @@ class ImportCategories implements ObserverInterface
         foreach ($categoryJson as $categoryData) {
             $category = $this->categoryFactory->create();
 
+            // Load the category by product tax code to prevent creating duplicates
             $this->categoryResourceModel->load($category, $categoryData['product_tax_code'], 'product_tax_code');
             $category->setProductTaxCode($categoryData['product_tax_code']);
             $category->setName($categoryData['name']);

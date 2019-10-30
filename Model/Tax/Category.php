@@ -13,8 +13,6 @@
  * @package    Taxjar_SalesTax
  * @copyright  Copyright (c) 2019 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- *
- * @method public Tax getIdTEST()
  */
 
 namespace Taxjar\SalesTax\Model\Tax;
