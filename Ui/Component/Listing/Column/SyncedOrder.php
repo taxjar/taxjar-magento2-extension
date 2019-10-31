@@ -71,11 +71,9 @@ class SyncedOrder extends Column
                 $orderSyncDate = '';
 
                 try {
-                    $order = $this->orderRepository->get($item['entity_id']);
-
-                    if ($order->getTjSalestaxSyncDate()) {
+                    if (isset($item['tj_salestax_sync_date'])) {
                         $orderSyncDate = $this->timezone->formatDate(
-                            new \DateTime($order->getTjSalestaxSyncDate()),
+                            new \DateTime($item['tj_salestax_sync_date']),
                             \IntlDateFormatter::MEDIUM,
                             true
                         );

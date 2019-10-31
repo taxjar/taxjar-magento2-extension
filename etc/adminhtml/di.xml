@@ -10,4 +10,8 @@
             </argument>
         </arguments>
     </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <plugin name="sales_order_additional_columns" type="Taxjar\SalesTax\Plugin\AddOrderSyncDateToOrderGrid" />
+    </type>
 </config>
