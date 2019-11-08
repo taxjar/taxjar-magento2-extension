@@ -17,22 +17,18 @@
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit;
 
-class DeleteButton extends GenericButton
+class ResetButton extends GenericButton
 {
     /**
      * @return array
      */
     public function getButtonData()
     {
-        $url = $this->getUrl('taxjar/taxclass_product/delete', ['class' => $this->request->getParam('class')]);
-
         return [
-            'class' => 'delete',
-            'data_attribute' => [],
-            'id' => 'delete',
-            'label' => __('Delete Product Tax Class'),
-            'on_click' => sprintf("location.href = '%s';", $url),
-            'sort_order' => 20,
+            'label' => __('Reset'),
+            'class' => 'reset',
+            'on_click' => 'location.reload();',
+            'sort_order' => 30
         ];
     }
 }

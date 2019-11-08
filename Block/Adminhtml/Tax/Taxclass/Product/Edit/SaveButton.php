@@ -26,14 +26,14 @@ class SaveButton extends GenericButton
     {
         return [
             'label' => __('Save Product Tax Class'),
+            'on_click' => '',
             'class' => 'save primary',
             'data_attribute' => [
                 'mage-init' => ['button' => ['event' => 'save']],
                 'form-role' => 'save',
                 'url' => $this->getUrl('taxjar/taxclass_product/save')
             ],
-            'on_click' => '',
-            'sort_order' => 100,
+            'sort_order' => 40,
         ];
     }
 }

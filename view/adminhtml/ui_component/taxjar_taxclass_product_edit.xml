@@ -34,6 +34,7 @@
         <buttons>
             <button name="save" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\SaveButton"/>
             <button name="delete" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\DeleteButton"/>
+            <button name="reset" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\ResetButton"/>
             <button name="back" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\BackButton"/>
         </buttons>
         <deps>
