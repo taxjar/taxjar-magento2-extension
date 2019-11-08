@@ -30,7 +30,7 @@ class DeleteButton extends GenericButton
             'class' => 'delete',
             'data_attribute' => [],
             'id' => 'delete',
-            'label' => __('Delete'),
+            'label' => __('Delete Product Tax Class'),
             'on_click' => sprintf("location.href = '%s';", $url),
             'sort_order' => 90,
         ];

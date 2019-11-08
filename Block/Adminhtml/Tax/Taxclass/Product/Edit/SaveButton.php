@@ -25,7 +25,7 @@ class SaveButton extends GenericButton
     public function getButtonData()
     {
         return [
-            'label' => __('Save'),
+            'label' => __('Save Product Tax Class'),
             'class' => 'save primary',
             'data_attribute' => [
                 'mage-init' => ['button' => ['event' => 'save']],
