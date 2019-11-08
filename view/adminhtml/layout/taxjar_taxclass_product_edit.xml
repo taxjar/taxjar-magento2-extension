@@ -19,8 +19,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit"/>
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\Form" name="taxclass-product-edit" template="tax/taxclass/product/edit.phtml"/>
+            <uiComponent name="taxjar_taxclass_product_edit"/>
         </referenceContainer>
     </body>
 </page>

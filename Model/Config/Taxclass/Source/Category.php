@@ -19,7 +19,7 @@ namespace Taxjar\SalesTax\Model\Config\Taxclass\Source;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
-class Category implements \Magento\Framework\Option\ArrayInterface
+class Category implements \Magento\Framework\Data\OptionSourceInterface
 {
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -31,7 +31,9 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     protected $helper;
 
-    /** @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection  */
+    /**
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection
+     */
     protected $categories;
 
     /**
@@ -53,6 +55,8 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
+        $this->categories->setOrder('name', 'ASC');
+
         $output = [
             [
                 'label' => 'Fully Taxable',
@@ -61,8 +65,9 @@ class Category implements \Magento\Framework\Option\ArrayInterface
         ];
 
         foreach ($this->categories as $category) {
+            $plusOnly = $category->getPlusOnly() ? ' *(PLUS ONLY)*' : '';
             $output[] = [
-                'label' => $category->getName() . ' (' . $category->getProductTaxCode() . ')',
+                'label' => $category->getName() . ' (' . $category->getProductTaxCode() . ')' . $plusOnly,
                 'value' => $category->getProductTaxCode()
             ];
         }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">taxjar_taxclass_product_edit.taxjar_tax_taxclassproduct_data_source</item>
+            <item name="deps" xsi:type="string">taxjar_taxclass_product_edit.taxjar_tax_taxclassproduct_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Taxjar Taxclass Product Information</item>
+        <item name="config" xsi:type="array">
+            <item name="dataScope" xsi:type="string">data</item>
+            <item name="namespace" xsi:type="string">taxjar_taxclass_product_form</item>
+        </item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="save" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\SaveButton"/>
+            <button name="delete" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\DeleteButton"/>
+            <button name="back" class="Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Product\Edit\BackButton"/>
+        </buttons>
+        <deps>
+            <dep>taxjar_taxclass_product_form.taxjar_tax_taxclassproduct_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="taxjar_tax_taxclassproduct_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">Taxjar\SalesTax\Model\Tax\TaxClassProduct\DataProvider</argument>
+            <argument name="name" xsi:type="string">taxjar_tax_taxclassproduct_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">class_id</argument>
+            <argument name="requestFieldName" xsi:type="string">class</argument>
+        </argument>
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+                <item name="submit_url" path="*/*/save" xsi:type="url"/>
+            </item>
+        </argument>
+    </dataSource>
+    <fieldset name="taxjar_taxclass_product_details">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Product Tax Class Information</item>
+                <item name="sortOrder" xsi:type="number">10</item>
+            </item>
+        </argument>
+        <field name="class_name">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Class Name</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="source" xsi:type="string">class_name</item>
+                    <item name="dataScope" xsi:type="string">class_name</item>
+                </item>
+            </argument>
+        </field>
+        <field name="tj_salestax_code" component="Magento_Ui/js/form/element/ui-select">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Taxjar\SalesTax\Model\Config\Taxclass\Source\Category</item>
+                <item name="config" xsi:type="array">
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="showCheckbox" xsi:type="boolean">true</item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+            <settings>
+                <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
+                <label translate="true">TaxJar Category</label>
+                <dataScope>tj_salestax_code</dataScope>
+                <componentType>field</componentType>
+            </settings>
+        </field>
+    </fieldset>
+</form>
