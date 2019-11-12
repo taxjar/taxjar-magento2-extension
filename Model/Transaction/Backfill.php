@@ -200,8 +200,8 @@ class Backfill
         $this->logger->log(count($orders) . ' transaction(s) found');
 
         // This process can take awhile
-        @set_time_limit(0);
-        @ignore_user_abort(true);
+        set_time_limit(0);
+        ignore_user_abort(true);
 
         foreach ($orders as $order) {
             $orderTransaction = $this->orderFactory->create();

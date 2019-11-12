@@ -22,7 +22,6 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\ProductMetadata;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Module\ModuleListInterface;
-use Magento\Framework\Unserialize\Unserialize;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Debug extends Field
@@ -50,28 +49,20 @@ class Debug extends Field
     protected $productMetadata;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
-     */
-    protected $unserialize;
-
-    /**
      * @param Context $context
      * @param ModuleListInterface $moduleList
      * @param ProductMetadata $productMetadata
-     * @param Unserialize $unserialize
      * @param array $data
      */
     public function __construct(
         Context $context,
         ModuleListInterface $moduleList,
         ProductMetadata $productMetadata,
-        Unserialize $unserialize,
         array $data = []
     ) {
         $this->scopeConfig = $context->getScopeConfig();
         $this->moduleList = $moduleList;
         $this->productMetadata = $productMetadata;
-        $this->unserialize = $unserialize;
         parent::__construct($context, $data);
     }
 
@@ -110,10 +101,7 @@ class Debug extends Field
     public function getBackupStates()
     {
         if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES)) {
-            return implode(
-                ', ',
-                $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES))
-            );
+            return implode(', ', json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES), true));
         }
     }
 
