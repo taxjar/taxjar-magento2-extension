@@ -73,7 +73,6 @@ class Upgrade extends \Magento\Backend\App\AbstractAction
      */
     public function execute()
     {
-        $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH, 1, 'default', 0);
         $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, 1, 'default', 0);
         $this->reinitableConfig->reinit();
         $this->messageManager->addSuccessMessage(__('Transaction sync is now enabled.'));
