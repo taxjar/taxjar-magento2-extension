@@ -119,6 +119,10 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             $quote->getStoreId()
         );
 
+        if (!$isEnabled) {
+            return parent::collect($quote, $shippingAssignment, $total);
+        }
+
         if ($isEnabled) {
             $baseQuoteTaxDetails = $this->getQuoteTaxDetailsInterface($shippingAssignment, $total, true);
             $this->smartCalcs->getTaxForOrder($quote, $baseQuoteTaxDetails, $shippingAssignment);
