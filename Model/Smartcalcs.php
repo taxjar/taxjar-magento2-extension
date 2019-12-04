@@ -213,7 +213,7 @@ class Smartcalcs
 
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
 
-            $this->_setSessionData('order', json_encode($order, JSON_PRESERVE_ZERO_FRACTION));
+            $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
             try {
                 $response = $client->request('POST');
@@ -512,45 +512,14 @@ class Smartcalcs
      */
     private function _orderChanged($currentOrder)
     {
-        $sessionOrder = json_decode($this->_getSessionData('order'), true);
+        $sessionOrder = $this->_getSessionData('order');
+        $currentOrder = json_encode($currentOrder, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION);
 
         if ($sessionOrder) {
-            $currentOrder = $this->_roundFloats($currentOrder);
-            $sessionOrder = $this->_roundFloats($sessionOrder);
-
-            return $currentOrder != $sessionOrder;
+            return $currentOrder !== $sessionOrder;
         } else {
             return true;
         }
-    }
-
-    /**
-     * Round any floating point numbers in the order array to ensure accurate comparisons
-     *
-     * @param array $order
-     * @return array
-     */
-    private function _roundFloats($order)
-    {
-        if (isset($order['shipping'])) {
-            $order['shipping'] = round($order['shipping'],
-                \Magento\Framework\Pricing\PriceCurrencyInterface::DEFAULT_PRECISION);
-        }
-
-        if (!isset($order['line_items'])) {
-            return $order;
-        }
-
-        foreach ($order['line_items'] as $key => $lineItem) {
-            foreach ($lineItem as $name => $value) {
-                if (gettype($value) == 'double') {
-                    $order['line_items'][$key][$name] = round($value,
-                        \Magento\Framework\Pricing\PriceCurrencyInterface::DEFAULT_PRECISION);
-                }
-            }
-        }
-
-        return $order;
     }
 
     /**
