@@ -86,8 +86,9 @@ abstract class Customer implements ObserverInterface
      * @return array|null
      * @throws LocalizedException
      */
-    protected function updateTaxjar($lastSync, $data, $customerId)
+    protected function updateTaxjar($lastSync, $data)
     {
+        $customerId = $data['customer_id'];
         $response = null;
 
         if (empty($lastSync)) {

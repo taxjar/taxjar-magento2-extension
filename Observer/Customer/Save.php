@@ -47,11 +47,15 @@ class Save extends Customer
             // noop
         }
 
+        // Empty values are used to delete old address data
         $data = [
             'customer_id' => $customer->getId(),
             'exemption_type' => $customer->getTjExemptionType(),
             'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
-            'exempt_regions' => $this->getRegionsArray($customer->getTjRegions())
+            'exempt_regions' => $this->getRegionsArray($customer->getTjRegions()),
+            'zip' => '',
+            'city' => '',
+            'street' => ''
         ];
 
         if ($customerAddress) {
@@ -64,7 +68,7 @@ class Save extends Customer
             ]);
         }
 
-        $response = $this->updateTaxjar($customer->getTjLastSync(), $data, $customer->getId());
+        $response = $this->updateTaxjar($customer->getTjLastSync(), $data);
 
         if (isset($response)) {
             $this->logger->log('Successful API response: ' . json_encode($response), 'success');
