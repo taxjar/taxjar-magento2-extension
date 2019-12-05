@@ -443,6 +443,10 @@ class Smartcalcs
                         $discount = 0;
                     }
 
+                    if ($discount > $unitPrice) {
+                        $discount = $unitPrice;
+                    }
+
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
