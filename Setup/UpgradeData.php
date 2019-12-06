@@ -228,7 +228,9 @@ class UpgradeData implements UpgradeDataInterface
                     );
                 }
             }
+        }
 
+        if (version_compare($context->getVersion(), '1.0.4', '<')) {
             $this->resourceConfig->deleteConfig('tax/taxjar/categories', 'default', '');
             $this->eventManager->dispatch('taxjar_salestax_import_categories');
         }
