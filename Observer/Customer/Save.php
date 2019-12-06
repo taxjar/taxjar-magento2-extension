@@ -47,15 +47,17 @@ class Save extends Customer
             // noop
         }
 
-        // Empty values are used to delete old address data
+        // Null values are used to delete old address data
         $data = [
             'customer_id' => $customer->getId(),
             'exemption_type' => $customer->getTjExemptionType(),
             'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
             'exempt_regions' => $this->getRegionsArray($customer->getTjRegions()),
-            'zip' => '',
-            'city' => '',
-            'street' => ''
+            'country' => null,
+            'state' => null,
+            'zip' => null,
+            'city' => null,
+            'street' => null
         ];
 
         if ($customerAddress) {
