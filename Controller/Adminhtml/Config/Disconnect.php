@@ -87,7 +87,6 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, 'default', 0);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH, 'default', 0);
         $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, 'default', 0);
 
         // Erase config values with the "websites" scope
