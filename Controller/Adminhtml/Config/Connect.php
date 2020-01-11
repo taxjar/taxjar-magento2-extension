@@ -100,16 +100,11 @@ class Connect extends AbstractAction
     {
         $apiKey = (string) $this->getRequest()->getParam('api_key');
         $apiEmail = (string) $this->getRequest()->getParam('api_email');
-        $reportingAccess = (string) $this->getRequest()->getParam('reporting_access');
 
         if ($apiKey && $apiEmail && $this->isVerified($apiKey)) {
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_EMAIL, $apiEmail, 'default', 0);
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CONNECTED, 1, 'default', 0);
-
-            if ($reportingAccess == 'true') {
-                $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_TRANSACTION_AUTH, 1, 'default', 0);
-            }
 
             $this->reinitableConfig->reinit();
             $this->messageManager->addSuccessMessage(__('TaxJar account for %1 is now connected.', $apiEmail));

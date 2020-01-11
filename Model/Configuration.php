@@ -39,7 +39,6 @@ class Configuration
     const TAXJAR_PLUS                 = 'tax/taxjar/plus';
     const TAXJAR_PRODUCT_TAX_CLASSES  = 'tax/taxjar/product_tax_classes';
     const TAXJAR_STATES               = 'tax/taxjar/states';
-    const TAXJAR_TRANSACTION_AUTH     = 'tax/taxjar/transaction_auth';
     const TAXJAR_TRANSACTION_SYNC     = 'tax/taxjar/transactions';
     const TAXJAR_DEFAULT_LOG          = 'default.log';
     const TAXJAR_CALCULATIONS_LOG     = 'calculations.log';
