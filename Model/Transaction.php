@@ -191,6 +191,7 @@ class Transaction
         foreach ($items as $item) {
             $itemType = $item->getProductType();
             $parentItem = $item->getParentItem();
+            $unitPrice = (float) $item->getPrice();
 
             if (($itemType == 'simple' || $itemType == 'virtual') && $item->getParentItemId()) {
                 if (!empty($parentItem) && $parentItem->getProductType() == 'bundle') {
@@ -218,6 +219,10 @@ class Transaction
                 $discount = $parentDiscounts[$itemId] ?: $discount;
             }
 
+            if ($discount > $unitPrice) {
+                $discount = $unitPrice;
+            }
+
             if (isset($parentTaxes[$itemId])) {
                 $tax = $parentTaxes[$itemId] ?: $tax;
             }
@@ -227,7 +232,7 @@ class Transaction
                 'quantity' => (int) $item->getQtyOrdered(),
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
-                'unit_price' => (float) $item->getPrice(),
+                'unit_price' => $unitPrice,
                 'discount' => $discount,
                 'sales_tax' => $tax
             ];
