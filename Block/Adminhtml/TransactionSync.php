@@ -73,27 +73,7 @@ class TransactionSync extends PopupField
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        if (!$this->isAuthorized()) {
-            $element->setDisabled('disabled');
-        }
-
         return parent::_getElementHtml($element) . $this->_toHtml();
-    }
-
-    /**
-     * Transaction sync authorization check
-     *
-     * @return bool
-     */
-    public function isAuthorized()
-    {
-        $isAuthorized = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_AUTH);
-
-        if ($isAuthorized) {
-            return true;
-        }
-
-        return false;
     }
 
     /**

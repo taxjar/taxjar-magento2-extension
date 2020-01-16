@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.5] - 2020-01-10
+- Fix loading customer address data during admin massactions by using the CustomerRepository
+- Fix floating point comparisons when using json_encode to cache api requests
+- Fix error where discount can be less than the unit price
+- Remove unused reporting_access promo code
+
+## [1.4.4] - 2019-11-05
+- Fix code compilation in Magento version 2.1
+
+## [1.4.3] - 2019-11-01
+- Replace calls to serialize/unserialize with JSON encode/decode.
+
 ## [1.4.2] - 2019-09-20
 - Improve address validation error handling when missing address data.
 - Improve support for deploying production mode when address validation is enabled.
@@ -137,7 +149,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.3.0...v1.4.0

@@ -20,38 +20,6 @@
 ?>
 <p class='note'><span>Sync orders and refunds with TaxJar for automated sales tax reporting and filing. Complete and closed transactions sync automatically on update.</span></p><br/>
 
-<?php if (!$block->isAuthorized() && $block->isConnected()) { ?>
-    <p><button type="button" class="scalable" onclick='openPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Upgrade Your TaxJar Account", 400, 520)'><span>Start Your Free 30 Day Trial</span></button></p>
-    <p class='note'><span>TaxJar Reports &amp; AutoFile requires a <a href="https://www.taxjar.com/pricing/" target="_blank">paid subscription</a>. Start your free reporting trial today to enable transaction sync. Already a subscriber? <a href="javascript:void(0)" onclick='openPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Upgrade Your TaxJar Account", 400, 520)'>Click here.</a></span></p>
-    <script>
-        require([
-            'jquery',
-            'taxjarPopup'
-        ], function($, popup) {
-            $('#tax_taxjar_transactions').bind('DOMSubtreeModified', function(e) {
-                $(this).prop('disabled', true);
-            });
-
-            window.addEventListener('message', function(e) {
-                if (e.origin !== '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>')
-                    return;
-
-                try {
-                    var data = JSON.parse(e.data);
-                    if (data.reporting) {
-                        window.popup.postMessage('Data received', '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>');
-                        window.location = encodeURI('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/upgrade')) ?>');
-                    } else {
-                        throw 'Invalid data';
-                    }
-                } catch(e) {
-                    alert('Invalid reporting auth provided. Please try again or contact support@taxjar.com.');
-                }
-            }, false);
-        });
-    </script>
-<?php } ?>
-
 <?php if ($block->isEnabled()) { ?>
     <p><button type="button" class="scalable" onclick="openTransactionSyncModal()"><span>Sync Transactions</span></button></p>
     <script>

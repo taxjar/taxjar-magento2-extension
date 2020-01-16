@@ -164,7 +164,7 @@ class ImportData implements ObserverInterface
 
         $this->resourceConfig->saveConfig(
             TaxjarConfig::TAXJAR_STATES,
-            serialize(explode(',', $configJson['states'])),
+            json_encode(explode(',', $configJson['states'])),
             'default',
             0
         );

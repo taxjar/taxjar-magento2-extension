@@ -213,7 +213,7 @@ class Smartcalcs
 
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
 
-            $this->_setSessionData('order', json_encode($order));
+            $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
             try {
                 $response = $client->request('POST');
@@ -443,6 +443,10 @@ class Smartcalcs
                         $discount = 0;
                     }
 
+                    if ($discount > $unitPrice) {
+                        $discount = $unitPrice;
+                    }
+
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
@@ -512,10 +516,11 @@ class Smartcalcs
      */
     private function _orderChanged($currentOrder)
     {
-        $sessionOrder = json_decode($this->_getSessionData('order'), true);
+        $sessionOrder = $this->_getSessionData('order');
+        $currentOrder = json_encode($currentOrder, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION);
 
         if ($sessionOrder) {
-            return $currentOrder != $sessionOrder;
+            return $currentOrder !== $sessionOrder;
         } else {
             return true;
         }

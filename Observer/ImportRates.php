@@ -25,7 +25,6 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
-use Magento\Framework\Unserialize\Unserialize;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\RateFactory;
@@ -82,11 +81,6 @@ class ImportRates implements ObserverInterface
     protected $driverFile;
 
     /**
-     * @var \Magento\Framework\Unserialize\Unserialize
-     */
-    protected $unserialize;
-
-    /**
      * @var string
      */
     protected $apiKey;
@@ -131,7 +125,6 @@ class ImportRates implements ObserverInterface
      * @param RuleFactory $ruleFactory
      * @param DirectoryList $directoryList
      * @param DriverFile $driverFile
-     * @param Unserialize $unserialize
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -142,8 +135,7 @@ class ImportRates implements ObserverInterface
         RateFactory $rateFactory,
         RuleFactory $ruleFactory,
         DirectoryList $directoryList,
-        DriverFile $driverFile,
-        Unserialize $unserialize
+        DriverFile $driverFile
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -154,7 +146,6 @@ class ImportRates implements ObserverInterface
         $this->ruleFactory = $ruleFactory;
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
-        $this->unserialize = $unserialize;
     }
 
     /**
@@ -182,7 +173,7 @@ class ImportRates implements ObserverInterface
             );
             $this->_importRates();
         } else {
-            $states = $this->unserialize->unserialize($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES));
+            $states = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES), true);
 
             if (!empty($states)) {
                 $this->_purgeRates();
@@ -247,11 +238,11 @@ class ImportRates implements ObserverInterface
                 $this->driverFile->createDirectory($dir);
             }
 
-            if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), serialize($ratesJson)) !== false) {
+            if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), json_encode($ratesJson)) !== false) {
                 ignore_user_abort(true);
 
                 $filename = $this->_getTempRatesFileName();
-                $ratesJson = $this->unserialize->unserialize($this->driverFile->fileGetContents($filename));
+                $ratesJson = json_decode($this->driverFile->fileGetContents($filename), true);
 
                 // Create new TaxJar rates and rules
                 $this->_createRates($ratesJson);

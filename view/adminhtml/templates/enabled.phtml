@@ -18,9 +18,9 @@
 // @codingStandardsIgnoreFile
 
 ?>
-<?php if ($block->isConnected()) { ?>
-  <p class='note'><span>Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates can be used as a fallback.</span></p><br/>
+<p class='note'><span>Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates can be used as a fallback.</span></p><br/>
 
+<?php if ($block->isConnected()) { ?>
   <p><b>TaxJar Account</b></p>
   <div class='messages'>
       <div class='message message-success success'>
@@ -38,7 +38,6 @@
 
   <p><button type='button' class='scalable delete' onclick='if (window.confirm("Are you sure you want to disconnect from TaxJar? This will remove all TaxJar rates from your Magento store. If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com.")) window.location="<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/disconnect')) ?>"'><span>Disconnect TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p><br/>
 <?php } else { ?>
-  <p class='note'><span>Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates can be used as a fallback.</p><br/>
   <p><button type='button' class='scalable primary' onclick='openPopup("<?php echo $block->escapeUrl($block->getPopupUrl()) ?>", "Connect to TaxJar", 400, 500)'><span>Connect to TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p>
 
   <script>
@@ -53,7 +52,7 @@
                 var data = JSON.parse(e.data);
                 if (data.api_token && data.email) {
                     window.popup.postMessage('Data received', '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>');
-                    window.location = encodeURI('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>?api_key=' + data.api_token + '&api_email=' + data.email + '&reporting_access=' + data.reporting_access);
+                    window.location = encodeURI('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>?api_key=' + data.api_token + '&api_email=' + data.email);
                 } else {
                     throw 'Invalid data';
                 }
