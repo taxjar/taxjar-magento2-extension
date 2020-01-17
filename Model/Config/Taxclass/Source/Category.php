@@ -53,6 +53,8 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     public function toOptionArray()
     {
+        $this->categories->setOrder('name', 'ASC');
+
         $output = [
             [
                 'label' => 'Fully Taxable',
