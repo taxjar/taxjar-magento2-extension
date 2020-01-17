@@ -67,6 +67,8 @@ class Category implements \Magento\Framework\Option\ArrayInterface
             ];
         }
 
+        array_multisort(array_column($output, 'label'), SORT_ASC, $output);
+
         return $output;
     }
 }
