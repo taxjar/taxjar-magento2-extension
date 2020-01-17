@@ -96,4 +96,21 @@ class TaxClassProductCollection extends AbstractServiceCollection
 
         return $collectionItem;
     }
+
+    /**
+     * Convert collection to array
+     *
+     * @param array $arrRequiredFields
+     * @return array
+     */
+    public function toArray($arrRequiredFields = [])
+    {
+        $data = [];
+
+        foreach($this as $item) {
+            $data[$item->getClassId()] = $item->getData();
+        }
+
+        return $data;
+    }
 }

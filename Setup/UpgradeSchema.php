@@ -87,7 +87,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $installer->endSetup();
         }
 
-        if (version_compare($context->getVersion(), '1.0.3', '<')) {
+        if (version_compare($context->getVersion(), '1.0.4', '<')) {
             $installer = $setup;
             $installer->startSetup();
 
