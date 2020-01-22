@@ -238,8 +238,13 @@ class Transaction
             ];
 
             if ($type == 'refund' && method_exists($item, 'getOrderItem')) {
-                $orderItem = $item->getOrderItem();
+                $orderItem = $order->getItemById($item->getOrderItemId());
                 $lineItem['quantity'] = (int) $orderItem->getQtyRefunded();
+
+                if ($lineItem['quantity'] === 0) {
+                    continue;
+                }
+
                 $lineItem['unit_price'] = $orderItem->getAmountRefunded() / $lineItem['quantity'];
             }
 
