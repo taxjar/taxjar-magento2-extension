@@ -59,6 +59,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
 
         $refund = [
             'plugin' => 'magento',
+            'provider' => $this->getProvider($order),
             'transaction_id' => $creditmemo->getIncrementId() . '-refund',
             'transaction_reference_id' => $order->getIncrementId(),
             'transaction_date' => $creditmemo->getCreatedAt(),
