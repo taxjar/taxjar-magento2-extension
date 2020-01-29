@@ -294,11 +294,9 @@ class Transaction
             if (class_exists('\Ess\M2ePro\Model\Order')) {
                 $m2eOrder = $this->objectManager->create('\Ess\M2ePro\Model\Order');
                 $m2eOrder = $m2eOrder->load($order->getId(), 'magento_order_id');
-            }
 
-            if (isset($m2eOrder)) {
-                if (in_array($m2eOrder->getMarketplace()->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
-                    $provider = $m2eOrder->getMarketplace()->getComponentMode();
+                if (in_array($m2eOrder->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
+                    $provider = $m2eOrder->getComponentMode();
                 }
             }
         } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
