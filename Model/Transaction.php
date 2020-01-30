@@ -69,7 +69,7 @@ class Transaction
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Taxjar\SalesTax\Model\Logger $logger
-     * @param \Magento\Framework\ObjectManagerInterface $objectmanager
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -78,7 +78,7 @@ class Transaction
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Taxjar\SalesTax\Model\Logger $logger,
-        \Magento\Framework\ObjectManagerInterface $objectmanager
+        \Magento\Framework\ObjectManagerInterface $objectManager
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -86,7 +86,7 @@ class Transaction
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
-        $this->objectManager = $objectmanager;
+        $this->objectManager = $objectManager;
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
