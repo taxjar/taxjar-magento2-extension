@@ -237,7 +237,7 @@ class Transaction
                 'sales_tax' => $tax
             ];
 
-            if ($type == 'refund' && method_exists($item, 'getOrderItem')) {
+            if ($type == 'refund' && method_exists($item, 'getOrderItemId')) {
                 $orderItem = $order->getItemById($item->getOrderItemId());
                 $lineItem['quantity'] = (int) $orderItem->getQtyRefunded();
 
