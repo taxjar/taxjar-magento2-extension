@@ -90,7 +90,6 @@ class Transaction
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
-
     }
 
     /**
