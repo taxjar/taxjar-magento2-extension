@@ -286,7 +286,7 @@ class Transaction
      * @param \Magento\Sales\Model\Order $order
      * @return string
      */
-    public function getProvider($order)
+    protected function getProvider($order)
     {
         $provider = 'api';
 
