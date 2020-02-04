@@ -63,11 +63,17 @@ class Save extends Customer
         if ($customerAddress) {
             $data = array_merge($data, [
                 'country' => $customerAddress->getCountryId(),
-                'state' => $customerAddress->getRegion()->getRegionCode(),
+                'state' => '',
                 'zip' => $customerAddress->getPostcode(),
                 'city' => $customerAddress->getCity(),
                 'street' => implode(", ", $customerAddress->getStreet())
             ]);
+
+            if (get_class($customerAddress) == 'Magento\Customer\Model\Address') {
+                $data['state'] = $customerAddress->getRegionCode();
+            } elseif (get_class($customerAddress) == 'Magento\Customer\Model\Data\Address') {
+                $data['state'] = $customerAddress->getRegion()->getRegionCode();
+            }
         }
 
         $response = $this->updateTaxjar($customer->getTjLastSync(), $data);
