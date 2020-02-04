@@ -51,6 +51,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
 
         $newOrder = [
             'plugin' => 'magento',
+            'provider' => $this->getProvider($order),
             'transaction_id' => $order->getIncrementId(),
             'transaction_date' => $createdAt->format(\DateTime::ISO8601),
             'amount' => $subtotal + $shipping - abs($discount),
