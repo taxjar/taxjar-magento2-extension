@@ -63,7 +63,6 @@ class Save extends Customer
         if ($customerAddress) {
             $data = array_merge($data, [
                 'country' => $customerAddress->getCountryId(),
-                'state' => '',
                 'zip' => $customerAddress->getPostcode(),
                 'city' => $customerAddress->getCity(),
                 'street' => implode(", ", $customerAddress->getStreet())
