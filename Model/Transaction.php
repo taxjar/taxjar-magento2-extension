@@ -237,15 +237,12 @@ class Transaction
                 'sales_tax' => $tax
             ];
 
-            if ($type == 'refund' && method_exists($item, 'getOrderItemId')) {
-                $orderItem = $order->getItemById($item->getOrderItemId());
-                $lineItem['quantity'] = (int) $orderItem->getQtyRefunded();
+            if ($type == 'refund') {
+                $lineItem['quantity'] = (int) $item->getQty();
 
                 if ($lineItem['quantity'] === 0) {
                     continue;
                 }
-
-                $lineItem['unit_price'] = $orderItem->getAmountRefunded() / $lineItem['quantity'];
             }
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
