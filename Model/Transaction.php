@@ -58,12 +58,18 @@ class Transaction
     protected $client;
 
     /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Taxjar\SalesTax\Model\Logger $logger
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -71,7 +77,8 @@ class Transaction
         \Magento\Catalog\Model\ProductRepository $productRepository,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Taxjar\SalesTax\Model\Logger $logger
+        \Taxjar\SalesTax\Model\Logger $logger,
+        \Magento\Framework\ObjectManagerInterface $objectManager
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -79,6 +86,7 @@ class Transaction
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
+        $this->objectManager = $objectManager;
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
@@ -237,15 +245,12 @@ class Transaction
                 'sales_tax' => $tax
             ];
 
-            if ($type == 'refund' && method_exists($item, 'getOrderItemId')) {
-                $orderItem = $order->getItemById($item->getOrderItemId());
-                $lineItem['quantity'] = (int) $orderItem->getQtyRefunded();
+            if ($type == 'refund') {
+                $lineItem['quantity'] = (int) $item->getQty();
 
                 if ($lineItem['quantity'] === 0) {
                     continue;
                 }
-
-                $lineItem['unit_price'] = $orderItem->getAmountRefunded() / $lineItem['quantity'];
             }
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
@@ -277,6 +282,30 @@ class Transaction
         }
 
         return [];
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @return string
+     */
+    protected function getProvider($order)
+    {
+        $provider = 'api';
+
+        try {
+            if (class_exists('\Ess\M2ePro\Model\Order')) {
+                $m2eOrder = $this->objectManager->create('\Ess\M2ePro\Model\Order');
+                $m2eOrder = $m2eOrder->load($order->getId(), 'magento_order_id');
+
+                if (in_array($m2eOrder->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
+                    $provider = $m2eOrder->getComponentMode();
+                }
+            }
+        } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
+            // noop: M2e order does not exist or component mode can't be loaded
+        }
+
+        return $provider;
     }
 
     /**

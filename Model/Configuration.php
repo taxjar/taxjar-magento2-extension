@@ -21,14 +21,13 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.4.5';
+    const TAXJAR_VERSION              = '1.4.6';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
     const TAXJAR_ADDRESS_VALIDATION   = 'tax/taxjar/address_validation';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
-    const TAXJAR_CATEGORIES           = 'tax/taxjar/categories';
     const TAXJAR_CONNECTED            = 'tax/taxjar/connected';
     const TAXJAR_CUSTOMER_TAX_CLASSES = 'tax/taxjar/customer_tax_classes';
     const TAXJAR_DEBUG                = 'tax/taxjar/debug';

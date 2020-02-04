@@ -26,9 +26,6 @@
     <event name="taxjar_salestax_backfill_transactions">
         <observer name="taxjar_salestax_backfill_transactions" instance="Taxjar\SalesTax\Observer\BackfillTransactions"/>
     </event>
-    <event name="taxjar_salestax_import_categories">
-        <observer name="taxjar_salestax_import_categories" instance="Taxjar\SalesTax\Observer\ImportCategories"/>
-    </event>
     <event name="taxjar_salestax_import_data">
         <observer name="taxjar_salestax_import_data" instance="Taxjar\SalesTax\Observer\ImportData"/>
     </event>

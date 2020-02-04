@@ -20,24 +20,24 @@ namespace Taxjar\SalesTax\Setup;
 use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Setup\EavSetup;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\ModuleContextInterface;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class UpgradeData implements UpgradeDataInterface
 {
     /**
-     * @var \Magento\Eav\Setup\EavSetupFactory
-     */
-    private $eavSetupFactory;
-
-    /**
      * @var \Magento\Eav\Model\AttributeRepository
      */
     private $attributeRepository;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\Client
+     */
+    private $client;
 
     /**
      * @var Config
@@ -45,9 +45,14 @@ class UpgradeData implements UpgradeDataInterface
     private $eavConfig;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Client
+     * @var \Magento\Eav\Setup\EavSetupFactory
      */
-    private $client;
+    private $eavSetupFactory;
+
+    /**
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    private $eventManager;
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
@@ -60,25 +65,28 @@ class UpgradeData implements UpgradeDataInterface
     private $scopeConfig;
 
     /**
-     * @param \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory
      * @param \Magento\Eav\Model\AttributeRepository $attributeRepository
-     * @param Config $eavConfig
      * @param ClientFactory $clientFactory
+     * @param Config $eavConfig
+     * @param \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory
+     * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Config\Model\ResourceModel\Config $resourceConfig
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
         \Magento\Eav\Model\AttributeRepository $attributeRepository,
-        Config $eavConfig,
         ClientFactory $clientFactory,
+        Config $eavConfig,
+        \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Config\Model\ResourceModel\Config $resourceConfig,
         ScopeConfigInterface $scopeConfig
     ) {
-        $this->eavSetupFactory = $eavSetupFactory;
         $this->attributeRepository = $attributeRepository;
-        $this->eavConfig = $eavConfig;
         $this->client = $clientFactory->create();
+        $this->eavConfig = $eavConfig;
+        $this->eavSetupFactory = $eavSetupFactory;
+        $this->eventManager = $eventManager;
         $this->resourceConfig = $resourceConfig;
         $this->scopeConfig = $scopeConfig;
     }
@@ -220,6 +228,11 @@ class UpgradeData implements UpgradeDataInterface
                     );
                 }
             }
+        }
+
+        if (version_compare($context->getVersion(), '1.0.4', '<')) {
+            $this->resourceConfig->deleteConfig('tax/taxjar/categories', 'default', '');
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
         }
     }
 }
