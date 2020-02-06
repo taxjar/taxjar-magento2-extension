@@ -17,9 +17,12 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
-    <group id="default">
+    <group id="taxjar_crongroup">
         <job name="taxjar_backup_rates" instance="Taxjar\SalesTax\Observer\ImportRates" method="cron">
             <schedule>0 8 1 * *</schedule>
+        </job>
+        <job name="taxjar_product_categories" instance="Taxjar\SalesTax\Observer\ImportCategories" method="cron">
+            <schedule>30 8 1 * *</schedule>
         </job>
     </group>
 </config>
