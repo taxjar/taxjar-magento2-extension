@@ -45,6 +45,7 @@ class Configuration
     const TAXJAR_ADDRVALIDATION_LOG   = 'address_validation.log';
     const TAXJAR_CUSTOMER_LOG         = 'customers.log';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
+    const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config

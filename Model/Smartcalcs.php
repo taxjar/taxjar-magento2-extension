@@ -464,7 +464,7 @@ class Smartcalcs
                                 $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
                                 $taxCode = $giftTaxClassCode;
                             } else {
-                                $taxCode = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
+                                $taxCode = TaxjarConfig::TAXJAR_GIFT_CARD_TAX_CODE;
                             }
                         }
                     }
