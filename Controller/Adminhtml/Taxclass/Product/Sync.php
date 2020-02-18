@@ -26,7 +26,7 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
     {
         try {
             $this->_eventManager->dispatch('taxjar_salestax_import_categories');
-            $this->messageManager->addSuccessMessage(__('Product tax classes have been synced from TaxJar.'));
+            $this->messageManager->addSuccessMessage(__('Product tax categories have been synced from TaxJar.'));
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
