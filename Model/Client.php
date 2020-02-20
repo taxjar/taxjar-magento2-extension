@@ -55,15 +55,23 @@ class Client
     protected $showResponseErrors;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $tjHelper;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param RegionFactory $regionFactory
+     * @param \Taxjar\SalesTax\Helper\Data $tjHelper
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        RegionFactory $regionFactory
+        RegionFactory $regionFactory,
+        \Taxjar\SalesTax\Helper\Data $tjHelper
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->regionFactory = $regionFactory;
+        $this->tjHelper = $tjHelper;
         $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
         $region = $this->_getShippingRegion();
@@ -164,6 +172,10 @@ class Client
         // @codingStandardsIgnoreEnd
         $client->setUri($url);
         $client->setMethod($method);
+        $client->setConfig([
+            'useragent' => $this->tjHelper->getUserAgent(),
+            'referer' => $this->tjHelper->getStoreUrl()
+        ]);
         $client->setHeaders('Authorization', 'Bearer ' . $this->apiKey);
 
         return $client;

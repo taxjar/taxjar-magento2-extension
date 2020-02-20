@@ -65,6 +65,11 @@ class Smartcalcs
     protected $taxData;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $tjHelper;
+
+    /**
      * @var \Magento\Directory\Model\Country\Postcode\ConfigInterface
      */
     protected $postCodesConfig;
@@ -93,6 +98,7 @@ class Smartcalcs
      * @param ZendClientFactory $clientFactory
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
+     * @param \Taxjar\SalesTax\Helper\Data $tjHelper
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -103,6 +109,7 @@ class Smartcalcs
         ZendClientFactory $clientFactory,
         ProductMetadataInterface $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
+        \Taxjar\SalesTax\Helper\Data $tjHelper,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Taxjar\SalesTax\Model\Logger $logger
     ) {
@@ -114,6 +121,7 @@ class Smartcalcs
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
+        $this->tjHelper = $tjHelper;
         $this->postCodesConfig = $postCodesConfig;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
     }
@@ -208,6 +216,10 @@ class Smartcalcs
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
             $client->setUri(TaxjarConfig::TAXJAR_API_URL . '/magento/taxes');
+            $client->setConfig([
+                'useragent' => $this->tjHelper->getUserAgent(),
+                'referer' => $this->tjHelper->getStoreUrl()
+            ]);
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
 
