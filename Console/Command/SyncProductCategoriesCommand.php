@@ -63,7 +63,7 @@ class SyncProductCategoriesCommand extends Command
      */
     protected function configure()
     {
-        $this->setName('taxjar:product_categories:import')
+        $this->setName('taxjar:product_categories:sync')
             ->setDescription('Sync Product Tax Categories from TaxJar to Magento');
     }
 
@@ -82,10 +82,10 @@ class SyncProductCategoriesCommand extends Command
             $this->logger->console($output);
 
             $this->importCategories->execute(new \Magento\Framework\Event\Observer);
-            $output->writeln(PHP_EOL . 'Successfully imported product tax categories.');
+            $output->writeln(PHP_EOL . 'Successfully synced product tax categories.');
 
         } catch (\Exception $e) {
-            $output->writeln(PHP_EOL . '<error>Failed to import product tax categories: ' . $e->getMessage() . '</error>');
+            $output->writeln(PHP_EOL . '<error>Failed to sync product tax categories: ' . $e->getMessage() . '</error>');
         }
     }
 }
