@@ -113,6 +113,16 @@ class ImportCategories implements ObserverInterface
     }
 
     /**
+     * Execute observer action during cron job
+     *
+     * @return void
+     */
+    public function cron()
+    {
+        $this->execute(new Observer);
+    }
+
+    /**
      * Get TaxJar product categories
      *
      * @return array

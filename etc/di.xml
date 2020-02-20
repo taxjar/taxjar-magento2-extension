@@ -26,6 +26,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="SyncTransactionsCommand" xsi:type="object">Taxjar\SalesTax\Console\Command\SyncTransactionsCommand</item>
+                <item name="SyncProductCategoriesCommand" xsi:type="object">Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand</item>
             </argument>
         </arguments>
     </type>
