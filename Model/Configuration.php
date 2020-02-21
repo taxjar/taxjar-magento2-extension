@@ -21,7 +21,7 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.4.8';
+    const TAXJAR_VERSION              = '1.4.9';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';

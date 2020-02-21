@@ -22,7 +22,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Taxjar\SalesTax\Model\Logger;
-use Taxjar\Salestax\Observer\ImportCategories;
+use Taxjar\SalesTax\Observer\ImportCategories;
 
 class SyncProductCategoriesCommand extends Command
 {
