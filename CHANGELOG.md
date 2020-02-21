@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.8] - 2020-02-20
+- Update product tax categories by syncing them monthly. Also adds a "Sync from TaxJar" button and CLI command.
+- Update the gift card product tax category to be more accurate.
+- Add a custom user agent string and Referer header to all API requests.
+- Fix sorting nexus addresses by store view.
+
 ## [1.4.7] - 2020-02-04
 - Fix customer save observer when no default shipping address is present
 
@@ -157,7 +163,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.7...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.8...HEAD
+[1.4.8]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.4...v1.4.5

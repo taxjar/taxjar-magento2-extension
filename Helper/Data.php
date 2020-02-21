@@ -17,8 +17,10 @@ namespace Taxjar\SalesTax\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Data extends AbstractHelper
@@ -26,12 +28,30 @@ class Data extends AbstractHelper
     protected $request;
 
     /**
+     * @var ProductMetadataInterface
+     */
+    protected $productMetadata;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @param Context $context
      * @param Http $request
+     * @param ProductMetadataInterface $productMetadata
+     * @param StoreManagerInterface $storeManager
      */
-    public function __construct(Context $context, Http $request)
-    {
+    public function __construct(
+        Context $context,
+        Http $request,
+        ProductMetadataInterface $productMetadata,
+        StoreManagerInterface $storeManager
+    ) {
         $this->request = $request;
+        $this->productMetadata = $productMetadata;
+        $this->storeManager = $storeManager;
         parent::__construct($context);
     }
 
@@ -90,5 +110,33 @@ class Data extends AbstractHelper
         $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
         $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
         return (bool) $syncEnabled;
+    }
+
+    /**
+     * Return a custom user agent string
+     *
+     * @return string
+     */
+    public function getUserAgent()
+    {
+        $disabledFunctions = explode(',', ini_get('disable_functions'));
+        $os = !in_array('php_uname', $disabledFunctions) ? php_uname('a') : '';
+        $php = 'PHP ' . PHP_VERSION;
+        $curl = !in_array('curl_version', $disabledFunctions) ? 'cURL ' . curl_version()['version'] : '';
+        $openSSL = defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : '';
+        $magento = 'Magento ' . $this->productMetadata->getEdition() . ' ' . $this->productMetadata->getVersion();
+        $taxjar = 'Taxjar_SalesTax/' . TaxjarConfig::TAXJAR_VERSION;
+
+        return "TaxJar/Magento ($os; $php; $curl; $openSSL; $magento) $taxjar";
+    }
+
+    /**
+     * Return the base url of the current store
+     *
+     * @return string
+     */
+    public function getStoreUrl()
+    {
+        return (string) $this->storeManager->getStore()->getBaseUrl();
     }
 }
