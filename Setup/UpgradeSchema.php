@@ -135,5 +135,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->endSetup();
         }
+
+        if (version_compare($context->getVersion(), '1.0.4', '<')) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            /**
+             * Add synced date to sales_order_grid column
+             */
+            $installer->getConnection()->addColumn(
+                $installer->getTable('sales_order_grid'),
+                'tj_salestax_sync_date',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    'nullable' => true,
+                    'comment' => 'Order sync date for TaxJar'
+                ]
+            );
+
+            $installer->endSetup();
+        }
     }
 }

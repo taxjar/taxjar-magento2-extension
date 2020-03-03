@@ -10,4 +10,12 @@
             </argument>
         </arguments>
     </virtualType>
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid"
+                 type="Magento\Sales\Model\ResourceModel\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="tj_salestax_sync_date" xsi:type="string">sales_order.tj_salestax_sync_date</item>
+            </argument>
+        </arguments>
+    </virtualType>
 </config>
