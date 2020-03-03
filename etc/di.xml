@@ -33,4 +33,12 @@
     <type name="Magento\Framework\RequireJs\Config\File\Collector\Aggregated">
         <plugin name="manage_address_validation_mixins" type="Taxjar\SalesTax\Plugin\RequireJs\AfterFiles" sortOrder="100"/>
     </type>
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid"
+                 type="Magento\Sales\Model\ResourceModel\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="synced" xsi:type="string">sales_order.tj_salestax_sync_date</item>
+            </argument>
+        </arguments>
+    </virtualType>
 </config>
