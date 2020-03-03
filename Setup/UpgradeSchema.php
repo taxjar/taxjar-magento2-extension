@@ -145,7 +145,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
              */
             $installer->getConnection()->addColumn(
                 $installer->getTable('sales_order_grid'),
-                'tj_salestax_sync_date',
+                'synced',
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
                     'nullable' => true,
