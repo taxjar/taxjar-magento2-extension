@@ -18,8 +18,6 @@
 namespace Taxjar\SalesTax\Model\Transaction;
 
 use Magento\Framework\Api\Filter;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -31,6 +29,11 @@ use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 
 class Backfill
 {
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -82,8 +85,6 @@ class Backfill
     protected $logger;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param RequestInterface $request
      * @param TransactionFactory $transactionFactory
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
@@ -94,19 +95,19 @@ class Backfill
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        RequestInterface $request,
         TransactionFactory $transactionFactory,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
         Logger $logger,
+        \Magento\Backend\Block\Template\Context $context,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->request = $request;
+        $this->storeManager = $context->getStoreManager();
+        $this->scopeConfig = $context->getScopeConfig();
+        $this->request = $context->getRequest();
         $this->transactionFactory = $transactionFactory;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
@@ -136,6 +137,8 @@ class Backfill
         $statesToMatch = ['complete', 'closed'];
         $fromDate = $this->request->getParam('from_date');
         $toDate = $this->request->getParam('to_date');
+        $storeId = $this->request->getParam('store');
+        $websiteId = $this->request->getParam('website');
 
         if (isset($data['from_date'])) {
             $fromDate = $data['from_date'];
@@ -165,6 +168,26 @@ class Backfill
 
         $this->logger->log('Finding ' . implode(', ', $statesToMatch) . ' transactions from ' . $fromDate->format('m/d/Y') . ' - ' . $toDate->format('m/d/Y'));
 
+        if (is_null($storeId) && !is_null($websiteId)) {
+            $storeId = [];
+            foreach ($this->storeManager->getStores() as $store) {
+                if ($store->getWebsiteId() == $websiteId) {
+                    $storeId[] = $store->getId();
+                }
+            }
+        }
+
+        if (!is_null($storeId) && !is_empty($storeId)) {
+            $storeFilter = $this->filterBuilder->setField('store_id')
+                ->setConditionType('eq')
+                ->setValue($storeId)
+                ->create();
+
+            $storeFilterGroup = $this->filterGroupBuilder
+                ->setFilters([$storeFilter])
+                ->create();
+        }
+
         $fromDate->setTime(0, 0, 0);
         $toDate->setTime(23, 59, 59);
 
@@ -190,8 +213,14 @@ class Backfill
             ->setFilters(array_map([$this, 'orderStateFilter'], $statesToMatch))
             ->create();
 
+        $filterGroups = [$fromFilterGroup, $toFilterGroup, $stateFilterGroup];
+
+        if (isset($storeFilterGroup)) {
+            $filterGroups[] = $storeFilterGroup;
+        }
+
         $criteria = $this->searchCriteriaBuilder
-            ->setFilterGroups([$fromFilterGroup, $toFilterGroup, $stateFilterGroup])
+            ->setFilterGroups($filterGroups)
             ->create();
 
         $orderResult = $this->orderRepository->getList($criteria);

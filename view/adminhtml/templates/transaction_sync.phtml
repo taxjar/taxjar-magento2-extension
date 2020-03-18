@@ -70,7 +70,7 @@
                 $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
 
                 $.ajax({
-                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
+                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill', $block->getRequest()->getParams())) ?>',
                     method: 'GET',
                     data: {
                         from_date: fromDate,
