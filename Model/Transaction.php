@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Bundle\Model\Product\Price;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Transaction
@@ -63,6 +64,11 @@ class Transaction
     protected $objectManager;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
@@ -78,7 +84,8 @@ class Transaction
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Taxjar\SalesTax\Model\Logger $logger,
-        \Magento\Framework\ObjectManagerInterface $objectManager
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        TaxjarHelper $helper
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -87,6 +94,7 @@ class Transaction
         $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
         $this->objectManager = $objectManager;
+        $this->helper = $helper;
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);

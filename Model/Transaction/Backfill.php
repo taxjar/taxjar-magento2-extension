@@ -177,9 +177,9 @@ class Backfill
             }
         }
 
-        if (!is_null($storeId) && !is_empty($storeId)) {
+        if (!is_null($storeId) && !empty($storeId)) {
             $storeFilter = $this->filterBuilder->setField('store_id')
-                ->setConditionType('eq')
+                ->setConditionType(is_array($storeId) ? 'in' : 'eq')
                 ->setValue($storeId)
                 ->create();
 
@@ -246,6 +246,8 @@ class Backfill
                     $refundTransaction->build($order, $creditMemo);
                     $refundTransaction->push();
                 }
+            } else {
+                $this->logger->log('Order #' . $order->getIncrementId() . ' is not syncable', 'skip');
             }
         }
 
