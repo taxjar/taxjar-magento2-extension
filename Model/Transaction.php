@@ -76,6 +76,7 @@ class Transaction
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Taxjar\SalesTax\Model\Logger $logger
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param TaxjarHelper $helper
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,

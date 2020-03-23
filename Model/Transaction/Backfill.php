@@ -89,6 +89,7 @@ class Backfill
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Logger $logger
+     * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
      * @param \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder
@@ -168,6 +169,7 @@ class Backfill
 
         $this->logger->log('Finding ' . implode(', ', $statesToMatch) . ' transactions from ' . $fromDate->format('m/d/Y') . ' - ' . $toDate->format('m/d/Y'));
 
+        // If the store id is empty but the website id is defined, load stores that match the website id
         if (is_null($storeId) && !is_null($websiteId)) {
             $storeId = [];
             foreach ($this->storeManager->getStores() as $store) {
@@ -177,6 +179,7 @@ class Backfill
             }
         }
 
+        // If the store id is defined, build a filter based on it
         if (!is_null($storeId) && !empty($storeId)) {
             $storeFilter = $this->filterBuilder->setField('store_id')
                 ->setConditionType(is_array($storeId) ? 'in' : 'eq')
@@ -186,6 +189,9 @@ class Backfill
             $storeFilterGroup = $this->filterGroupBuilder
                 ->setFilters([$storeFilter])
                 ->create();
+
+            $this->logger->log('Limiting transaction sync to store id(s): ' .
+                (is_array($storeId) ? implode(',', $storeId) : $storeId));
         }
 
         $fromDate->setTime(0, 0, 0);
