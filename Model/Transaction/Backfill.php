@@ -18,6 +18,9 @@
 namespace Taxjar\SalesTax\Model\Transaction;
 
 use Magento\Framework\Api\Filter;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Store\Model\StoreManager;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -30,11 +33,6 @@ use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 class Backfill
 {
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -43,6 +41,11 @@ class Backfill
      * @var \Magento\Framework\App\RequestInterface
      */
     protected $request;
+
+    /**
+     * @var \Magento\Store\Model\StoreManager
+     */
+    protected $storeManager;
 
     /**
      * @var \Taxjar\SalesTax\Model\TransactionFactory
@@ -85,30 +88,34 @@ class Backfill
     protected $logger;
 
     /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RequestInterface $request
+     * @param StoreManager $storeManager
      * @param TransactionFactory $transactionFactory
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Logger $logger
-     * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
      * @param \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        RequestInterface $request,
+        StoreManager $storeManager,
         TransactionFactory $transactionFactory,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
         Logger $logger,
-        \Magento\Backend\Block\Template\Context $context,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
-        $this->storeManager = $context->getStoreManager();
-        $this->scopeConfig = $context->getScopeConfig();
-        $this->request = $context->getRequest();
+        $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
+        $this->storeManager = $storeManager;
         $this->transactionFactory = $transactionFactory;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
