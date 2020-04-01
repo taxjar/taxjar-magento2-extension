@@ -88,12 +88,6 @@ class SyncTransaction implements ObserverInterface
     public function execute(
         Observer $observer
     ) {
-
-        echo "\n------------------------------------------------------ \n";
-        echo "SyncTransaction called \n";
-        echo "\n------------------------------------------------------ \n";
-
-
         if ($observer->getData('order_id')) {
             $order = $this->orderRepository->get($observer->getData('order_id'));
         } else {
