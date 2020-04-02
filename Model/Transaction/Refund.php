@@ -77,8 +77,25 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         );
 
         if (isset($this->request['line_items'])) {
-            foreach ($this->request['line_items'] as $lineItem) {
+            $adjustmentFee = $creditmemo->getAdjustmentNegative();
+            $adjustmentRefund = $creditmemo->getAdjustmentPositive();
+
+            foreach ($this->request['line_items'] as $k => $lineItem) {
+                $lineItemSubtotal = $lineItem['unit_price'] * $lineItem['quantity'];
+                $this->request['line_items'][$k]['discount'] += ($adjustmentFee * ($lineItemSubtotal / $creditmemo->getSubtotal()));
                 $itemDiscounts += $lineItem['discount'];
+            }
+
+            if ($adjustmentRefund) {
+                $this->request['line_items'][] = [
+                    'id' => 'adjustment-refund',
+                    'quantity' => 1,
+                    'product_identifier' => 'adjustment-refund',
+                    'description' => 'Adjustment Refund',
+                    'unit_price' => $adjustmentRefund,
+                    'discount' => 0,
+                    'sales_tax' => 0
+                ];
             }
         }
 
