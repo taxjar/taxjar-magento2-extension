@@ -32,14 +32,6 @@ function (ko, $) {
         getSuggestedAddresses: function (addr, onDone, onFail) {
             var self = this;
 
-            // Skip if non-US shipping address
-            if (addr && addr.countryId !== 'US') {
-                if (typeof onFail === 'function') {
-                    onFail('NON_US_SHIPPING_ADDRESS');
-                }
-                return;
-            }
-
             if (addr && addr.street && addr.city && addr.regionId) {
                 var formattedAddr = {
                     'street0': addr.street[0],

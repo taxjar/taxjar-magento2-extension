@@ -106,9 +106,19 @@ class AddressValidation implements AddressValidationInterface
         $country = null,
         $postcode = null
     ) {
+        $original = [
+            'street' => [$street0],
+            'city' => $city,
+            'regionCode' => $this->getRegionById($region)->getCode(),
+            'regionId' => $region,
+            'countryId' => $country,
+            'postcode' => $postcode
+        ];
+        $results = [['id' => 0, 'address' => $original, 'changes' => $original]];
+
         // Ensure address validation is enabled
         if (!$this->canValidateAddress()) {
-            return [];
+            return $results;
         }
 
         // Format the address to match the endpoint's naming convention
@@ -123,20 +133,8 @@ class AddressValidation implements AddressValidationInterface
 
         // Validate address data locally
         if ($this->validateInput($addr) === false) {
-            return [];
+            return $results;
         }
-
-        $results = [];
-        $original = [
-            'street' => [$street0],
-            'city' => $city,
-            'regionCode' => $this->getRegionById($region)->getCode(),
-            'regionId' => $region,
-            'countryId' => $country,
-            'postcode' => $postcode
-        ];
-
-        $results[] = ['id' => 0, 'address' => $original, 'changes' => $original];
 
         // Send address to Taxjar for validation
         $response = $this->validateWithTaxjar($addr);
