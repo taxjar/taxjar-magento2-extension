@@ -70,11 +70,13 @@
                 $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
 
                 $.ajax({
-                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill', $block->getRequest()->getParams())) ?>',
+                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
                     method: 'GET',
                     data: {
                         from_date: fromDate,
-                        to_date: toDate
+                        to_date: toDate,
+                        store: '<?php echo $this->getRequest()->getParam('store') ?>',
+                        website: '<?php echo $this->getRequest()->getParam('website') ?>',
                     }
                 }).done(function(data) {
                     if (data.result) {
