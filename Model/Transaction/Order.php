@@ -168,6 +168,14 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             return false;
         }
 
+        // Check if transaction sync is disabled at the store level OR at the store AND website levels
+        $storeSyncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
+        $websiteSyncEnabled = $this->helper->isTransactionSyncEnabled($order->getStore()->getWebsiteId(), 'website');
+
+        if (!$storeSyncEnabled || (!$websiteSyncEnabled && !$storeSyncEnabled)) {
+            return false;
+        }
+
         return true;
     }
 }
