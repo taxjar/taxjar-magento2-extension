@@ -455,8 +455,8 @@ class Smartcalcs
                         $discount = 0;
                     }
 
-                    if ($discount > $unitPrice) {
-                        $discount = $unitPrice;
+                    if ($discount > ($unitPrice * $quantity)) {
+                        $discount = ($unitPrice * $quantity);
                     }
 
                     if ($item->getTaxClassKey()->getValue()) {

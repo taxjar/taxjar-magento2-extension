@@ -209,6 +209,15 @@ class Transaction
             $itemType = $item->getProductType();
             $parentItem = $item->getParentItem();
             $unitPrice = (float) $item->getPrice();
+            $quantity = (int) $item->getQtyOrdered();
+
+            if ($type == 'refund') {
+                $quantity = (int) $item->getQty();
+
+                if ($quantity === 0) {
+                    continue;
+                }
+            }
 
             if (($itemType == 'simple' || $itemType == 'virtual') && $item->getParentItemId()) {
                 if (!empty($parentItem) && $parentItem->getProductType() == 'bundle') {
@@ -236,8 +245,8 @@ class Transaction
                 $discount = $parentDiscounts[$itemId] ?: $discount;
             }
 
-            if ($discount > $unitPrice) {
-                $discount = $unitPrice;
+            if ($discount > ($unitPrice * $quantity)) {
+                $discount = ($unitPrice * $quantity);
             }
 
             if (isset($parentTaxes[$itemId])) {
@@ -246,21 +255,13 @@ class Transaction
 
             $lineItem = [
                 'id' => $itemId,
-                'quantity' => (int) $item->getQtyOrdered(),
+                'quantity' => $quantity,
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
                 'unit_price' => $unitPrice,
                 'discount' => $discount,
                 'sales_tax' => $tax
             ];
-
-            if ($type == 'refund') {
-                $lineItem['quantity'] = (int) $item->getQty();
-
-                if ($lineItem['quantity'] === 0) {
-                    continue;
-                }
-            }
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
