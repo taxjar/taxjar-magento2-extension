@@ -94,13 +94,7 @@ class SyncTransaction implements ObserverInterface
             $order = $observer->getEvent()->getOrder();
         }
 
-        $syncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId());
         $eventName = $observer->getEvent()->getName();
-
-        if (!$syncEnabled) {
-            return $this;
-        }
-
         $orderTransaction = $this->orderFactory->create();
 
         if ($orderTransaction->isSyncable($order)) {

@@ -81,13 +81,7 @@ class SyncRefund implements ObserverInterface
     ) {
         $creditmemo = $observer->getEvent()->getCreditmemo();
         $order = $creditmemo->getOrder();
-        $syncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId());
         $eventName = $observer->getEvent()->getName();
-
-        if (!$syncEnabled) {
-            return $this;
-        }
-
         $orderTransaction = $this->orderFactory->create();
 
         if ($orderTransaction->isSyncable($order)) {

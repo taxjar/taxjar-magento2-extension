@@ -34,6 +34,8 @@ function (ko, $) {
 
             // Skip if non-US shipping address
             if (addr && addr.countryId !== 'US') {
+                self.updateSuggestedAddresses([]);
+
                 if (typeof onFail === 'function') {
                     onFail('NON_US_SHIPPING_ADDRESS');
                 }
