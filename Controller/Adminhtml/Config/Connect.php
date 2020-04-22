@@ -119,7 +119,7 @@ class Connect extends AbstractAction
     }
 
     /**
-     * Verify if user is subscribed to Plus
+     * Verify if user has a valid subscription
      *
      * @param string $apiKey
      * @return bool
@@ -133,10 +133,6 @@ class Connect extends AbstractAction
             $response = $this->client->postResource('verify', ['token' => $apiKey]);
 
             if ($response['enabled'] && $response['valid']) {
-                if ($response['plus']) {
-                    $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_PLUS, true, 'default', 0);
-                }
-
                 return true;
             }
         } catch (Exception $e) {

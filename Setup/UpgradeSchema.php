@@ -135,5 +135,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->endSetup();
         }
+
+        if (version_compare($context->getVersion(), '1.0.4', '<')) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            /**
+             * Update table 'tj_product_tax_categories'
+             */
+            $installer->getConnection()->dropColumn(
+                $installer->getTable('tj_product_tax_categories'),
+                'plus_only'
+            );
+
+            $installer->endSetup();
+        }
     }
 }

@@ -86,19 +86,13 @@ class AddressValidation extends Field
     }
 
     /**
-     * TaxJar Plus authorization check
+     * TaxJar address validation authorization check
      *
      * @return bool
      */
     public function isAuthorized()
     {
-        $isAuthorized = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PLUS);
-
-        if ($isAuthorized) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
