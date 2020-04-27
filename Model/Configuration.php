@@ -35,6 +35,7 @@ class Configuration
     const TAXJAR_ENABLED              = 'tax/taxjar/enabled';
     const TAXJAR_FREIGHT_TAXABLE      = 'tax/taxjar/freight_taxable';
     const TAXJAR_LAST_UPDATE          = 'tax/taxjar/last_update';
+    const TAXJAR_PLUS                 = 'tax/taxjar/plus';
     const TAXJAR_PRODUCT_TAX_CLASSES  = 'tax/taxjar/product_tax_classes';
     const TAXJAR_STATES               = 'tax/taxjar/states';
     const TAXJAR_TRANSACTION_SYNC     = 'tax/taxjar/transactions';

@@ -92,7 +92,13 @@ class AddressValidation extends Field
      */
     public function isAuthorized()
     {
-        return true;
+        $isAuthorized = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PLUS);
+
+        if ($isAuthorized) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
