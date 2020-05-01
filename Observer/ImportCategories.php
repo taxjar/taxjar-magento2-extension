@@ -150,7 +150,6 @@ class ImportCategories implements ObserverInterface
             $category->setProductTaxCode($categoryData['product_tax_code']);
             $category->setName($categoryData['name']);
             $category->setDescription($categoryData['description']);
-            $category->setPlusOnly((strpos($categoryData['description'], '*(PLUS ONLY)*') !== false));
             $this->categoryResourceModel->save($category);
         }
     }

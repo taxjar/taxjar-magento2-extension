@@ -86,7 +86,7 @@ class AddressValidation extends Field
     }
 
     /**
-     * TaxJar Plus authorization check
+     * TaxJar address validation authorization check
      *
      * @return bool
      */
