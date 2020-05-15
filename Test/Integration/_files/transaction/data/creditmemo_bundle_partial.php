@@ -33,8 +33,9 @@ $creditmemoFactory = $objectManager->get(CreditmemoFactory::class);
 /** @var Creditmemo $creditmemo */
 $creditmemo = $creditmemoFactory->createByOrder($order, $order->getData());
 
-$creditmemo->setOrder($order);
-$creditmemo->setState(Creditmemo::STATE_OPEN);
+$creditmemo->setOrder($order)
+    ->setSubtotal(36.0)
+    ->setState(Creditmemo::STATE_OPEN);
 
 $items = $creditmemo->getAllItems();
 
