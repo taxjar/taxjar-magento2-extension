@@ -207,6 +207,13 @@ class Transaction
 
         foreach ($items as $item) {
             $itemType = $item->getProductType();
+
+            if (is_null($itemType) && method_exists($item, 'getOrderItem')) {
+                $creditMemoItem = $item;
+                $item = $item->getOrderItem();
+                $itemType = $item->getProductType();
+            }
+
             $parentItem = $item->getParentItem();
             $unitPrice = (float) $item->getPrice();
             $quantity = (int) $item->getQtyOrdered();
@@ -262,6 +269,14 @@ class Transaction
                 'discount' => $discount,
                 'sales_tax' => $tax
             ];
+
+            if ($type == 'refund' && isset($creditMemoItem)) {
+                $lineItem['quantity'] = (int) $creditMemoItem->getQty();
+
+                if ($lineItem['quantity'] === 0) {
+                    continue;
+                }
+            }
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
