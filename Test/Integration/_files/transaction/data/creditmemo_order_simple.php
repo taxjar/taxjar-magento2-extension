@@ -31,10 +31,17 @@ $creditmemoFactory = $objectManager->get(CreditmemoFactory::class);
 /** @var Creditmemo $creditmemo */
 $creditmemo = $creditmemoFactory->createByOrder($order, $order->getData());
 
-$creditmemo->setOrder($order);
-$creditmemo->setState(Creditmemo::STATE_OPEN);
-$creditmemo->setItems($creditmemo->getAllItems());
-$creditmemo->setAdjustmentPositive(50);
-$creditmemo->setAdjustmentNegative(25);
-$creditmemo->setAdjustment(25);
+$items = $creditmemo->getAllItems();
+
+foreach($items as $item) {
+    $item->setQty(3);
+}
+
+$creditmemo->setOrder($order)
+    ->setState(Creditmemo::STATE_OPEN)
+    ->setItems($items)
+    ->setSubtotal(81)
+    ->setAdjustmentPositive(25)
+    ->setAdjustmentNegative(50)
+    ->setAdjustment(-25);
 $creditmemo->save();

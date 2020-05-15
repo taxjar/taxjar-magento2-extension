@@ -83,9 +83,11 @@ class RefundTest extends \PHPUnit\Framework\TestCase
             $result = $this->transactionRefund->build($order, $creditmemo);
             $lineItems = $result['line_items'];
 
-            $this->assertEquals(1, count($lineItems), 'Number of line items is incorrect');
-            $this->assertEquals(5, $lineItems[0]['quantity'], 'Invalid quantity');
-            $this->assertEquals(33.25, $lineItems[0]['unit_price'], 'Invalid unit price');
+            $this->assertEquals(2, count($lineItems), 'Number of line items is incorrect');
+            $this->assertEquals(3, $lineItems[0]['quantity'], 'Invalid quantity');
+            $this->assertEquals(50.0, $lineItems[0]['discount'], 'Invalid discount amount');
+            $this->assertEquals("adjustment-refund", $lineItems[1]['id'], 'Adjustment refund missing');
+            $this->assertEquals(25.0, $lineItems[1]['unit_price'], 'Adjustment refund invalid');
         }
     }
 

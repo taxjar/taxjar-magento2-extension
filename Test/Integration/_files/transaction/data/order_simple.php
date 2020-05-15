@@ -27,6 +27,7 @@ $addressData = include 'address_data.php';
 $orderData = include 'order_data.php';
 $orderData['increment_id'] = '100000002';
 $qty = 5;
+$qtyRefunded = 3;
 
 $objectManager = ObjectManager::getInstance();
 
@@ -55,6 +56,7 @@ foreach($products as $product) {
     /** @var OrderItem $orderItem */
     $orderItem = $objectManager->create(OrderItem::class);
     $orderItem->setProductId($product->getId())
+        ->setQtyRefunded($qtyRefunded)
         ->setQtyOrdered($qty)
         ->setBasePrice($product->getPrice())
         ->setPrice($product->getPrice())
