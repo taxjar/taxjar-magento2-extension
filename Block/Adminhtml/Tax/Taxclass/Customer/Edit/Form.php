@@ -143,7 +143,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             [
                 'name' => 'tj_salestax_code',
                 'label' => __('TaxJar Exempt'),
-                'note' => __('Fully exempts customer groups associated with this tax class from sales tax calculations through SmartCalcs. This setting does not apply to product exemptions or backup rates. <b>Recommended: Use our new <a href="https://www.taxjar.com/guides/integrations/magento2/#customer-sales-tax-exemptions" target="_blank">customer exemptions</a> feature to exempt customer transactions for sales tax reporting and filing.</b>'),
+                'note' => __('Fully exempts customer groups associated with this tax class from sales tax calculations through the TaxJar API. This setting does not apply to product exemptions or backup rates. <b>Recommended: Use our new <a href="https://www.taxjar.com/guides/integrations/magento2/#customer-sales-tax-exemptions" target="_blank">customer exemptions</a> feature to exempt customer transactions for sales tax reporting and filing.</b>'),
                 'values' => [
                     '99999' => 'Yes',
                     '' => 'No'
