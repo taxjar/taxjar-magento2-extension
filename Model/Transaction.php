@@ -218,8 +218,8 @@ class Transaction
             $unitPrice = (float) $item->getPrice();
             $quantity = (int) $item->getQtyOrdered();
 
-            if ($type == 'refund') {
-                $quantity = (int) $item->getQty();
+            if ($type == 'refund' && isset($creditMemoItem)) {
+                $quantity = (int) $creditMemoItem->getQty();
 
                 if ($quantity === 0) {
                     continue;
@@ -269,14 +269,6 @@ class Transaction
                 'discount' => $discount,
                 'sales_tax' => $tax
             ];
-
-            if ($type == 'refund' && isset($creditMemoItem)) {
-                $lineItem['quantity'] = (int) $creditMemoItem->getQty();
-
-                if ($lineItem['quantity'] === 0) {
-                    continue;
-                }
-            }
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
