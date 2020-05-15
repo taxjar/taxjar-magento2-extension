@@ -119,7 +119,7 @@ class Connect extends AbstractAction
     }
 
     /**
-     * Verify if user is subscribed to Plus
+     * Verify if user has a valid subscription
      *
      * @param string $apiKey
      * @return bool
