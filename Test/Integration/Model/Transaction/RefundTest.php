@@ -29,7 +29,6 @@ use Magento\TestFramework\Helper\Bootstrap;
  */
 class RefundTest extends \PHPUnit\Framework\TestCase
 {
-
     /**
      * @var CleanupReservationsInterface
      */
@@ -53,30 +52,41 @@ class RefundTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/refund_test.php
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/refund_test_bundle_partial.php
      */
-    public function testBundledProductsRefund()
+    public function testBundledProductsPartialRefund()
     {
         $order = $this->order->loadByIncrementId('100000001');
 
         foreach ($order->getCreditmemosCollection() as $creditmemo) {
             $result = $this->transactionRefund->build($order, $creditmemo);
-            $this->verifyLineItems($result);
+            $lineItems = $result['line_items'];
+
+            $this->assertEquals(2, count($lineItems), 'Number of line items is incorrect');
+            $this->assertEquals(1, $lineItems[0]['quantity'], 'Invalid quantity');
+            $this->assertEquals('24-WG082-blue', $lineItems[0]['product_identifier'], 'Invalid sku.');
+            $this->assertEquals(1, $lineItems[1]['quantity'], 'Invalid quantity');
+            $this->assertEquals('24-WG084', $lineItems[1]['product_identifier'], 'Invalid sku.');
+            $this->assertArrayNotHasKey(2, $lineItems);
+            $this->assertArrayNotHasKey(3, $lineItems);
         }
     }
 
-    protected function verifyLineItems($result) {
-        $lineItems = $result['line_items'];
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/refund_test_adjustment_fee.php
+     */
+    public function testPartialRefundAdjustments()
+    {
+        $order = $this->order->loadByIncrementId('100000002');
 
-        $this->assertNotEmpty($lineItems, 'No line items exist.');
-        $this->assertEquals(2, count($lineItems), 'Number of line items is incorrect');
+        foreach ($order->getCreditmemosCollection() as $creditmemo) {
+            $result = $this->transactionRefund->build($order, $creditmemo);
+            $lineItems = $result['line_items'];
 
-        $this->assertEquals(1, $lineItems[0]['quantity'], 'quantity');
-        $this->assertEquals('24-WG082-blue', $lineItems[0]['product_identifier'], 'product_identifier (sku)');
-        $this->assertEquals(1, $lineItems[1]['quantity'], 'quantity');
-        $this->assertEquals('24-WG084', $lineItems[1]['product_identifier'], 'product_identifier (sku)');
-        $this->assertArrayNotHasKey(2, $lineItems);
-        $this->assertArrayNotHasKey(3, $lineItems);
+            $this->assertEquals(1, count($lineItems), 'Number of line items is incorrect');
+            $this->assertEquals(5, $lineItems[0]['quantity'], 'Invalid quantity');
+            $this->assertEquals(33.25, $lineItems[0]['unit_price'], 'Invalid unit price');
+        }
     }
 
     protected function tearDown()

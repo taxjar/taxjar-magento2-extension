@@ -25,6 +25,8 @@ use Magento\TestFramework\ObjectManager;
 
 $addressData = include 'address_data.php';
 $orderData = include 'order_data.php';
+$orderData['increment_id'] = '100000002';
+$qty = 5;
 
 $objectManager = ObjectManager::getInstance();
 
@@ -48,25 +50,12 @@ $payment->setMethod('checkmo')
 
 $orderItems = [];
 
-// Create the parent bundle item
-$bundleProduct = array_pop($products);
-$orderBundleItem = $objectManager->create(OrderItem::class);
-$orderBundleItem->setProductId($bundleProduct->getId())
-    ->setQtyOrdered(1)
-    ->setBasePrice($bundleProduct->getPrice())
-    ->setPrice($bundleProduct->getPrice())
-    ->setRowTotal($bundleProduct->getPrice())
-    ->setProductType($bundleProduct->getTypeId())
-    ->setName($bundleProduct->getName())
-    ->setSku($bundleProduct->getSku());
-$orderItems[] = $orderBundleItem;
-
 // Create the remaining simple items
 foreach($products as $product) {
     /** @var OrderItem $orderItem */
     $orderItem = $objectManager->create(OrderItem::class);
     $orderItem->setProductId($product->getId())
-        ->setQtyOrdered(1)
+        ->setQtyOrdered($qty)
         ->setBasePrice($product->getPrice())
         ->setPrice($product->getPrice())
         ->setRowTotal($product->getPrice())
@@ -74,11 +63,9 @@ foreach($products as $product) {
         ->setName($product->getName())
         ->setSku($product->getSku());
 
-    if ($product->getTypeId() == 'simple') {
-        $orderItem->setParentItem($orderBundleItem);
-    }
-
     $orderItems[] = $orderItem;
+
+    break;
 }
 
 /** @var Order $order */

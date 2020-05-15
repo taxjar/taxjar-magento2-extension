@@ -19,5 +19,5 @@ require 'data/cleanup.php';
 require 'data/product_simple.php';
 require 'data/product_bundle.php';
 require 'data/order_bundle.php';
-require 'data/invoice_bundle.php';
+require 'data/invoice.php';
 require 'data/creditmemo_bundle_partial.php';
