@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.5.1] - 2020-05-15
+- SmartCalcs Sales Tax API is now simplified to TaxJar Sales Tax API or TaxJar API
+- Added integration tests for orders and refunds (adjustment fees and bundled products)
+- Fix for refund adjustments at the line item level
+- Fix for partial refunds of bundled products
+
 ## [1.5.0] - 2020-05-01
 - Fix a bug where customer_id was passed as 0 instead of an empty string
 - Update product tax categories to remove the plus_only flag
@@ -175,7 +181,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.10...v1.5.0
 [1.4.10]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.8...v1.4.9
