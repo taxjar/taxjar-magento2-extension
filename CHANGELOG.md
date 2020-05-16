@@ -182,7 +182,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
 [Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.1...HEAD
-[1.5.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.0...v1.5.1
+[1.5.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.10...v1.5.0
 [1.4.10]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.8...v1.4.9
