@@ -26,9 +26,6 @@
     <event name="taxjar_salestax_backfill_transactions">
         <observer name="taxjar_salestax_backfill_transactions" instance="Taxjar\SalesTax\Observer\BackfillTransactions"/>
     </event>
-    <event name="taxjar_salestax_import_categories">
-        <observer name="taxjar_salestax_import_categories" instance="Taxjar\SalesTax\Observer\ImportCategories"/>
-    </event>
     <event name="taxjar_salestax_import_data">
         <observer name="taxjar_salestax_import_data" instance="Taxjar\SalesTax\Observer\ImportData"/>
     </event>
@@ -38,13 +35,10 @@
     <event name="controller_action_predispatch">
         <observer name="taxjar_salestax_predispatch_admin_action_controller_observer" instance="Taxjar\SalesTax\Observer\AdminNotifications"/>
     </event>
-    <event name="customer_save_after_data_object">
-        <observer name="taxjar_salestax_customer_save_after_data_object" instance="Taxjar\SalesTax\Observer\Customer"/>
+    <event name="customer_save_before">
+        <observer name="taxjar_salestax_customer_save_before" instance="Taxjar\SalesTax\Observer\Customer\Save"/>
     </event>
     <event name="customer_delete_before">
-        <observer name="taxjar_salestax_customer_delete_before" instance="Taxjar\SalesTax\Observer\Customer"/>
-    </event>
-    <event name="customer_address_save_after">
-        <observer name="taxjar_salestax_customer_address_save_after" instance="Taxjar\SalesTax\Observer\Customer"/>
+        <observer name="taxjar_salestax_customer_delete_before" instance="Taxjar\SalesTax\Observer\Customer\Delete"/>
     </event>
 </config>

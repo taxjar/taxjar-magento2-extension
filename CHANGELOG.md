@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.5.1] - 2020-05-15
+- SmartCalcs Sales Tax API is now simplified to TaxJar Sales Tax API or TaxJar API
+- Added integration tests for orders and refunds (adjustment fees and bundled products)
+- Fix for refund adjustments at the line item level
+- Fix for partial refunds of bundled products
+
+## [1.5.0] - 2020-05-01
+- Fix a bug where customer_id was passed as 0 instead of an empty string
+- Update product tax categories to remove the plus_only flag
+
+## [1.4.10] - 2020-04-16
+- Fix transaction sync not respecting website/store scope when backfilling transactions
+- Fix the max discount per line item ignoring line item quantities
+- Fix international address validation for logged in customers with a saved address
+
+## [1.4.9] - 2020-02-21
+- Fix typo in use statement in class SyncProductCategoriesCommand.
+
+## [1.4.8] - 2020-02-20
+- Update product tax categories by syncing them monthly. Also adds a "Sync from TaxJar" button and CLI command.
+- Update the gift card product tax category to be more accurate.
+- Add a custom user agent string and Referer header to all API requests.
+- Fix sorting nexus addresses by store view.
+
+## [1.4.7] - 2020-02-04
+- Fix customer save observer when no default shipping address is present
+
+## [1.4.6] - 2020-02-03
+- Improve support for M2ePro users when syncing multi-channel orders to TaxJar
+- Improve storing product tax categories by storing them in their own table
+- Fix several issues when issuing multiple credit memos for unshipped orders
+
+## [1.4.5] - 2020-01-10
+- Fix loading customer address data during admin massactions by using the CustomerRepository
+- Fix floating point comparisons when using json_encode to cache api requests
+- Fix error where discount can be less than the unit price
+- Remove unused reporting_access promo code
+
+## [1.4.4] - 2019-11-05
+- Fix code compilation in Magento version 2.1
+
+## [1.4.3] - 2019-11-01
+- Replace calls to serialize/unserialize with JSON encode/decode.
+
 ## [1.4.2] - 2019-09-20
 - Improve address validation error handling when missing address data.
 - Improve support for deploying production mode when address validation is enabled.
@@ -137,7 +181,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.10...v1.5.0
+[1.4.10]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.9...v1.4.10
+[1.4.9]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.8...v1.4.9
+[1.4.8]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.3.0...v1.4.0

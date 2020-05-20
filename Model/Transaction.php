@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Bundle\Model\Product\Price;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Transaction
@@ -58,12 +59,24 @@ class Transaction
     protected $client;
 
     /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $helper;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
      * @param \Taxjar\SalesTax\Model\Logger $logger
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param TaxjarHelper $helper
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -71,7 +84,9 @@ class Transaction
         \Magento\Catalog\Model\ProductRepository $productRepository,
         \Magento\Directory\Model\RegionFactory $regionFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Taxjar\SalesTax\Model\Logger $logger
+        \Taxjar\SalesTax\Model\Logger $logger,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        TaxjarHelper $helper
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -79,6 +94,8 @@ class Transaction
         $this->regionFactory = $regionFactory;
         $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
+        $this->objectManager = $objectManager;
+        $this->helper = $helper;
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
@@ -190,7 +207,24 @@ class Transaction
 
         foreach ($items as $item) {
             $itemType = $item->getProductType();
+
+            if (is_null($itemType) && method_exists($item, 'getOrderItem')) {
+                $creditMemoItem = $item;
+                $item = $item->getOrderItem();
+                $itemType = $item->getProductType();
+            }
+
             $parentItem = $item->getParentItem();
+            $unitPrice = (float) $item->getPrice();
+            $quantity = (int) $item->getQtyOrdered();
+
+            if ($type == 'refund' && isset($creditMemoItem)) {
+                $quantity = (int) $creditMemoItem->getQty();
+
+                if ($quantity === 0) {
+                    continue;
+                }
+            }
 
             if (($itemType == 'simple' || $itemType == 'virtual') && $item->getParentItemId()) {
                 if (!empty($parentItem) && $parentItem->getProductType() == 'bundle') {
@@ -218,25 +252,23 @@ class Transaction
                 $discount = $parentDiscounts[$itemId] ?: $discount;
             }
 
+            if ($discount > ($unitPrice * $quantity)) {
+                $discount = ($unitPrice * $quantity);
+            }
+
             if (isset($parentTaxes[$itemId])) {
                 $tax = $parentTaxes[$itemId] ?: $tax;
             }
 
             $lineItem = [
                 'id' => $itemId,
-                'quantity' => (int) $item->getQtyOrdered(),
+                'quantity' => $quantity,
                 'product_identifier' => $item->getSku(),
                 'description' => $item->getName(),
-                'unit_price' => (float) $item->getPrice(),
+                'unit_price' => $unitPrice,
                 'discount' => $discount,
                 'sales_tax' => $tax
             ];
-
-            if ($type == 'refund' && method_exists($item, 'getOrderItem')) {
-                $orderItem = $item->getOrderItem();
-                $lineItem['quantity'] = (int) $orderItem->getQtyRefunded();
-                $lineItem['unit_price'] = $orderItem->getAmountRefunded() / $lineItem['quantity'];
-            }
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
@@ -267,6 +299,30 @@ class Transaction
         }
 
         return [];
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     * @return string
+     */
+    protected function getProvider($order)
+    {
+        $provider = 'api';
+
+        try {
+            if (class_exists('\Ess\M2ePro\Model\Order')) {
+                $m2eOrder = $this->objectManager->create('\Ess\M2ePro\Model\Order');
+                $m2eOrder = $m2eOrder->load($order->getId(), 'magento_order_id');
+
+                if (in_array($m2eOrder->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
+                    $provider = $m2eOrder->getComponentMode();
+                }
+            }
+        } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
+            // noop: M2e order does not exist or component mode can't be loaded
+        }
+
+        return $provider;
     }
 
     /**

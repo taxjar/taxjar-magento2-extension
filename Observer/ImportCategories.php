@@ -19,12 +19,13 @@ namespace Taxjar\SalesTax\Observer;
 
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\ConfigurationFactory;
+use Taxjar\SalesTax\Model\ResourceModel\Tax\Category;
+use Taxjar\SalesTax\Model\Tax\CategoryFactory;
 
 class ImportCategories implements ObserverInterface
 {
@@ -37,11 +38,6 @@ class ImportCategories implements ObserverInterface
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     protected $resourceConfig;
-
-    /**
-     * @var \Magento\Framework\App\Config\ReinitableConfigInterface
-     */
-    protected $reinitableConfig;
 
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
@@ -64,24 +60,37 @@ class ImportCategories implements ObserverInterface
     protected $client;
 
     /**
+     * @var \Taxjar\SalesTax\Model\Tax\CategoryFactory
+     */
+    protected $categoryFactory;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category
+     */
+    protected $categoryResourceModel;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param ClientFactory $clientFactory
      * @param ConfigurationFactory $configFactory
-     * @param ReinitableConfigInterface $reinitableConfig
+     * @param CategoryFactory $categoryFactory
+     * @param Category $categoryResourceModel
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
         ClientFactory $clientFactory,
         ConfigurationFactory $configFactory,
-        ReinitableConfigInterface $reinitableConfig
+        CategoryFactory $categoryFactory,
+        Category $categoryResourceModel
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
         $this->clientFactory = $clientFactory;
         $this->configFactory = $configFactory;
-        $this->reinitableConfig = $reinitableConfig;
+        $this->categoryFactory = $categoryFactory;
+        $this->categoryResourceModel = $categoryResourceModel;
     }
 
     /**
@@ -104,9 +113,19 @@ class ImportCategories implements ObserverInterface
     }
 
     /**
+     * Execute observer action during cron job
+     *
+     * @return void
+     */
+    public function cron()
+    {
+        $this->execute(new Observer);
+    }
+
+    /**
      * Get TaxJar product categories
      *
-     * @return string
+     * @return array
      */
     private function _getCategoryJson()
     {
@@ -122,7 +141,16 @@ class ImportCategories implements ObserverInterface
     private function _importCategories()
     {
         $categoryJson = $this->_getCategoryJson();
-        $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_CATEGORIES, json_encode($categoryJson), 'default', 0);
-        $this->reinitableConfig->reinit();
+
+        foreach ($categoryJson as $categoryData) {
+            $category = $this->categoryFactory->create();
+
+            // Load the category by product tax code to prevent creating duplicates
+            $this->categoryResourceModel->load($category, $categoryData['product_tax_code'], 'product_tax_code');
+            $category->setProductTaxCode($categoryData['product_tax_code']);
+            $category->setName($categoryData['name']);
+            $category->setDescription($categoryData['description']);
+            $this->categoryResourceModel->save($category);
+        }
     }
 }

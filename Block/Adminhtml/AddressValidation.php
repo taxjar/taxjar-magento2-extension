@@ -19,7 +19,6 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
-use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -44,16 +43,15 @@ class AddressValidation extends Field
     protected $scopeConfig;
 
     /**
-     * @param CacheInterface $cache
+     * @param \Magento\Framework\App\CacheInterface $cache
      * @param Context $context
      * @param array $data
      */
     public function __construct(
-        CacheInterface $cache,
         Context $context,
         array $data = []
     ) {
-        $this->cache = $cache;
+        $this->cache = $context->getCache();
         $this->scopeConfig = $context->getScopeConfig();
         parent::__construct($context, $data);
     }
@@ -88,7 +86,7 @@ class AddressValidation extends Field
     }
 
     /**
-     * TaxJar Plus authorization check
+     * TaxJar address validation authorization check
      *
      * @return bool
      */

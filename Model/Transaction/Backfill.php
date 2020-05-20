@@ -20,6 +20,7 @@ namespace Taxjar\SalesTax\Model\Transaction;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Store\Model\StoreManager;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -40,6 +41,11 @@ class Backfill
      * @var \Magento\Framework\App\RequestInterface
      */
     protected $request;
+
+    /**
+     * @var \Magento\Store\Model\StoreManager
+     */
+    protected $storeManager;
 
     /**
      * @var \Taxjar\SalesTax\Model\TransactionFactory
@@ -84,6 +90,7 @@ class Backfill
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param RequestInterface $request
+     * @param StoreManager $storeManager
      * @param TransactionFactory $transactionFactory
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
@@ -96,6 +103,7 @@ class Backfill
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         RequestInterface $request,
+        StoreManager $storeManager,
         TransactionFactory $transactionFactory,
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
@@ -107,6 +115,7 @@ class Backfill
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
+        $this->storeManager = $storeManager;
         $this->transactionFactory = $transactionFactory;
         $this->orderFactory = $orderFactory;
         $this->refundFactory = $refundFactory;
@@ -136,6 +145,8 @@ class Backfill
         $statesToMatch = ['complete', 'closed'];
         $fromDate = $this->request->getParam('from_date');
         $toDate = $this->request->getParam('to_date');
+        $storeId = $this->request->getParam('store');
+        $websiteId = $this->request->getParam('website');
 
         if (isset($data['from_date'])) {
             $fromDate = $data['from_date'];
@@ -165,6 +176,31 @@ class Backfill
 
         $this->logger->log('Finding ' . implode(', ', $statesToMatch) . ' transactions from ' . $fromDate->format('m/d/Y') . ' - ' . $toDate->format('m/d/Y'));
 
+        // If the store id is empty but the website id is defined, load stores that match the website id
+        if (is_null($storeId) && !is_null($websiteId)) {
+            $storeId = [];
+            foreach ($this->storeManager->getStores() as $store) {
+                if ($store->getWebsiteId() == $websiteId) {
+                    $storeId[] = $store->getId();
+                }
+            }
+        }
+
+        // If the store id is defined, build a filter based on it
+        if (!is_null($storeId) && !empty($storeId)) {
+            $storeFilter = $this->filterBuilder->setField('store_id')
+                ->setConditionType(is_array($storeId) ? 'in' : 'eq')
+                ->setValue($storeId)
+                ->create();
+
+            $storeFilterGroup = $this->filterGroupBuilder
+                ->setFilters([$storeFilter])
+                ->create();
+
+            $this->logger->log('Limiting transaction sync to store id(s): ' .
+                (is_array($storeId) ? implode(',', $storeId) : $storeId));
+        }
+
         $fromDate->setTime(0, 0, 0);
         $toDate->setTime(23, 59, 59);
 
@@ -190,8 +226,14 @@ class Backfill
             ->setFilters(array_map([$this, 'orderStateFilter'], $statesToMatch))
             ->create();
 
+        $filterGroups = [$fromFilterGroup, $toFilterGroup, $stateFilterGroup];
+
+        if (isset($storeFilterGroup)) {
+            $filterGroups[] = $storeFilterGroup;
+        }
+
         $criteria = $this->searchCriteriaBuilder
-            ->setFilterGroups([$fromFilterGroup, $toFilterGroup, $stateFilterGroup])
+            ->setFilterGroups($filterGroups)
             ->create();
 
         $orderResult = $this->orderRepository->getList($criteria);
@@ -200,8 +242,8 @@ class Backfill
         $this->logger->log(count($orders) . ' transaction(s) found');
 
         // This process can take awhile
-        @set_time_limit(0);
-        @ignore_user_abort(true);
+        set_time_limit(0);
+        ignore_user_abort(true);
 
         foreach ($orders as $order) {
             $orderTransaction = $this->orderFactory->create();
@@ -217,6 +259,8 @@ class Backfill
                     $refundTransaction->build($order, $creditMemo);
                     $refundTransaction->push();
                 }
+            } else {
+                $this->logger->log('Order #' . $order->getIncrementId() . ' is not syncable', 'skip');
             }
         }
 

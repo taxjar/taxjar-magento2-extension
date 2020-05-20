@@ -51,6 +51,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
 
         $newOrder = [
             'plugin' => 'magento',
+            'provider' => $this->getProvider($order),
             'transaction_id' => $order->getIncrementId(),
             'transaction_date' => $createdAt->format(\DateTime::ISO8601),
             'amount' => $subtotal + $shipping - abs($discount),
@@ -164,6 +165,14 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
 
         // US orders for reporting only
         if ($address->getCountryId() != 'US') {
+            return false;
+        }
+
+        // Check if transaction sync is disabled at the store level OR at the store AND website levels
+        $storeSyncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
+        $websiteSyncEnabled = $this->helper->isTransactionSyncEnabled($order->getStore()->getWebsiteId(), 'website');
+
+        if (!$storeSyncEnabled || (!$websiteSyncEnabled && !$storeSyncEnabled)) {
             return false;
         }
 

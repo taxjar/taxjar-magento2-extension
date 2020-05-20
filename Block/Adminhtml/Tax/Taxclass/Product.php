@@ -30,6 +30,14 @@ class Product extends \Magento\Backend\Block\Widget\Grid\Container
         $this->_controller = 'taxjar_taxclass_product';
         $this->_headerText = __('Manage Product Tax Classes');
         $this->_addButtonLabel = __('Add New Product Tax Class');
+
+        $this->addButton('sync-product-tax-class', [
+            'label' => __('Sync from TaxJar'),
+            'on_click' => 'window.location.href=\'' . $this->getUrl('taxjar/taxclass_product/sync') . '\'',
+            'class' => 'primary',
+            'level' => 1
+        ]);
+
         parent::_construct();
     }
 }

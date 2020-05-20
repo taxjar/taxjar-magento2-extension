@@ -65,6 +65,11 @@ class Smartcalcs
     protected $taxData;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    protected $tjHelper;
+
+    /**
      * @var \Magento\Directory\Model\Country\Postcode\ConfigInterface
      */
     protected $postCodesConfig;
@@ -93,6 +98,7 @@ class Smartcalcs
      * @param ZendClientFactory $clientFactory
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
+     * @param \Taxjar\SalesTax\Helper\Data $tjHelper
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -103,6 +109,7 @@ class Smartcalcs
         ZendClientFactory $clientFactory,
         ProductMetadataInterface $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
+        \Taxjar\SalesTax\Helper\Data $tjHelper,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Taxjar\SalesTax\Model\Logger $logger
     ) {
@@ -114,6 +121,7 @@ class Smartcalcs
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
         $this->taxData = $taxData;
+        $this->tjHelper = $tjHelper;
         $this->postCodesConfig = $postCodesConfig;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
     }
@@ -201,19 +209,23 @@ class Smartcalcs
             'shipping' => $shipping - abs($shippingDiscount),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
             'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
-            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : 0,
+            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : '',
             'plugin' => 'magento'
         ]);
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
             $client->setUri(TaxjarConfig::TAXJAR_API_URL . '/magento/taxes');
+            $client->setConfig([
+                'useragent' => $this->tjHelper->getUserAgent(),
+                'referer' => $this->tjHelper->getStoreUrl()
+            ]);
             $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
             $client->setRawData(json_encode($order), 'application/json');
 
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
 
-            $this->_setSessionData('order', json_encode($order));
+            $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
             try {
                 $response = $client->request('POST');
@@ -443,6 +455,10 @@ class Smartcalcs
                         $discount = 0;
                     }
 
+                    if ($discount > ($unitPrice * $quantity)) {
+                        $discount = ($unitPrice * $quantity);
+                    }
+
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
@@ -460,7 +476,7 @@ class Smartcalcs
                                 $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
                                 $taxCode = $giftTaxClassCode;
                             } else {
-                                $taxCode = TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
+                                $taxCode = TaxjarConfig::TAXJAR_GIFT_CARD_TAX_CODE;
                             }
                         }
                     }
@@ -512,10 +528,11 @@ class Smartcalcs
      */
     private function _orderChanged($currentOrder)
     {
-        $sessionOrder = json_decode($this->_getSessionData('order'), true);
+        $sessionOrder = $this->_getSessionData('order');
+        $currentOrder = json_encode($currentOrder, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION);
 
         if ($sessionOrder) {
-            return $currentOrder != $sessionOrder;
+            return $currentOrder !== $sessionOrder;
         } else {
             return true;
         }

@@ -21,14 +21,13 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.4.2';
+    const TAXJAR_VERSION              = '1.5.1';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
     const TAXJAR_ADDRESS_VALIDATION   = 'tax/taxjar/address_validation';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
-    const TAXJAR_CATEGORIES           = 'tax/taxjar/categories';
     const TAXJAR_CONNECTED            = 'tax/taxjar/connected';
     const TAXJAR_CUSTOMER_TAX_CLASSES = 'tax/taxjar/customer_tax_classes';
     const TAXJAR_DEBUG                = 'tax/taxjar/debug';
@@ -39,7 +38,6 @@ class Configuration
     const TAXJAR_PLUS                 = 'tax/taxjar/plus';
     const TAXJAR_PRODUCT_TAX_CLASSES  = 'tax/taxjar/product_tax_classes';
     const TAXJAR_STATES               = 'tax/taxjar/states';
-    const TAXJAR_TRANSACTION_AUTH     = 'tax/taxjar/transaction_auth';
     const TAXJAR_TRANSACTION_SYNC     = 'tax/taxjar/transactions';
     const TAXJAR_DEFAULT_LOG          = 'default.log';
     const TAXJAR_CALCULATIONS_LOG     = 'calculations.log';
@@ -47,6 +45,7 @@ class Configuration
     const TAXJAR_ADDRVALIDATION_LOG   = 'address_validation.log';
     const TAXJAR_CUSTOMER_LOG         = 'customers.log';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
+    const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
