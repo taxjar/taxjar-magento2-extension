@@ -71,11 +71,9 @@ class SyncedCreditmemo extends Column
                 $creditmemoSyncDate = '';
 
                 try {
-                    $creditmemo = $this->creditmemoRepository->get($item['entity_id']);
-
-                    if ($creditmemo->getTjSalestaxSyncDate()) {
+                    if (isset($item['tj_salestax_sync_date'])) {
                         $creditmemoSyncDate = $this->timezone->formatDate(
-                            new \DateTime($creditmemo->getTjSalestaxSyncDate()),
+                            new \DateTime($item['tj_salestax_sync_date']),
                             \IntlDateFormatter::MEDIUM,
                             true
                         );
@@ -84,8 +82,7 @@ class SyncedCreditmemo extends Column
                     $this->logger->log($e->getMessage() . ', entity id: ' . $item['entity_id']);
                 }
 
-                // $this->getData('name') returns the name of the column so in this case it would return export_status
-                $item[$this->getData('name')] = $creditmemoSyncDate;
+                $item[$this->getName()] = $creditmemoSyncDate;
             }
         }
 

@@ -82,8 +82,7 @@ class SyncedOrder extends Column
                     $this->logger->log($e->getMessage() . ', entity id: ' . $item['entity_id']);
                 }
 
-                // $this->getData('name') returns the name of the column so in this case it would return export_status
-                $item[$this->getData('name')] = $orderSyncDate;
+                $item[$this->getName()] = $orderSyncDate;
             }
         }
 
