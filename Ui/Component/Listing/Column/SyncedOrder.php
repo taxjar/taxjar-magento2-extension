@@ -71,11 +71,9 @@ class SyncedOrder extends Column
                 $orderSyncDate = '';
 
                 try {
-                    $order = $this->orderRepository->get($item['entity_id']);
-
-                    if ($order->getTjSalestaxSyncDate()) {
+                    if (isset($item['tj_salestax_sync_date'])) {
                         $orderSyncDate = $this->timezone->formatDate(
-                            new \DateTime($order->getTjSalestaxSyncDate()),
+                            new \DateTime($item['tj_salestax_sync_date']),
                             \IntlDateFormatter::MEDIUM,
                             true
                         );
@@ -84,8 +82,7 @@ class SyncedOrder extends Column
                     $this->logger->log($e->getMessage() . ', entity id: ' . $item['entity_id']);
                 }
 
-                // $this->getData('name') returns the name of the column so in this case it would return export_status
-                $item[$this->getData('name')] = $orderSyncDate;
+                $item[$this->getName()] = $orderSyncDate;
             }
         }
 
