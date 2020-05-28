@@ -131,9 +131,12 @@ class Connect extends AbstractAction
             $this->client->setApiKey($apiKey);
 
             $response = $this->client->postResource('verify', ['token' => $apiKey]);
+            $valid = isset($response['valid']) ? $response['valid'] : false;
+            $enabled = isset($response['enabled']) ? $response['enabled'] : false;
+            $plus = isset($response['plus']) ? $response['plus'] : false;
 
-            if ($response['enabled'] && $response['valid']) {
-                if ($response['plus']) {
+            if ($valid && $enabled) {
+                if ($plus) {
                     $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_PLUS, true, 'default', 0);
                 }
 
