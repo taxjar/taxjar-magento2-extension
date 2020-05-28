@@ -23,6 +23,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
+use Magento\Tax\Model\Calculation\Rule;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Rate
@@ -63,6 +64,11 @@ class Rate
     protected $searchCriteriaBuilder;
 
     /**
+     * @var \Magento\Tax\Model\Calculation\Rule
+     */
+    protected $rule;
+
+    /**
      * @param CacheInterface $cache
      * @param ScopeConfigInterface $scopeConfig
      * @param \Magento\Tax\Model\Calculation\RateFactory $rateFactory
@@ -71,6 +77,7 @@ class Rate
      * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
+     * @param Rule $rule
      */
     public function __construct(
         CacheInterface $cache,
@@ -80,7 +87,8 @@ class Rate
         TaxRateRepositoryInterface $rateService,
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder
+        FilterBuilder $filterBuilder,
+        Rule $rule
     ) {
         $this->cache = $cache;
         $this->scopeConfig = $scopeConfig;
@@ -90,6 +98,8 @@ class Rate
         $this->regionFactory = $regionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
+        $this->rule = $rule;
+
         return $this;
     }
 
@@ -125,12 +135,16 @@ class Rate
             }
 
             $rateModel = $this->rateFactory->create();
-            $rateModel->setTaxCountryId($countryCode);
-            $rateModel->setTaxRegionId($regionId);
-            $rateModel->setTaxPostcode($zip);
-            $rateModel->setCode($countryCode . '-' . $regionCode . '-' . $zip);
-            $rateModel->setRate($rate);
-            $rateModel->save();
+            $code = $countryCode . '-' . $regionCode . '-' . $zip;
+
+            if (!$rateModel->load($code, 'code')->getId()) {
+                $rateModel->setTaxCountryId($countryCode);
+                $rateModel->setTaxRegionId($regionId);
+                $rateModel->setTaxPostcode($zip);
+                $rateModel->setCode($code);
+                $rateModel->setRate($rate);
+                $rateModel->save();
+            }
 
             if ($rateJson['freight_taxable']) {
                 $shippingRateId = $rateModel->getId();
@@ -152,21 +166,14 @@ class Rate
      */
     public function getExistingRates()
     {
-        $filter = $this->filterBuilder
-            ->setField('tax_region_id')
-            ->setValue($this->getRegionFilter())
-            ->setConditionType('in')
-            ->create();
-        $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
-
-        return $this->rateService->getList($searchCriteria);
+        return $this->rule->load(TaxjarConfig::TAXJAR_BACKUP_RATE_CODE, 'code')->getRates();
     }
 
     /**
      * Get existing TaxJar rule calculations based on the rate ID
      *
      * @param string $rateId
-     * @return array
+     * @return \Magento\Tax\Model\ResourceModel\Calculation\Collection
      */
     public function getCalculationsByRateId($rateId)
     {
@@ -175,24 +182,5 @@ class Rate
                         ->addFieldToFilter('tax_calculation_rate_id', $rateId);
 
         return $calculations;
-    }
-
-    /**
-     * Get region filter for existing configuration states
-     *
-     * @return array
-     */
-    private function getRegionFilter()
-    {
-        $filter = [];
-        $states = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES), true);
-        $region = $this->regionFactory->create();
-
-        foreach (array_unique($states) as $state) {
-            $regionId = $region->loadByCode($state, 'US')->getId();
-            $filter[] = $regionId;
-        }
-
-        return $filter;
     }
 }

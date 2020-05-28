@@ -280,7 +280,7 @@ class Backup extends Field
 
         $rateCalcs = [
             'total_rates' => array_sum($ratesByState),
-            'rates_loaded' => $importRateModel->getExistingRates()->getTotalCount(),
+            'rates_loaded' => count($importRateModel->getExistingRates()),
             'rates_by_state' => $ratesByState
         ];
 
