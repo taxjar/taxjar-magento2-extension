@@ -46,6 +46,7 @@ class Configuration
     const TAXJAR_CUSTOMER_LOG         = 'customers.log';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
     const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
+    const TAXJAR_BACKUP_RATE_CODE     = 'TaxJar Backup Rates';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
