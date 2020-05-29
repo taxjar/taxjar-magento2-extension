@@ -21,7 +21,7 @@ use Magento\Config\Model\ResourceModel\Config;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.5.1';
+    const TAXJAR_VERSION              = '1.5.2';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
@@ -46,6 +46,7 @@ class Configuration
     const TAXJAR_CUSTOMER_LOG         = 'customers.log';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
     const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
+    const TAXJAR_BACKUP_RATE_CODE     = 'TaxJar Backup Rates';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config

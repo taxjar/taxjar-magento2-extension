@@ -25,6 +25,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
+use Magento\Tax\Model\Calculation\RateRepository;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\RateFactory;
@@ -116,6 +117,11 @@ class ImportRates implements ObserverInterface
     protected $newShippingRates = [];
 
     /**
+     * @var RateRepository
+     */
+    protected $rateRepository;
+
+    /**
      * @param ManagerInterface $eventManager
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
@@ -125,6 +131,7 @@ class ImportRates implements ObserverInterface
      * @param RuleFactory $ruleFactory
      * @param DirectoryList $directoryList
      * @param DriverFile $driverFile
+     * @param RateRepository $rateRepository
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -135,7 +142,8 @@ class ImportRates implements ObserverInterface
         RateFactory $rateFactory,
         RuleFactory $ruleFactory,
         DirectoryList $directoryList,
-        DriverFile $driverFile
+        DriverFile $driverFile,
+        RateRepository $rateRepository
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -146,6 +154,7 @@ class ImportRates implements ObserverInterface
         $this->ruleFactory = $ruleFactory;
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
+        $this->rateRepository = $rateRepository;
     }
 
     /**
@@ -298,7 +307,7 @@ class ImportRates implements ObserverInterface
         $shippingClass = $this->scopeConfig->getValue('tax/classes/shipping_tax_class');
 
         $rule->create(
-            'TaxJar Backup Rates',
+            TaxjarConfig::TAXJAR_BACKUP_RATE_CODE,
             $this->customerTaxClasses,
             $productTaxClasses,
             1,
@@ -312,7 +321,7 @@ class ImportRates implements ObserverInterface
                 // @codingStandardsIgnoreEnd
             } else {
                 $rule->create(
-                    'TaxJar Backup Rates (Shipping)',
+                    TaxjarConfig::TAXJAR_BACKUP_RATE_CODE . ' (Shipping)',
                     $this->customerTaxClasses,
                     [$shippingClass],
                     2,
@@ -332,12 +341,8 @@ class ImportRates implements ObserverInterface
         $rateModel = $this->rateFactory->create();
         $rates = $rateModel->getExistingRates();
 
-        if (!$rates->getTotalCount()) {
-            return;
-        }
-
-        foreach ($rates->getItems() as $rate) {
-            $calculations = $rateModel->getCalculationsByRateId($rate->getId());
+        foreach ($rates as $rate) {
+            $calculations = $rateModel->getCalculationsByRateId($rate);
 
             try {
                 foreach ($calculations->getItems() as $calculation) {
@@ -350,9 +355,7 @@ class ImportRates implements ObserverInterface
             }
 
             try {
-                // @codingStandardsIgnoreStart
-                $rate->delete();
-                // @codingStandardsIgnoreEnd
+                $this->rateRepository->deleteById($rate);
             } catch (\Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             }

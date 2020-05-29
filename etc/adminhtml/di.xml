@@ -10,4 +10,7 @@
             </argument>
         </arguments>
     </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <plugin name="taxjar_salestax_additional_columns" type="Taxjar\SalesTax\Plugin\AddTjSyncDateToGrid" />
+    </type>
 </config>
