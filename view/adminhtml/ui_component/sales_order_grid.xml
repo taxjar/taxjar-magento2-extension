@@ -18,7 +18,7 @@
 -->
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <columns name="sales_order_columns">
-        <column name="synced" class="Taxjar\SalesTax\Ui\Component\Listing\Column\SyncedOrder">
+        <column name="tj_salestax_sync_date" class="Taxjar\SalesTax\Ui\Component\Listing\Column\SyncedOrder">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="visible" xsi:type="boolean">false</item>
