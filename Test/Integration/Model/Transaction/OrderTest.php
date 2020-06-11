@@ -52,28 +52,118 @@ class OrderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_test.php
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple.php
+     */
+    public function testDefaultOrder()
+    {
+        $order = $this->order->loadByIncrementId('100000002');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals('api', $result['provider'], 'Invalid provider');
+        $this->assertEquals(68, $result['amount'], 'Invalid total amount');
+        $this->assertEquals(0, $result['shipping'], 'Invalid shipping amount');
+        $this->assertEquals(0, $result['sales_tax'], 'Invalid sales tax amount');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple.php
+     */
+    public function testPositiveDecimals()
+    {
+        $order = $this->order->loadByIncrementId('100000002');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals(27.0, $result['line_items'][0]['unit_price'], 'Invalid provider');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple.php
+     */
+    public function testOrderNoShipping()
+    {
+        $order = $this->order->loadByIncrementId('100000002');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals(0, $result['shipping'], 'Invalid shipping amount');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_AU.php
+     */
+    public function testAddressAU()
+    {
+        $order = $this->order->loadByIncrementId('100000003');
+        $result = $this->transactionOrder->isSyncable($order);
+
+        $this->assertFalse($result, 'Non-US order sync');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_AUD.php
+     */
+    public function testCurrencyAUD()
+    {
+        $order = $this->order->loadByIncrementId('100000004');
+        $result = $this->transactionOrder->isSyncable($order);
+
+        $this->assertFalse($result, 'Non-USD order sync');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_shipping.php
+     */
+    public function testOrderShipping()
+    {
+        $order = $this->order->loadByIncrementId('100000005');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals(5.0, $result['shipping'], 'Invalid shipping amount');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_customer.php
+     */
+    public function testExemptCustomer()
+    {
+        $order = $this->order->loadByIncrementId('100000002');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals(1, $result['customer_id'], 'Invalid customer ID');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_ptc.php
+     */
+    public function testExemptProductTaxClass()
+    {
+        $order = $this->order->loadByIncrementId('100000006');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals('20010', $result['line_items'][0]['product_tax_code'], 'Invalid product tax class');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_giftcard.php
+     */
+    public function testExemptGiftCard()
+    {
+        $order = $this->order->loadByIncrementId('100000006');
+        $result = $this->transactionOrder->build($order);
+
+        $this->assertEquals('14111803A0001', $result['line_items'][0]['product_tax_code'], 'Invalid gift card');
+    }
+
+    /**
+     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_bundle.php
      */
     public function testBundledProductsOrder()
     {
         $order = $this->order->loadByIncrementId('100000001');
         $result = $this->transactionOrder->build($order);
-
-        $this->verifyLineItems($result);
-    }
-
-    /**
-     * Verify line items match expected results
-     *
-     * @param array $result
-     */
-    protected function verifyLineItems($result)
-    {
         $lineItems = $result['line_items'];
 
         $this->assertNotEmpty($lineItems, 'No line items exist.');
         $this->assertEquals(4, count($lineItems), 'Number of line items is incorrect');
-
         $this->assertEquals(1, $lineItems[0]['quantity'], 'Invalid quantity');
         $this->assertEquals('24-WG082-blue', $lineItems[0]['product_identifier'], 'Invalid sku.');
         $this->assertEquals(1, $lineItems[1]['quantity'], 'Invalid quantity');
