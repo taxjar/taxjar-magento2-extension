@@ -23,7 +23,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
-use Magento\Tax\Model\Calculation\Rule;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Rate
@@ -77,7 +76,7 @@ class Rate
      * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
-     * @param Rule $rule
+     * @param \Magento\Tax\Model\Calculation\Rule $rule
      */
     public function __construct(
         CacheInterface $cache,
@@ -88,7 +87,7 @@ class Rate
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
-        Rule $rule
+        \Magento\Tax\Model\Calculation\Rule $rule
     ) {
         $this->cache = $cache;
         $this->scopeConfig = $scopeConfig;
