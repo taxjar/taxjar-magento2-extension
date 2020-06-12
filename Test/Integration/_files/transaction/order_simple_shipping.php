@@ -15,9 +15,6 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-require 'data/cleanup.php';
-require 'data/product_simple.php';
-require 'data/product_bundle.php';
-require 'data/order_bundle.php';
-require 'data/invoice.php';
-require 'data/creditmemo_bundle_partial.php';
+require 'models/cleanup.php';
+require 'models/product_simple.php';
+require 'models/order_simple_shipping.php';

@@ -23,11 +23,11 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\ObjectManager;
 
-$addressData = include 'address_data.php';
-$orderData = include 'order_data.php';
+$addressData = include 'data/address_data.php';
+$orderData = include 'data/order_data.php';
 $orderData['increment_id'] = '100000002';
 $qty = 5;
-$qtyRefunded = 3;
+$qtyRefunded = 5;
 
 $objectManager = ObjectManager::getInstance();
 
@@ -94,4 +94,9 @@ foreach($orderItems as $orderItem){
 
 /** @var OrderRepositoryInterface $orderRepository */
 $orderRepository = $objectManager->create(OrderRepositoryInterface::class);
-$orderRepository->save($order);
+
+try {
+    $orderRepository->save($order);
+} catch (Exception $e) {
+    $msg = $e->getMessage();
+}

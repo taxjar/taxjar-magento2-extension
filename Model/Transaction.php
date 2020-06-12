@@ -292,7 +292,7 @@ class Transaction
      * @param \Magento\Sales\Model\Order $order
      * @return array
      */
-    function buildCustomerExemption($order)
+    protected function buildCustomerExemption($order)
     {
         if ($order->getCustomerId()) {
             return ['customer_id' => $order->getCustomerId()];
