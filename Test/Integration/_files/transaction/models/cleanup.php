@@ -19,16 +19,16 @@ use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\TestFramework\ObjectManager;
 
-$orderData = include 'order_data.php';
+$orderData = include 'data/order_data.php';
 
 $objectManager = ObjectManager::getInstance();
 $registry = $objectManager->get(Registry::class);
 
-//$isSecuredAreaSystemState = $registry->registry('isSecuredArea');
 $registry->unregister('isSecureArea');
 $registry->register('isSecureArea', true);
 
 $order = $objectManager->create(Order::class);
+
 $order->loadByIncrementId($orderData['increment_id']);
 if ($order->getId()) {
     $order->delete();

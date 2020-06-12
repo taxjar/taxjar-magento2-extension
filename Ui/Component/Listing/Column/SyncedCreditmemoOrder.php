@@ -19,25 +19,19 @@ namespace Taxjar\SalesTax\Ui\Component\Listing\Column;
 
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
-use \Magento\Sales\Api\OrderRepositoryInterface;
+use \Magento\Sales\Api\CreditmemoRepositoryInterface;
 use \Magento\Framework\View\Element\UiComponent\ContextInterface;
 use \Magento\Framework\View\Element\UiComponentFactory;
 use \Magento\Ui\Component\Listing\Columns\Column;
-use \Magento\Framework\Api\SearchCriteriaBuilder;
 use \Magento\Framework\Stdlib\DateTime\Timezone;
 use \Magento\Framework\Exception\NoSuchEntityException;
 
-class SyncedOrder extends Column
+class SyncedCreditmemoOrder extends Column
 {
     /**
-     * @var OrderRepositoryInterface
+     * @var CreditmemoRepositoryInterface
      */
-    protected $orderRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    protected $searchCriteria;
+    protected $creditmemoRepository;
 
     /**
      * @var Timezone
@@ -52,8 +46,7 @@ class SyncedOrder extends Column
     /**
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
-     * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder $criteria
+     * @param CreditmemoRepositoryInterface $creditmemoRepository
      * @param Timezone $timezone
      * @param \Taxjar\SalesTax\Model\Logger $logger
      * @param array $components
@@ -62,15 +55,13 @@ class SyncedOrder extends Column
     public function __construct(
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
-        OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $criteria,
+        CreditmemoRepositoryInterface $creditmemoRepository,
         Timezone $timezone,
         \Taxjar\SalesTax\Model\Logger $logger,
         array $components = [],
         array $data = []
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->searchCriteria  = $criteria;
+        $this->creditmemoRepository = $creditmemoRepository;
         $this->timezone = $timezone;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_DEFAULT_LOG);
         parent::__construct($context, $uiComponentFactory, $components, $data);
@@ -84,12 +75,14 @@ class SyncedOrder extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
-                $orderSyncDate = '';
+                $creditmemoSyncDate = '';
 
                 try {
-                    if (isset($item['tj_salestax_sync_date'])) {
-                        $orderSyncDate = $this->timezone->formatDate(
-                            new \DateTime($item['tj_salestax_sync_date']),
+                    $creditmemo = $this->creditmemoRepository->get($item['entity_id']);
+
+                    if ($creditmemo->getTjSalestaxSyncDate()) {
+                        $creditmemoSyncDate = $this->timezone->formatDate(
+                            new \DateTime($creditmemo->getTjSalestaxSyncDate()),
                             \IntlDateFormatter::MEDIUM,
                             true
                         );
@@ -98,7 +91,7 @@ class SyncedOrder extends Column
                     $this->logger->log($e->getMessage() . ', entity id: ' . $item['entity_id']);
                 }
 
-                $item[$this->getName()] = $orderSyncDate;
+                $item[$this->getName()] = $creditmemoSyncDate;
             }
         }
 
