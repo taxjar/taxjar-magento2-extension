@@ -73,6 +73,16 @@
                         <field id="debug">1</field>
                     </depends>
                 </field>
+                <field id="sandbox" translate="label" sortOrder="12" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Sandbox</label>
+                    <comment>Change all API requests to be made to TaxJar's sandbox account.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Multiselect</frontend_model>
+                    <depends>
+                        <field id="connected">1</field>
+                        <field id="debug">1</field>
+                    </depends>
+                </field>
                 <field id="connected" translate="label" sortOrder="12" type="hidden" showInDefault="1" showInWebsite="1" showInStore="1">
                   <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Connected</frontend_model>
                   <depends>

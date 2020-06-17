@@ -215,6 +215,10 @@ class Client
     {
         $apiUrl = TaxjarConfig::TAXJAR_API_URL;
 
+        if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_SANDBOX_ENABLED)) {
+            $apiUrl = TaxjarConfig::TAXJAR_SANDBOX_API_URL;
+        }
+
         switch ($resource) {
             case 'config':
                 $apiUrl .= '/plugins/magento/configuration/' . $this->storeRegionCode;
@@ -242,6 +246,9 @@ class Client
                 break;
             case 'customers':
                 $apiUrl .= '/customers';
+                break;
+            case 'taxes':
+                $apiUrl .= '/magento/taxes';
                 break;
         }
 
