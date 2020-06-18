@@ -20,6 +20,7 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\HTTP\ZendClientFactory;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -34,7 +35,7 @@ class Smartcalcs
     protected $checkoutSession;
 
     /**
-     * @var \Taxjar\SalesTax\Model\ClientFactory
+     * @var ZendClientFactory
      */
     protected $clientFactory;
 
@@ -94,7 +95,7 @@ class Smartcalcs
      * @param NexusFactory $nexusFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface
      * @param ScopeConfigInterface $scopeConfig
-     * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
+     * @param ZendClientFactory $clientFactory
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
@@ -105,7 +106,7 @@ class Smartcalcs
         NexusFactory $nexusFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface,
         ScopeConfigInterface $scopeConfig,
-        \Taxjar\SalesTax\Model\ClientFactory $clientFactory,
+        ZendClientFactory $clientFactory,
         ProductMetadataInterface $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
         \Taxjar\SalesTax\Helper\Data $tjHelper,
@@ -214,12 +215,26 @@ class Smartcalcs
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
+            $url = TaxjarConfig::TAXJAR_API_URL;
+
+            if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_SANDBOX_ENABLED)) {
+                $url = TaxjarConfig::TAXJAR_SANDBOX_API_URL;
+            }
+
+            $client->setUri($url . '/magento/taxes');
+            $client->setConfig([
+                'useragent' => $this->tjHelper->getUserAgent(),
+                'referer' => $this->tjHelper->getStoreUrl()
+            ]);
+            $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
+            $client->setRawData(json_encode($order), 'application/json');
 
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
+
             $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
             try {
-                $response = $client->postResource('taxes', $order);
+                $response = $client->request('POST');
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
 
