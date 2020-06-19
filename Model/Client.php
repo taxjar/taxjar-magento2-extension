@@ -60,19 +60,27 @@ class Client
     protected $tjHelper;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param RegionFactory $regionFactory
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         RegionFactory $regionFactory,
-        \Taxjar\SalesTax\Helper\Data $tjHelper
+        \Taxjar\SalesTax\Helper\Data $tjHelper,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->regionFactory = $regionFactory;
         $this->tjHelper = $tjHelper;
-        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
         $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
         $region = $this->_getShippingRegion();
         $this->storeRegionCode = $region->getCode();
@@ -213,11 +221,7 @@ class Client
      */
     private function _getApiUrl($resource)
     {
-        $apiUrl = TaxjarConfig::TAXJAR_API_URL;
-
-        if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_SANDBOX_ENABLED)) {
-            $apiUrl = TaxjarConfig::TAXJAR_SANDBOX_API_URL;
-        }
+        $apiUrl = $this->taxjarConfig->getApiUrl();
 
         switch ($resource) {
             case 'config':

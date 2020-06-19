@@ -83,6 +83,14 @@
                         <field id="debug">1</field>
                     </depends>
                 </field>
+                <field id="sandbox_apikey" translate="label" sortOrder="12" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sandbox API Token</label>
+                    <comment>Your TaxJar API token for your *sandbox* account.</comment>
+                    <depends>
+                        <field id="connected">1</field>
+                        <field id="debug">1</field>
+                    </depends>
+                </field>
                 <field id="connected" translate="label" sortOrder="12" type="hidden" showInDefault="1" showInWebsite="1" showInStore="1">
                   <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Connected</frontend_model>
                   <depends>

@@ -78,6 +78,11 @@ class Backup extends Field
     protected $searchCriteriaBuilder;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param Context $context
      * @param RateFactory $importRateFactory
      * @param TaxRateRepositoryInterface $rateService
@@ -85,6 +90,7 @@ class Backup extends Field
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      * @param UrlInterface $backendUrl
+     * @param TaxjarConfig $taxjarConfig
      * @param array $data
      */
     public function __construct(
@@ -95,6 +101,7 @@ class Backup extends Field
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder,
         UrlInterface $backendUrl,
+        TaxjarConfig $taxjarConfig,
         array $data = []
     ) {
         $this->cache = $context->getCache();
@@ -105,6 +112,8 @@ class Backup extends Field
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
         $this->backendUrl = $backendUrl;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $taxjarConfig->getApiKey();
 
         $region = $this->regionFactory->create();
         $regionId = $this->scopeConfig->getValue('shipping/origin/region_id');
@@ -121,9 +130,7 @@ class Backup extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-
-        if ($apiKey) {
+        if ($this->apiKey) {
             $this->_cacheElementValue($element);
         }
 

@@ -62,19 +62,28 @@ class Enabled extends PopupField
     protected $apiEmail;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param Context $context
      * @param UrlInterface $backendUrl
+     * @param TaxjarConfig $taxjarConfig
      * @param array $data
      */
     public function __construct(
         Context $context,
         UrlInterface $backendUrl,
+        TaxjarConfig $taxjarConfig,
         array $data = []
     ) {
         $this->cache = $context->getCache();
         $this->request = $context->getRequest();
         $this->scopeConfig = $context->getScopeConfig();
         $this->backendUrl = $backendUrl;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
         parent::__construct($context, $backendUrl, $data);
     }
 
@@ -86,7 +95,6 @@ class Enabled extends PopupField
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $this->apiEmail = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_EMAIL));
 
         if (!$this->apiKey) {

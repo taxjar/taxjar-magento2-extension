@@ -64,6 +64,11 @@ class Logger
     protected $storeManager;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @var boolean
      */
     protected $isForced = false;
@@ -76,12 +81,14 @@ class Logger
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Magento\Framework\Filesystem\Driver\File $driverFile,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
+        $this->taxjarConfig = $taxjarConfig;
     }
 
     /**
@@ -138,6 +145,10 @@ class Logger
             try {
                 if (!empty($label)) {
                     $label = '[' . strtoupper($label) . '] ';
+                }
+
+                if ($this->taxjarConfig->isSandboxEnabled()) {
+                    $label .= '[SANDBOX] ';
                 }
 
                 $timestamp = date('d M Y H:i:s', time());

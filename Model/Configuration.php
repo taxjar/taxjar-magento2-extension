@@ -18,6 +18,8 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Config\Model\ResourceModel\Config;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class Configuration
 {
@@ -28,6 +30,7 @@ class Configuration
     const TAXJAR_FEED_URL             = 'www.taxjar.com/magento2/feed.xml';
     const TAXJAR_ADDRESS_VALIDATION   = 'tax/taxjar/address_validation';
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
+    const TAXJAR_SANDBOX_APIKEY       = 'tax/taxjar/sandbox_apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
     const TAXJAR_CONNECTED            = 'tax/taxjar/connected';
     const TAXJAR_CUSTOMER_TAX_CLASSES = 'tax/taxjar/customer_tax_classes';
@@ -56,12 +59,54 @@ class Configuration
     protected $resourceConfig;
 
     /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
      * @param Config $resourceConfig
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        Config $resourceConfig
+        Config $resourceConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->resourceConfig = $resourceConfig;
+        $this->scopeConfig = $scopeConfig;
+    }
+
+    /**
+     * Returns the base API url
+     *
+     * @return string
+     */
+    public function getApiUrl()
+    {
+        return $this->isSandboxEnabled() ? self::TAXJAR_SANDBOX_API_URL : self::TAXJAR_API_URL;
+    }
+
+    /**
+     * Returns the scoped API token
+     *
+     * @param int $storeId
+     * @return string
+     */
+    public function getApiKey($storeId = null)
+    {
+        return preg_replace('/\s+/', '', $this->scopeConfig->getValue(
+            $this->isSandboxEnabled() ? self::TAXJAR_SANDBOX_APIKEY : self::TAXJAR_APIKEY,
+            is_null($storeId) ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORE,
+            $storeId
+        ));
+    }
+
+    /**
+     * Checks if sandbox mode is enabled
+     *
+     * @return bool
+     */
+    public function isSandboxEnabled() {
+        return (bool) $this->scopeConfig->getValue(self::TAXJAR_SANDBOX_ENABLED);
     }
 
     /**

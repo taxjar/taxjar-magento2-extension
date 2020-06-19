@@ -70,12 +70,18 @@ class ImportCategories implements ObserverInterface
     protected $categoryResourceModel;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param ClientFactory $clientFactory
      * @param ConfigurationFactory $configFactory
      * @param CategoryFactory $categoryFactory
      * @param Category $categoryResourceModel
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -83,7 +89,8 @@ class ImportCategories implements ObserverInterface
         ClientFactory $clientFactory,
         ConfigurationFactory $configFactory,
         CategoryFactory $categoryFactory,
-        Category $categoryResourceModel
+        Category $categoryResourceModel,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
@@ -91,6 +98,8 @@ class ImportCategories implements ObserverInterface
         $this->configFactory = $configFactory;
         $this->categoryFactory = $categoryFactory;
         $this->categoryResourceModel = $categoryResourceModel;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
     /**
@@ -102,8 +111,6 @@ class ImportCategories implements ObserverInterface
     public function execute(Observer $observer)
     {
         // @codingStandardsIgnoreEnd
-        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
-
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
             $this->_importCategories();

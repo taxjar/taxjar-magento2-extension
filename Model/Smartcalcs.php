@@ -90,6 +90,11 @@ class Smartcalcs
     protected $logger;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
@@ -99,6 +104,7 @@ class Smartcalcs
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -111,7 +117,8 @@ class Smartcalcs
         \Magento\Tax\Helper\Data $taxData,
         \Taxjar\SalesTax\Helper\Data $tjHelper,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
-        \Taxjar\SalesTax\Model\Logger $logger
+        \Taxjar\SalesTax\Model\Logger $logger,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -124,6 +131,7 @@ class Smartcalcs
         $this->tjHelper = $tjHelper;
         $this->postCodesConfig = $postCodesConfig;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
+        $this->taxjarConfig = $taxjarConfig;
     }
 
     /**
@@ -140,10 +148,7 @@ class Smartcalcs
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
         $address = $shippingAssignment->getShipping()->getAddress();
-        $apiKey = preg_replace('/\s+/', '', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $quote->getStoreId()
-        ));
+        $apiKey = $this->taxjarConfig->getApiKey($quote->getStoreId());
 
         if (!$apiKey) {
             return;
@@ -215,13 +220,8 @@ class Smartcalcs
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
-            $url = TaxjarConfig::TAXJAR_API_URL;
 
-            if ($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_SANDBOX_ENABLED)) {
-                $url = TaxjarConfig::TAXJAR_SANDBOX_API_URL;
-            }
-
-            $client->setUri($url . '/magento/taxes');
+            $client->setUri($this->taxjarConfig->getApiUrl() . '/magento/taxes');
             $client->setConfig([
                 'useragent' => $this->tjHelper->getUserAgent(),
                 'referer' => $this->tjHelper->getStoreUrl()
