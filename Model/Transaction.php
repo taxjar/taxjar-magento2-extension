@@ -162,7 +162,7 @@ class Transaction
             'from_zip' => $fromPostcode,
             'from_state' => $fromState,
             'from_city' => $fromCity,
-            'from_street' => $fromStreet1 . $fromStreet2
+            'from_street' => $fromStreet1 . ', ' . $fromStreet2
         ];
     }
 
