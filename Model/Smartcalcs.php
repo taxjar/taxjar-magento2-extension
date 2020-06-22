@@ -202,7 +202,7 @@ class Smartcalcs
             'to_zip' => $address->getPostcode(),
             'to_state' => $address->getRegionCode(),
             'to_city' => $address->getCity(),
-            'to_street' => $address->getData('street'),
+            'to_street' => $address->getStreetLine(1)
         ];
 
         $order = array_merge($fromAddress, $toAddress, [

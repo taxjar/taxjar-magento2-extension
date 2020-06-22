@@ -148,11 +148,7 @@ class Transaction
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );
-        $fromStreet1 = $this->scopeConfig->getValue('shipping/origin/street_line1',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-        $fromStreet2 = $this->scopeConfig->getValue('shipping/origin/street_line2',
+        $fromStreet = $this->scopeConfig->getValue('shipping/origin/street_line1',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );
@@ -162,7 +158,7 @@ class Transaction
             'from_zip' => $fromPostcode,
             'from_state' => $fromState,
             'from_city' => $fromCity,
-            'from_street' => $fromStreet1 . (!empty($fromStreet2) ? ', ' . $fromStreet2 : '')
+            'from_street' => $fromStreet
         ];
     }
 
@@ -186,7 +182,7 @@ class Transaction
             'to_zip' => $address->getPostcode(),
             'to_state' => $address->getRegionCode(),
             'to_city' => $address->getCity(),
-            'to_street' => $address->getData('street')
+            'to_street' => $address->getStreetLine(1)
         ];
 
         return $toAddress;
