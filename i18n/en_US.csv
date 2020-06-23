@@ -111,3 +111,4 @@ Region,Region
 "API Token","API Token"
 "TaxJar Category Code","TaxJar Category Code"
 "Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly.","Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly."
+"Sandbox mode is enabled - this mode should only be used for testing.  Some features may not work as expected.","Sandbox mode is enabled - this mode should only be used for testing.  Some features may not work as expected."
