@@ -69,6 +69,11 @@ class Transaction
     protected $helper;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
@@ -77,6 +82,7 @@ class Transaction
      * @param \Taxjar\SalesTax\Model\Logger $logger
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param TaxjarHelper $helper
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -86,7 +92,8 @@ class Transaction
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Taxjar\SalesTax\Model\Logger $logger,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        TaxjarHelper $helper
+        TaxjarHelper $helper,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -96,6 +103,8 @@ class Transaction
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
         $this->objectManager = $objectManager;
         $this->helper = $helper;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
