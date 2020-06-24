@@ -69,7 +69,7 @@ class ConfigReview implements ObserverInterface
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
      * @param NexusFactory $nexusFactory
-     * @param TaxjarConfig $taxjarConfig;
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         \Magento\Framework\App\Request\Http $request,
@@ -152,7 +152,7 @@ class ConfigReview implements ObserverInterface
     {
         if ($this->taxjarConfig->isSandboxEnabled()) {
             // @codingStandardsIgnoreStart
-            $this->messageManager->addWarningMessage(__('Sandbox mode is enabled - this mode should only be used for testing.  Some features may not work as expected.'));
+            $this->messageManager->addComplexWarningMessage('tjSandboxWarning');
             // @codingStandardsIgnoreEnd
         }
     }

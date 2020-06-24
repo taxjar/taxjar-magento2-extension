@@ -79,6 +79,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     public function push($forceMethod = null) {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
         $orderSyncedAt = $this->originalOrder->getTjSalestaxSyncDate();
+        $this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId());
 
         if (!$this->isSynced($orderSyncedAt)) {
             $method = 'POST';

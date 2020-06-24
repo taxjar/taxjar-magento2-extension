@@ -220,7 +220,6 @@ class Smartcalcs
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
-
             $client->setUri($this->taxjarConfig->getApiUrl() . '/magento/taxes');
             $client->setConfig([
                 'useragent' => $this->tjHelper->getUserAgent(),

@@ -117,6 +117,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     public function push($forceMethod = null) {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
         $refundSyncedAt = $this->originalRefund->getTjSalestaxSyncDate();
+        $this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId());
 
         if (!$this->isSynced($refundSyncedAt)) {
             $method = 'POST';
