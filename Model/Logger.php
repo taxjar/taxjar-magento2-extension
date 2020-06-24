@@ -148,7 +148,7 @@ class Logger
                 }
 
                 if ($this->taxjarConfig->isSandboxEnabled()) {
-                    $label .= '[SANDBOX] ';
+                    $label = '[SANDBOX] ' . $label;
                 }
 
                 $timestamp = date('d M Y H:i:s', time());

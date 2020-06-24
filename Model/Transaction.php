@@ -104,7 +104,6 @@ class Transaction
         $this->objectManager = $objectManager;
         $this->helper = $helper;
         $this->taxjarConfig = $taxjarConfig;
-        $this->apiKey = $this->taxjarConfig->getApiKey();
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
