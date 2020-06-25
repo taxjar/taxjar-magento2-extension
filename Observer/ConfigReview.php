@@ -58,12 +58,18 @@ class ConfigReview implements ObserverInterface
     protected $nexusFactory;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param \Magento\Framework\App\Request\Http $request
      * @param CacheInterface $cache
      * @param ManagerInterface $eventManager
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
      * @param NexusFactory $nexusFactory
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         \Magento\Framework\App\Request\Http $request,
@@ -71,7 +77,8 @@ class ConfigReview implements ObserverInterface
         ManagerInterface $eventManager,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         ScopeConfigInterface $scopeConfig,
-        NexusFactory $nexusFactory
+        NexusFactory $nexusFactory,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->request = $request;
         $this->cache = $cache;
@@ -79,6 +86,7 @@ class ConfigReview implements ObserverInterface
         $this->messageManager = $messageManager;
         $this->scopeConfig = $scopeConfig;
         $this->nexusFactory = $nexusFactory;
+        $this->taxjarConfig = $taxjarConfig;
     }
 
     /**
@@ -98,6 +106,7 @@ class ConfigReview implements ObserverInterface
             if ($enabled) {
                 $this->_reviewNexusAddresses();
                 $this->_reviewAddressValidation();
+                $this->_reviewSandboxMode();
             }
         }
 
@@ -131,6 +140,19 @@ class ConfigReview implements ObserverInterface
         if (isset($prevEnabled) && $prevEnabled != $enabled) {
             // @codingStandardsIgnoreStart
             $this->messageManager->addWarningMessage(__('Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly.'));
+            // @codingStandardsIgnoreEnd
+        }
+    }
+
+    /**
+     * @return void
+     * @SuppressWarnings(Generic.Files.LineLength.TooLong)
+     */
+    private function _reviewSandboxMode()
+    {
+        if ($this->taxjarConfig->isSandboxEnabled()) {
+            // @codingStandardsIgnoreStart
+            $this->messageManager->addComplexWarningMessage('tjSandboxWarning');
             // @codingStandardsIgnoreEnd
         }
     }

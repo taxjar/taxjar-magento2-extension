@@ -74,12 +74,18 @@ class ImportData implements ObserverInterface
     protected $client;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
      * @param RegionFactory $regionFactory
      * @param ClientFactory $clientFactory
      * @param ConfigurationFactory $configFactory
      * @param ReinitableConfigInterface $reinitableConfig
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -87,7 +93,8 @@ class ImportData implements ObserverInterface
         RegionFactory $regionFactory,
         ClientFactory $clientFactory,
         ConfigurationFactory $configFactory,
-        ReinitableConfigInterface $reinitableConfig
+        ReinitableConfigInterface $reinitableConfig,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
@@ -95,6 +102,8 @@ class ImportData implements ObserverInterface
         $this->clientFactory = $clientFactory;
         $this->configFactory = $configFactory;
         $this->reinitableConfig = $reinitableConfig;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
     /**
@@ -107,7 +116,6 @@ class ImportData implements ObserverInterface
     public function execute(Observer $observer)
     {
         // @codingStandardsIgnoreEnd
-        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
         $region = $this->_getShippingRegion();
 
         if ($this->apiKey) {

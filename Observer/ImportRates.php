@@ -122,6 +122,11 @@ class ImportRates implements ObserverInterface
     protected $rateRepository;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param ManagerInterface $eventManager
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
@@ -132,6 +137,7 @@ class ImportRates implements ObserverInterface
      * @param DirectoryList $directoryList
      * @param DriverFile $driverFile
      * @param RateRepository $rateRepository
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -143,7 +149,8 @@ class ImportRates implements ObserverInterface
         RuleFactory $ruleFactory,
         DirectoryList $directoryList,
         DriverFile $driverFile,
-        RateRepository $rateRepository
+        RateRepository $rateRepository,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -155,6 +162,8 @@ class ImportRates implements ObserverInterface
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
         $this->rateRepository = $rateRepository;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
     /**
@@ -167,7 +176,6 @@ class ImportRates implements ObserverInterface
     {
         // @codingStandardsIgnoreEnd
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
-        $this->apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
 
         if ($isEnabled && $this->apiKey) {
             $this->client = $this->clientFactory->create();

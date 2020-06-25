@@ -69,6 +69,11 @@ class Transaction
     protected $helper;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
@@ -77,6 +82,7 @@ class Transaction
      * @param \Taxjar\SalesTax\Model\Logger $logger
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param TaxjarHelper $helper
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -86,7 +92,8 @@ class Transaction
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
         \Taxjar\SalesTax\Model\Logger $logger,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        TaxjarHelper $helper
+        TaxjarHelper $helper,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->clientFactory = $clientFactory;
@@ -96,6 +103,7 @@ class Transaction
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
         $this->objectManager = $objectManager;
         $this->helper = $helper;
+        $this->taxjarConfig = $taxjarConfig;
 
         $this->client = $this->clientFactory->create();
         $this->client->showResponseErrors(true);
@@ -148,11 +156,7 @@ class Transaction
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );
-        $fromStreet1 = $this->scopeConfig->getValue('shipping/origin/street_line1',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-        $fromStreet2 = $this->scopeConfig->getValue('shipping/origin/street_line2',
+        $fromStreet = $this->scopeConfig->getValue('shipping/origin/street_line1',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );
@@ -162,7 +166,7 @@ class Transaction
             'from_zip' => $fromPostcode,
             'from_state' => $fromState,
             'from_city' => $fromCity,
-            'from_street' => $fromStreet1 . $fromStreet2
+            'from_street' => $fromStreet
         ];
     }
 
@@ -186,7 +190,7 @@ class Transaction
             'to_zip' => $address->getPostcode(),
             'to_state' => $address->getRegionCode(),
             'to_city' => $address->getCity(),
-            'to_street' => $address->getData('street')
+            'to_street' => $address->getStreetLine(1)
         ];
 
         return $toAddress;

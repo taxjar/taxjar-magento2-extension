@@ -79,10 +79,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     public function push($forceMethod = null) {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
         $orderSyncedAt = $this->originalOrder->getTjSalestaxSyncDate();
-        $orderApiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->originalOrder->getStoreId()
-        ));
+        $this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId());
 
         if (!$this->isSynced($orderSyncedAt)) {
             $method = 'POST';
@@ -95,8 +92,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             }
         }
 
-        if ($orderApiKey) {
-            $this->client->setApiKey($orderApiKey);
+        if ($this->apiKey) {
+            $this->client->setApiKey($this->apiKey);
         }
 
         if ($forceMethod) {
