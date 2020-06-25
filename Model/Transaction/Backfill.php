@@ -88,6 +88,11 @@ class Backfill
     protected $logger;
 
     /**
+     * @var TaxjarConfig
+     */
+    protected $taxjarConfig;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param RequestInterface $request
      * @param StoreManager $storeManager
@@ -99,6 +104,7 @@ class Backfill
      * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
      * @param \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -111,7 +117,8 @@ class Backfill
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        TaxjarConfig $taxjarConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
@@ -124,6 +131,8 @@ class Backfill
         $this->filterBuilder = $filterBuilder;
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->taxjarConfig = $taxjarConfig;
+        $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
     /**
@@ -136,9 +145,8 @@ class Backfill
         array $data = []
     ) {
         // @codingStandardsIgnoreEnd
-        $apiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY));
 
-        if (!$apiKey) {
+        if (!$this->apiKey) {
             throw new LocalizedException(__('Could not sync transactions with TaxJar. Please make sure you have an API key.'));
         }
 

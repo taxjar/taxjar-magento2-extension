@@ -73,7 +73,25 @@
                         <field id="debug">1</field>
                     </depends>
                 </field>
-                <field id="connected" translate="label" sortOrder="12" type="hidden" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="sandbox" translate="label" sortOrder="12" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Sandbox</label>
+                    <comment>Use the TaxJar sandbox environment to test API sales tax calculations. We recommend only using this mode in a staging environment. Some features may not work as expected.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Multiselect</frontend_model>
+                    <depends>
+                        <field id="connected">1</field>
+                        <field id="debug">1</field>
+                    </depends>
+                </field>
+                <field id="sandbox_apikey" translate="label" sortOrder="13" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sandbox API Token</label>
+                    <comment>Your TaxJar API token for your *sandbox* account.</comment>
+                    <depends>
+                        <field id="connected">1</field>
+                        <field id="debug">1</field>
+                    </depends>
+                </field>
+                <field id="connected" translate="label" sortOrder="14" type="hidden" showInDefault="1" showInWebsite="1" showInStore="1">
                   <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Connected</frontend_model>
                   <depends>
                       <field id="debug">1</field>

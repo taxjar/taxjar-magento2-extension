@@ -117,10 +117,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     public function push($forceMethod = null) {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
         $refundSyncedAt = $this->originalRefund->getTjSalestaxSyncDate();
-        $refundApiKey = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_APIKEY,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->originalOrder->getStoreId()
-        ));
+        $this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId());
 
         if (!$this->isSynced($refundSyncedAt)) {
             $method = 'POST';
@@ -135,8 +132,8 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             }
         }
 
-        if ($refundApiKey) {
-            $this->client->setApiKey($refundApiKey);
+        if ($this->apiKey) {
+            $this->client->setApiKey($this->apiKey);
         }
 
         if ($forceMethod) {
