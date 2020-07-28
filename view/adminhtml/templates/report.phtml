@@ -1,0 +1,43 @@
+<?php
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2020 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<p class='note'><span>Need some help?  Generate a report to help the TaxJar team help you!</span></p>
+
+<?php if ($block->isEnabled()) { ?>
+    <p><button type="button" class="scalable" onclick="TaxJarGenerateReport()"><span>Generate Report</span></button></p>
+    <script>
+        require([
+            'jquery',
+        ], function($) {
+            window.TaxJarGenerateReport = function (reportButton) {
+                $.ajax({
+                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/report/index')); ?>',
+                    method: 'GET',
+                    data: {
+                        store: '<?php echo $this->getRequest()->getParam('store'); ?>',
+                        website: '<?php echo $this->getRequest()->getParam('website'); ?>',
+                    }
+                }).done(function (data) {
+                    window.location = '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/report/index')); ?>';
+                });
+            };
+        });
+    </script>
+<?php } ?>
