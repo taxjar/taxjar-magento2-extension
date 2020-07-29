@@ -17,8 +17,6 @@
 
 namespace Taxjar\SalesTax\Controller\Adminhtml;
 
-use Magento\Framework\Controller\ResultFactory;
-
 abstract class Report extends \Magento\Backend\App\Action
 {
     /**
@@ -27,19 +25,4 @@ abstract class Report extends \Magento\Backend\App\Action
      * @see _isAllowed()
      */
     const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
-
-    /** @var \Magento\Framework\App\Response\Http\FileFactory */
-    protected $fileFactory;
-
-    /**
-     * @param \Magento\Backend\App\Action\Context $context
-     */
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\App\Response\Http\FileFactory $fileFactory
-    ) {
-        $this->fileFactory = $fileFactory;
-
-        parent::__construct($context);
-    }
 }

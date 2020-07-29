@@ -94,7 +94,10 @@
                 <field id="tj_report" translate="label" sortOrder="14" type="label" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Generate Report</label>
                     <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Report</frontend_model>
-                    <depends><field id="connected">1</field></depends>
+                    <depends>
+                        <field id="connected">1</field>
+                        <field id="debug">1</field>
+                    </depends>
                 </field>
                 <field id="connected" translate="label" sortOrder="14" type="hidden" showInDefault="1" showInWebsite="1" showInStore="1">
                   <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Connected</frontend_model>

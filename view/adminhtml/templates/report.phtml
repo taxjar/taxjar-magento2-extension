@@ -29,11 +29,7 @@
             window.TaxJarGenerateReport = function (reportButton) {
                 $.ajax({
                     url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/report/index')); ?>',
-                    method: 'GET',
-                    data: {
-                        store: '<?php echo $this->getRequest()->getParam('store'); ?>',
-                        website: '<?php echo $this->getRequest()->getParam('website'); ?>',
-                    }
+                    method: 'GET'
                 }).done(function (data) {
                     window.location = '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/report/index')); ?>';
                 });
