@@ -99,7 +99,15 @@ class ImportCategories implements ObserverInterface
         $this->categoryFactory = $categoryFactory;
         $this->categoryResourceModel = $categoryResourceModel;
         $this->taxjarConfig = $taxjarConfig;
-        $this->apiKey = $this->taxjarConfig->getApiKey();
+    }
+    
+    private function getApiKey()
+    {
+        if (!$this->apiKey) {
+            $this->apiKey = $this->taxjarConfig->getApiKey();
+        }
+        
+        return $this->apiKey;
     }
 
     /**
