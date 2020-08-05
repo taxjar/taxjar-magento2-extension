@@ -17,6 +17,12 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager:etc/config.xsd">
+    <type name="Taxjar\SalesTax\Console\Command\SyncTransactionsCommand">
+        <arguments>
+            <argument name="backfill" xsi:type="object">Taxjar\SalesTax\Model\Transaction\Backfill\Proxy</argument>
+        </arguments>
+    </type>
+    
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="Taxjar\SalesTax\Model\Tax\Sales\Total\Quote\Tax" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
