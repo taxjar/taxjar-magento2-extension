@@ -99,7 +99,6 @@ class ImportCategories implements ObserverInterface
         $this->categoryFactory = $categoryFactory;
         $this->categoryResourceModel = $categoryResourceModel;
         $this->taxjarConfig = $taxjarConfig;
-        $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
     /**
@@ -110,6 +109,8 @@ class ImportCategories implements ObserverInterface
     // @codingStandardsIgnoreStart
     public function execute(Observer $observer)
     {
+        $this->apiKey = $this->taxjarConfig->getApiKey();
+
         // @codingStandardsIgnoreEnd
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
