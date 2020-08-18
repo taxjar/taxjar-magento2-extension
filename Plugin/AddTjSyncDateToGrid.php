@@ -17,12 +17,27 @@
 
 namespace Taxjar\SalesTax\Plugin;
 
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory;
 use Magento\Sales\Model\ResourceModel\Order\Grid\Collection as OrderGridCollection;
 use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Grid\Collection as CreditmemoGridCollection;
 
 class AddTjSyncDateToGrid
 {
+    /**
+     * @var ResourceConnection
+     */
+    protected $resource;
+
+    /**
+     * @param ResourceConnection $resource
+     */
+    public function __construct(
+        ResourceConnection $resource
+    ) {
+        $this->resource = $resource;
+    }
+
     /**
      * Join tj_salestax_sync_date in the order and creditmemo admin grids
      *
@@ -36,16 +51,16 @@ class AddTjSyncDateToGrid
     ) {
         if ($collection instanceof OrderGridCollection) {
             $collection->getSelect()->joinLeft(
-                'sales_order',
-                'main_table.entity_id = sales_order.entity_id',
+                ['orders' => $this->resource->getTableName('sales_order')],
+                'main_table.entity_id = orders.entity_id',
                 'tj_salestax_sync_date'
             );
         }
 
         if ($collection instanceof CreditmemoGridCollection) {
             $collection->getSelect()->joinLeft(
-                'sales_creditmemo',
-                'main_table.entity_id = sales_creditmemo.entity_id',
+                ['creditmemos' => $this->resource->getTableName('sales_creditmemo')],
+                'main_table.entity_id = creditmemos.entity_id',
                 'tj_salestax_sync_date'
             );
         }
