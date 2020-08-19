@@ -132,7 +132,6 @@ class Backfill
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->taxjarConfig = $taxjarConfig;
-        $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
     /**
@@ -145,6 +144,8 @@ class Backfill
         array $data = []
     ) {
         // @codingStandardsIgnoreEnd
+
+        $this->apiKey = $this->taxjarConfig->getApiKey();
 
         if (!$this->apiKey) {
             throw new LocalizedException(__('Could not sync transactions with TaxJar. Please make sure you have an API key.'));

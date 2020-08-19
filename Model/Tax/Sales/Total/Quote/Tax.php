@@ -282,10 +282,13 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             ? $itemDataObject->getExtensionAttributes()
             : $this->extensionFactory->create();
 
-        $taxCollectable = $lineItemTax['taxable_amount'] * $lineItemTax['combined_tax_rate'];
+        if (is_array($lineItemTax)) {
+            $taxCollectable = $lineItemTax['taxable_amount'] * $lineItemTax['combined_tax_rate'];
 
-        $extensionAttributes->setTaxCollectable($taxCollectable);
-        $extensionAttributes->setCombinedTaxRate($lineItemTax['combined_tax_rate'] * 100);
+            $extensionAttributes->setTaxCollectable($taxCollectable);
+            $extensionAttributes->setCombinedTaxRate($lineItemTax['combined_tax_rate'] * 100);
+        }
+
         $extensionAttributes->setProductType($item->getProductType());
         $extensionAttributes->setPriceType($item->getProduct()->getPriceType());
 
@@ -346,16 +349,19 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
 
         $shippingTax = $this->smartCalcs->getResponseShipping();
 
-        $extensionAttributes->setTaxCollectable($shippingTax['tax_collectable']);
-        $extensionAttributes->setCombinedTaxRate($shippingTax['combined_tax_rate'] * 100);
-        $extensionAttributes->setJurisdictionTaxRates([
-            'shipping' => [
-                'id' => 'shipping',
-                'rate' => $shippingTax['combined_tax_rate'] * 100,
-                'amount' => $shippingTax['tax_collectable']
-            ]
-        ]);
-        $shippingDataObject->setExtensionAttributes($extensionAttributes);
+        if (is_array($shippingTax)) {
+            $extensionAttributes->setTaxCollectable($shippingTax['tax_collectable']);
+            $extensionAttributes->setCombinedTaxRate($shippingTax['combined_tax_rate'] * 100);
+            $extensionAttributes->setJurisdictionTaxRates([
+                'shipping' => [
+                    'id' => 'shipping',
+                    'rate' => $shippingTax['combined_tax_rate'] * 100,
+                    'amount' => $shippingTax['tax_collectable']
+                ]
+            ]);
+
+            $shippingDataObject->setExtensionAttributes($extensionAttributes);
+        }
 
         return $shippingDataObject;
     }
