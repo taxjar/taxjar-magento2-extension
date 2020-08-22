@@ -276,7 +276,10 @@ class Transaction
 
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
-            if ($product->getTaxClassId()) {
+            // Check for a PTC assigned directly to the product; otherwise fall back to tax classes
+            if ($product->getTjPtc()) {
+                $lineItem['product_tax_code'] = $product->getTjPtc();
+            } elseif ($product->getTaxClassId()) {
                 $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
 
                 if ($taxClass->getTjSalestaxCode()) {

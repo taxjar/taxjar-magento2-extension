@@ -23,6 +23,7 @@
         <attribute code="jurisdiction_tax_rates" type="array" />
         <attribute code="product_type" type="string" />
         <attribute code="price_type" type="string" />
+        <attribute code="tj_ptc" type="string" />
     </extension_attributes>
     <extension_attributes for="Magento\Customer\Api\Data\CustomerInterface">
         <attribute code="tj_exemption_type" type="string" />

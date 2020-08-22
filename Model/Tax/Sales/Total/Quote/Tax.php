@@ -50,6 +50,16 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     protected $taxCalculation;
 
     /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    protected $productRepository;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\Logger
+     */
+    protected $logger;
+
+    /**
      * @param \Magento\Tax\Model\Config $taxConfig
      * @param \Magento\Tax\Api\TaxCalculationInterface $taxCalculationService
      * @param \Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
@@ -63,6 +73,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
      * @param \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation
+     * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+     * @param \Taxjar\SalesTax\Model\Logger $logger
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -78,13 +90,17 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
         \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory,
-        \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation
+        \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        \Taxjar\SalesTax\Model\Logger $logger
     ) {
         $this->smartCalcs = $smartCalcs;
         $this->scopeConfig = $scopeConfig;
         $this->priceCurrency = $priceCurrency;
         $this->extensionFactory = $extensionFactory;
         $this->taxCalculation = $taxCalculation;
+        $this->productRepository = $productRepository;
+        $this->logger = $logger;
 
         parent::__construct(
             $taxConfig,
@@ -326,6 +342,23 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                     'amount' => $amount
                 ];
             }
+        }
+
+        try {
+            $product = $this->productRepository->getById($item->getProductId(), false, $item->getStore());
+
+            // Configurable products should use the PTC of the child (when available)
+            if ($product->getTypeId() == 'configurable') {
+                $children = $item->getChildren();
+
+                if (is_array($children) && isset($children[0])) {
+                    $product = $this->productRepository->getById($children[0]->getProductId(), false, $item->getStore());
+                }
+            }
+
+            $extensionAttributes->setTjPtc($product->getTjPtc());
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $this->logger->log($e->getMessage());
         }
 
         $extensionAttributes->setJurisdictionTaxRates($jurisdictionRates);
