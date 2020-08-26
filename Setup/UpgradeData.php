@@ -235,7 +235,6 @@ class UpgradeData implements UpgradeDataInterface
             $this->eventManager->dispatch('taxjar_salestax_import_categories');
         }
 
-
         if (version_compare($context->getVersion(), '1.0.5', '<')) {
             $code = 'tj_ptc';
             $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
@@ -246,8 +245,8 @@ class UpgradeData implements UpgradeDataInterface
                 [
                     'group' => 'General',
                     'type' => 'text',
-                    'label' => 'TaxJar PTC',
-                    'input' => 'text',
+                    'label' => 'TaxJar Category',
+                    'input' => 'select',
 
                     'required' => false,
                     'visible' => true,
@@ -256,14 +255,14 @@ class UpgradeData implements UpgradeDataInterface
                     'system' => 0,
                     'sort_order' => 54,
 
+                    'source' => 'Taxjar\SalesTax\Model\Attribute\Source\Category',
                     'global' => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
 
                     'is_used_in_grid' => true,
                     'is_visible_in_grid' => true,
                     'is_filterable_in_grid' => true,
                     'is_html_allowed_on_front' => false,
-                    'visible_on_front' => false,
-                    'frontend_class' => 'validate-alphanum'
+                    'visible_on_front' => false
                 ]
             );
         }
