@@ -28,8 +28,13 @@ class Category extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
     public function __construct(
         \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\CollectionFactory $categoryFactory
     ) {
-        $this->_options = [];
         $this->categories = $categoryFactory;
+        $this->_options = [
+            [
+                'label' => 'Fully Taxable',
+                'value' => ''
+            ]
+        ];
     }
 
     /**
