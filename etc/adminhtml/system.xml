@@ -19,7 +19,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Config:etc/system_file.xsd">
     <system>
         <section id="tax">
-            <group id="taxjar" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="taxjar" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>TaxJar Sales Tax Automation</label>
                 <field id="enabled" translate="label" sortOrder="1" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled for Checkout</label>
