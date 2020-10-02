@@ -274,14 +274,18 @@ class Transaction
                 'sales_tax' => $tax
             ];
 
+            // Load the tax class from the product.  For configurable products, check the child first
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
+            $children = $item->getChildrenItems();
 
-            if ($product->getTaxClassId()) {
+            if (!empty($children) && $children[0]->getProduct()->getTaxClassId()) {
+                $taxClass = $this->taxClassRepository->get($children[0]->getProduct()->getTaxClassId());
+            } elseif ($product->getTaxClassId()) {
                 $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
+            }
 
-                if ($taxClass->getTjSalestaxCode()) {
-                    $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
-                }
+            if ($taxClass && $taxClass->getTjSalestaxCode()) {
+                $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
             }
 
             $lineItems['line_items'][] = $lineItem;
