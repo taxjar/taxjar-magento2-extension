@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Bundle\Model\Product\Price;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -274,14 +275,19 @@ class Transaction
                 'sales_tax' => $tax
             ];
 
-            $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
+            try {
+                $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
-            if ($product->getTaxClassId()) {
-                $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
+                if ($product->getTaxClassId()) {
+                    $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
 
-                if ($taxClass->getTjSalestaxCode()) {
-                    $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
+                    if ($taxClass->getTjSalestaxCode()) {
+                        $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
+                    }
                 }
+            } catch (NoSuchEntityException $exception) {
+                $msg = 'Product #' . $item->getProductId() . ' does not exist.  Order #' . $order->getIncrementId() . ' possibly missing product tax codes.';
+                $this->logger->log($msg, 'error');
             }
 
             $lineItems['line_items'][] = $lineItem;
