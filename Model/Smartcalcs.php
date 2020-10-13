@@ -464,6 +464,7 @@ class Smartcalcs
                         $discount = ($unitPrice * $quantity);
                     }
 
+                    // This TaxClass may have been overwritten in the TaxjarCommonTaxCollector plugin
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();

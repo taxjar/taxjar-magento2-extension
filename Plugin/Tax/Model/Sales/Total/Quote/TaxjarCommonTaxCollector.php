@@ -49,6 +49,7 @@ class TaxjarCommonTaxCollector
 
             // If a configurable product has no tax class, attempt to load it from the product
             // This allows a simple product to inherit the tax class of it's configurable parent
+            // This tax class is used when calculating tax rates in SmartCalcs
             if ($taxClass === 0) {
                 $result->getTaxClassKey()->setValue($item->getProduct()->getTaxClassId());
             }
