@@ -464,6 +464,10 @@ class Smartcalcs
                         $discount = ($unitPrice * $quantity);
                     }
 
+                    // Check for a PTC assigned directly to the product; otherwise fall back to tax classes
+                    if ($extensionAttributes->getTjPtc()) {
+                        $taxCode = $extensionAttributes->getTjPtc();
+                    } elseif ($item->getTaxClassKey()->getValue()) {
                     // This TaxClass may have been overwritten in the TaxjarCommonTaxCollector plugin
                     if ($item->getTaxClassKey()->getValue()) {
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
