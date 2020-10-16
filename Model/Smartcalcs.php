@@ -468,6 +468,7 @@ class Smartcalcs
                     if ($extensionAttributes->getTjPtc()) {
                         $taxCode = $extensionAttributes->getTjPtc();
                     } elseif ($item->getTaxClassKey()->getValue()) {
+                        // This TaxClass may have been overwritten in the TaxjarCommonTaxCollector plugin
                         $taxClass = $this->taxClassRepository->get($item->getTaxClassKey()->getValue());
                         $taxCode = $taxClass->getTjSalestaxCode();
                     }
