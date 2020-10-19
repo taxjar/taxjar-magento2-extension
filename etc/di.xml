@@ -33,4 +33,7 @@
     <type name="Magento\Framework\RequireJs\Config\File\Collector\Aggregated">
         <plugin name="manage_address_validation_mixins" type="Taxjar\SalesTax\Plugin\RequireJs\AfterFiles" sortOrder="100"/>
     </type>
+    <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
+        <plugin name="taxjar_apply_tax_class" type="Taxjar\SalesTax\Plugin\Tax\Model\Sales\Total\Quote\TaxjarCommonTaxCollector" />
+    </type>
 </config>

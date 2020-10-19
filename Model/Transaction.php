@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Bundle\Model\Product\Price;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -271,18 +272,9 @@ class Transaction
                 'description' => $item->getName(),
                 'unit_price' => $unitPrice,
                 'discount' => $discount,
-                'sales_tax' => $tax
+                'sales_tax' => $tax,
+                'product_tax_code' => $this->getProductTaxCode($item, $order)
             ];
-
-            $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
-
-            if ($product->getTaxClassId()) {
-                $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
-
-                if ($taxClass->getTjSalestaxCode()) {
-                    $lineItem['product_tax_code'] = $taxClass->getTjSalestaxCode();
-                }
-            }
 
             $lineItems['line_items'][] = $lineItem;
         }
@@ -370,5 +362,45 @@ class Transaction
         }
 
         return $parentAmounts;
+    }
+
+    /**
+     * Get the PTC, either assigned directly to the product or from the tax class
+     *
+     * @param $item
+     * @param \Magento\Sales\Model\Order $order
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    protected function getProductTaxCode($item, $order)
+    {
+        try {
+            $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
+
+            // Check for a PTC assigned directly to the product; otherwise fall back to tax classes
+            if ($product->getTjPtc()) {
+                return $product->getTjPtc();
+            }
+
+            // Load the tax class from the product.  For configurable products, check the child first
+            if ($item->getProductType() == 'configurable') {
+                $children = $item->getChildrenItems();
+            }
+
+            if (!empty($children) && $children[0]->getProduct()->getTaxClassId()) {
+                $taxClass = $this->taxClassRepository->get($children[0]->getProduct()->getTaxClassId());
+            } elseif ($product->getTaxClassId()) {
+                $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
+            }
+
+            if (!empty($taxClass) && $taxClass->getTjSalestaxCode()) {
+                return $taxClass->getTjSalestaxCode();
+            }
+
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $msg = 'Product #' . $item->getProductId() . ' does not exist.  Order #' . $order->getIncrementId() . ' possibly missing product tax codes.';
+            $this->logger->log($msg, 'error');
+        }
+
+        return '';
     }
 }
