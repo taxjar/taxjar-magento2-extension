@@ -373,6 +373,12 @@ class Transaction
      */
     protected function getProductTaxCode($item, $order)
     {
+        // Check for a PTC saved to the Item
+        if ($item->getTjPtc()) {
+            return $item->getTjPtc();
+        }
+
+        // If no PTC is saved on the Item, attempt to load it from the product or tax class
         try {
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 

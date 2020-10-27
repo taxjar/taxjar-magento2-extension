@@ -36,4 +36,7 @@
     <type name="Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector">
         <plugin name="taxjar_apply_tax_class" type="Taxjar\SalesTax\Plugin\Tax\Model\Sales\Total\Quote\TaxjarCommonTaxCollector" />
     </type>
+    <type name="Magento\Sales\Model\Order\ItemRepository">
+        <plugin name="taxjar_sales_order_itemrepository" type="Taxjar\SalesTax\Plugin\Sales\Model\Order\ItemRepository" />
+    </type>
 </config>
