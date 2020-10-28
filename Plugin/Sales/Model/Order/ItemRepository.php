@@ -18,6 +18,8 @@
 namespace Taxjar\SalesTax\Plugin\Sales\Model\Order;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Taxjar\SalesTax\Model\Logger;
 
 class ItemRepository
 {
@@ -26,10 +28,21 @@ class ItemRepository
      */
     protected $productRepository;
 
+    /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
+     * @param ProductRepositoryInterface $productRepository
+     * @param Logger $logger
+     */
     public function __construct(
-        ProductRepositoryInterface $productRepository
+        ProductRepositoryInterface $productRepository,
+        Logger $logger
     ) {
         $this->productRepository = $productRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -44,8 +57,13 @@ class ItemRepository
     ) {
         // Only set the product tax code when first creating the OrderItem
         if ($item->getItemId() === null) {
-            $product = $this->productRepository->getById($item->getProductId());
-            $item->setTjPtc($product->getTjPtc());
+            try {
+                $product = $this->productRepository->getById($item->getProductId());
+                $item->setTjPtc($product->getTjPtc());
+            } catch (NoSuchEntityException $e) {
+                $msg = 'Product #' . $item->getProductId() . ' does not exist.  Order #' . $item->getOrderId() . ' possibly missing PTCs on OrderItems.';
+                $this->logger->log($msg, 'error');
+            }
         }
 
         return null;
