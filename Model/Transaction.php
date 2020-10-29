@@ -375,7 +375,8 @@ class Transaction
     {
         // Check for a PTC saved to the Item
         if ($item->getTjPtc()) {
-            return $item->getTjPtc();
+            // Return the PTC, or an empty string if the TAXABLE_TAX_CODE is present
+            return $item->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ?: '';
         }
 
         // If no PTC is saved on the Item, attempt to load it from the product or tax class

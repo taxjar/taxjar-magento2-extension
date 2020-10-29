@@ -19,6 +19,7 @@ namespace Taxjar\SalesTax\Plugin\Sales\Model\Order;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
 
 class ItemRepository
@@ -59,7 +60,8 @@ class ItemRepository
         if ($item->getItemId() === null) {
             try {
                 $product = $this->productRepository->getById($item->getProductId());
-                $item->setTjPtc($product->getTjPtc());
+                $ptc = $product->getTjPtc() ?: TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE;
+                $item->setTjPtc($ptc);
             } catch (NoSuchEntityException $e) {
                 $msg = 'Product #' . $item->getProductId() . ' does not exist.  Order #' . $item->getOrderId() . ' possibly missing PTCs on OrderItems.';
                 $this->logger->log($msg, 'error');

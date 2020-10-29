@@ -163,7 +163,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'tj_ptc',
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    'length' => 255,
+                    'length' => 32,
                     'nullable' => true,
                     'default' => null,
                     'comment' => 'TaxJar Product Tax Code'
