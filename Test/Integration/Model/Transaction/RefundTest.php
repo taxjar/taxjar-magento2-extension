@@ -66,7 +66,7 @@ class RefundTest extends \PHPUnit\Framework\TestCase
         $creditmemo = $order->getCreditmemosCollection()->getFirstItem();
         $result = $this->transactionRefund->build($order, $creditmemo);
 
-        if (isset($resut['line_items'])) {
+        if (isset($result['line_items'])) {
             $lineItems = $result['line_items'];
 
             $this->assertEquals(2, count($lineItems), 'Number of line items is incorrect');
