@@ -40,7 +40,7 @@ foreach($productData as $data) {
     $product->isObjectNew(true);
     $product->setTypeId($data['type_id'])
         ->setId($x++)
-        ->setAttributeSetId(4)
+//        ->setAttributeSetId(4)
         ->setWebsiteIds([1])
         ->setName($data['name'])
         ->setSku($data['sku'])

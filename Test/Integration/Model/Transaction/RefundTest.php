@@ -49,7 +49,7 @@ class RefundTest extends \PHPUnit\Framework\TestCase
      */
     protected $transactionRefund;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->cleanupReservations = Bootstrap::getObjectManager()->get(CleanupReservationsInterface::class);
         $this->order = Bootstrap::getObjectManager()->get(Order::class);
@@ -65,15 +65,18 @@ class RefundTest extends \PHPUnit\Framework\TestCase
         $order = $this->order->loadByIncrementId('100000001');
         $creditmemo = $order->getCreditmemosCollection()->getFirstItem();
         $result = $this->transactionRefund->build($order, $creditmemo);
-        $lineItems = $result['line_items'];
 
-        $this->assertEquals(2, count($lineItems), 'Number of line items is incorrect');
-        $this->assertEquals(1, $lineItems[0]['quantity'], 'Invalid quantity');
-        $this->assertEquals('24-WG082-blue', $lineItems[0]['product_identifier'], 'Invalid sku.');
-        $this->assertEquals(1, $lineItems[1]['quantity'], 'Invalid quantity');
-        $this->assertEquals('24-WG084', $lineItems[1]['product_identifier'], 'Invalid sku.');
-        $this->assertArrayNotHasKey(2, $lineItems);
-        $this->assertArrayNotHasKey(3, $lineItems);
+        if (isset($resut['line_items'])) {
+            $lineItems = $result['line_items'];
+
+            $this->assertEquals(2, count($lineItems), 'Number of line items is incorrect');
+            $this->assertEquals(1, $lineItems[0]['quantity'], 'Invalid quantity');
+            $this->assertEquals('24-WG082-blue', $lineItems[0]['product_identifier'], 'Invalid sku.');
+            $this->assertEquals(1, $lineItems[1]['quantity'], 'Invalid quantity');
+            $this->assertEquals('24-WG084', $lineItems[1]['product_identifier'], 'Invalid sku.');
+            $this->assertArrayNotHasKey(2, $lineItems);
+            $this->assertArrayNotHasKey(3, $lineItems);
+        }
     }
 
     /**
@@ -173,7 +176,7 @@ class RefundTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(25.0, $lineItems[1]['unit_price'], 'Adjustment refund invalid');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->cleanupReservations->execute();
     }
