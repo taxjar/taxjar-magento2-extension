@@ -386,8 +386,12 @@ class Transaction
                 $children = $item->getChildrenItems();
             }
 
-            if (!empty($children) && $children[0]->getProduct()->getTaxClassId()) {
-                $taxClass = $this->taxClassRepository->get($children[0]->getProduct()->getTaxClassId());
+            if (!empty($children) && is_array($children)) {
+                $child = array_first($children);
+
+                if ($child->getProduct()->getTaxClassId()) {
+                    $taxClass = $this->taxClassRepository->get($child->getProduct()->getTaxClassId());
+                }
             } elseif ($product->getTaxClassId()) {
                 $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
             }
