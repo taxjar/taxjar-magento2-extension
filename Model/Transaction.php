@@ -387,7 +387,7 @@ class Transaction
             }
 
             if (!empty($children) && is_array($children)) {
-                $child = array_first($children);
+                $child = reset($children);
 
                 if ($child->getProduct()->getTaxClassId()) {
                     $taxClass = $this->taxClassRepository->get($child->getProduct()->getTaxClassId());
