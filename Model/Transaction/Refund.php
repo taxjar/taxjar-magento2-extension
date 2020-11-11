@@ -80,11 +80,13 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $adjustmentFee = $creditmemo->getAdjustmentNegative();
             $adjustmentRefund = $creditmemo->getAdjustmentPositive();
 
-            // Discounts on credit memos act as fees and shouldn't be included in $itemDiscounts
-            foreach ($this->request['line_items'] as $k => $lineItem) {
-                $lineItemSubtotal = $lineItem['unit_price'] * $lineItem['quantity'];
-                $this->request['line_items'][$k]['discount'] += ($adjustmentFee * ($lineItemSubtotal / $subtotal));
-                $itemDiscounts += $lineItem['discount'];
+            if ($subtotal != 0) {
+                // Discounts on credit memos act as fees and shouldn't be included in $itemDiscounts
+                foreach ($this->request['line_items'] as $k => $lineItem) {
+                    $lineItemSubtotal = $lineItem['unit_price'] * $lineItem['quantity'];
+                    $this->request['line_items'][$k]['discount'] += ($adjustmentFee * ($lineItemSubtotal / $subtotal));
+                    $itemDiscounts += $lineItem['discount'];
+                }
             }
 
             if ($adjustmentRefund) {
