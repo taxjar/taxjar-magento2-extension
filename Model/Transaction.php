@@ -376,8 +376,12 @@ class Transaction
         // Check for a PTC saved to the Item
         // For configurable products, load the PTC of the child
         if ($item->getHasChildren() && $item->getProductType() == 'configurable') {
-            $child = $item->getChildrenItems()[0];
-            return $child->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $child->getTjPtc() : '';
+            $children = $item->getChildrenItems();
+
+            if (!empty($children) && is_array($children)) {
+                $child = reset($children);
+                return $child->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $child->getTjPtc() : '';
+            }
         }
 
         if ($item->getTjPtc()) {
