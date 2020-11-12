@@ -44,7 +44,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
      */
     protected $transactionOrder;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->cleanupReservations = Bootstrap::getObjectManager()->get(CleanupReservationsInterface::class);
         $this->order = Bootstrap::getObjectManager()->get(Order::class);
@@ -147,6 +147,11 @@ class OrderTest extends \PHPUnit\Framework\TestCase
      */
     public function testExemptGiftCard()
     {
+        // Giftcard only exists in Commerce version
+        if (!class_exists('\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard')) {
+            return;
+        }
+
         $order = $this->order->loadByIncrementId('100000006');
         $result = $this->transactionOrder->build($order);
 
@@ -174,7 +179,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('24-WG088', $lineItems[3]['product_identifier'], 'Invalid sku.');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->cleanupReservations->execute();
     }

@@ -299,7 +299,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             : $this->extensionFactory->create();
 
         if (is_array($lineItemTax)) {
-            $taxCollectable = $lineItemTax['taxable_amount'] * $lineItemTax['combined_tax_rate'];
+            $taxCollectable = $this->priceCurrency->convertAndRound(
+                ($lineItemTax['taxable_amount'] * $lineItemTax['combined_tax_rate']),
+                $item->getQuote()->getStore(),
+                $item->getQuote()->getCurrency()
+            );
 
             $extensionAttributes->setTaxCollectable($taxCollectable);
             $extensionAttributes->setCombinedTaxRate($lineItemTax['combined_tax_rate'] * 100);

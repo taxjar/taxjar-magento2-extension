@@ -19,6 +19,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -38,20 +39,28 @@ class Data extends AbstractHelper
     protected $storeManager;
 
     /**
+     * @var PriceCurrencyInterface
+     */
+    protected $priceCurrency;
+
+    /**
      * @param Context $context
      * @param Http $request
      * @param ProductMetadataInterface $productMetadata
+     * @param PriceCurrencyInterface $priceCurrency,
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context $context,
         Http $request,
         ProductMetadataInterface $productMetadata,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        PriceCurrencyInterface $priceCurrency
     ) {
         $this->request = $request;
         $this->productMetadata = $productMetadata;
         $this->storeManager = $storeManager;
+        $this->priceCurrency = $priceCurrency;
         parent::__construct($context);
     }
 
@@ -125,9 +134,10 @@ class Data extends AbstractHelper
         $curl = !in_array('curl_version', $disabledFunctions) ? 'cURL ' . curl_version()['version'] : '';
         $openSSL = defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : '';
         $magento = 'Magento ' . $this->productMetadata->getEdition() . ' ' . $this->productMetadata->getVersion();
+        $precision = 'Precision ' . $this->priceCurrency::DEFAULT_PRECISION;
         $taxjar = 'Taxjar_SalesTax/' . TaxjarConfig::TAXJAR_VERSION;
 
-        return "TaxJar/Magento ($os; $php; $curl; $openSSL; $magento) $taxjar";
+        return "TaxJar/Magento ($os; $php; $curl; $openSSL; $precision; $magento) $taxjar";
     }
 
     /**

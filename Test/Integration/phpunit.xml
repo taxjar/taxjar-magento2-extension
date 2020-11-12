@@ -37,7 +37,7 @@
     </testsuites>
     <!-- Code coverage filters -->
     <filter>
-        <whitelist addUncoveredFilesFromWhiteList="true">
+        <whitelist>
             <directory suffix=".php">../../../app/code/Magento</directory>
             <directory suffix=".php">../../../lib/internal/Magento</directory>
             <exclude>
