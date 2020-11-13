@@ -150,5 +150,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
             $installer->endSetup();
         }
+
+        if (version_compare($context->getVersion(), '1.0.6', '<')) {
+            $installer = $setup;
+            $installer->startSetup();
+
+            /**
+             * Update table 'sales_order_item'
+             */
+            $installer->getConnection()->addColumn(
+                $installer->getTable('sales_order_item'),
+                'tj_ptc',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' => 32,
+                    'nullable' => true,
+                    'default' => null,
+                    'comment' => 'TaxJar Product Tax Code'
+                ]
+            );
+
+            $installer->endSetup();
+        }
     }
 }
