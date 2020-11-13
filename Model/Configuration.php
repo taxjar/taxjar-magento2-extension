@@ -23,7 +23,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.5.8';
+    const TAXJAR_VERSION              = '1.6.0';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_SANDBOX_API_URL      = 'https://api.sandbox.taxjar.com/v2';
@@ -49,6 +49,7 @@ class Configuration
     const TAXJAR_TRANSACTIONS_LOG     = 'transactions.log';
     const TAXJAR_ADDRVALIDATION_LOG   = 'address_validation.log';
     const TAXJAR_CUSTOMER_LOG         = 'customers.log';
+    const TAXJAR_TAXABLE_TAX_CODE     = '11111';
     const TAXJAR_EXEMPT_TAX_CODE      = '99999';
     const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
     const TAXJAR_BACKUP_RATE_CODE     = 'TaxJar Backup Rates';

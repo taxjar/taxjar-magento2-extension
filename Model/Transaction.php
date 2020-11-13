@@ -373,6 +373,23 @@ class Transaction
      */
     protected function getProductTaxCode($item, $order)
     {
+        // Check for a PTC saved to the Item
+        // For configurable products, load the PTC of the child
+        if ($item->getHasChildren() && $item->getProductType() == 'configurable') {
+            $children = $item->getChildrenItems();
+
+            if (!empty($children) && is_array($children)) {
+                $child = reset($children);
+                return $child->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $child->getTjPtc() : '';
+            }
+        }
+
+        if ($item->getTjPtc()) {
+            // Return the PTC, or an empty string if the TAXABLE_TAX_CODE is present
+            return $item->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $item->getTjPtc() : '';
+        }
+
+        // If no PTC is saved on the Item, attempt to load it from the product or tax class
         try {
             $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
 
@@ -386,8 +403,12 @@ class Transaction
                 $children = $item->getChildrenItems();
             }
 
-            if (!empty($children) && $children[0]->getProduct()->getTaxClassId()) {
-                $taxClass = $this->taxClassRepository->get($children[0]->getProduct()->getTaxClassId());
+            if (!empty($children) && is_array($children)) {
+                $child = reset($children);
+
+                if ($child->getProduct()->getTaxClassId()) {
+                    $taxClass = $this->taxClassRepository->get($child->getProduct()->getTaxClassId());
+                }
             } elseif ($product->getTaxClassId()) {
                 $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
             }

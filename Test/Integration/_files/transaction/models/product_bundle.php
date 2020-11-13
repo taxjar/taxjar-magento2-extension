@@ -38,7 +38,7 @@ foreach($productData as $data) {
     $bundleProduct->isObjectNew(true);
     $bundleProduct->setTypeId($data['type_id'])
         ->setId($id++)
-        ->setAttributeSetId(4)
+//        ->setAttributeSetId(4)
         ->setWebsiteIds([1])
         ->setName($data['name'])
         ->setSku($data['sku'])
@@ -63,7 +63,7 @@ foreach($productData as $data) {
             ]
         );
 
-        //TODO: missing bundle options
+        //TODO: missing bundle options - causes testBundledProductsPartialRefund to fail
 
     /** @var \Magento\Catalog\Api\ProductRepositoryInterface $productRepository */
     $productRepository = $objectManager->create(\Magento\Catalog\Api\ProductRepositoryInterface::class);

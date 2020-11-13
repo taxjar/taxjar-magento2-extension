@@ -703,6 +703,7 @@ class SetupUtil
                 'used_in_product_listing' => 0,
                 'used_for_sort_by' => 0,
                 'frontend_label' => ['Test Configurable'],
+                'default_value' => 'Test Configurable',
                 'backend_type' => 'int',
                 'option' => $options
             ]

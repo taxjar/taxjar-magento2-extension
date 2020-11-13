@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.6.0] - 2020-11-13
+- Add persistent product tax codes to OrderItems to increase reporting accuracy
+- Improve tax collectable by rounding to the DEFAULT_PRECISION value
+- Fix syncing zero dollar refunds to TaxJar
+- Fix array lookups for configurable product tax codes
+
 ## [1.5.8] - 2020-10-16
 - Add product attribute for product tax codes
 - Fix mismatched tax codes for configurable products
@@ -211,7 +217,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.8...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.8...v1.6.0
 [1.5.8]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.7...v1.5.8
 [1.5.7]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.6...v1.5.7
 [1.5.6]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.5.5...v1.5.6

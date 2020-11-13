@@ -15,6 +15,10 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+if (!class_exists('\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard')) {
+    return;
+}
+
 require 'models/cleanup.php';
 require 'models/product_giftcard.php';
 require 'models/order_giftcard.php';
