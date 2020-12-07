@@ -52,7 +52,7 @@ function (ko, $) {
                 };
 
                 // Skip if already suggested
-                if (formattedAddr == this.activeAddress) {
+                if (JSON.stringify(formattedAddr) === JSON.stringify(this.activeAddress)) {
                     if (typeof onFail === 'function') {
                         onFail('ADDRESS_ALREADY_VALIDATED');
                     }
