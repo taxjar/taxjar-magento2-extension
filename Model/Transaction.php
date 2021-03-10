@@ -380,13 +380,13 @@ class Transaction
 
             if (!empty($children) && is_array($children)) {
                 $child = reset($children);
-                return $child->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $child->getTjPtc() : '';
+                return $child->getTjPtc() != TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $child->getTjPtc() : '';
             }
         }
 
         if ($item->getTjPtc()) {
             // Return the PTC, or an empty string if the TAXABLE_TAX_CODE is present
-            return $item->getTjPtc() != $this->taxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $item->getTjPtc() : '';
+            return $item->getTjPtc() != TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $item->getTjPtc() : '';
         }
 
         // If no PTC is saved on the Item, attempt to load it from the product or tax class
