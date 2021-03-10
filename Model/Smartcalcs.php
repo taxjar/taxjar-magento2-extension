@@ -225,7 +225,10 @@ class Smartcalcs
                 'useragent' => $this->tjHelper->getUserAgent(),
                 'referer' => $this->tjHelper->getStoreUrl()
             ]);
-            $client->setHeaders('Authorization', 'Bearer ' . $apiKey);
+            $client->setHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'x-api-version' => TaxjarConfig::TAXJAR_X_API_VERSION
+            ]);
             $client->setRawData(json_encode($order), 'application/json');
 
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');

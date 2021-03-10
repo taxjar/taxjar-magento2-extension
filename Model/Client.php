@@ -184,7 +184,10 @@ class Client
             'useragent' => $this->tjHelper->getUserAgent(),
             'referer' => $this->tjHelper->getStoreUrl()
         ]);
-        $client->setHeaders('Authorization', 'Bearer ' . $this->apiKey);
+        $client->setHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'x-api-version' => TaxJarConfig::TAXJAR_X_API_VERSION
+        ]);
 
         return $client;
     }
