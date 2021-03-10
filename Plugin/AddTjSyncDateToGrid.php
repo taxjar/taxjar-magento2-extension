@@ -63,6 +63,11 @@ class AddTjSyncDateToGrid
                 'main_table.entity_id = creditmemos.entity_id',
                 'tj_salestax_sync_date'
             );
+            $collection->addFilterToMap('created_at', 'main_table.created_at');
+            $collection->addFilterToMap('base_grand_total', 'main_table.base_grand_total');
+            $collection->addFilterToMap('increment_id', 'main_table.increment_id');
+            $collection->addFilterToMap('state', 'main_table.state');
+            $collection->addFilterToMap('store_id', 'main_table.store_id');
         }
 
         return $collection;
