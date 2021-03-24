@@ -187,7 +187,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $useBaseCurrency,
         $scope
     ) {
-        $price = $item->getUnitPrice();
+        $price = $this->priceCurrency->round($item->getUnitPrice());
         $quantity = $this->getTotalQuantity($item);
 
         $extensionAttributes = $item->getExtensionAttributes();
@@ -201,7 +201,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $rowTotal = $price * $quantity;
         $rowTotalInclTax = $rowTotal + $taxCollectable;
 
-        $priceInclTax = $rowTotalInclTax / $quantity;
+        $priceInclTax = $this->priceCurrency->round($rowTotalInclTax / $quantity);
         $discountTaxCompensationAmount = 0;
 
         $appliedTaxes = $this->getAppliedTaxes($item, $scope);
