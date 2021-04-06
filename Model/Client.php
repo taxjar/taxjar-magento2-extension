@@ -17,37 +17,21 @@
 
 namespace Taxjar\SalesTax\Model;
 
-use Magento\Directory\Model\RegionFactory;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Client
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var BackupRateOriginAddress
      */
-    protected $scopeConfig;
+    protected $backupRateOriginAddress;
 
     /**
      * @var string
      */
     protected $apiKey;
-
-    /**
-     * @var string
-     */
-    protected $storeZip;
-
-    /**
-     * @var string
-     */
-    protected $storeRegionCode;
-
-    /**
-     * @var \Magento\Directory\Model\CountryFactory
-     */
-    protected $regionFactory;
 
     /**
      * @var bool
@@ -65,25 +49,19 @@ class Client
     protected $taxjarConfig;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param RegionFactory $regionFactory
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
      * @param TaxjarConfig $taxjarConfig
+     * @param BackupRateOriginAddress $backupRateOriginAddress
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        RegionFactory $regionFactory,
         \Taxjar\SalesTax\Helper\Data $tjHelper,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        BackupRateOriginAddress $backupRateOriginAddress
     ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->regionFactory = $regionFactory;
         $this->tjHelper = $tjHelper;
         $this->taxjarConfig = $taxjarConfig;
+        $this->backupRateOriginAddress = $backupRateOriginAddress;
         $this->apiKey = $this->taxjarConfig->getApiKey();
-        $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
-        $region = $this->_getShippingRegion();
-        $this->storeRegionCode = $region->getCode();
     }
 
     /**
@@ -228,10 +206,10 @@ class Client
 
         switch ($resource) {
             case 'config':
-                $apiUrl .= '/plugins/magento/configuration/' . $this->storeRegionCode;
+                $apiUrl .= '/plugins/magento/configuration/' . $this->backupRateOriginAddress->getShippingRegionCode();
                 break;
             case 'rates':
-                $apiUrl .= '/plugins/magento/rates/' . $this->storeRegionCode . '/' . $this->storeZip;
+                $apiUrl .= '/plugins/magento/rates/' . $this->backupRateOriginAddress->getShippingRegionCode() . '/' . $this->backupRateOriginAddress->getShippingZipCode();
                 break;
             case 'categories':
                 $apiUrl .= '/categories';
@@ -260,21 +238,6 @@ class Client
         }
 
         return $apiUrl;
-    }
-
-    /**
-     * Get shipping region
-     *
-     * @return string
-     */
-    private function _getShippingRegion()
-    {
-        $region = $this->regionFactory->create();
-        $regionId = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID
-        );
-        $region->load($regionId);
-        return $region;
     }
 
     /**
