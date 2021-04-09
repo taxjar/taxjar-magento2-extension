@@ -20,7 +20,7 @@ define([
     'uiComponent',
     'Magento_Checkout/js/model/step-navigator',
     'Magento_Checkout/js/model/quote',
-    'Magento_Checkout/js/model/shipping-rate-registry',
+    'uiRegistry',
     'Taxjar_SalesTax/js/model/address_validation_core'
 ],
 function (
@@ -29,7 +29,7 @@ function (
     Component,
     stepNavigator,
     quote,
-    rateRegistry,
+    registry,
     avCore
 ) {
     'use strict';
@@ -69,7 +69,9 @@ function (
             this.subscribeToSuggestedAddressRadio();
 
             quote.shippingAddress.subscribe(function (address) {
-                avCore.getSuggestedAddresses(quote.shippingAddress());
+                var checkoutProvider = registry.get('checkoutProvider');
+                var address = $.extend({}, checkoutProvider.get('shippingAddress'));
+                avCore.getSuggestedAddresses(address);
             });
 
             quote.shippingMethod.subscribe(function () {
@@ -86,7 +88,13 @@ function (
         subscribeToSuggestedAddesses: function () {
             var self = this;
             this.suggestedAddresses.subscribe(function (newValue) {
-                self.suggestedAddressRadio(0);
+                if (avCore.isRefresh) {
+                    self.suggestedAddressRadio(0);
+                    avCore.isRefresh = false;
+                } else {
+                    self.suggestedAddressRadio();
+                }
+
                 self.toggleDisplay();
             });
         },
@@ -106,15 +114,34 @@ function (
             var addrs = avCore.suggestedAddresses();
 
             if (addrs && addrs.length) {
-                var newAddr = $.extend({}, quote.shippingAddress(), addrs[id].address, { custom_attributes: { suggestedAddress: true } });
+                var checkoutProvider = registry.get('checkoutProvider');
+                var originalAddress = $.extend({}, checkoutProvider.get('shippingAddress'));
 
-                // Force shipping rates to recalculate
-                // https://alanstorm.com/refresh-shipping-rates-for-the-magento-2-checkout/
-                rateRegistry.set(newAddr.getKey(), null);
-                rateRegistry.set(newAddr.getCacheKey(), null);
+                originalAddress.city = addrs[id].address.city;
+                originalAddress.country_id = addrs[id].address.countryId;
+                originalAddress.postcode = addrs[id].address.postcode;
+                originalAddress.region_id = addrs[id].address.regionId;
 
-                quote.shippingAddress(newAddr);
-                quote.billingAddress(newAddr);
+                addrs[id].address.street.forEach(function(item, index) {
+                   originalAddress.street[index] = item;
+                });
+
+                if (id !== 0) {
+                    originalAddress.taxjar_attributes = {
+                        suggestedAddress: true
+                    };
+                } else {
+                    originalAddress.taxjar_attributes = {
+                        suggestedAddress: false
+                    };
+                }
+
+                // street address does not update when updating the checkout provider shipping address
+                // that input must be updated individually
+                $('.form-shipping-address input[name="street[0]"]').val(originalAddress.street[0]);
+
+                checkoutProvider.set('shippingAddress', originalAddress);
+                checkoutProvider.trigger('shippingAddress', originalAddress);
             }
 
             return true;

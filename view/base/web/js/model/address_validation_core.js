@@ -24,6 +24,8 @@ function (ko, $) {
     return {
         suggestedAddresses: ko.observable([]),
         activeAddress: {},
+        validatedAddress: {},
+        isRefresh: false,
 
         getAddressValidationUrl: function () {
             return '/rest/V1/Taxjar/address_validation/';
@@ -33,7 +35,7 @@ function (ko, $) {
             var self = this;
 
             // Skip if non-US shipping address
-            if (addr && addr.countryId !== 'US') {
+            if (addr && addr.country_id !== 'US') {
                 self.updateSuggestedAddresses([]);
 
                 if (typeof onFail === 'function') {
@@ -42,26 +44,18 @@ function (ko, $) {
                 return;
             }
 
-            if (addr && addr.street && addr.city && addr.regionId) {
-                var formattedAddr = {
-                    'street0': addr.street[0],
-                    'city': addr.city,
-                    'region': addr.regionId,
-                    'country': addr.countryId,
-                    'postcode': addr.postcode
-                };
+            if (addr && addr.street && addr.city && addr.region_id) {
+                var formattedAddr = self.formatAddress(addr);
 
                 // Skip if already suggested
-                if (formattedAddr == this.activeAddress) {
+                if (self.addressMatches(formattedAddr, this.activeAddress)) {
                     if (typeof onFail === 'function') {
                         onFail('ADDRESS_ALREADY_VALIDATED');
                     }
                     return;
                 }
 
-                // Skip if the selected address is a suggestion
-                if (addr.custom_attributes && addr.custom_attributes.suggestedAddress) {
-                    this.activeAddress = formattedAddr;
+                if (self.isSuggestedAddress(addr)) {
                     return;
                 }
 
@@ -76,7 +70,9 @@ function (ko, $) {
                     }
                 }).done(function (response) {
                     self.activeAddress = formattedAddr;
+                    self.validatedAddress = formattedAddr;
                     self.updateSuggestedAddresses(response);
+                    self.isRefresh = true;
 
                     if (typeof onDone === 'function') {
                         onDone(response);
@@ -93,8 +89,48 @@ function (ko, $) {
             }
         },
 
+        isSuggestedAddress: function (address) {
+            var self = this;
+            var isSuggested = false;
+            var suggestedAddresses = this.suggestedAddresses();
+            suggestedAddresses.forEach(function(suggestedAddress, index) {
+                if (self.addressMatches(self.formatAddress(address), self.formatSuggestedAddress(suggestedAddress.address))) {
+                    isSuggested = true;
+                }
+            });
+            return isSuggested;
+        },
+
         updateSuggestedAddresses: function (addr) {
             this.suggestedAddresses(addr);
+        },
+
+        formatAddress: function (address) {
+            var formattedAddress = {
+                'street0': address.street[0],
+                'city': address.city,
+                'region': address.region_id,
+                'country': address.country_id,
+                'postcode': address.postcode
+            };
+            return formattedAddress;
+        },
+
+        formatSuggestedAddress: function (suggestedAddress) {
+            var formattedAddress = {
+                'street0': suggestedAddress.street[0],
+                'city': suggestedAddress.city,
+                'region': suggestedAddress.regionId,
+                'country': suggestedAddress.countryId,
+                'postcode': suggestedAddress.postcode
+            };
+            return formattedAddress;
+        },
+
+        addressMatches: function (address, addressToCompare) {
+            console.log(JSON.stringify(address));
+            console.log(JSON.stringify(addressToCompare));
+            return JSON.stringify(address) === JSON.stringify(addressToCompare);
         }
     };
 });
