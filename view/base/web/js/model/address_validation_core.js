@@ -128,8 +128,6 @@ function (ko, $) {
         },
 
         addressMatches: function (address, addressToCompare) {
-            console.log(JSON.stringify(address));
-            console.log(JSON.stringify(addressToCompare));
             return JSON.stringify(address) === JSON.stringify(addressToCompare);
         }
     };
