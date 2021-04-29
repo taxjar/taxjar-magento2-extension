@@ -106,25 +106,23 @@ function (ko, $) {
         },
 
         formatAddress: function (address) {
-            var formattedAddress = {
+            return {
                 'street0': address.street[0],
                 'city': address.city,
                 'region': address.region_id,
                 'country': address.country_id,
                 'postcode': address.postcode
             };
-            return formattedAddress;
         },
 
         formatSuggestedAddress: function (suggestedAddress) {
-            var formattedAddress = {
+            return {
                 'street0': suggestedAddress.street[0],
                 'city': suggestedAddress.city,
                 'region': suggestedAddress.regionId,
                 'country': suggestedAddress.countryId,
                 'postcode': suggestedAddress.postcode
             };
-            return formattedAddress;
         },
 
         addressMatches: function (address, addressToCompare) {
