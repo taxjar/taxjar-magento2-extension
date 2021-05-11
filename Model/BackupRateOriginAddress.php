@@ -149,7 +149,7 @@ class BackupRateOriginAddress
         // backup rates endpoints (plugins/magento/configuration and plugins/magento/rates) will cause
         // the endpoints to return the rates, sourcing, and freight taxability without performing any sourcing
         // overrides. This is necessary for providing backup US rates for stores with international from addresses.
-        $invalidCode = 'AAA';
+        $invalidCode = 'AA';
         return $invalidCode;
     }
 }
