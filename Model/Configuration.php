@@ -23,7 +23,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class Configuration
 {
-    const TAXJAR_VERSION              = '1.6.2';
+    const TAXJAR_VERSION              = '1.6.3';
     const TAXJAR_AUTH_URL             = 'https://app.taxjar.com';
     const TAXJAR_API_URL              = 'https://api.taxjar.com/v2';
     const TAXJAR_SANDBOX_API_URL      = 'https://api.sandbox.taxjar.com/v2';
