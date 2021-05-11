@@ -26,6 +26,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Magento\Tax\Model\Calculation\RateRepository;
+use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\RateFactory;
@@ -80,6 +81,11 @@ class ImportRates implements ObserverInterface
      * @var \Magento\Framework\Filesystem\Driver\File
      */
     protected $driverFile;
+
+    /**
+     * @var BackupRateOriginAddress
+     */
+    protected $backupRateOriginAddress;
 
     /**
      * @var string
@@ -138,6 +144,7 @@ class ImportRates implements ObserverInterface
      * @param DriverFile $driverFile
      * @param RateRepository $rateRepository
      * @param TaxjarConfig $taxjarConfig
+     * @param BackupRateOriginAddress $backupRateOriginAddress
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -150,7 +157,8 @@ class ImportRates implements ObserverInterface
         DirectoryList $directoryList,
         DriverFile $driverFile,
         RateRepository $rateRepository,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        BackupRateOriginAddress $backupRateOriginAddress
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -163,6 +171,7 @@ class ImportRates implements ObserverInterface
         $this->driverFile = $driverFile;
         $this->rateRepository = $rateRepository;
         $this->taxjarConfig = $taxjarConfig;
+        $this->backupRateOriginAddress = $backupRateOriginAddress;
         $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
@@ -179,7 +188,7 @@ class ImportRates implements ObserverInterface
 
         if ($isEnabled && $this->apiKey) {
             $this->client = $this->clientFactory->create();
-            $this->storeZip = trim($this->scopeConfig->getValue('shipping/origin/postcode'));
+            $this->storeZip = $this->backupRateOriginAddress->getShippingZipCode();
             $this->customerTaxClasses = explode(
                 ',',
                 $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES)
@@ -231,7 +240,7 @@ class ImportRates implements ObserverInterface
             return;
         }
 
-        if ($this->storeZip && preg_match("/(\d{5}-\d{4})|(\d{5})/", $this->storeZip)) {
+        if ($this->isZipCodeValid()) {
             $ratesJson = $this->_getRatesJson();
         } else {
             // @codingStandardsIgnoreStart
@@ -407,5 +416,26 @@ class ImportRates implements ObserverInterface
     private function _setLastUpdateDate($date)
     {
         $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_LAST_UPDATE, $date, 'default', 0);
+    }
+
+    /**
+     * Checks whether the zip code is valid to import rates
+     *
+     * @return bool
+     */
+    private function isZipCodeValid() {
+        $is_valid = false;
+
+        if ($this->backupRateOriginAddress->isScopeCountryCodeUS()) {
+            if ($this->storeZip && preg_match("/(\d{5}-\d{4})|(\d{5})/", $this->storeZip)){
+                $is_valid = true;
+            }
+        } else {
+            if ($this->storeZip) {
+                $is_valid = true;
+            }
+        }
+
+       return $is_valid;
     }
 }

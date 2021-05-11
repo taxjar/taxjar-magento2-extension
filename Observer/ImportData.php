@@ -18,13 +18,12 @@
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\Config\Model\ResourceModel\Config;
-use Magento\Directory\Model\RegionFactory;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Taxjar\SalesTax\Model\ClientFactory;
+use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\ConfigurationFactory;
 
@@ -33,10 +32,6 @@ use Taxjar\SalesTax\Model\ConfigurationFactory;
  */
 class ImportData implements ObserverInterface
 {
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config
@@ -47,11 +42,6 @@ class ImportData implements ObserverInterface
      * @var \Magento\Framework\App\Config\ReinitableConfigInterface
      */
     protected $reinitableConfig;
-
-    /**
-     * @var \Magento\Directory\Model\RegionFactory
-     */
-    protected $regionFactory;
 
     /**
      * @var \Taxjar\SalesTax\Model\ClientFactory
@@ -79,30 +69,31 @@ class ImportData implements ObserverInterface
     protected $taxjarConfig;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
+     * @var BackupRateOriginAddress
+     */
+    protected $backupRateOriginAddress;
+
+    /**
      * @param Config $resourceConfig
-     * @param RegionFactory $regionFactory
      * @param ClientFactory $clientFactory
      * @param ConfigurationFactory $configFactory
      * @param ReinitableConfigInterface $reinitableConfig
      * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
-        RegionFactory $regionFactory,
         ClientFactory $clientFactory,
         ConfigurationFactory $configFactory,
         ReinitableConfigInterface $reinitableConfig,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        BackupRateOriginAddress $backupRateOriginAddress
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
-        $this->regionFactory = $regionFactory;
         $this->clientFactory = $clientFactory;
         $this->configFactory = $configFactory;
         $this->reinitableConfig = $reinitableConfig;
         $this->taxjarConfig = $taxjarConfig;
+        $this->backupRateOriginAddress = $backupRateOriginAddress;
         $this->apiKey = $this->taxjarConfig->getApiKey();
     }
 
@@ -116,12 +107,12 @@ class ImportData implements ObserverInterface
     public function execute(Observer $observer)
     {
         // @codingStandardsIgnoreEnd
-        $region = $this->_getShippingRegion();
-
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
 
-            if ($region->getCode()) {
+	        $region = $this->backupRateOriginAddress->getShippingRegionCode();
+
+            if ($region) {
                 $this->_setConfiguration();
             } else {
                 throw new LocalizedException(__('Please check that you have set a Region/State in Shipping Settings.'));
@@ -129,21 +120,6 @@ class ImportData implements ObserverInterface
         }
 
         return $this;
-    }
-
-    /**
-     * Get shipping region
-     *
-     * @return string
-     */
-    private function _getShippingRegion()
-    {
-        $region = $this->regionFactory->create();
-        $regionId = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID
-        );
-        $region->load($regionId);
-        return $region;
     }
 
     /**
