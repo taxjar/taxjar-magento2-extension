@@ -142,6 +142,10 @@ abstract class Customer implements ObserverInterface
     {
         $customerRegions = [];
 
+        if (is_array($regions)) {
+            $regions = implode(',', $regions);
+        }
+
         if (!empty($regions)) {
             foreach (explode(',', $regions) as $region) {
                 $customerRegions[] = [
