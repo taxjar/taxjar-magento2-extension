@@ -147,20 +147,8 @@ function (
             return true;
         },
 
-        waitForElement: function(selector, callback) {
-            if ($(selector).length) {
-                callback();
-            } else {
-                setTimeout(function() {
-                    this.waitForElement(selector, callback);
-                }, 100, this);
-            }
-        },
-
         rearrangeSteps: function () {
-            this.waitForElement('#shipping, .onestep-shipping-address', function () {
-                $('#shipping, .onestep-shipping-address').after($('#address-validation'));
-            });
+            $('#shipping, .onestep-shipping-address').after($('#address-validation'));
         },
 
         toggleDisplay: function () {
