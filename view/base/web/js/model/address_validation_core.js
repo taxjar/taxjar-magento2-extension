@@ -34,18 +34,19 @@ function (ko, $) {
         getSuggestedAddresses: function (addr, onDone, onFail) {
             var self = this;
 
-            if (!this.isValidAddress(addr)) {
-                // Skip if non-US shipping address
-                if (addr && addr.country_id !== 'US') {
-                    self.updateSuggestedAddresses([]);
+            // Skip if non-US shipping address
+            if (addr && addr.country_id !== 'US') {
+                self.updateSuggestedAddresses([]);
 
-                    if (typeof onFail === 'function') {
-                        onFail('NON_US_SHIPPING_ADDRESS');
-                    }
-                } else {
-                    if (typeof onFail === 'function') {
-                        onFail('MISSING_ADDRESS_FIELDS');
-                    }
+                if (typeof onFail === 'function') {
+                    onFail('NON_US_SHIPPING_ADDRESS');
+                }
+                return;
+            }
+
+            if (!this.isValidAddress(addr)) {
+                if (typeof onFail === 'function') {
+                    onFail('MISSING_ADDRESS_FIELDS');
                 }
                 return;
             }
@@ -108,7 +109,7 @@ function (ko, $) {
         isValidAddress: function (address) {
             return !!(
                 address &&
-                address.country_id === 'US' &&
+                address.country_id &&
                 address.street[0] &&
                 address.city &&
                 address.region_id &&
