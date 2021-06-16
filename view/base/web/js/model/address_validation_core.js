@@ -44,49 +44,50 @@ function (ko, $) {
                 return;
             }
 
-            if (addr && addr.street && addr.city && addr.region_id) {
-                var formattedAddr = self.formatAddress(addr);
-
-                // Skip if already suggested
-                if (self.addressMatches(formattedAddr, this.activeAddress)) {
-                    if (typeof onFail === 'function') {
-                        onFail('ADDRESS_ALREADY_VALIDATED');
-                    }
-                    return;
-                }
-
-                if (self.isSuggestedAddress(addr)) {
-                    return;
-                }
-
-                $.ajax({
-                    type: 'POST',
-                    url: this.getAddressValidationUrl(),
-                    data: JSON.stringify($.extend({}, {form_key: window.FORM_KEY}, formattedAddr)),
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: 'json',
-                    beforeSend: function (xhr) {
-                        // Intentionally empty to prevent the form_key from being appended to the body of the request
-                    }
-                }).done(function (response) {
-                    self.activeAddress = formattedAddr;
-                    self.validatedAddress = formattedAddr;
-                    self.updateSuggestedAddresses(response);
-                    self.isRefresh = true;
-
-                    if (typeof onDone === 'function') {
-                        onDone(response);
-                    }
-                }).fail(function (response) {
-                    if (typeof onFail === 'function') {
-                        onFail(response);
-                    }
-                });
-            } else {
+            if (!this.isValidAddress(addr)) {
                 if (typeof onFail === 'function') {
                     onFail('MISSING_ADDRESS_FIELDS');
                 }
+                return;
             }
+
+            var formattedAddr = self.formatAddress(addr);
+
+            // Skip if already suggested
+            if (self.addressMatches(formattedAddr, this.activeAddress)) {
+                if (typeof onFail === 'function') {
+                    onFail('ADDRESS_ALREADY_VALIDATED');
+                }
+                return;
+            }
+
+            if (self.isSuggestedAddress(addr)) {
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: this.getAddressValidationUrl(),
+                data: JSON.stringify($.extend({}, {form_key: window.FORM_KEY}, formattedAddr)),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                beforeSend: function (xhr) {
+                    // Intentionally empty to prevent the form_key from being appended to the body of the request
+                }
+            }).done(function (response) {
+                self.activeAddress = formattedAddr;
+                self.validatedAddress = formattedAddr;
+                self.updateSuggestedAddresses(response);
+                self.isRefresh = true;
+
+                if (typeof onDone === 'function') {
+                    onDone(response);
+                }
+            }).fail(function (response) {
+                if (typeof onFail === 'function') {
+                    onFail(response);
+                }
+            });
         },
 
         isSuggestedAddress: function (address) {
@@ -103,6 +104,17 @@ function (ko, $) {
 
         updateSuggestedAddresses: function (addr) {
             this.suggestedAddresses(addr);
+        },
+
+        isValidAddress: function (address) {
+            return !!(
+                address &&
+                address.country_id &&
+                address.street[0] &&
+                address.city &&
+                address.region_id &&
+                address.postcode
+            );
         },
 
         formatAddress: function (address) {

@@ -39,9 +39,9 @@ define([
                 avCore.getSuggestedAddresses({
                     street: [self.source.get('shippingAddress.street.0')],
                     city: self.source.get('shippingAddress.city'),
-                    regionId: self.source.get('shippingAddress.region_id'),
+                    region_id: self.source.get('shippingAddress.region_id'),
                     postcode: self.source.get('shippingAddress.postcode'),
-                    countryId: self.source.get('shippingAddress.country_id')
+                    country_id: self.source.get('shippingAddress.country_id')
                 });
             });
         },
