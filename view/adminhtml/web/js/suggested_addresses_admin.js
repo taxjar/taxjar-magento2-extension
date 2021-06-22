@@ -73,8 +73,8 @@ define([
                                 forms[x].find('input[name*="[street][0]"]').val(selectedAddress.street);
                                 forms[x].find('input[name*="[city]"]').val(selectedAddress.city);
                                 forms[x].find('select[name*="[region_id]"]').val(selectedAddress.regionId);
-                                forms[x].find('input[name*="[postcode]"]').val(selectedAddress.postcode);
                                 forms[x].find('select[name*="[country_id]"]').val(selectedAddress.countryId);
+                                forms[x].find('input[name*="[postcode]"]').val(selectedAddress.postcode);
                             }
 
                             if (uiRegistry.get(formScope)) {
@@ -147,16 +147,16 @@ define([
                 addr = {
                     street: [uiRegistry.get(formScope + '.street.street_0').value()],
                     city: uiRegistry.get(formScope + '.city').value(),
-                    regionId: uiRegistry.get(formScope + '.region_id').value(),
-                    countryId: uiRegistry.get(formScope + '.country_id').value(),
+                    region_id: uiRegistry.get(formScope + '.region_id').value(),
+                    country_id: uiRegistry.get(formScope + '.country_id').value(),
                     postcode: uiRegistry.get(formScope + '.postcode').value()
                 };
             } else {
                 addr = {
                     street: [this.getAddressFormValue(formValues, '[street][0]')],
                     city: this.getAddressFormValue(formValues, '[city]'),
-                    regionId: this.getAddressFormValue(formValues, '[region_id]'),
-                    countryId: this.getAddressFormValue(formValues, '[country_id]'),
+                    region_id: this.getAddressFormValue(formValues, '[region_id]'),
+                    country_id: this.getAddressFormValue(formValues, '[country_id]'),
                     postcode: this.getAddressFormValue(formValues, '[postcode]')
                 };
             }
