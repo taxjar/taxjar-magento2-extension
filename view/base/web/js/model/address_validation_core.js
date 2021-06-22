@@ -31,11 +31,25 @@ function (ko, $) {
             return '/rest/V1/Taxjar/address_validation/';
         },
 
+        /**
+         * Fetch suggested address by shipping address
+         * @param {Object} addr - Shipping Address
+         * @param {Array} addr.street - [Street 1, Street 2]
+         * @param {String} addr.region_id
+         * @param {String} addr.country_id
+         * @param {String} addr.postcode
+         * @param {Number} addr.save_in_address_book - Optional, 1 means that saved in address book
+         */
         getSuggestedAddresses: function (addr, onDone, onFail) {
             var self = this;
 
+            if (this.isSavedAddress(addr)) {
+                self.updateSuggestedAddresses([]);
+                return;
+            }
+
             // Skip if non-US shipping address
-            if (addr && addr.country_id !== 'US') {
+            if (!this.isUnitedStatesAddress(addr)) {
                 self.updateSuggestedAddresses([]);
 
                 if (typeof onFail === 'function') {
@@ -106,13 +120,21 @@ function (ko, $) {
             this.suggestedAddresses(addr);
         },
 
+        isSavedAddress: function (addr) {
+            return !!addr && addr.save_in_address_book === 1;
+        },
+
+        isUnitedStatesAddress: function (addr) {
+            return !!addr && addr.country_id === 'US';
+        },
+
         isValidAddress: function (address) {
             return !!(
                 address &&
-                address.country_id &&
                 address.street[0] &&
                 address.city &&
                 address.region_id &&
+                address.country_id &&
                 address.postcode
             );
         },

@@ -117,14 +117,13 @@ function (
                 var checkoutProvider = registry.get('checkoutProvider');
                 var originalAddress = $.extend({}, checkoutProvider.get('shippingAddress'));
 
+                addrs[id].address.street.forEach(function(item, index) {
+                    originalAddress.street[index] = item;
+                });
                 originalAddress.city = addrs[id].address.city;
                 originalAddress.country_id = addrs[id].address.countryId;
-                originalAddress.postcode = addrs[id].address.postcode;
                 originalAddress.region_id = addrs[id].address.regionId;
-
-                addrs[id].address.street.forEach(function(item, index) {
-                   originalAddress.street[index] = item;
-                });
+                originalAddress.postcode = addrs[id].address.postcode;
 
                 if (id !== 0) {
                     originalAddress.taxjar_attributes = {
