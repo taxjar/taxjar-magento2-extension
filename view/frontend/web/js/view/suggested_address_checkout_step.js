@@ -46,10 +46,6 @@ function (
         },
 
         isVisible: function () {
-            var virtual = !quote.isVirtual();
-            var checkoutStepNav = this.checkStepNavigator();
-            var suggestedAddress = this.suggestedAddresses().length;
-            var validatedAddresss = this.validatedAddresses().length !== this.suggestedAddresses().length;
             return !quote.isVirtual() && this.checkStepNavigator() && this.suggestedAddresses().length;
         },
 
@@ -73,8 +69,6 @@ function (
             this.subscribeToSuggestedAddressRadio();
 
             quote.shippingAddress.subscribe(function (address) {
-                var checkoutProvider = registry.get('checkoutProvider');
-                //var address = $.extend({}, checkoutProvider.get('shippingAddress'));
                 var quote_address = quote.shippingAddress();
                 var address = {
                     country_id: quote_address.countryId,
