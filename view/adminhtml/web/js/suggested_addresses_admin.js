@@ -43,20 +43,46 @@ define([
 
         initialize: function (config) {
             this._super();
-
             var self = this;
+            this.addressModal = this.buildModal();
 
-            this.addressModal = $('#tj-suggested-addresses').modal({
+            if (config.controller === 'order_create') {
+                this.appendButtonToOrder();
+
+                if ('MutationObserver' in window) {
+                    var orderObserver = new MutationObserver(function (mutations) {
+                        var addressObserver = new MutationObserver(function (mutations) {
+                            self.appendButtonToOrder();
+                            orderObserver.disconnect();
+                        });
+
+                        self.appendButtonToOrder();
+
+                        if ($('.order-billing-address, .order-shipping-address').length) {
+                            addressObserver.observe($('.order-billing-address').get(0), {childList: true});
+                            addressObserver.observe($('.order-shipping-address').get(0), {childList: true});
+                        }
+                    });
+
+                    orderObserver.observe($('#order-data').get(0), {childList: true});
+                }
+            }
+
+            return this;
+        },
+
+        buildModal: function() {
+            return $('#tj-suggested-addresses').modal({
                 buttons: [
                     {
-                        text: $.mage.__('Edit Address'),
+                        text: $.mage.__('Cancel'),
                         class: '',
                         click: function () {
                             this.closeModal();
                         }
                     },
                     {
-                        text: $.mage.__('Save Address'),
+                        text: $.mage.__('Save'),
                         class: 'action primary',
                         click: function () {
                             var addrs = avCore.suggestedAddresses();
@@ -90,30 +116,6 @@ define([
                     }
                 ]
             });
-
-            if (config.controller === 'order_create') {
-                this.appendButtonToOrder();
-
-                if ('MutationObserver' in window) {
-                    var orderObserver = new MutationObserver(function (mutations) {
-                        var addressObserver = new MutationObserver(function (mutations) {
-                            self.appendButtonToOrder();
-                            orderObserver.disconnect();
-                        });
-
-                        self.appendButtonToOrder();
-
-                        if ($('.order-billing-address, .order-shipping-address').length) {
-                            addressObserver.observe($('.order-billing-address').get(0), {childList: true});
-                            addressObserver.observe($('.order-shipping-address').get(0), {childList: true});
-                        }
-                    });
-
-                    orderObserver.observe($('#order-data').get(0), {childList: true});
-                }
-            }
-
-            return this;
         },
 
         appendButtonToOrder: function () {
@@ -147,16 +149,16 @@ define([
                 addr = {
                     street: [uiRegistry.get(formScope + '.street.street_0').value()],
                     city: uiRegistry.get(formScope + '.city').value(),
-                    regionId: uiRegistry.get(formScope + '.region_id').value(),
-                    countryId: uiRegistry.get(formScope + '.country_id').value(),
+                    region_id: uiRegistry.get(formScope + '.region_id').value(),
+                    country_id: uiRegistry.get(formScope + '.country_id').value(),
                     postcode: uiRegistry.get(formScope + '.postcode').value()
                 };
             } else {
                 addr = {
                     street: [this.getAddressFormValue(formValues, '[street][0]')],
                     city: this.getAddressFormValue(formValues, '[city]'),
-                    regionId: this.getAddressFormValue(formValues, '[region_id]'),
-                    countryId: this.getAddressFormValue(formValues, '[country_id]'),
+                    region_id: this.getAddressFormValue(formValues, '[region_id]'),
+                    country_id: this.getAddressFormValue(formValues, '[country_id]'),
                     postcode: this.getAddressFormValue(formValues, '[postcode]')
                 };
             }
