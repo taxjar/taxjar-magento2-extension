@@ -17,15 +17,19 @@
 
 namespace Taxjar\SalesTax\Observer;
 
+use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Filesystem\Driver\File as DriverFile;
 use Magento\Tax\Model\Calculation\RateRepository;
+use Magento\Framework\DataObject\IdentityGeneratorInterface;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
+use Magento\Framework\Bulk\BulkManagementInterface;
+use Magento\Authorization\Model\UserContextInterface;
 use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -71,16 +75,6 @@ class ImportRates implements ObserverInterface
      * @var \Taxjar\SalesTax\Model\Import\RuleFactory
      */
     protected $ruleFactory;
-
-    /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList
-     */
-    protected $directoryList;
-
-    /**
-     * @var \Magento\Framework\Filesystem\Driver\File
-     */
-    protected $driverFile;
 
     /**
      * @var BackupRateOriginAddress
@@ -133,6 +127,36 @@ class ImportRates implements ObserverInterface
     protected $taxjarConfig;
 
     /**
+     * @var integer
+     */
+    private $batchSize;
+
+    /**
+     * @var IdentityGeneratorInterface
+     */
+    private $identityService;
+
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    /**
+     * @var OperationInterfaceFactory
+     */
+    private $operationFactory;
+
+    /**
+     * @var BulkManagementInterface
+     */
+    private $bulkManagement;
+
+    /**
+     * @var UserContextInterface
+     */
+    private $userContext;
+
+    /**
      * @param ManagerInterface $eventManager
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
@@ -140,11 +164,14 @@ class ImportRates implements ObserverInterface
      * @param ClientFactory $clientFactory
      * @param RateFactory $rateFactory
      * @param RuleFactory $ruleFactory
-     * @param DirectoryList $directoryList
-     * @param DriverFile $driverFile
      * @param RateRepository $rateRepository
      * @param TaxjarConfig $taxjarConfig
      * @param BackupRateOriginAddress $backupRateOriginAddress
+     * @param IdentityGeneratorInterface $identityService
+     * @param SerializerInterface $serializer
+     * @param OperationInterfaceFactory $operationFactory
+     * @param BulkManagementInterface $bulkManagement
+     * @param UserContextInterface $userContext
      */
     public function __construct(
         ManagerInterface $eventManager,
@@ -154,11 +181,14 @@ class ImportRates implements ObserverInterface
         ClientFactory $clientFactory,
         RateFactory $rateFactory,
         RuleFactory $ruleFactory,
-        DirectoryList $directoryList,
-        DriverFile $driverFile,
         RateRepository $rateRepository,
         TaxjarConfig $taxjarConfig,
-        BackupRateOriginAddress $backupRateOriginAddress
+        BackupRateOriginAddress $backupRateOriginAddress,
+        IdentityGeneratorInterface $identityService,
+        SerializerInterface $serializer,
+        OperationInterfaceFactory $operationFactory,
+        BulkManagementInterface $bulkManagement,
+        UserContextInterface $userContext
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -167,12 +197,16 @@ class ImportRates implements ObserverInterface
         $this->clientFactory = $clientFactory;
         $this->rateFactory = $rateFactory;
         $this->ruleFactory = $ruleFactory;
-        $this->directoryList = $directoryList;
-        $this->driverFile = $driverFile;
         $this->rateRepository = $rateRepository;
         $this->taxjarConfig = $taxjarConfig;
         $this->backupRateOriginAddress = $backupRateOriginAddress;
+        $this->identityService = $identityService;
+        $this->serializer = $serializer;
+        $this->operationFactory = $operationFactory;
+        $this->bulkManagement = $bulkManagement;
+        $this->userContext = $userContext;
         $this->apiKey = $this->taxjarConfig->getApiKey();
+        $this->batchSize = 100;
     }
 
     /**
@@ -242,6 +276,8 @@ class ImportRates implements ObserverInterface
 
         if ($this->isZipCodeValid()) {
             $ratesJson = $this->_getRatesJson();
+
+            $ratesJson['rates'] = array_slice($ratesJson['rates'], 0, 500);
         } else {
             // @codingStandardsIgnoreStart
             throw new LocalizedException(__('Please check that your zip code is a valid US zip code in Shipping Settings.'));
@@ -257,36 +293,62 @@ class ImportRates implements ObserverInterface
         // Purge existing TaxJar rates and remove from rules
         $this->_purgeRates();
 
-        try {
-            $dir = $this->directoryList->getPath(DirectoryList::TMP);
+        $rateChunks = array_chunk($ratesJson['rates'], $this->batchSize);
+        $bulkUuid = $this->identityService->generateId();
+        $bulkDescription = __('Create ' . $this->batchSize . ' TaxJar backup tax rates.');
+        $operations = [];
 
-            if (!$this->driverFile->isDirectory($dir)) {
-                $this->driverFile->createDirectory($dir);
-            }
-
-            if ($this->driverFile->filePutContents($this->_getTempRatesFileName(), json_encode($ratesJson)) !== false) {
-                ignore_user_abort(true);
-
-                $filename = $this->_getTempRatesFileName();
-                $ratesJson = json_decode($this->driverFile->fileGetContents($filename), true);
-
-                // Create new TaxJar rates and rules
-                $this->_createRates($ratesJson);
-                $this->_createRules();
-                $this->_setLastUpdateDate(date('m-d-Y'));
-
-                $this->driverFile->deleteFile($filename);
-
-                $this->messageManager->addSuccessMessage(
-                    __('TaxJar has added new rates to your database. Thanks for using TaxJar!')
-                );
-                $this->eventManager->dispatch('taxjar_salestax_import_rates_after');
-            }
-        } catch (\Exception $e) {
-            // @codingStandardsIgnoreStart
-            throw new LocalizedException(__('Could not write to your Magento temp directory under /var/tmp. Please make sure the directory is created and check permissions for %1.', $this->directoryList->getPath('tmp')));
-            // @codingStandardsIgnoreEnd
+        foreach ($rateChunks as $rateChunk) {
+            $operations[] = $this->makeOperation($rateChunk, $bulkUuid);
         }
+
+        if (!empty($operations)) {
+            $result = $this->bulkManagement->scheduleBulk(
+                $bulkUuid,
+                $operations,
+                $bulkDescription,
+                $this->userContext->getUserId()
+            );
+            if (!$result) {
+                throw new LocalizedException(
+                    __('Something went wrong while processing the request.')
+                );
+            }
+        }
+
+        //$this->_createRates($ratesJson);
+        //$this->_createRules();
+        $this->_setLastUpdateDate(date('m-d-Y'));
+
+        $this->messageManager->addSuccessMessage(
+            __('TaxJar has added new rates to your database. Thanks for using TaxJar!')
+        );
+        $this->eventManager->dispatch('taxjar_salestax_import_rates_after');
+
+    }
+
+    /**
+     * Make asynchronous operation
+     *
+     * @param array $rates
+     * @param int $bulkUuid
+     *
+     * @return OperationInterface
+     */
+    private function makeOperation($rates, $bulkUuid): OperationInterface {
+        $dataToEncode = [
+            'rates' => $rates,
+        ];
+        $data = [
+            'data' => [
+                'bulk_uuid' => $bulkUuid,
+                'topic_name' => 'taxjar.create_backup_rates',
+                'serialized_data' => $this->serializer->serialize($dataToEncode),
+                'status' => \Magento\Framework\Bulk\OperationInterface::STATUS_TYPE_OPEN,
+            ]
+        ];
+
+        return $this->operationFactory->create($data);
     }
 
     /**
@@ -395,16 +457,6 @@ class ImportRates implements ObserverInterface
         );
         // @codingStandardsIgnoreEnd
         return $ratesJson;
-    }
-
-    /**
-     * Get the temp rates filename
-     *
-     * @return string
-     */
-    private function _getTempRatesFileName()
-    {
-        return $this->directoryList->getPath(DirectoryList::TMP) . DIRECTORY_SEPARATOR . 'tj_tmp.dat';
     }
 
     /**
