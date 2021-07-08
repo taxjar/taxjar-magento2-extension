@@ -46,7 +46,7 @@ function (
         },
 
         isVisible: function () {
-            return !quote.isVirtual() && this.checkStepNavigator() && this.suggestedAddresses().length && this.validatedAddresses().length !== this.suggestedAddresses().length;
+            return !quote.isVirtual() && this.checkStepNavigator() && this.suggestedAddresses().length;
         },
 
         isOneStepCheckout: function () {
@@ -69,8 +69,15 @@ function (
             this.subscribeToSuggestedAddressRadio();
 
             quote.shippingAddress.subscribe(function (address) {
-                var checkoutProvider = registry.get('checkoutProvider');
-                var address = $.extend({}, checkoutProvider.get('shippingAddress'));
+                var quote_address = quote.shippingAddress();
+                var address = {
+                    country_id: quote_address.countryId,
+                    region_id: quote_address.regionId,
+                    postcode: quote_address.postcode,
+                    city: quote_address.city,
+                    street: quote_address.street
+                };
+
                 avCore.getSuggestedAddresses(address);
             });
 
@@ -104,10 +111,6 @@ function (
             this.suggestedAddressRadio.subscribe(function (id) {
                 self.updateQuoteAddress(id);
             });
-        },
-
-        getSuggestedAddressTemplate: function () {
-            return this.suggestedAddressTemplate;
         },
 
         updateQuoteAddress: function (id) {

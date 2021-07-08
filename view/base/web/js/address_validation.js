@@ -39,14 +39,14 @@ define([
                 var addressModal = $('#tj-suggested-addresses').modal({
                     buttons: [
                         {
-                            text: $.mage.__('Edit Address'),
+                            text: $.mage.__('Cancel'),
                             class: '',
                             click: function () {
                                 this.closeModal();
                             }
                         },
                         {
-                            text: $.mage.__('Save Address'),
+                            text: $.mage.__('Save'),
                             class: 'action primary',
                             click: function () {
                                 var addrs = avCore.suggestedAddresses();
@@ -73,8 +73,8 @@ define([
                         var addr = {
                             street: [form.street_1.value],
                             city: form.city.value,
-                            regionId: form.region_id.value,
-                            countryId: form.country_id.value,
+                            region_id: form.region_id.value,
+                            country_id: form.country_id.value,
                             postcode: form.postcode.value
                         };
 

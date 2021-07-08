@@ -23,7 +23,6 @@ function (ko, $) {
 
     return {
         suggestedAddresses: ko.observable([]),
-        activeAddress: {},
         validatedAddress: {},
         isRefresh: false,
 
@@ -34,8 +33,7 @@ function (ko, $) {
         getSuggestedAddresses: function (addr, onDone, onFail) {
             var self = this;
 
-            // Skip if non-US shipping address
-            if (addr && addr.country_id !== 'US') {
+            if (!this.isUSAddress(addr)) {
                 self.updateSuggestedAddresses([]);
 
                 if (typeof onFail === 'function') {
@@ -53,15 +51,10 @@ function (ko, $) {
 
             var formattedAddr = self.formatAddress(addr);
 
-            // Skip if already suggested
-            if (self.addressMatches(formattedAddr, this.activeAddress)) {
-                if (typeof onFail === 'function') {
-                    onFail('ADDRESS_ALREADY_VALIDATED');
-                }
-                return;
-            }
-
             if (self.isSuggestedAddress(addr)) {
+                if (typeof onDone === 'function') {
+                    onDone();
+                }
                 return;
             }
 
@@ -75,7 +68,6 @@ function (ko, $) {
                     // Intentionally empty to prevent the form_key from being appended to the body of the request
                 }
             }).done(function (response) {
-                self.activeAddress = formattedAddr;
                 self.validatedAddress = formattedAddr;
                 self.updateSuggestedAddresses(response);
                 self.isRefresh = true;
@@ -88,6 +80,10 @@ function (ko, $) {
                     onFail(response);
                 }
             });
+        },
+
+        isUSAddress: function(address) {
+            return address && address.country_id === 'US';
         },
 
         isSuggestedAddress: function (address) {
@@ -110,6 +106,7 @@ function (ko, $) {
             return !!(
                 address &&
                 address.country_id &&
+                address.street &&
                 address.street[0] &&
                 address.city &&
                 address.region_id &&
