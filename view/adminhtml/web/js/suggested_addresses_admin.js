@@ -58,8 +58,11 @@ define([
 
                         self.appendButtonToOrder();
 
-                        if ($('.order-billing-address, .order-shipping-address').length) {
+                        if ($('.order-billing-address').length) {
                             addressObserver.observe($('.order-billing-address').get(0), {childList: true});
+                        }
+
+                        if ($('.order-shipping-address').length) {
                             addressObserver.observe($('.order-shipping-address').get(0), {childList: true});
                         }
                     });
