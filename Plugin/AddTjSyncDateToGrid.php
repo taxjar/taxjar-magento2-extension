@@ -68,6 +68,7 @@ class AddTjSyncDateToGrid
             $collection->addFilterToMap('increment_id', 'main_table.increment_id');
             $collection->addFilterToMap('state', 'main_table.state');
             $collection->addFilterToMap('store_id', 'main_table.store_id');
+            $collection->addFilterToMap('entity_id', 'main_table.entity_id');
         }
 
         return $collection;
