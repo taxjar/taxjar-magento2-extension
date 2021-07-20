@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
+    <topic name="taxjar.create_backup_rates" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
+        <handler name="taxjar.create_backup_rates" type="Taxjar\SalesTax\Model\Import\Consumer" method="process" />
+    </topic>
+</config>
