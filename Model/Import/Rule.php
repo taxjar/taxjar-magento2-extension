@@ -17,7 +17,7 @@
 
 namespace Taxjar\SalesTax\Model\Import;
 
-use Magento\Tax\Model\Calculation\RuleFactory as CalculationRuleFactory;
+use Taxjar\SalesTax\Model\Import\RuleModelFactory as CalculationRuleFactory;
 
 class Rule
 {
@@ -44,21 +44,14 @@ class Rule
      * @param array $productClasses
      * @param integer $position
      * @param array $rates
+     * @throws \Exception
      * @return void
      */
     public function create($code, $customerClasses, $productClasses, $position, $rates)
     {
-        $rule = $this->ruleFactory->create();
         $ruleModel = $this->ruleFactory->create();
-        $rule->load($code, 'code');
-
-        if (isset($rule)) {
-            $ruleModel->setTaxRateIds(array_merge($rule->getRates(), $rates));
-            $rule->delete();
-        } else {
-            $ruleModel->setTaxRateIds($rates);
-        }
-
+        $ruleModel->load($code, 'code');
+        $ruleModel->setTaxRateIds(array_merge($ruleModel->getRates(), $rates));
         $ruleModel->setCode($code);
         $ruleModel->setCustomerTaxClassIds($customerClasses);
         $ruleModel->setProductTaxClassIds($productClasses);
@@ -66,6 +59,30 @@ class Rule
         $ruleModel->setPriority(1);
         $ruleModel->setCalculateSubtotal(0);
         $ruleModel->save();
-        $ruleModel->saveCalculationData();
+        $this->saveCalculationData($ruleModel, $rates);
+    }
+
+    /**
+     * @param $ruleModel
+     * @param $rates
+     */
+    public function saveCalculationData($ruleModel, $rates)
+    {
+        $ctc = $ruleModel->getData('customer_tax_class_ids');
+        $ptc = $ruleModel->getData('product_tax_class_ids');
+
+        foreach ($ctc as $c) {
+            foreach ($ptc as $p) {
+                foreach ($rates as $r) {
+                    $dataArray = [
+                        'tax_calculation_rule_id' => $ruleModel->getId(),
+                        'tax_calculation_rate_id' => $r,
+                        'customer_tax_class_id' => $c,
+                        'product_tax_class_id' => $p,
+                    ];
+                    $ruleModel->getCalculationModel()->setData($dataArray)->save();
+                }
+            }
+        }
     }
 }
