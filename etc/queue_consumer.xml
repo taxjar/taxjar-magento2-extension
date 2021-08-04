@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
-    <consumer name="taxjar.create_backup_rates" queue="taxjar.create_backup_rates" connection="db" maxMessages="5000" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="Taxjar\SalesTax\Model\Import\Consumer::process" />
+    <consumer name="taxjar.backup_rates.delete" queue="taxjar.backup_rates.delete" connection="db" maxMessages="5000" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="Taxjar\SalesTax\Model\Import\DeleteRatesConsumer::process" />
+    <consumer name="taxjar.backup_rates.create" queue="taxjar.backup_rates.create" connection="db" maxMessages="5000" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="Taxjar\SalesTax\Model\Import\CreateRatesConsumer::process" />
 </config>

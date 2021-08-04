@@ -237,7 +237,7 @@ class ImportRates implements ObserverInterface
             $states = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES), true);
 
             if (!empty($states)) {
-                $this->_purgeRates();
+                $this->purgeRates();
             }
 
             $this->_setLastUpdateDate(null);
@@ -271,62 +271,47 @@ class ImportRates implements ObserverInterface
         $isDebugMode = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_DEBUG);
 
         if ($isDebugMode) {
-            $this->messageManager->addNoticeMessage(__('Debug mode enabled. Backup tax rates have not been altered.'));
+            $this->messageManager->addNoticeMessage(
+                __('Debug mode enabled. Backup tax rates have not been altered.')
+            );
             return;
         }
 
-        if ($this->isZipCodeValid()) {
-            $ratesJson = $this->_getRatesJson();
-        } else {
+        if (! $this->isZipCodeValid()) {
             // @codingStandardsIgnoreStart
-            throw new LocalizedException(__('Please check that your zip code is a valid US zip code in Shipping Settings.'));
+            throw new LocalizedException(
+                __('Please check that your zip code is a valid US zip code in Shipping Settings.')
+            );
             // @codingStandardsIgnoreEnd
         }
 
-        if (!count($this->productTaxClasses) || !count($this->customerTaxClasses)) {
+        if (! count($this->productTaxClasses) || ! count($this->customerTaxClasses)) {
             // @codingStandardsIgnoreStart
-            throw new LocalizedException(__('Please select at least one product tax class and one customer tax class to import backup rates from TaxJar.'));
+            throw new LocalizedException(
+                __('Please select at least one product tax class and one customer tax class to import backup rates from TaxJar.')
+            );
             // @codingStandardsIgnoreEnd
         }
+
+        $ratesJson = $this->_getRatesJson();
 
         $this->shippingClass = $this->scopeConfig->getValue('tax/classes/shipping_tax_class');
-        if ($this->shippingClass) {
-            if (in_array($this->shippingClass, $this->productTaxClasses)) {
-                throw new LocalizedException(__('For backup shipping rates, please use a unique tax class for shipping.'));
-            }
-        }
 
-        // Purge existing TaxJar rates and remove from rules
-        $this->_purgeRates();
-
-        $rateChunks = array_chunk($ratesJson['rates'], $this->batchSize);
-        $bulkUuid = $this->identityService->generateId();
-        $bulkDescription = __('Create ' . $this->batchSize . ' TaxJar backup tax rates.');
-        $operations = [];
-
-        foreach ($rateChunks as $rateChunk) {
-            $operations[] = $this->makeOperation($rateChunk, $bulkUuid);
-        }
-
-        if (!empty($operations)) {
-            $result = $this->bulkManagement->scheduleBulk(
-                $bulkUuid,
-                $operations,
-                $bulkDescription,
-                $this->userContext->getUserId()
+        if ($this->shippingClass && in_array($this->shippingClass, $this->productTaxClasses)) {
+            throw new LocalizedException(
+                __('For backup shipping rates, please use a unique tax class for shipping.')
             );
-            if (!$result) {
-                throw new LocalizedException(
-                    __('Something went wrong while processing the request.')
-                );
-            }
         }
+
+        $this->purgeRates();
+        $this->createRates($ratesJson['rates']);
 
         $this->_setLastUpdateDate(date('m-d-Y'));
 
         $this->messageManager->addSuccessMessage(
             __('TaxJar has added new rates to your database. Thanks for using TaxJar!')
         );
+
         $this->eventManager->dispatch('taxjar_salestax_import_rates_after');
 
     }
@@ -339,17 +324,19 @@ class ImportRates implements ObserverInterface
      *
      * @return OperationInterface
      */
-    private function makeOperation($rates, $bulkUuid): OperationInterface {
+    private function makeOperation($rates, $bulkUuid, $topic): OperationInterface
+    {
         $dataToEncode = [
             'rates' => $rates,
             'product_tax_classes' => $this->productTaxClasses,
             'customer_tax_classes' => $this->customerTaxClasses,
-            'shipping_class' => $this->shippingClass
+            'shipping_class' => $this->shippingClass,
         ];
+
         $data = [
             'data' => [
                 'bulk_uuid' => $bulkUuid,
-                'topic_name' => 'taxjar.create_backup_rates',
+                'topic_name' => $topic,
                 'serialized_data' => $this->serializer->serialize($dataToEncode),
                 'status' => \Magento\Framework\Bulk\OperationInterface::STATUS_TYPE_OPEN,
             ]
@@ -359,40 +346,83 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * @param string $bulkUuid
+     * @param array $operations
+     * @param string $bulkDescription
+     * @throws LocalizedException
+     */
+    private function schedule($bulkUuid, $operations, $bulkDescription): void
+    {
+        $userId = $this->userContext->getUserId();
+        $result = $this->bulkManagement->scheduleBulk($bulkUuid, $operations, $bulkDescription, $userId);
+
+        if (! $result) {
+            throw new LocalizedException(
+                __('Something went wrong while processing the request.')
+            );
+        }
+    }
+
+    /**
      * Purge existing rule calculations and rates
      *
      * @return void
+     * @throws LocalizedException
      */
-    private function _purgeRates()
+    private function purgeRates()
     {
         $rateModel = $this->rateFactory->create();
         $rates = $rateModel->getExistingRates();
 
-        foreach ($rates as $rate) {
-            $calculations = $rateModel->getCalculationsByRateId($rate);
+        if ($rule = $rateModel->getRule()) {
+            $rule->getCalculationModel()->deleteByRuleId($rule->getId());
+            $rule->delete();
+        }
 
-            try {
-                foreach ($calculations->getItems() as $calculation) {
-                    // @codingStandardsIgnoreStart
-                    $calculation->delete();
-                    // @codingStandardsIgnoreEnd
-                }
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+        if (! empty($rates)) {
+            $chunkedRatesForDeletion = array_chunk($rates, $this->batchSize);
+            $bulkUuid = $this->identityService->generateId();
+
+            $operations = [];
+            foreach ($chunkedRatesForDeletion as $rateDeleteChunk) {
+                $operations[] = $this->makeOperation(
+                    $rateDeleteChunk,
+                    $bulkUuid,
+                    TaxjarConfig::TAXJAR_TOPIC_DELETE_RATES
+                );
             }
 
-            try {
-                $this->rateRepository->deleteById($rate);
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+            if (! empty($operations)) {
+                $bulkDescription = __('Delete %1 TaxJar backup tax rates.', $this->batchSize);
+                $this->schedule($bulkUuid, $operations, $bulkDescription);
             }
+        }
+    }
+
+    private function createRates(array $rates)
+    {
+        $rateChunks = array_chunk($rates, $this->batchSize);
+        $bulkUuid = $this->identityService->generateId();
+
+        $operations = [];
+        foreach ($rateChunks as $rateChunk) {
+            $operations[] = $this->makeOperation(
+                $rateChunk,
+                $bulkUuid,
+                TaxjarConfig::TAXJAR_TOPIC_CREATE_RATES
+            );
+        }
+
+        if (!empty($operations)) {
+            $bulkDescription = __('Create ' . $this->batchSize . ' TaxJar backup tax rates.');
+            $this->schedule($bulkUuid, $operations, $bulkDescription);
         }
     }
 
     /**
      * Get TaxJar backup rates
      *
-     * @return string
+     * @return array
      */
     private function _getRatesJson()
     {

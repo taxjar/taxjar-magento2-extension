@@ -158,6 +158,11 @@ class Rate
         }
     }
 
+    public function getRule(): \Magento\Tax\Model\Calculation\Rule
+    {
+        return $this->rule;
+    }
+
     /**
      * Get existing TaxJar rates based on configuration states
      *
@@ -165,7 +170,7 @@ class Rate
      */
     public function getExistingRates()
     {
-        return $this->rule->load(TaxjarConfig::TAXJAR_BACKUP_RATE_CODE, 'code')->getRates();
+        return $this->getRule()->load(TaxjarConfig::TAXJAR_BACKUP_RATE_CODE, 'code')->getRates();
     }
 
     /**

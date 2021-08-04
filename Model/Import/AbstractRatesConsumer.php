@@ -10,15 +10,13 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\EntityManager\EntityManager;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Import\RateFactory;
-use Taxjar\SalesTax\Model\Import\RuleFactory;
 
-class Consumer
+abstract class AbstractRatesConsumer
 {
     /**
      * @var SerializerInterface
      */
-    private $serializer;
+    protected $serializer;
 
     /**
      * @var ScopeConfigInterface
@@ -33,7 +31,7 @@ class Consumer
     /**
      * @var TaxjarConfig
      */
-    private $taxjarConfig;
+    protected $taxjarConfig;
 
     /**
      * @var RateFactory
@@ -48,37 +46,42 @@ class Consumer
     /**
      * @var \Magento\AsynchronousOperations\Api\Data\OperationInterface
      */
-    private $operation;
+    protected $operation;
 
     /**
      * @var array
      */
-    private $rates;
+    protected $rates;
 
     /**
      * @var array
      */
-    private $newRates;
+    protected $newRates;
 
     /**
      * @var array
      */
-    private $newShippingRates;
+    protected $newShippingRates;
 
     /**
      * @var array
      */
-    private $productTaxClasses;
+    protected $productTaxClasses;
 
     /**
      * @var array
      */
-    private $customerTaxClasses;
+    protected $customerTaxClasses;
 
     /**
      * @var integer
      */
-    private $shippingClass;
+    protected $shippingClass;
+
+    /**
+     * @var string|null
+     */
+    protected $topicName;
 
     /**
      * @param SerializerInterface $serializer
@@ -95,8 +98,7 @@ class Consumer
         TaxjarConfig $taxjarConfig,
         RateFactory $rateFactory,
         RuleFactory $ruleFactory
-    )
-    {
+    ) {
         $this->serializer = $serializer;
         $this->scopeConfig = $scopeConfig;
         $this->entityManager = $entityManager;
@@ -117,6 +119,8 @@ class Consumer
         $this->reset();
 
         try {
+            $this->validate();
+            $this->setData();
             $this->processOperation();
         } catch (LocalizedException $e) {
             $this->fail($e, $e->getMessage());
@@ -134,20 +138,10 @@ class Consumer
     /**
      * Reset member variables as class is not reinstantiated between operations
      */
-    private function reset()
+    protected function reset()
     {
         $this->newRates = [];
         $this->newShippingRates = [];
-    }
-
-    /**
-     * @throws LocalizedException
-     */
-    private function processOperation()
-    {
-        $this->validate();
-        $this->setData();
-        $this->createRatesAndRules();
     }
 
     /**
@@ -155,7 +149,7 @@ class Consumer
      *
      * @throws LocalizedException
      */
-    private function validate()
+    protected function validate()
     {
         $this->validateBackupRatesAreEnabled();
         $this->validateAPIKeyIsSet();
@@ -166,7 +160,7 @@ class Consumer
      *
      * @throws LocalizedException
      */
-    private function validateBackupRatesAreEnabled()
+    protected function validateBackupRatesAreEnabled()
     {
         if (!$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP)) {
             throw new LocalizedException(__('Backup rates are not enabled.'));
@@ -178,95 +172,10 @@ class Consumer
      *
      * @throws LocalizedException
      */
-    private function validateAPIKeyIsSet()
+    protected function validateAPIKeyIsSet()
     {
         if (!$this->taxjarConfig->getApiKey()) {
             throw new LocalizedException(__('TaxJar account is not linked or API Token is invalid.'));
-        }
-    }
-
-    /**
-     * Set member variables from operation
-     */
-    private function setData()
-    {
-        $serializedData = $this->operation->getSerializedData();
-        $data = $this->serializer->unserialize($serializedData);
-        $this->setRates($data['rates']);
-        $this->productTaxClasses = $data['product_tax_classes'];
-        $this->customerTaxClasses = $data['customer_tax_classes'];
-        $this->shippingClass = $data['shipping_class'];
-    }
-
-    /**
-     * Set rates
-     *
-     * @param array $rates
-     */
-    private function setRates(array $rates)
-    {
-        $this->rates = $rates;
-    }
-
-    /**
-     * Create tax rates and rules
-     *
-     * @throws \Exception
-     */
-    private function createRatesAndRules()
-    {
-        $this->createRates();
-        $this->createRules();
-    }
-
-    /**
-     * Create new tax rates
-     *
-     * @return void
-     */
-    private function createRates()
-    {
-        $rate = $this->rateFactory->create();
-
-        foreach ($this->rates as $newRate) {
-            $rateIdWithShippingId = $rate->create($newRate);
-
-            if ($rateIdWithShippingId[0]) {
-                $this->newRates[] = $rateIdWithShippingId[0];
-            }
-
-            if ($rateIdWithShippingId[1]) {
-                $this->newShippingRates[] = $rateIdWithShippingId[1];
-            }
-        }
-    }
-
-    /**
-     * Create or update existing tax rules with new rates
-     *
-     * @throws \Exception
-     * @return void
-     */
-    private function createRules()
-    {
-        $rule = $this->ruleFactory->create();
-
-        $rule->create(
-            TaxjarConfig::TAXJAR_BACKUP_RATE_CODE,
-            $this->customerTaxClasses,
-            $this->productTaxClasses,
-            1,
-            $this->newRates
-        );
-
-        if ($this->shippingClass) {
-            $rule->create(
-                TaxjarConfig::TAXJAR_BACKUP_RATE_CODE . ' (Shipping)',
-                $this->customerTaxClasses,
-                [$this->shippingClass],
-                2,
-                $this->newShippingRates
-            );
         }
     }
 
@@ -276,7 +185,7 @@ class Consumer
      * @param \Exception $e
      * @param $message
      */
-    private function fail(\Exception $e, $message)
+    protected function fail(\Exception $e, $message)
     {
         $this->logger->critical($e->getMessage());
         $this->operation->setStatus(OperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED);
@@ -287,10 +196,20 @@ class Consumer
     /**
      * Set operation status to completed
      */
-    private function success()
+    protected function success()
     {
         $this->operation->setStatus(OperationInterface::STATUS_TYPE_COMPLETE);
         $this->operation->setErrorCode(null);
         $this->operation->setResultMessage(null);
     }
+
+    /**
+     * Set member variables from operation
+     */
+    abstract protected function setData(): void;
+
+    /**
+     * @throws LocalizedException
+     */
+    abstract protected function processOperation(): void;
 }
