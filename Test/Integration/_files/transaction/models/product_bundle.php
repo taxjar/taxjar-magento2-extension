@@ -38,7 +38,7 @@ foreach($productData as $data) {
     $bundleProduct->isObjectNew(true);
     $bundleProduct->setTypeId($data['type_id'])
         ->setId($id++)
-//        ->setAttributeSetId(4)
+        ->setAttributeSetId(4)
         ->setWebsiteIds([1])
         ->setName($data['name'])
         ->setSku($data['sku'])
@@ -54,6 +54,7 @@ foreach($productData as $data) {
         ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
         ->setCanSaveCustomOptions(true)
         ->setHasOptions(false)
+        ->setPriceView(1)
         ->setStockData(
             [
                 'use_config_manage_stock' => 1,

@@ -73,35 +73,35 @@ $taxCalculationData['line_item_rounding_calculation'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 38.36,
+            'tax_amount' => 38.37,
             'subtotal' => 495,
-            'subtotal_incl_tax' => 495 + 38.36,
-            'grand_total' => 495 + 38.36
+            'subtotal_incl_tax' => 495 + 38.37,
+            'grand_total' => 495 + 38.37
         ],
         'items_data' => [
             'taxjar-book1' => [
-                'tax_amount' => 30.6125,
+                'tax_amount' => 30.61,
                 'tax_percent' => 7.750,
                 'price' => 395,
-                'price_incl_tax' => 395 + 30.6125,
+                'price_incl_tax' => 395 + 30.61,
                 'row_total' => 395,
-                'row_total_incl_tax' => 395 + 30.6125
+                'row_total_incl_tax' => 395 + 30.61
             ],
             'taxjar-book2' => [
-                'tax_amount' => 3.875,
+                'tax_amount' => 3.88,
                 'tax_percent' => 7.750,
                 'price' => 50,
-                'price_incl_tax' => 50 + 3.875,
+                'price_incl_tax' => 50 + 3.88,
                 'row_total' => 50,
-                'row_total_incl_tax' => 50 + 3.875
+                'row_total_incl_tax' => 50 + 3.88
             ],
             'taxjar-book3' => [
-                'tax_amount' => 3.875,
+                'tax_amount' => 3.88,
                 'tax_percent' => 7.750,
                 'price' => 50,
-                'price_incl_tax' => 50 + 3.875,
+                'price_incl_tax' => 50 + 3.88,
                 'row_total' => 50,
-                'row_total_incl_tax' => 50 + 3.875
+                'row_total_incl_tax' => 50 + 3.88
             ]
         ],
     ],

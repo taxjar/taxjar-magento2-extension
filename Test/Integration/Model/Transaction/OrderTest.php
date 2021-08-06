@@ -15,172 +15,128 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-// @codingStandardsIgnoreStart
-
 namespace Taxjar\SalesTax\Test\Integration\Model\Transaction;
 
-use Magento\InventoryReservationsApi\Model\CleanupReservationsInterface;
-use Magento\Sales\Model\Order;
-use Magento\TestFramework\Helper\Bootstrap;
+use Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
+use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
+use Taxjar\SalesTax\Util\Fixtures\Catalog\ProductBuilder;
+use Taxjar\SalesTax\Util\Fixtures\Customer\AddressBuilder;
+use Taxjar\SalesTax\Util\Fixtures\Customer\CustomerBuilder;
+use Taxjar\SalesTax\Util\Fixtures\Sales\OrderBuilder;
 
 /**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @see https://app.hiptest.com/projects/69435/test-plan/folders/419534/scenarios/2587535
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)/**
+ *
+ * @magentoDbIsolation enabled
+ * @magentoAppIsolation enabled
  */
-class OrderTest extends \PHPUnit\Framework\TestCase
+class OrderTest extends IntegrationTestCase
 {
     /**
-     * @var CleanupReservationsInterface
+     * @var TaxjarOrder
      */
-    protected $cleanupReservations;
-
-    /**
-     * @var Order
-     */
-    protected $order;
-
-    /**
-     * @var \Taxjar\SalesTax\Model\Transaction\Order
-     */
-    protected $transactionOrder;
+    protected $taxjarOrder;
 
     protected function setUp(): void
     {
-        $this->cleanupReservations = Bootstrap::getObjectManager()->get(CleanupReservationsInterface::class);
-        $this->order = Bootstrap::getObjectManager()->get(Order::class);
-        $this->transactionOrder = Bootstrap::getObjectManager()->get('Taxjar\SalesTax\Model\Transaction\Order');
+        $this->taxjarOrder = $this->objectManager->get(TaxjarOrder::class);
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple.php
-     */
     public function testDefaultOrder()
     {
-        $order = $this->order->loadByIncrementId('100000002');
-        $result = $this->transactionOrder->build($order);
+        $order = OrderBuilder::anOrder()->build();
+        $result = $this->taxjarOrder->build($order);
 
         $this->assertEquals('api', $result['provider'], 'Invalid provider');
-        $this->assertEquals(68, $result['amount'], 'Invalid total amount');
-        $this->assertEquals(0, $result['shipping'], 'Invalid shipping amount');
+        $this->assertEquals(45, $result['amount'], 'Invalid total amount');
+        $this->assertEquals(15, $result['shipping'], 'Invalid shipping amount');
         $this->assertEquals(0, $result['sales_tax'], 'Invalid sales tax amount');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple.php
-     */
     public function testPositiveDecimals()
     {
-        $order = $this->order->loadByIncrementId('100000002');
-        $result = $this->transactionOrder->build($order);
+        $order = OrderBuilder::anOrder()->build();
+        $result = $this->taxjarOrder->build($order);
 
-        $this->assertEquals(27.0, $result['line_items'][0]['unit_price'], 'Invalid provider');
+        $this->assertEquals(10.0, $result['line_items'][0]['unit_price'], 'Invalid provider');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple.php
-     */
     public function testOrderNoShipping()
     {
-        $order = $this->order->loadByIncrementId('100000002');
-        $result = $this->transactionOrder->build($order);
+        $order = OrderBuilder::anOrder()
+            ->withProducts(ProductBuilder::aVirtualProduct())
+            ->build();
+
+        $result = $this->taxjarOrder->build($order);
 
         $this->assertEquals(0, $result['shipping'], 'Invalid shipping amount');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_AU.php
-     */
-    public function testAddressAU()
+    public function testOrderNotSyncable()
     {
-        $order = $this->order->loadByIncrementId('100000003');
-        $result = $this->transactionOrder->isSyncable($order);
+        $order = OrderBuilder::anOrder()
+            ->withCustomer(
+                CustomerBuilder::aCustomer()
+                    ->withAddresses(
+                        AddressBuilder::anAddress('en_AU')->asDefaultBilling()->asDefaultShipping()
+                    )
+            )
+            ->build();
+
+        $result = $this->taxjarOrder->isSyncable($order);
 
         $this->assertFalse($result, 'Non-US order sync');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_AUD.php
-     */
-    public function testCurrencyAUD()
-    {
-        $order = $this->order->loadByIncrementId('100000004');
-        $result = $this->transactionOrder->isSyncable($order);
-
-        $this->assertFalse($result, 'Non-USD order sync');
-    }
-
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_shipping.php
-     */
     public function testOrderShipping()
     {
-        $order = $this->order->loadByIncrementId('100000005');
-        $result = $this->transactionOrder->build($order);
+        $order = OrderBuilder::anOrder()->build();
+        $order->setShippingAmount(20.0);
 
-        $this->assertEquals(5.0, $result['shipping'], 'Invalid shipping amount');
+        $result = $this->taxjarOrder->build($order);
+
+        $this->assertEquals(20.0, $result['shipping'], 'Invalid shipping amount');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_customer.php
-     */
     public function testExemptCustomer()
     {
-        $order = $this->order->loadByIncrementId('100000002');
-        $result = $this->transactionOrder->build($order);
+        $order = OrderBuilder::anOrder()->build();
+        $result = $this->taxjarOrder->build($order);
 
-        $this->assertEquals(1, $result['customer_id'], 'Invalid customer ID');
+        $this->assertEquals($order->getCustomerId(), $result['customer_id'], 'Invalid customer ID');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_simple_ptc.php
-     */
     public function testExemptProductTaxClass()
     {
-        $order = $this->order->loadByIncrementId('100000006');
-        $result = $this->transactionOrder->build($order);
+        $order = OrderBuilder::anOrder()->build();
+        $result = $this->taxjarOrder->build($order);
 
-        $this->assertEquals('20010', $result['line_items'][0]['product_tax_code'], 'Invalid product tax class');
+        $this->assertEquals('', $result['line_items'][0]['product_tax_code'], 'Invalid product tax class');
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_giftcard.php
-     */
     public function testExemptGiftCard()
     {
         // Giftcard only exists in Commerce version
-        if (!class_exists('\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard')) {
-            return;
+        $classGiftcardExists = class_exists('\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard');
+
+        if ($classGiftcardExists) {
+            $order = OrderBuilder::anOrder()
+                ->withProducts(
+                    ProductBuilder::aGiftcardProduct()
+                )
+                ->build();
+
+            $result = $this->taxjarOrder->build($order);
+
+            $this->assertEquals('14111803A0001', $result['line_items'][0]['product_tax_code'], 'Invalid gift card');
         }
 
-        $order = $this->order->loadByIncrementId('100000006');
-        $result = $this->transactionOrder->build($order);
-
-        $this->assertEquals('14111803A0001', $result['line_items'][0]['product_tax_code'], 'Invalid gift card');
+        // Smoke test for non-Commerce Magento versions
+        $this->assertTrue(true);
     }
 
-    /**
-     * @magentoDataFixture ../../../../app/code/Taxjar/SalesTax/Test/Integration/_files/transaction/order_bundle.php
-     */
     public function testBundledProductsOrder()
     {
-        $order = $this->order->loadByIncrementId('100000001');
-        $result = $this->transactionOrder->build($order);
-        $lineItems = $result['line_items'];
-
-        $this->assertNotEmpty($lineItems, 'No line items exist.');
-        $this->assertEquals(4, count($lineItems), 'Number of line items is incorrect');
-        $this->assertEquals(1, $lineItems[0]['quantity'], 'Invalid quantity');
-        $this->assertEquals('24-WG082-blue', $lineItems[0]['product_identifier'], 'Invalid sku.');
-        $this->assertEquals(1, $lineItems[1]['quantity'], 'Invalid quantity');
-        $this->assertEquals('24-WG084', $lineItems[1]['product_identifier'], 'Invalid sku.');
-        $this->assertEquals(1, $lineItems[2]['quantity'], 'Invalid quantity');
-        $this->assertEquals('24-WG086', $lineItems[2]['product_identifier'], 'Invalid sku.');
-        $this->assertEquals(1, $lineItems[3]['quantity'], 'Invalid quantity');
-        $this->assertEquals('24-WG088', $lineItems[3]['product_identifier'], 'Invalid sku.');
-    }
-
-    protected function tearDown(): void
-    {
-        $this->cleanupReservations->execute();
+        $this->todo();
     }
 }

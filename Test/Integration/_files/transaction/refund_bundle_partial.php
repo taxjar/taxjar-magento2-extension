@@ -17,7 +17,7 @@
 
 require 'models/cleanup.php';
 require 'models/product_simple.php';
-require 'models/product_bundle.php';
+//require 'models/product_bundle.php';
 require 'models/order_bundle.php';
 require 'models/invoice.php';
 require 'models/creditmemo_bundle_partial.php';
