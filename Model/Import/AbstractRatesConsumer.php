@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Model\Import;
 
-use Magento\Framework\Bulk\OperationInterface;
+use Exception;
+use Magento\AsynchronousOperations\Api\Data\OperationInterface;
+use Magento\AsynchronousOperations\Model\Operation;
+use Magento\Framework\DB\LoggerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -22,6 +25,11 @@ abstract class AbstractRatesConsumer
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @var EntityManager $entityManager
@@ -44,48 +52,24 @@ abstract class AbstractRatesConsumer
     protected $ruleFactory;
 
     /**
-     * @var \Magento\AsynchronousOperations\Api\Data\OperationInterface
+     * @var Operation|null
      */
     protected $operation;
 
     /**
-     * @var array
+     * @var array|null
+     */
+    protected $payload;
+
+    /**
+     * @var array|null
      */
     protected $rates;
 
     /**
-     * @var array
-     */
-    protected $newRates;
-
-    /**
-     * @var array
-     */
-    protected $newShippingRates;
-
-    /**
-     * @var array
-     */
-    protected $productTaxClasses;
-
-    /**
-     * @var array
-     */
-    protected $customerTaxClasses;
-
-    /**
-     * @var integer
-     */
-    protected $shippingClass;
-
-    /**
-     * @var string|null
-     */
-    protected $topicName;
-
-    /**
      * @param SerializerInterface $serializer
      * @param ScopeConfigInterface $scopeConfig
+     * @param LoggerInterface $logger
      * @param EntityManager $entityManager
      * @param TaxjarConfig $taxjarConfig
      * @param RateFactory $rateFactory
@@ -94,6 +78,7 @@ abstract class AbstractRatesConsumer
     public function __construct(
         SerializerInterface $serializer,
         ScopeConfigInterface $scopeConfig,
+        LoggerInterface $logger,
         EntityManager $entityManager,
         TaxjarConfig $taxjarConfig,
         RateFactory $rateFactory,
@@ -101,6 +86,7 @@ abstract class AbstractRatesConsumer
     ) {
         $this->serializer = $serializer;
         $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
         $this->entityManager = $entityManager;
         $this->taxjarConfig = $taxjarConfig;
         $this->rateFactory = $rateFactory;
@@ -108,86 +94,82 @@ abstract class AbstractRatesConsumer
     }
 
     /**
+     * Set member variables from operation
+     */
+    abstract protected function setMemberData();
+
+    /**
+     * Execute the primary Consumer functionality of the class
+     *
+     * @throws LocalizedException
+     */
+    abstract protected function handle();
+
+    /**
+     * @param Operation $value
+     * @return $this
+     */
+    public function setOperation(Operation $value): self
+    {
+        $this->operation = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setPayload(): self
+    {
+        $this->payload = $this->serializer->unserialize(
+            $this->operation->getSerializedData()
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param array $values
+     * @return $this
+     */
+    public function setRates(array $values): self
+    {
+        $this->rates = $values;
+
+        return $this;
+    }
+
+    /**
      * Process asynchronous bulk operation
      *
-     * @param \Magento\AsynchronousOperations\Api\Data\OperationInterface $operation
-     * @throws \Exception
+     * @param OperationInterface $operation
+     * @throws Exception
      */
-    public function process(\Magento\AsynchronousOperations\Api\Data\OperationInterface $operation)
+    public function process(OperationInterface $operation): void
     {
-        $this->operation = $operation;
-        $this->reset();
-
         try {
-            $this->validate();
-            $this->setData();
-            $this->processOperation();
+            $this->setOperation($operation)
+                ->setPayload()
+                ->handle()
+                ->success();
         } catch (LocalizedException $e) {
             $this->fail($e, $e->getMessage());
-        } catch (\Exception $e) {
-            $this->fail(
-                $e,
-                __('Sorry, something went wrong during product attributes update. Please see log for details.')
-            );
+        } catch (Exception $e) {
+            $this->fail($e, __('Sorry, something went wrong during backup rate sync.'));
         }
 
-        $this->success();
         $this->entityManager->save($this->operation);
     }
 
     /**
-     * Reset member variables as class is not reinstantiated between operations
-     */
-    protected function reset()
-    {
-        $this->newRates = [];
-        $this->newShippingRates = [];
-    }
-
-    /**
-     * Validate that backup rates should be imported
+     * Log and handle operation failures
      *
-     * @throws LocalizedException
-     */
-    protected function validate()
-    {
-        $this->validateBackupRatesAreEnabled();
-        $this->validateAPIKeyIsSet();
-    }
-
-    /**
-     * Validate that settings are configured to allow backup rates
-     *
-     * @throws LocalizedException
-     */
-    protected function validateBackupRatesAreEnabled()
-    {
-        if (!$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP)) {
-            throw new LocalizedException(__('Backup rates are not enabled.'));
-        }
-    }
-
-    /**
-     * Validate API key is set
-     *
-     * @throws LocalizedException
-     */
-    protected function validateAPIKeyIsSet()
-    {
-        if (!$this->taxjarConfig->getApiKey()) {
-            throw new LocalizedException(__('TaxJar account is not linked or API Token is invalid.'));
-        }
-    }
-
-    /**
-     * Log and handled operation failures
-     *
-     * @param \Exception $e
+     * @param Exception $e
      * @param $message
      */
-    protected function fail(\Exception $e, $message)
+    protected function fail(Exception $e, $message)
     {
-        $this->logger->critical($e->getMessage());
+        $this->logger->critical($e);
         $this->operation->setStatus(OperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED);
         $this->operation->setErrorCode($e->getCode());
         $this->operation->setResultMessage($message);
@@ -202,14 +184,4 @@ abstract class AbstractRatesConsumer
         $this->operation->setErrorCode(null);
         $this->operation->setResultMessage(null);
     }
-
-    /**
-     * Set member variables from operation
-     */
-    abstract protected function setData(): void;
-
-    /**
-     * @throws LocalizedException
-     */
-    abstract protected function processOperation(): void;
 }

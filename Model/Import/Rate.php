@@ -158,6 +158,11 @@ class Rate
         }
     }
 
+    /**
+     * Get related Calculation Rule object
+     *
+     * @return \Magento\Tax\Model\Calculation\Rule
+     */
     public function getRule(): \Magento\Tax\Model\Calculation\Rule
     {
         return $this->rule;
