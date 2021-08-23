@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/topology.xsd">
     <exchange name="taxjar" type="topic" connection="db">
-        <binding id="backupRatesBinding" topic="taxjar.create_backup_rates" destinationType="queue" destination="taxjar.create_backup_rates"/>
+        <binding id="deleteRatesBinding" topic="taxjar.backup_rates.delete" destinationType="queue" destination="taxjar.backup_rates.delete"/>
+        <binding id="createRatesBinding" topic="taxjar.backup_rates.create" destinationType="queue" destination="taxjar.backup_rates.create"/>
     </exchange>
 </config>

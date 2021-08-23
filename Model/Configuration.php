@@ -54,6 +54,8 @@ class Configuration
     const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
     const TAXJAR_BACKUP_RATE_CODE     = 'TaxJar Backup Rates';
     const TAXJAR_X_API_VERSION        = '2020-08-07';
+    const TAXJAR_TOPIC_CREATE_RATES   = 'taxjar.backup_rates.create';
+    const TAXJAR_TOPIC_DELETE_RATES   = 'taxjar.backup_rates.delete';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config

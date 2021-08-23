@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
-    <topic name="taxjar.create_backup_rates" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
-        <handler name="taxjar.create_backup_rates" type="Taxjar\SalesTax\Model\Import\Consumer" method="process" />
+    <topic name="taxjar.backup_rates.delete" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
+        <handler name="taxjar.backup_rates.delete" type="Taxjar\SalesTax\Model\Import\DeleteRatesConsumer" method="process" />
+    </topic>
+    <topic name="taxjar.backup_rates.create" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
+        <handler name="taxjar.backup_rates.create" type="Taxjar\SalesTax\Model\Import\CreateRatesConsumer" method="process" />
     </topic>
 </config>
