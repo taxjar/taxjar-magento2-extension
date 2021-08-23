@@ -222,6 +222,7 @@ class CreateRatesConsumer extends AbstractRatesConsumer
      */
     private function backupRatesEnabled(): bool
     {
-        return (bool) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        $config = (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        return (bool) $config;
     }
 }
