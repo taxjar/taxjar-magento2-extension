@@ -7,11 +7,14 @@ namespace Taxjar\SalesTax\Test\Integration\Model\Transaction;
 use Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
 use Taxjar\SalesTax\Model\Transaction\Refund as TaxjarRefund;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
-use Taxjar\SalesTax\Util\Fixtures\Sales\CreditmemoBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Sales\OrderBuilder;
+use Taxjar\SalesTax\Test\Fixture\Sales\CreditmemoBuilder;
+use Taxjar\SalesTax\Test\Fixture\Sales\OrderBuilder;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @magentoDbIsolation enabled
+ * @magentoAppIsolation enabled
  */
 class RefundTest extends IntegrationTestCase
 {
@@ -31,11 +34,7 @@ class RefundTest extends IntegrationTestCase
         $this->taxjarRefund = $this->objectManager->get(TaxjarRefund::class);
     }
 
-    /**
-     * @magentoDbIsolation enabled
-     * @magentoAppIsolation enabled
-     */
-    public function testFullRefund()
+    public function testCanBuildTaxjarTransactionRefundWithFullCreditmemo()
     {
         $order = OrderBuilder::anOrder()->build();
         $creditmemo = CreditmemoBuilder::forOrder($order)->build();
@@ -46,11 +45,7 @@ class RefundTest extends IntegrationTestCase
         $this->assertCount(3, $result['line_items']);
     }
 
-    /**
-     * @magentoDbIsolation enabled
-     * @magentoAppIsolation enabled
-     */
-    public function testPartialRefund()
+    public function testCanBuildTaxjarTransactionRefundWithPartialCreditmemo()
     {
         $order = OrderBuilder::anOrder()->build();
 

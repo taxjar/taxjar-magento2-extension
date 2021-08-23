@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Util\Fixtures\Customer;
+namespace Taxjar\SalesTax\Test\Fixture\Customer;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\Data\CustomerInterface;

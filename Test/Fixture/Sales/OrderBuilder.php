@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Util\Fixtures\Sales;
+namespace Taxjar\SalesTax\Test\Fixture\Sales;
 
 use Magento\Sales\Model\Order;
-use Taxjar\SalesTax\Util\Fixtures\Catalog\ProductBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Checkout\CartBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Checkout\CustomerCheckout;
-use Taxjar\SalesTax\Util\Fixtures\Customer\AddressBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Customer\CustomerBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Customer\CustomerFixture;
+use Taxjar\SalesTax\Test\Fixture\Catalog\ProductBuilder;
+use Taxjar\SalesTax\Test\Fixture\Checkout\CartBuilder;
+use Taxjar\SalesTax\Test\Fixture\Checkout\CustomerCheckout;
+use Taxjar\SalesTax\Test\Fixture\Customer\AddressBuilder;
+use Taxjar\SalesTax\Test\Fixture\Customer\CustomerBuilder;
+use Taxjar\SalesTax\Test\Fixture\Customer\CustomerFixture;
 
 /**
  * Builder to be used by fixtures

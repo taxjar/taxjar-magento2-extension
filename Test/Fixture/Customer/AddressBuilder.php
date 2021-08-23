@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Util\Fixtures\Customer;
+namespace Taxjar\SalesTax\Test\Fixture\Customer;
 
 use Exception;
 use InvalidArgumentException;
@@ -225,24 +225,24 @@ class AddressBuilder
         ObjectManagerInterface $objectManager,
         string $locale = 'en_US'
     ): AddressInterface {
-        $faker = self::getAddressObject($locale);
+        $fakeAddress = self::getAddressObject($locale);
         $countryCode = substr($locale, -2);
 
-        $region = $faker->province ?? $faker->state;
+        $region = $fakeAddress->province ?? $fakeAddress->state;
 
         $regionId = $objectManager->create(Region::class)->loadByName($region, $countryCode)->getId();
 
         /** @var AddressInterface $address */
         $address = $objectManager->create(AddressInterface::class);
         $address
-            ->setTelephone($faker->phoneNumber)
-            ->setPostcode($faker->postcode)
+            ->setTelephone($fakeAddress->phoneNumber)
+            ->setPostcode($fakeAddress->postcode)
             ->setCountryId($countryCode)
-            ->setCity($faker->city)
-            ->setCompany($faker->company)
-            ->setStreet([$faker->streetAddress])
-            ->setLastname($faker->lastName)
-            ->setFirstname($faker->firstName)
+            ->setCity($fakeAddress->city)
+            ->setCompany($fakeAddress->company)
+            ->setStreet([$fakeAddress->streetAddress])
+            ->setLastname($fakeAddress->lastName)
+            ->setFirstname($fakeAddress->firstName)
             ->setRegionId($regionId);
 
         return $address;

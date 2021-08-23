@@ -26,13 +26,5 @@ class IntegrationTestCase extends BaseTestCase
         parent::__construct();
 
         $this->objectManager = Bootstrap::getObjectManager();
-//        $this->cleanupReservations = $this->objectManager->get(CleanupReservationsInterface::class);
     }
-
-//    protected function tearDown(): void
-//    {
-//        parent::tearDown();
-//
-//        $this->cleanupReservations->execute();
-//    }
 }

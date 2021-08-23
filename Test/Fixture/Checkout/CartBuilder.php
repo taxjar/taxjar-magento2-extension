@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Util\Fixtures\Checkout;
+namespace Taxjar\SalesTax\Test\Fixture\Checkout;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;

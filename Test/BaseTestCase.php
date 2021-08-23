@@ -8,8 +8,5 @@ use PHPUnit\Framework\TestCase;
 
 class BaseTestCase extends TestCase
 {
-    public function todo(string $message = '')
-    {
-        $this->markTestSkipped($message);
-    }
+    //
 }

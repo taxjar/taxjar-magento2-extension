@@ -19,10 +19,10 @@ namespace Taxjar\SalesTax\Test\Integration\Model\Transaction;
 
 use Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
-use Taxjar\SalesTax\Util\Fixtures\Catalog\ProductBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Customer\AddressBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Customer\CustomerBuilder;
-use Taxjar\SalesTax\Util\Fixtures\Sales\OrderBuilder;
+use Taxjar\SalesTax\Test\Fixture\Catalog\ProductBuilder;
+use Taxjar\SalesTax\Test\Fixture\Customer\AddressBuilder;
+use Taxjar\SalesTax\Test\Fixture\Customer\CustomerBuilder;
+use Taxjar\SalesTax\Test\Fixture\Sales\OrderBuilder;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)/**
@@ -42,7 +42,7 @@ class OrderTest extends IntegrationTestCase
         $this->taxjarOrder = $this->objectManager->get(TaxjarOrder::class);
     }
 
-    public function testDefaultOrder()
+    public function testBuildTaxjarOrderTransaction()
     {
         $order = OrderBuilder::anOrder()->build();
         $result = $this->taxjarOrder->build($order);
@@ -53,15 +53,15 @@ class OrderTest extends IntegrationTestCase
         $this->assertEquals(0, $result['sales_tax'], 'Invalid sales tax amount');
     }
 
-    public function testPositiveDecimals()
+    public function testBuildTaxjarOrderTransactionLineItems()
     {
         $order = OrderBuilder::anOrder()->build();
         $result = $this->taxjarOrder->build($order);
 
-        $this->assertEquals(10.0, $result['line_items'][0]['unit_price'], 'Invalid provider');
+        $this->assertEquals(10.0, $result['line_items'][0]['unit_price'], 'Invalid unit price');
     }
 
-    public function testOrderNoShipping()
+    public function testBuildTaxjarOrderTransactionWithoutShipping()
     {
         $order = OrderBuilder::anOrder()
             ->withProducts(ProductBuilder::aVirtualProduct())
@@ -72,7 +72,17 @@ class OrderTest extends IntegrationTestCase
         $this->assertEquals(0, $result['shipping'], 'Invalid shipping amount');
     }
 
-    public function testOrderNotSyncable()
+    public function testBuildTaxjarOrderTransactionWithShipping()
+    {
+        $order = OrderBuilder::anOrder()->build();
+        $order->setShippingAmount(20.0);
+
+        $result = $this->taxjarOrder->build($order);
+
+        $this->assertEquals(20.0, $result['shipping'], 'Invalid shipping amount');
+    }
+
+    public function testBuildTaxjarOrderTransactionNonUSIsNotSyncable()
     {
         $order = OrderBuilder::anOrder()
             ->withCustomer(
@@ -88,17 +98,7 @@ class OrderTest extends IntegrationTestCase
         $this->assertFalse($result, 'Non-US order sync');
     }
 
-    public function testOrderShipping()
-    {
-        $order = OrderBuilder::anOrder()->build();
-        $order->setShippingAmount(20.0);
-
-        $result = $this->taxjarOrder->build($order);
-
-        $this->assertEquals(20.0, $result['shipping'], 'Invalid shipping amount');
-    }
-
-    public function testExemptCustomer()
+    public function testBuildTaxjarOrderTransactionRelatesToCustomer()
     {
         $order = OrderBuilder::anOrder()->build();
         $result = $this->taxjarOrder->build($order);
@@ -106,7 +106,7 @@ class OrderTest extends IntegrationTestCase
         $this->assertEquals($order->getCustomerId(), $result['customer_id'], 'Invalid customer ID');
     }
 
-    public function testExemptProductTaxClass()
+    public function testBuildTaxjarOrderTransactionWithoutProductTaxClass()
     {
         $order = OrderBuilder::anOrder()->build();
         $result = $this->taxjarOrder->build($order);
@@ -114,7 +114,7 @@ class OrderTest extends IntegrationTestCase
         $this->assertEquals('', $result['line_items'][0]['product_tax_code'], 'Invalid product tax class');
     }
 
-    public function testExemptGiftCard()
+    public function testBuildTaxjarOrderTransactionForGiftCard()
     {
         // Giftcard only exists in Commerce version
         $classGiftcardExists = class_exists('\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard');
@@ -135,8 +135,6 @@ class OrderTest extends IntegrationTestCase
         $this->assertTrue(true);
     }
 
-    public function testBundledProductsOrder()
-    {
-        $this->todo();
-    }
+    // TODO: test building a TaxJar Transaction Order with an exempt product tax class
+    // TODO: test building a TaxJar Transaction Order with an bundled products
 }

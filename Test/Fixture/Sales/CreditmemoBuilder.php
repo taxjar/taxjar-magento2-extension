@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Util\Fixtures\Sales;
+namespace Taxjar\SalesTax\Test\Fixture\Sales;
 
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;

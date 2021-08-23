@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Util\Fixtures\Catalog;
+namespace Taxjar\SalesTax\Test\Fixture\Catalog;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 
