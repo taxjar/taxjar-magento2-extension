@@ -291,7 +291,7 @@ class ImportRates implements ObserverInterface
             $statesConfig = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES);
             $states = json_decode($statesConfig, true);
 
-            if (!empty($states)) {
+            if (! empty($states)) {
                 $this->purgeExistingRates();
             }
 
@@ -358,7 +358,8 @@ class ImportRates implements ObserverInterface
      */
     private function backupRatesEnabled(): bool
     {
-        return (bool) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        $config = (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        return (bool) $config;
     }
 
     /**
