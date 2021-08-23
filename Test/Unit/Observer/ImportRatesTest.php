@@ -19,7 +19,6 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\RateRepository;
 use Magento\Tax\Model\Calculation\Rule;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Client;
@@ -29,8 +28,9 @@ use Taxjar\SalesTax\Model\Import\Rate;
 use Taxjar\SalesTax\Model\Import\RateFactory;
 use Taxjar\SalesTax\Model\Import\RuleFactory;
 use Taxjar\SalesTax\Observer\ImportRates;
+use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
-class ImportRatesTest extends TestCase
+class ImportRatesTest extends UnitTestCase
 {
     public function testExecuteWithBackupRatesEnabledAndValidApiKeyWhenDebugEnabled(): void
     {
@@ -841,8 +841,6 @@ class ImportRatesTest extends TestCase
 
         $this->assertInstanceOf(ImportRates::class, $result);
     }
-
-
 
     public function testCron()
     {
