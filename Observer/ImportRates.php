@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Observer;
 
+use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
 use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
 use Magento\AsynchronousOperations\Model\Operation;
@@ -48,6 +49,11 @@ class ImportRates implements ObserverInterface
      * The default batch size used for bulk operations in `ImportRates::class`
      */
     private const BATCH_SIZE = 1000;
+
+    /**
+     * @var EventManagerInterface
+     */
+    protected $eventManager;
 
     /**
      * @var MessageManagerInterface
@@ -150,6 +156,7 @@ class ImportRates implements ObserverInterface
     private $cacheManager;
 
     /**
+     * @param EventManagerInterface $eventManager
      * @param MessageManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $resourceConfig
@@ -167,6 +174,7 @@ class ImportRates implements ObserverInterface
      * @param CacheManager $cacheManager
      */
     public function __construct(
+        EventManagerInterface $eventManager,
         MessageManagerInterface $messageManager,
         ScopeConfigInterface $scopeConfig,
         Config $resourceConfig,
@@ -183,6 +191,7 @@ class ImportRates implements ObserverInterface
         UserContextInterface $userContext,
         CacheManager $cacheManager
     ) {
+        $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
@@ -341,6 +350,8 @@ class ImportRates implements ObserverInterface
         $this->messageManager->addSuccessMessage(
             __('TaxJar has successfully queued backup tax rate sync. Thanks for using TaxJar!')
         );
+
+        $this->eventManager->dispatch('taxjar_salestax_import_rates_after');
     }
 
     /**

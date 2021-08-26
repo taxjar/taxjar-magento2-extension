@@ -35,6 +35,8 @@ class ImportRatesTest extends UnitTestCase
 {
     public function testExecuteWithBackupRatesEnabledAndValidApiKeyWhenDebugEnabled(): void
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
+
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
         $mockMessageManager->expects($this->once())
             ->method('addNoticeMessage')
@@ -91,6 +93,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -115,6 +118,7 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithInvalidZipCodeThrowsException(): void
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
 
         $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
@@ -184,6 +188,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager = $this->createMock(Manager::class);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -209,6 +214,7 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithInvalidTaxClassesThrowsException(): void
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
 
         $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
@@ -278,6 +284,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager = $this->createMock(Manager::class);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -306,6 +313,7 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithInvalidShippingTaxClassThrowsException(): void
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
 
         $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
@@ -375,6 +383,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager = $this->createMock(Manager::class);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -402,6 +411,7 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteThrowsExceptionWhenScheduleBulkOperationFails(): void
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
         $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfigInterface->expects($this->exactly(5))
@@ -519,6 +529,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager = $this->createMock(Manager::class);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -546,6 +557,11 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithExistingRates()
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
+        $mockEventManager->expects($this->once())
+            ->method('dispatch')
+            ->with('taxjar_salestax_import_rates_after');
+
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
         $mockMessageManager->expects($this->once())->method('addSuccessMessage');
 
@@ -669,6 +685,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager->expects($this->once())->method('getAvailableTypes')->withAnyParameters()->willReturn([]);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -693,6 +710,11 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithoutExistingRates()
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
+        $mockEventManager->expects($this->once())
+            ->method('dispatch')
+            ->with('taxjar_salestax_import_rates_after');
+
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
         $mockMessageManager->expects($this->once())->method('addSuccessMessage');
 
@@ -816,6 +838,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -840,6 +863,11 @@ class ImportRatesTest extends UnitTestCase
 
     public function testCron()
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
+        $mockEventManager->expects($this->once())
+            ->method('dispatch')
+            ->with('taxjar_salestax_import_rates_after');
+
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
         $mockMessageManager->expects($this->once())->method('addSuccessMessage');
 
@@ -964,6 +992,7 @@ class ImportRatesTest extends UnitTestCase
 
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
@@ -986,6 +1015,8 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithoutBackupRatesEnabled()
     {
+        $mockEventManager = $this->createMock(EventManagerInterface::class);
+
         $mockMessageManager = $this->createMock(MessageManagerInterface::class);
         $mockMessageManager->expects($this->once())
             ->method('addNoticeMessage')
@@ -1046,6 +1077,7 @@ class ImportRatesTest extends UnitTestCase
         $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
 
         $sut = new ImportRates(
+            $mockEventManager,
             $mockMessageManager,
             $mockScopeConfigInterface,
             $mockResourceConfig,
