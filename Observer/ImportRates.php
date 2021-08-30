@@ -19,21 +19,23 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Observer;
 
-use Magento\AsynchronousOperations\Api\Data\OperationInterface;
-use Magento\AsynchronousOperations\Model\Operation;
-use Magento\Config\Model\ResourceModel\Config;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\ManagerInterface as EventManagerInterface;
-use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
+use Magento\AsynchronousOperations\Api\Data\OperationInterface;
+use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
+use Magento\AsynchronousOperations\Model\Operation;
+use Magento\Authorization\Model\UserContextInterface;
+use Magento\Config\Model\ResourceModel\Config;
+use Magento\Framework\App\Cache\Manager as CacheManager;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Bulk\BulkManagementInterface;
+use Magento\Framework\DataObject\IdentityGeneratorInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Tax\Model\Calculation\RateRepository;
-use Magento\Framework\DataObject\IdentityGeneratorInterface;
+use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\Serialize\SerializerInterface;
-use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
-use Magento\Framework\Bulk\BulkManagementInterface;
-use Magento\Authorization\Model\UserContextInterface;
+use Magento\Tax\Model\Calculation\RateRepository;
+use Magento\Tax\Model\Config as MagentoTaxConfig;
 use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Model\ClientFactory;
@@ -51,7 +53,7 @@ class ImportRates implements ObserverInterface
     /**
      * @var EventManagerInterface
      */
-    private $eventManager;
+    protected $eventManager;
 
     /**
      * @var MessageManagerInterface
@@ -149,6 +151,11 @@ class ImportRates implements ObserverInterface
     private $zipCode;
 
     /**
+     * @var CacheManager
+     */
+    private $cacheManager;
+
+    /**
      * @param EventManagerInterface $eventManager
      * @param MessageManagerInterface $messageManager
      * @param ScopeConfigInterface $scopeConfig
@@ -164,6 +171,7 @@ class ImportRates implements ObserverInterface
      * @param OperationInterfaceFactory $operationFactory
      * @param BulkManagementInterface $bulkManagement
      * @param UserContextInterface $userContext
+     * @param CacheManager $cacheManager
      */
     public function __construct(
         EventManagerInterface $eventManager,
@@ -180,7 +188,8 @@ class ImportRates implements ObserverInterface
         SerializerInterface $serializer,
         OperationInterfaceFactory $operationFactory,
         BulkManagementInterface $bulkManagement,
-        UserContextInterface $userContext
+        UserContextInterface $userContext,
+        CacheManager $cacheManager
     ) {
         $this->eventManager = $eventManager;
         $this->messageManager = $messageManager;
@@ -197,6 +206,7 @@ class ImportRates implements ObserverInterface
         $this->operationFactory = $operationFactory;
         $this->bulkManagement = $bulkManagement;
         $this->userContext = $userContext;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -279,7 +289,7 @@ class ImportRates implements ObserverInterface
             $zipCode = $this->backupRateOriginAddress->getShippingZipCode();
             $customerTaxClassConfig = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES);
             $productTaxClassConfig = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES);
-            $shippingTaxClass = $this->scopeConfig->getValue('tax/classes/shipping_tax_class');
+            $shippingTaxClass = $this->scopeConfig->getValue(MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS);
 
             $this->setClient($client)
                 ->setZipCode($zipCode)
@@ -288,20 +298,13 @@ class ImportRates implements ObserverInterface
                 ->setShippingTaxClass($shippingTaxClass)
                 ->importRates();
         } else {
-            $statesConfig = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES);
-            $states = json_decode($statesConfig, true);
-
-            if (! empty($states)) {
-                $this->purgeExistingRates();
-            }
-
+            $this->purgeExistingRates();
             $this->setLastUpdate(null);
-
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_BACKUP, 0, 'default');
-            $this->messageManager->addNoticeMessage(__('Backup rates imported by TaxJar have been removed.'));
+            $this->messageManager->addNoticeMessage(__('Backup rates imported by TaxJar have been queued for removal.'));
         }
 
-        $this->eventManager->dispatch('adminhtml_cache_flush_all');
+        $this->cacheManager->flush($this->cacheManager->getAvailableTypes());
 
         return $this;
     }
@@ -465,6 +468,8 @@ class ImportRates implements ObserverInterface
         $rule->getCalculationModel()->deleteByRuleId($rule->getId());
         $rule->delete();
 
+        $this->setRateCount(0);
+
         if (! empty($rates)) {
             $payload = $this->getDeleteRatesPayload($rates);
 
@@ -479,6 +484,17 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Updates the current backup rate count stored in global config.
+     *
+     * @param int $value
+     * @return void
+     */
+    private function setRateCount(int $value): void
+    {
+        $this->taxjarConfig->setBackupRateCount($value);
+    }
+
+    /**
      * Schedule bulk operation(s) to asynchronously create `tax_calculation_rates` entries and relate rates to new
      * TaxJar `tax_calculation_rules` entry by way of `tax_calculations` entries.
      *
@@ -488,6 +504,8 @@ class ImportRates implements ObserverInterface
      */
     private function createRates(array $rates): self
     {
+        $this->setRateCount(count($rates));
+
         $payload = $this->getCreateRatesPayload($rates);
 
         $this->scheduleBulkOperation(

@@ -22,6 +22,8 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -173,7 +175,7 @@ class Rate
      *
      * @return array
      */
-    public function getExistingRates()
+    public function getExistingRates(): array
     {
         return $this->getRule()->load(TaxjarConfig::TAXJAR_BACKUP_RATE_CODE, 'code')->getRates();
     }
@@ -182,14 +184,13 @@ class Rate
      * Get existing TaxJar rule calculations based on the rate ID
      *
      * @param string $rateId
-     * @return \Magento\Tax\Model\ResourceModel\Calculation\Collection
+     * @return AbstractDb|AbstractCollection|null
      */
-    public function getCalculationsByRateId($rateId)
+    public function getCalculationsByRateId(string $rateId)
     {
         $calculationModel = $this->_calculationFactory->create();
-        $calculations = $calculationModel->getCollection()
-                        ->addFieldToFilter('tax_calculation_rate_id', $rateId);
-
-        return $calculations;
+        return $calculationModel
+            ->getCollection()
+            ->addFieldToFilter('tax_calculation_rate_id', $rateId);
     }
 }
