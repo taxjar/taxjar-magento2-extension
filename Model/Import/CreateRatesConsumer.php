@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Taxjar\SalesTax\Model\Import;
 
 use Exception;
+use Magento\Framework\App\Cache\Manager as CacheManager;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\DB\LoggerInterface;
+use Magento\Framework\EntityManager\EntityManager;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\SerializerInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class CreateRatesConsumer extends AbstractRatesConsumer
@@ -34,6 +39,34 @@ class CreateRatesConsumer extends AbstractRatesConsumer
      * @var string
      */
     private $shippingTaxClass;
+
+    /**
+     * @var \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory
+     */
+    private $configCollection;
+
+    public function __construct(
+        SerializerInterface $serializer,
+        ScopeConfigInterface $scopeConfig,
+        LoggerInterface $logger,
+        EntityManager $entityManager,
+        TaxjarConfig $taxjarConfig,
+        RateFactory $rateFactory,
+        RuleFactory $ruleFactory,
+        \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configCollection
+    ) {
+        parent::__construct(
+            $serializer,
+            $scopeConfig,
+            $logger,
+            $entityManager,
+            $taxjarConfig,
+            $rateFactory,
+            $ruleFactory
+        );
+
+        $this->configCollection = $configCollection;
+    }
 
     /**
      * @param string[] $values List of configured customer tax class names
@@ -170,14 +203,14 @@ class CreateRatesConsumer extends AbstractRatesConsumer
         $rate = $this->rateFactory->create();
 
         foreach ($this->rates as $newRate) {
-            $rateIdWithShippingId = $rate->create($newRate);
+            [$rateId, $shippingRateId] = $rate->create($newRate);
 
-            if ($rateIdWithShippingId[0]) {
-                $this->newRates[] = $rateIdWithShippingId[0];
+            if ($rateId) {
+                $this->newRates[] = $rateId;
             }
 
-            if ($rateIdWithShippingId[1]) {
-                $this->newShippingRates[] = $rateIdWithShippingId[1];
+            if ($shippingRateId) {
+                $this->newShippingRates[] = $shippingRateId;
             }
         }
 
@@ -222,7 +255,12 @@ class CreateRatesConsumer extends AbstractRatesConsumer
      */
     private function backupRatesEnabled(): bool
     {
-        $config = (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
-        return (bool) $config;
+        $collection = $this->configCollection->create();
+
+        $config = $collection
+            ->addFieldToFilter("path", TaxjarConfig::TAXJAR_BACKUP)
+            ->getFirstItem();
+
+        return (bool) (int) $config->getData('value');
     }
 }

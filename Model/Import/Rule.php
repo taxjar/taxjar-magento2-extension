@@ -80,7 +80,19 @@ class Rule
                         'customer_tax_class_id' => $c,
                         'product_tax_class_id' => $p,
                     ];
-                    $ruleModel->getCalculationModel()->setData($dataArray)->save();
+                    $calculation = $ruleModel->getCalculationModel();
+
+                    $calculationModel = $calculation->getCollection()
+                        ->addFieldToFilter('tax_calculation_rate_id', $r)
+                        ->addFieldToFilter('customer_tax_class_id', $c)
+                        ->addFieldToFilter('product_tax_class_id', $p)
+                        ->getFirstItem();
+
+                    if ($calculationModel->getId()) {
+                        $calculationModel->delete();
+                    }
+
+                    $calculation->setData($dataArray)->save();
                 }
             }
         }

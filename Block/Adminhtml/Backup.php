@@ -22,6 +22,8 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Shipping\Model\Config as MagentoShippingConfig;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
@@ -84,6 +86,7 @@ class Backup extends Field
     protected $taxjarConfig;
 
     /**
+     * @param CacheInterface $cache
      * @param Context $context
      * @param RateFactory $rateFactory
      * @param TaxRateRepositoryInterface $rateService
@@ -95,6 +98,7 @@ class Backup extends Field
      * @param array $data
      */
     public function __construct(
+        CacheInterface $cache,
         Context $context,
         RateFactory $rateFactory,
         TaxRateRepositoryInterface $rateService,
@@ -105,7 +109,7 @@ class Backup extends Field
         TaxjarConfig $taxjarConfig,
         array $data = []
     ) {
-        $this->cache = $context->getCache();
+        $this->cache = $cache;
         $this->scopeConfig = $context->getScopeConfig();
         $this->rateService = $rateService;
         $this->rateFactory = $rateFactory;
@@ -163,7 +167,7 @@ class Backup extends Field
     public function getActualRateCount(): int
     {
         $rateModel = $this->rateFactory->create();
-        $rates = $rateModel->getExistingRates();
+        $rates = $rateModel->getExistingRates() ?? [];
 
         return count($rates) ?? 0;
     }
