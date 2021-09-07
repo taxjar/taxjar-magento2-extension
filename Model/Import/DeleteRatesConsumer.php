@@ -11,6 +11,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Tax\Model\Calculation\RateRepository;
+use Magento\Tax\Model\CalculationFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class DeleteRatesConsumer extends AbstractRatesConsumer
@@ -19,6 +20,11 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
      * @var RateRepository
      */
     private $rateRepository;
+
+    /**
+     * @var CalculationFactory
+     */
+    private $calculationFactory;
 
     /**
      * DeleteRatesConsumer constructor.
@@ -30,6 +36,7 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
      * @param RateFactory $rateFactory
      * @param RuleFactory $ruleFactory
      * @param RateRepository $rateRepository
+     * @param CalculationFactory $calculationFactory
      */
     public function __construct(
         SerializerInterface $serializer,
@@ -39,7 +46,8 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
         TaxjarConfig $taxjarConfig,
         RateFactory $rateFactory,
         RuleFactory $ruleFactory,
-        RateRepository $rateRepository
+        RateRepository $rateRepository,
+        CalculationFactory $calculationFactory
     ) {
         parent::__construct(
             $serializer,
@@ -52,6 +60,7 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
         );
 
         $this->rateRepository = $rateRepository;
+        $this->calculationFactory = $calculationFactory;
     }
 
     /**
@@ -98,7 +107,17 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
      */
     private function deleteRates(): self
     {
+        $calculationModel = $this->calculationFactory->create();
+
         foreach ($this->rates as $rate) {
+            $calculations = $calculationModel->getCollection()
+                ->addFieldToFilter('tax_calculation_rate_id', $rate)
+                ->getItems();
+
+            foreach ($calculations as $calculation) {
+                $calculation->delete();
+            }
+
             $this->rateRepository->deleteById($rate);
         }
 

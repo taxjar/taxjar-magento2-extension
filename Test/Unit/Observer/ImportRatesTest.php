@@ -62,6 +62,16 @@ class ImportRatesTest extends UnitTestCase
         $mockResourceConfig = $this->createMock(Config::class);
 
         $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->once())
+            ->method('getResource')
+            ->willReturn([
+                'rates' => [
+                    [
+                        'state' => 'TX',
+                        'zip' => 78758,
+                    ],
+                ]
+            ]);
 
         $mockClientFactory = $this->createMock(ClientFactory::class);
         $mockClientFactory->expects($this->once())
@@ -442,11 +452,11 @@ class ImportRatesTest extends UnitTestCase
             ])
             ->willReturn([
                 'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
+                    [
+                        'state' => 'TX',
+                        'zip' => 78758,
+                    ],
+                ]
             ]);
 
         $mockClientFactory = $this->createMock(ClientFactory::class);
@@ -596,11 +606,11 @@ class ImportRatesTest extends UnitTestCase
             ])
             ->willReturn([
                 'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
+                    [
+                        'state' => 'TX',
+                        'zip' => 78758,
+                    ],
+                ]
             ]);
 
         $mockClientFactory = $this->createMock(ClientFactory::class);
@@ -638,7 +648,16 @@ class ImportRatesTest extends UnitTestCase
             ->willReturn($mockRateModel);
 
         $mockRuleFactory = $this->createMock(RuleFactory::class);
+
+        $mockRate = $this->createMock(Calculation\Rate::class);
+        $mockRate->expects($this->once())
+            ->method('getCode')
+            ->willReturn('US-TX-*');
+
         $mockRateRepository = $this->createMock(RateRepository::class);
+        $mockRateRepository->expects($this->once())
+            ->method('get')
+            ->willReturn($mockRate);
 
         $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
         $mockTaxjarConfig->expects($this->once())
@@ -749,11 +768,11 @@ class ImportRatesTest extends UnitTestCase
             ])
             ->willReturn([
                 'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
+                    [
+                        'state' => 'TX',
+                        'zip' => 78758,
+                    ],
+                ]
             ]);
 
         $mockClientFactory = $this->createMock(ClientFactory::class);
@@ -902,11 +921,11 @@ class ImportRatesTest extends UnitTestCase
             ])
             ->willReturn([
                 'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
+                    [
+                        'state' => 'TX',
+                        'zip' => 78758,
+                    ],
+                ]
             ]);
 
         $mockClientFactory = $this->createMock(ClientFactory::class);
@@ -944,7 +963,17 @@ class ImportRatesTest extends UnitTestCase
             ->willReturn($mockRateModel);
 
         $mockRuleFactory = $this->createMock(RuleFactory::class);
+
+        $mockRate = $this->createMock(Calculation\Rate::class);
+        $mockRate->expects($this->once())
+            ->method('getCode')
+            ->willReturn('US-TX-*');
+
         $mockRateRepository = $this->createMock(RateRepository::class);
+        $mockRateRepository->expects($this->once())
+            ->method('get')
+            ->willReturn($mockRate);
+
 
         $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
         $mockTaxjarConfig->expects($this->once())

@@ -19,6 +19,7 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -67,18 +68,20 @@ class Enabled extends PopupField
     protected $taxjarConfig;
 
     /**
+     * @param CacheInterface $cache
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param TaxjarConfig $taxjarConfig
      * @param array $data
      */
     public function __construct(
+        CacheInterface $cache,
         Context $context,
         UrlInterface $backendUrl,
         TaxjarConfig $taxjarConfig,
         array $data = []
     ) {
-        $this->cache = $context->getCache();
+        $this->cache = $cache;
         $this->request = $context->getRequest();
         $this->scopeConfig = $context->getScopeConfig();
         $this->backendUrl = $backendUrl;

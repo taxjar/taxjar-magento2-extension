@@ -75,14 +75,12 @@ class ConfigChanged implements ObserverInterface
      */
     private function _updateSmartcalcs()
     {
-        $enabled = (int)$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
-        $prevEnabled = (int)$this->cache->load('taxjar_salestax_config_enabled');
+        $currentValue = (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED);
+        $previousValue = (int) $this->cache->load('taxjar_salestax_config_enabled');
 
-        if (isset($prevEnabled)) {
-            if ($prevEnabled != $enabled && $enabled == 1) {
-                $this->eventManager->dispatch('taxjar_salestax_import_categories');
-                $this->eventManager->dispatch('taxjar_salestax_import_data');
-            }
+        if ($currentValue === 1 && $currentValue !== $previousValue) {
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
+            $this->eventManager->dispatch('taxjar_salestax_import_data');
         }
     }
 
@@ -91,15 +89,13 @@ class ConfigChanged implements ObserverInterface
      */
     private function _updateBackupRates()
     {
-        $enabled = (int)$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
-        $prevEnabled = (int)$this->cache->load('taxjar_salestax_config_backup');
+        $currentValue = (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        $previousValue = (int) $this->cache->load('taxjar_salestax_config_backup');
 
-        if (isset($prevEnabled)) {
-            if ($prevEnabled != $enabled) {
-                $this->eventManager->dispatch('taxjar_salestax_import_categories');
-                $this->eventManager->dispatch('taxjar_salestax_import_data');
-                $this->eventManager->dispatch('taxjar_salestax_import_rates');
-            }
+        if ($currentValue !== $previousValue) {
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
+            $this->eventManager->dispatch('taxjar_salestax_import_data');
+            $this->eventManager->dispatch('taxjar_salestax_import_rates');
         }
     }
 }

@@ -105,27 +105,24 @@ class Rate
     }
 
     /**
-     * Attempt to create a new rate from JSON data
+     * Attempt to create a new rate from data.
+     * Should return a tuple containing rate model's ID and shipping rate's ID.
      *
-     * @param string $rateJson
+     * @param array $data
      * @return array
      */
-    public function create($rateJson)
+    public function create(array $data): array
     {
         try {
-            $zip        = $rateJson['zip'];
-            $regionCode = $rateJson['state'];
-            $rate       = $rateJson['rate'];
-
-            if (isset($rateJson['country'])) {
-                $countryCode = $rateJson['country'];
-            } else {
-                $countryCode = 'US';
-            }
+            $rate = $data['rate'];
+            $zip = $data['zip'];
+            $regionCode = $data['state'];
+            $countryCode = $data['country'] ?? 'US';
 
             if ($this->cache->load('regionId')
-            && $regionCode == $this->cache->load('regionCode')
-            && $countryCode == $this->cache->load('countryCode')) {
+                && $regionCode == $this->cache->load('regionCode')
+                && $countryCode == $this->cache->load('countryCode')
+            ) {
                 $regionId = $this->cache->load('regionId');
             } else {
                 $region = $this->regionFactory->create();
@@ -135,28 +132,28 @@ class Rate
                 $this->cache->save($countryCode, 'countryCode');
             }
 
-            $rateModel = $this->rateFactory->create();
-            $code = $countryCode . '-' . $regionCode . '-' . $zip;
+            $code = sprintf('%s-%s-%s', $countryCode, $regionCode, $zip);
 
-            if (!$rateModel->load($code, 'code')->getId()) {
+            $rateModel = $this->rateFactory->create();
+
+            if ($rateModel->load($code, 'code')->getId()) {
+                $rateModel->setRate($rate);
+            } else {
                 $rateModel->setTaxCountryId($countryCode);
                 $rateModel->setTaxRegionId($regionId);
                 $rateModel->setTaxPostcode($zip);
                 $rateModel->setCode($code);
                 $rateModel->setRate($rate);
-                $rateModel->save();
             }
 
-            if ($rateJson['freight_taxable']) {
-                $shippingRateId = $rateModel->getId();
-            } else {
-                $shippingRateId = 0;
-            }
+            $rateModel->save();
+
+            $shippingRateId = $data['freight_taxable'] ? $rateModel->getId() : 0;
 
             return [$rateModel->getId(), $shippingRateId];
         } catch (\Exception $e) {
             unset($rateModel);
-            return;
+            return [null, null];
         }
     }
 
@@ -177,7 +174,9 @@ class Rate
      */
     public function getExistingRates(): array
     {
-        return $this->getRule()->load(TaxjarConfig::TAXJAR_BACKUP_RATE_CODE, 'code')->getRates();
+        return array_unique(
+            $this->getRule()->load(TaxjarConfig::TAXJAR_BACKUP_RATE_CODE, 'code')->getRates()
+        );
     }
 
     /**
