@@ -21,10 +21,13 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Taxjar\SalesTax\Block\CachesConfiguration;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Enabled extends PopupField
 {
+    use CachesConfiguration;
+
     /**
      * @var string
      */
@@ -103,22 +106,14 @@ class Enabled extends PopupField
         if (!$this->apiKey) {
             $element->setDisabled('disabled');
         } else {
-            $this->_cacheElementValue($element);
+            $this->onCache($this->cache)
+                ->cacheValue(
+                    (string) $element->getValue(),
+                    'taxjar_salestax_config_enabled'
+                );
         }
 
         return parent::_getElementHtml($element) . $this->_toHtml();
-    }
-
-    /**
-     * Cache the element value
-     *
-     * @param AbstractElement $element
-     * @return void
-     */
-    protected function _cacheElementValue(AbstractElement $element)
-    {
-        $elementValue = (string) $element->getValue();
-        $this->cache->save($elementValue, 'taxjar_salestax_config_enabled');
     }
 
     /**

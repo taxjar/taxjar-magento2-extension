@@ -89,13 +89,44 @@ class ConfigChanged implements ObserverInterface
      */
     private function _updateBackupRates()
     {
-        $currentValue = (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
-        $previousValue = (int) $this->cache->load('taxjar_salestax_config_backup');
+        if ($this->backupRatesEnabledChanged()) {
+            $this->eventManager->dispatch('taxjar_salestax_import_categories');
+            $this->eventManager->dispatch('taxjar_salestax_import_data');
+            $this->eventManager->dispatch('taxjar_salestax_import_rates');
 
-        if ($currentValue !== $previousValue) {
+            return;
+        }
+
+        $enabled = (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+
+        if ($enabled && ($this->productTaxClassesChanged() || $this->customerTaxClassesChanged())) {
             $this->eventManager->dispatch('taxjar_salestax_import_categories');
             $this->eventManager->dispatch('taxjar_salestax_import_data');
             $this->eventManager->dispatch('taxjar_salestax_import_rates');
         }
+    }
+
+    private function backupRatesEnabledChanged(): bool
+    {
+        $current = (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
+        $previous = (bool) (int) $this->cache->load('taxjar_salestax_config_backup');
+
+        return $previous != $current;
+    }
+
+    private function productTaxClassesChanged(): bool
+    {
+        $current = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES);
+        $previous = $this->cache->load('taxjar_salestax_backup_rates_ptcs') ?? '';
+
+        return $current != $previous;
+    }
+
+    private function customerTaxClassesChanged(): bool
+    {
+        $current = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES);
+        $previous = $this->cache->load('taxjar_salestax_backup_rates_ctcs') ?? '';
+
+        return $current != $previous;
     }
 }
