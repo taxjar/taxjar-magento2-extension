@@ -45,7 +45,6 @@ class Rule
      * @param integer $position
      * @param array $rates
      * @throws \Exception
-     * @return void
      */
     public function create($code, $customerClasses, $productClasses, $position, $rates)
     {
@@ -59,7 +58,10 @@ class Rule
         $ruleModel->setPriority(1);
         $ruleModel->setCalculateSubtotal(0);
         $ruleModel->save();
+
         $this->saveCalculationData($ruleModel, $rates);
+
+        return $ruleModel;
     }
 
     /**

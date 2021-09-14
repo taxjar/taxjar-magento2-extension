@@ -227,7 +227,7 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     {
         $rule = $this->ruleFactory->create();
 
-        $rule->create(
+        $ruleModel = $rule->create(
             TaxjarConfig::TAXJAR_BACKUP_RATE_CODE,
             $this->customerTaxClasses,
             $this->productTaxClasses,
@@ -245,7 +245,34 @@ class CreateRatesConsumer extends AbstractRatesConsumer
             );
         }
 
+        $this->purgeStaleCalculations($ruleModel);
+
         return $this;
+    }
+
+    private function purgeStaleCalculations($ruleModel): void
+    {
+        $productTaxClassIds = $this->productTaxClasses;
+
+        if ($this->shippingTaxClass) {
+            $productTaxClassIds[] = $this->shippingTaxClass;
+        }
+
+        $productCalculations = $ruleModel->getCalculationModel()->getCollection()
+            ->addFieldToFilter('product_tax_class_id', ['nin' => $productTaxClassIds])
+            ->getItems();
+
+        foreach ($productCalculations as $calculation) {
+            $calculation->delete();
+        }
+
+        $customerCalculations = $ruleModel->getCalculationModel()->getCollection()
+            ->addFieldToFilter('customer_tax_class_id', ['nin' => $this->customerTaxClasses])
+            ->getItems();
+
+        foreach ($customerCalculations as $calculation) {
+            $calculation->delete();
+        }
     }
 
     /**
