@@ -1,53 +1,35 @@
 <?php
-/**
- * Taxjar_SalesTax
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * @category   Taxjar
- * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
- * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- */
 
-namespace Taxjar\SalesTax\Model;
+namespace Taxjar\SalesTax\Test\Mocks;
 
 use Magento\Framework\Exception\LocalizedException;
 use Taxjar\SalesTax\Api\Client\ClientInterface;
 use Taxjar\SalesTax\Helper\Data;
+use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
-class Client implements ClientInterface
+class ClientMock implements ClientInterface
 {
-    /**
-     * @var BackupRateOriginAddress
-     */
-    protected $backupRateOriginAddress;
-
-    /**
-     * @var string
-     */
-    protected $apiKey;
-
-    /**
-     * @var bool
-     */
-    protected $showResponseErrors;
-
     /**
      * @var Data
      */
-    protected $tjHelper;
-
+    private $tjHelper;
     /**
      * @var TaxjarConfig
      */
-    protected $taxjarConfig;
+    private $taxjarConfig;
+    /**
+     * @var BackupRateOriginAddress
+     */
+    private $backupRateOriginAddress;
+    /**
+     * @var string
+     */
+    private $apiKey;
+    /**
+     * @var mixed
+     */
+    public $mockResponse;
 
     /**
      * @param Data $tjHelper
@@ -62,7 +44,7 @@ class Client implements ClientInterface
         $this->tjHelper = $tjHelper;
         $this->taxjarConfig = $taxjarConfig;
         $this->backupRateOriginAddress = $backupRateOriginAddress;
-        $this->apiKey = $this->taxjarConfig->getApiKey();
+        $this->apiKey = 'test-api-key';
     }
 
     /**
@@ -74,8 +56,9 @@ class Client implements ClientInterface
      */
     public function getResource($resource, $errors = [])
     {
-        $client = $this->getClient($this->_getApiUrl($resource));
-        return $this->_getRequest($client, $errors);
+        return $this->mockResponse;
+//        $client = $this->getClient($this->_getApiUrl($resource));
+//        return $this->_getRequest($client, $errors);
     }
 
     /**
@@ -159,40 +142,16 @@ class Client implements ClientInterface
         // @codingStandardsIgnoreEnd
         $client->setUri($url);
         $client->setMethod($method);
-        $client->setConfig([
-            'useragent' => $this->tjHelper->getUserAgent(),
-            'referer' => $this->tjHelper->getStoreUrl()
-        ]);
-        $client->setHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'x-api-version' => TaxJarConfig::TAXJAR_X_API_VERSION
-        ]);
+//        $client->setConfig([
+//            'useragent' => $this->tjHelper->getUserAgent(),
+//            'referer' => $this->tjHelper->getStoreUrl()
+//        ]);
+//        $client->setHeaders([
+//            'Authorization' => 'Bearer ' . $this->apiKey,
+//            'x-api-version' => TaxJarConfig::TAXJAR_X_API_VERSION
+//        ]);
 
         return $client;
-    }
-
-    /**
-     * Get HTTP request
-     *
-     * @param \Zend_Http_Client $client
-     * @param array $errors
-     * @return array
-     * @throws LocalizedException
-     */
-    private function _getRequest($client, $errors = [])
-    {
-        try {
-            $response = $client->request();
-
-            if ($response->isSuccessful()) {
-                $json = $response->getBody();
-                return json_decode($json, true);
-            } else {
-                $this->_handleError($errors, $response);
-            }
-        } catch (\Zend_Http_Client_Exception $e) {
-            throw new LocalizedException(__('Could not connect to TaxJar.'));
-        }
     }
 
     /**
@@ -279,5 +238,22 @@ class Client implements ClientInterface
             'default' => __('Could not connect to TaxJar.')
         ];
         // @codingStandardsIgnoreEnd
+    }
+
+    private function _getRequest($client, $errors = [])
+    {
+        return $this->getMockResponse();
+    }
+
+    private function getMockResponse()
+    {
+        return $this->mockResponse ?? ['error' => 'No mock resopnse set!'];
+    }
+
+    public function setMockResponse($value): ClientMock
+    {
+        $this->mockResponse = $value;
+
+        return $this;
     }
 }

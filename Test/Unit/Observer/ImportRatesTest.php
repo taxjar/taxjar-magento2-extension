@@ -19,8 +19,7 @@ use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\RateRepository;
-use Magento\Tax\Model\Calculation\Rule;
-use Symfony\Component\HttpFoundation\Response;
+use Magento\Tax\Model\Config as MagentoTaxConfig;
 use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Model\ClientFactory;
@@ -33,188 +32,161 @@ use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
 class ImportRatesTest extends UnitTestCase
 {
+    /**
+     * @var EventManagerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $eventManager;
+    /**
+     * @var MessageManagerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $messageManager;
+    /**
+     * @var ScopeConfigInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $scopeConfig;
+    /**
+     * @var Config|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $resourceConfig;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|ClientFactory
+     */
+    private $clientFactory;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|RateFactory
+     */
+    private $rateFactory;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|RuleFactory
+     */
+    private $ruleFactory;
+    /**
+     * @var RateRepository|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $rateRepository;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|TaxjarConfig
+     */
+    private $taxjarConfig;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|BackupRateOriginAddress
+     */
+    private $backupRateOriginAddress;
+    /**
+     * @var IdentityGeneratorInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $identityService;
+    /**
+     * @var SerializerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $serializer;
+    /**
+     * @var OperationInterfaceFactory|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $operationFactory;
+    /**
+     * @var BulkManagementInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $bulkManagement;
+    /**
+     * @var UserContextInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $userContext;
+    /**
+     * @var Manager|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $cacheManager;
+    /**
+     * @var array[]
+     */
+    private $mockRates;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->eventManager = $this->createMock(EventManagerInterface::class);
+        $this->messageManager = $this->createMock(MessageManagerInterface::class);
+        $this->scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $this->resourceConfig = $this->createMock(Config::class);
+        $this->clientFactory = $this->getMockBuilder(ClientFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->rateFactory = $this->getMockBuilder(RateFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->rateRepository = $this->createMock(RateRepository::class);
+        $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
+        $this->backupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
+        $this->identityService = $this->createMock(IdentityGeneratorInterface::class);
+        $this->serializer = $this->createMock(SerializerInterface::class);
+        $this->operationFactory = $this->getMockBuilder(OperationInterfaceFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->bulkManagement = $this->createMock(BulkManagementInterface::class);
+        $this->userContext = $this->createMock(UserContextInterface::class);
+        $this->cacheManager = $this->createMock(Manager::class);
+
+        $this->mockRates = [
+            [
+                'state' => 'TX',
+                'zip' => 78758,
+            ],
+        ];
+    }
+
     public function testExecuteWithBackupRatesEnabledAndValidApiKeyWhenDebugEnabled(): void
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-        $mockMessageManager->expects($this->once())
-            ->method('addNoticeMessage')
-            ->withAnyParameters();
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
                 [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
                 [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
+                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS],
                 [TaxjarConfig::TAXJAR_DEBUG]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'shipping_product_tax_class',
-                1
+                '1',
+                '1',
+                '2,3',
+                '',
+                '1'
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
+        $this->messageManager->expects($this->once())
+            ->method('addNoticeMessage')
+            ->with('Debug mode enabled. Backup tax rates have not been altered.');
 
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->willReturn([
-                'rates' => [
-                    [
-                        'state' => 'TX',
-                        'zip' => 78758,
-                    ],
-                ]
-            ]);
-
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-
-        $mockCacheManager = $this->createMock(Manager::class);
-        $mockCacheManager->expects($this->once())->method('getAvailableTypes')->willReturn(['type']);
-        $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
+        $this->clientFactory->expects($this->once())->method('create')->willReturn(
+            $this->getMockClient($this->mockRates)
         );
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
 
+        $sut = $this->getTestSubject();
         $result = $sut->execute(new Observer());
 
-        $this->assertInstanceOf(ImportRates::class, $result);
+        $this->assertNull($result);
     }
 
     public function testExecuteWithInvalidZipCodeThrowsException(): void
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(4))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
                 [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
                 [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
+                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'shipping_product_tax_class',
-                0
+                '1',
+                '1',
+                '2,3',
+                ''
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient());
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
 
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
-            ]);
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('1234567');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
 
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('1234567');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(true);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockCacheManager = $this->createMock(Manager::class);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
-        );
+        $sut = $this->getTestSubject();
 
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage('Please check that your zip code is a valid US zip code in Shipping Settings.');
@@ -224,93 +196,27 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithInvalidTaxClassesThrowsException(): void
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(4))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
                 [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
                 [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
+                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS]
             )->willReturnOnConsecutiveCalls(
-                1,
+                '1',
                 '',
                 '',
-                'shipping_product_tax_class',
-                0
+                ''
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient());
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
 
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
-            ]);
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
 
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(true);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockCacheManager = $this->createMock(Manager::class);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
-        );
+        $sut = $this->getTestSubject();
 
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage(
@@ -323,93 +229,27 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithInvalidShippingTaxClassThrowsException(): void
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(4))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
                 [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
                 [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
+                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'product_class_1',
-                0
+                '1',
+                '2',
+                '1',
+                '1'
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient());
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
 
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    'some',
-                    'list',
-                    'of',
-                    'values',
-                ],
-            ]);
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
 
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(true);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockCacheManager = $this->createMock(Manager::class);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
-        );
+        $sut = $this->getTestSubject();
 
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage(
@@ -421,10 +261,7 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteThrowsExceptionWhenScheduleBulkOperationFails(): void
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
@@ -433,129 +270,26 @@ class ImportRatesTest extends UnitTestCase
                 ['tax/classes/shipping_tax_class'],
                 [TaxjarConfig::TAXJAR_DEBUG]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'shipping_class_1',
-                0
+                '1',
+                '1',
+                '2,3',
+                '',
+                '0'
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    [
-                        'state' => 'TX',
-                        'zip' => 78758,
-                    ],
-                ]
-            ]);
-
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockCalculation = $this->createMock(Calculation::class);
-        $mockCalculation->expects($this->once())
-            ->method('deleteByRuleId')
-            ->with(42)
-            ->willReturnSelf();
-
-        $mockRule = $this->createMock(Rule::class);
-        $mockRule->expects($this->once())
-            ->method('getId')
-            ->willReturn(42);
-        $mockRule->expects($this->once())
-            ->method('getCalculationModel')
-            ->willReturn($mockCalculation);
-        $mockRule->expects($this->once())
-            ->method('delete');
-
-        $mockRateModel = $this->createMock(Rate::class);
-        $mockRateModel->expects($this->once())
-            ->method('getExistingRates')
-            ->willReturn(['old_rate_1', 'old_rate_2']);
-        $mockRateModel->expects($this->once())
-            ->method('getRule')
-            ->willReturn($mockRule);
-
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRateFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockRateModel);
-
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(false);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockIdentityGeneratorInterface->expects($this->once())
-            ->method('generateId')
-            ->willReturn('unique-identifier');
-
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockSerializerInterface->expects($this->once())
-            ->method('serialize')
-            ->willReturn(json_encode(['data' => 'payload']));
-
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockOperationInterfaceFactory->expects($this->once())
-            ->method('create')
-            ->withAnyParameters()
-            ->willReturn($this->createMock(Operation::class));
-
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockBulkManagementInterface->expects($this->once())
-            ->method('scheduleBulk')
-            ->withAnyParameters()
-            ->willReturn(false);
-
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockUserContextInterface->expects($this->once())
-            ->method('getUserId')
-            ->willReturn('9999999');
-
-        $mockCacheManager = $this->createMock(Manager::class);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(false);
+        $this->identityService->expects($this->once())->method('generateId')->willReturn('unique-identifier');
+        $this->serializer->expects($this->once())->method('serialize')->willReturn(json_encode(['data' => 'payload']));
+        $this->operationFactory->expects($this->once())->method('create')->withAnyParameters()->willReturn(
+            $this->createMock(Operation::class)
         );
+        $this->bulkManagement->expects($this->once())->method('scheduleBulk')->withAnyParameters()->willReturn(false);
+        $this->userContext->expects($this->once())->method('getUserId')->willReturn('9999999');
+
+        $sut = $this->getTestSubject();
 
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage(
@@ -567,16 +301,10 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithExistingRates()
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockEventManager->expects($this->once())
-            ->method('dispatch')
-            ->with('taxjar_salestax_import_rates_after');
+        $this->eventManager->expects($this->once())->method('dispatch')->with('taxjar_salestax_import_rates_after');
+        $this->messageManager->expects($this->once())->method('addSuccessMessage');
 
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-        $mockMessageManager->expects($this->once())->method('addSuccessMessage');
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
@@ -585,160 +313,48 @@ class ImportRatesTest extends UnitTestCase
                 ['tax/classes/shipping_tax_class'],
                 [TaxjarConfig::TAXJAR_DEBUG]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'shipping_class_1',
-                0
+                '1',
+                '1',
+                '2,3',
+                '',
+                '0'
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
-        $mockResourceConfig->expects($this->once())->method('saveConfig');
-
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    [
-                        'state' => 'TX',
-                        'zip' => 78758,
-                    ],
-                ]
-            ]);
-
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockCalculation = $this->createMock(Calculation::class);
-        $mockCalculation->expects($this->once())
-            ->method('deleteByRuleId')
-            ->with(42)
-            ->willReturnSelf();
-
-        $mockRule = $this->createMock(Rule::class);
-        $mockRule->expects($this->once())
-            ->method('getId')
-            ->willReturn(42);
-        $mockRule->expects($this->once())
-            ->method('getCalculationModel')
-            ->willReturn($mockCalculation);
-        $mockRule->expects($this->once())
-            ->method('delete');
+        $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
 
         $mockRateModel = $this->createMock(Rate::class);
-        $mockRateModel->expects($this->once())
-            ->method('getExistingRates')
-            ->willReturn(['old_rate_1', 'old_rate_2']);
-        $mockRateModel->expects($this->once())
-            ->method('getRule')
-            ->willReturn($mockRule);
+        $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn(['old_rate_1', 'old_rate_2']);
 
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRateFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockRateModel);
-
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
+        $this->rateFactory->expects($this->once())->method('create')->willReturn($mockRateModel);
+        $this->ruleFactory = $this->createMock(RuleFactory::class);
 
         $mockRate = $this->createMock(Calculation\Rate::class);
-        $mockRate->expects($this->once())
-            ->method('getCode')
-            ->willReturn('US-TX-*');
+        $mockRate->expects($this->any())->method('getCode')->willReturn('US-TX-*');
 
-        $mockRateRepository = $this->createMock(RateRepository::class);
-        $mockRateRepository->expects($this->once())
-            ->method('get')
-            ->willReturn($mockRate);
+        $this->rateRepository->expects($this->any())->method('get')->willReturn($mockRate);
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
+        $this->identityService->expects($this->exactly(2))->method('generateId')->willReturn('unique-identifier');
+        $this->serializer->expects($this->exactly(2))->method('serialize')->willReturn(json_encode(['data' => 'payload']));
+        $this->operationFactory->expects($this->exactly(2))->method('create')->withAnyParameters()->willReturn($this->createMock(Operation::class));
+        $this->bulkManagement->expects($this->exactly(2))->method('scheduleBulk')->withAnyParameters()->willReturn(true);
+        $this->userContext->expects($this->exactly(2))->method('getUserId')->willReturn('9999999');
+        $this->cacheManager->expects($this->once())->method('flush')->withAnyParameters()->willReturn(true);
 
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(true);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockIdentityGeneratorInterface->expects($this->exactly(2))
-            ->method('generateId')
-            ->willReturn('unique-identifier');
-
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockSerializerInterface->expects($this->exactly(2))
-            ->method('serialize')
-            ->willReturn(json_encode(['data' => 'payload']));
-
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockOperationInterfaceFactory->expects($this->exactly(2))
-            ->method('create')
-            ->withAnyParameters()
-            ->willReturn($this->createMock(Operation::class));
-
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockBulkManagementInterface->expects($this->exactly(2))
-            ->method('scheduleBulk')
-            ->withAnyParameters()
-            ->willReturn(true);
-
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockUserContextInterface->expects($this->exactly(2))
-            ->method('getUserId')
-            ->willReturn('9999999');
-
-        $mockCacheManager = $this->createMock(Manager::class);
-        $mockCacheManager->expects($this->once())->method('flush')->withAnyParameters()->willReturn(true);
-        $mockCacheManager->expects($this->once())->method('getAvailableTypes')->withAnyParameters()->willReturn([]);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
-        );
-
+        $sut = $this->getTestSubject();
         $result = $sut->execute(new Observer());
 
-        $this->assertInstanceOf(ImportRates::class, $result);
+        $this->assertNull($result);
     }
 
     public function testExecuteWithoutExistingRates()
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockEventManager->expects($this->once())
-            ->method('dispatch')
-            ->with('taxjar_salestax_import_rates_after');
+        $this->eventManager->expects($this->once())->method('dispatch')->with('taxjar_salestax_import_rates_after');
+        $this->messageManager->expects($this->once())->method('addSuccessMessage');
 
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-        $mockMessageManager->expects($this->once())->method('addSuccessMessage');
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
@@ -747,151 +363,43 @@ class ImportRatesTest extends UnitTestCase
                 ['tax/classes/shipping_tax_class'],
                 [TaxjarConfig::TAXJAR_DEBUG]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'shipping_class_1',
-                0
+                '1',
+                '1',
+                '2,3',
+                '',
+                '0'
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
-        $mockResourceConfig->expects($this->once())->method('saveConfig');
-
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    [
-                        'state' => 'TX',
-                        'zip' => 78758,
-                    ],
-                ]
-            ]);
-
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockCalculation = $this->createMock(Calculation::class);
-        $mockCalculation->expects($this->once())
-            ->method('deleteByRuleId')
-            ->with(42)
-            ->willReturnSelf();
-
-        $mockRule = $this->createMock(Rule::class);
-        $mockRule->expects($this->once())
-            ->method('getId')
-            ->willReturn(42);
-        $mockRule->expects($this->once())
-            ->method('getCalculationModel')
-            ->willReturn($mockCalculation);
-        $mockRule->expects($this->once())
-            ->method('delete');
+        $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
 
         $mockRateModel = $this->createMock(Rate::class);
-        $mockRateModel->expects($this->once())
-            ->method('getExistingRates')
-            ->willReturn([]);
-        $mockRateModel->expects($this->once())
-            ->method('getRule')
-            ->willReturn($mockRule);
+        $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn([]);
 
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRateFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockRateModel);
-
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(true);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockIdentityGeneratorInterface->expects($this->once())
-            ->method('generateId')
-            ->willReturn('unique-identifier');
-
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockSerializerInterface->expects($this->once())
-            ->method('serialize')
-            ->willReturn(json_encode(['data' => 'payload']));
-
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockOperationInterfaceFactory->expects($this->once())
-            ->method('create')
-            ->withAnyParameters()
-            ->willReturn($this->createMock(Operation::class));
-
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockBulkManagementInterface->expects($this->once())
-            ->method('scheduleBulk')
-            ->withAnyParameters()
-            ->willReturn(true);
-
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockUserContextInterface->expects($this->once())
-            ->method('getUserId')
-            ->willReturn('9999999');
-
-        $mockCacheManager = $this->createMock(Manager::class);
-        $mockCacheManager->expects($this->once())->method('getAvailableTypes')->willReturn(['type']);
-        $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
+        $this->rateFactory->expects($this->once())->method('create')->willReturn($mockRateModel);
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
+        $this->identityService->expects($this->once())->method('generateId')->willReturn('unique-identifier');
+        $this->serializer->expects($this->once())->method('serialize')->willReturn(json_encode(['data' => 'payload']));
+        $this->operationFactory->expects($this->once())->method('create')->withAnyParameters()->willReturn(
+            $this->createMock(Operation::class)
         );
+        $this->bulkManagement->expects($this->once())->method('scheduleBulk')->withAnyParameters()->willReturn(true);
+        $this->userContext->expects($this->once())->method('getUserId')->willReturn('9999999');
 
+        $sut = $this->getTestSubject();
         $result = $sut->execute(new Observer());
 
-        $this->assertInstanceOf(ImportRates::class, $result);
+        $this->assertNull($result);
     }
 
     public function testCron()
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
-        $mockEventManager->expects($this->once())
-            ->method('dispatch')
-            ->with('taxjar_salestax_import_rates_after');
+        $this->eventManager->expects($this->once())->method('dispatch')->with('taxjar_salestax_import_rates_after');
+        $this->messageManager->expects($this->once())->method('addSuccessMessage');
 
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-        $mockMessageManager->expects($this->once())->method('addSuccessMessage');
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->exactly(5))
+        $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
             ->withConsecutive(
                 [TaxjarConfig::TAXJAR_BACKUP],
@@ -900,232 +408,129 @@ class ImportRatesTest extends UnitTestCase
                 ['tax/classes/shipping_tax_class'],
                 [TaxjarConfig::TAXJAR_DEBUG]
             )->willReturnOnConsecutiveCalls(
-                1,
-                'customer_class_1,customer_class_1',
-                'product_class_1,product_class_2',
-                'shipping_class_1',
-                0
+                '1',
+                '1',
+                '2,3',
+                '',
+                '0'
             );
 
-        $mockResourceConfig = $this->createMock(Config::class);
-        $mockResourceConfig->expects($this->once())->method('saveConfig');
-
-        $mockClient = $this->createMock(Client::class);
-        $mockClient->expects($this->once())
-            ->method('getResource')
-            ->with('rates', [
-                Response::HTTP_FORBIDDEN => __(
-                    'Your last backup rate sync from TaxJar was too recent. ' .
-                    'Please wait at least 5 minutes and try again.'
-                ),
-            ])
-            ->willReturn([
-                'rates' => [
-                    [
-                        'state' => 'TX',
-                        'zip' => 78758,
-                    ],
-                ]
-            ]);
-
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-        $mockClientFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockClient);
-
-        $mockCalculation = $this->createMock(Calculation::class);
-        $mockCalculation->expects($this->once())
-            ->method('deleteByRuleId')
-            ->with(42)
-            ->willReturnSelf();
-
-        $mockRule = $this->createMock(Rule::class);
-        $mockRule->expects($this->once())
-            ->method('getId')
-            ->willReturn(42);
-        $mockRule->expects($this->once())
-            ->method('getCalculationModel')
-            ->willReturn($mockCalculation);
-        $mockRule->expects($this->once())
-            ->method('delete');
+        $this->resourceConfig->expects($this->any())->method('saveConfig');
+        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
 
         $mockRateModel = $this->createMock(Rate::class);
-        $mockRateModel->expects($this->once())
-            ->method('getExistingRates')
-            ->willReturn(['old_rate_1', 'old_rate_2']);
-        $mockRateModel->expects($this->once())
-            ->method('getRule')
-            ->willReturn($mockRule);
+        $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn(['old_rate_1', 'old_rate_2']);
 
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRateFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockRateModel);
-
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
+        $this->rateFactory->expects($this->once())->method('create')->willReturn($mockRateModel);
 
         $mockRate = $this->createMock(Calculation\Rate::class);
-        $mockRate->expects($this->once())
-            ->method('getCode')
-            ->willReturn('US-TX-*');
+        $mockRate->expects($this->any())->method('getCode')->willReturn('US-TX-*');
 
-        $mockRateRepository = $this->createMock(RateRepository::class);
-        $mockRateRepository->expects($this->once())
-            ->method('get')
-            ->willReturn($mockRate);
-
-
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockTaxjarConfig->expects($this->once())
-            ->method('getApiKey')
-            ->willReturn('valid-api-key');
-
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('getShippingZipCode')
-            ->willReturn('99999');
-        $mockBackupRateOriginAddress->expects($this->once())
-            ->method('isScopeCountryCodeUS')
-            ->willReturn(true);
-
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockIdentityGeneratorInterface->expects($this->exactly(2))
-            ->method('generateId')
-            ->willReturn('unique-identifier');
-
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockSerializerInterface->expects($this->exactly(2))
-            ->method('serialize')
-            ->willReturn(json_encode(['data' => 'payload']));
-
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockOperationInterfaceFactory->expects($this->exactly(2))
-            ->method('create')
-            ->withAnyParameters()
-            ->willReturn($this->createMock(Operation::class));
-
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockBulkManagementInterface->expects($this->exactly(2))
-            ->method('scheduleBulk')
-            ->withAnyParameters()
-            ->willReturn(true);
-
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-        $mockUserContextInterface->expects($this->exactly(2))
-            ->method('getUserId')
-            ->willReturn('9999999');
-
-        $mockCacheManager = $this->createMock(Manager::class);
-        $mockCacheManager->expects($this->once())->method('getAvailableTypes')->willReturn(['type']);
-        $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
-
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
+        $this->rateRepository->expects($this->any())->method('get')->willReturn($mockRate);
+        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
+        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+        $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
+        $this->identityService->expects($this->exactly(2))->method('generateId')->willReturn('unique-identifier');
+        $this->serializer->expects($this->exactly(2))->method('serialize')->willReturn(json_encode(['data' => 'payload']));
+        $this->operationFactory->expects($this->exactly(2))->method('create')->withAnyParameters()->willReturn(
+            $this->createMock(Operation::class)
         );
 
-        $sut->cron();
+        $this->bulkManagement->expects($this->exactly(2))->method('scheduleBulk')->withAnyParameters()->willReturn(true);
+        $this->userContext->expects($this->exactly(2))->method('getUserId')->willReturn('9999999');
+
+        $sut = $this->getTestSubject();
+        $result = $sut->cron();
+
+        $this->assertNull($result);
     }
 
     public function testExecuteWithoutBackupRatesEnabled()
     {
-        $mockEventManager = $this->createMock(EventManagerInterface::class);
+        $this->messageManager->expects($this->once())->method('addNoticeMessage')
+            ->with('Backup rates imported by TaxJar have been queued for removal.');
 
-        $mockMessageManager = $this->createMock(MessageManagerInterface::class);
-        $mockMessageManager->expects($this->once())
-            ->method('addNoticeMessage')
-            ->with(__('Backup rates imported by TaxJar have been queued for removal.'));
-
-        $mockScopeConfigInterface = $this->createMock(ScopeConfigInterface::class);
-        $mockScopeConfigInterface->expects($this->once())
+        $this->scopeConfig->expects($this->exactly(2))
             ->method('getValue')
-            ->with(TaxjarConfig::TAXJAR_BACKUP)
-            ->willReturn(0);
+            ->withConsecutive(
+                [TaxjarConfig::TAXJAR_BACKUP],
+                [TaxjarConfig::TAXJAR_DEBUG]
+            )->willReturnOnConsecutiveCalls(
+                '0',
+                '0'
+            );
 
-        $mockResourceConfig = $this->createMock(Config::class);
-        $mockResourceConfig->expects($this->exactly(2))->method('saveConfig');
-
-        $mockClientFactory = $this->createMock(ClientFactory::class);
-
-        $mockCalculation = $this->createMock(Calculation::class);
-        $mockCalculation->expects($this->once())
-            ->method('deleteByRuleId')
-            ->with(42)
-            ->willReturnSelf();
-
-        $mockRule = $this->createMock(Rule::class);
-        $mockRule->expects($this->once())
-            ->method('getId')
-            ->willReturn(42);
-        $mockRule->expects($this->once())
-            ->method('getCalculationModel')
-            ->willReturn($mockCalculation);
-        $mockRule->expects($this->once())
-            ->method('delete');
+        $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
 
         $mockRateModel = $this->createMock(Rate::class);
         $mockRateModel->expects($this->once())
             ->method('getExistingRates')
             ->willReturn([]);
-        $mockRateModel->expects($this->once())
-            ->method('getRule')
-            ->willReturn($mockRule);
 
-        $mockRateFactory = $this->createMock(RateFactory::class);
-        $mockRateFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($mockRateModel);
+        $this->rateFactory->expects($this->once())->method('create')->willReturn($mockRateModel);
 
-        $mockRuleFactory = $this->createMock(RuleFactory::class);
-        $mockRateRepository = $this->createMock(RateRepository::class);
-        $mockTaxjarConfig = $this->createMock(TaxjarConfig::class);
-        $mockBackupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
-        $mockIdentityGeneratorInterface = $this->createMock(IdentityGeneratorInterface::class);
-        $mockSerializerInterface = $this->createMock(SerializerInterface::class);
-        $mockOperationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $mockBulkManagementInterface = $this->createMock(BulkManagementInterface::class);
-        $mockUserContextInterface = $this->createMock(UserContextInterface::class);
-
-        $mockCacheManager = $this->createMock(Manager::class);
-        $mockCacheManager->expects($this->once())->method('getAvailableTypes')->willReturn(['type']);
-        $mockCacheManager->expects($this->once())->method('flush')->with(['type'])->willReturn(true);
-
-        $sut = new ImportRates(
-            $mockEventManager,
-            $mockMessageManager,
-            $mockScopeConfigInterface,
-            $mockResourceConfig,
-            $mockClientFactory,
-            $mockRateFactory,
-            $mockRuleFactory,
-            $mockRateRepository,
-            $mockTaxjarConfig,
-            $mockBackupRateOriginAddress,
-            $mockIdentityGeneratorInterface,
-            $mockSerializerInterface,
-            $mockOperationInterfaceFactory,
-            $mockBulkManagementInterface,
-            $mockUserContextInterface,
-            $mockCacheManager
-        );
-
+        $sut = $this->getTestSubject();
         $result = $sut->execute(new Observer());
 
-        $this->assertInstanceOf(ImportRates::class, $result);
+        $this->assertNull($result);
+    }
+
+    private function getMockClient(?array $payload = null)
+    {
+        $mockClient = $this->createMock(Client::class);
+
+        if ($payload) {
+            $mockClient->expects($this->once())
+                ->method('getResource')
+                ->willReturn([
+                    'rates' => $payload,
+                ]);
+        }
+
+        return $mockClient;
+    }
+
+    private function getTestSubject(): ImportRates
+    {
+        return new ImportRates(
+            $this->eventManager,
+            $this->messageManager,
+            $this->scopeConfig,
+            $this->resourceConfig,
+            $this->clientFactory,
+            $this->rateFactory,
+            $this->ruleFactory,
+            $this->rateRepository,
+            $this->taxjarConfig,
+            $this->backupRateOriginAddress,
+            $this->identityService,
+            $this->serializer,
+            $this->operationFactory,
+            $this->bulkManagement,
+            $this->userContext,
+            $this->cacheManager
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->eventManager = null;
+        $this->messageManager = null;
+        $this->scopeConfig = null;
+        $this->resourceConfig = null;
+        $this->clientFactory = null;
+        $this->rateFactory = null;
+        $this->ruleFactory = null;
+        $this->rateRepository = null;
+        $this->taxjarConfig = null;
+        $this->backupRateOriginAddress = null;
+        $this->identityService = null;
+        $this->serializer = null;
+        $this->operationFactory = null;
+        $this->bulkManagement = null;
+        $this->userContext = null;
+        $this->cacheManager = null;
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Taxjar\SalesTax\Model\Import;
 
 use Exception;
-use Magento\Framework\App\Cache\Manager as CacheManager;
+use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DB\LoggerInterface;
 use Magento\Framework\EntityManager\EntityManager;
@@ -41,7 +41,7 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     private $shippingTaxClass;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory
+     * @var CollectionFactory
      */
     private $configCollection;
 
@@ -53,7 +53,7 @@ class CreateRatesConsumer extends AbstractRatesConsumer
         TaxjarConfig $taxjarConfig,
         RateFactory $rateFactory,
         RuleFactory $ruleFactory,
-        \Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory $configCollection
+        CollectionFactory $configCollection
     ) {
         parent::__construct(
             $serializer,
