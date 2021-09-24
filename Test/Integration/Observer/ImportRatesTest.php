@@ -11,7 +11,7 @@ use Magento\TestFramework\Helper\Bootstrap;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Observer\ImportRates;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
-use Taxjar\SalesTax\Test\Mocks\ClientMock;
+use Taxjar\SalesTax\Test\Integration\Test\Stubs\ClientStub;
 
 class ImportRatesTest extends IntegrationTestCase
 {
@@ -26,7 +26,7 @@ class ImportRatesTest extends IntegrationTestCase
 
         Bootstrap::getObjectManager()->configure([
             'preferences' => [
-                Client::class => ClientMock::class,
+                Client::class => ClientStub::class,
             ]
         ]);
 

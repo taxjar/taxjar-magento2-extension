@@ -19,7 +19,7 @@ use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
 class RuleModelTest extends UnitTestCase
 {
-    public function testAfterSave()
+    public function testAfterSaveDispatchesEvents()
     {
         $mockEventManager = $this->createMock(ManagerInterface::class);
         $mockEventManager->expects($this->exactly(4))

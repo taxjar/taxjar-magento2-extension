@@ -90,57 +90,7 @@ class CreateRatesConsumerTest extends UnitTestCase
         $this->configCollection = $this->getMockBuilder(CollectionFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
     }
 
-    public function testSetCustomerTaxClasses()
-    {
-        $sut = $this->getTestSubject();
-        $result = $this->callMethod($sut, 'setCustomerTaxClasses', [['arg_1']]);
-
-        self::assertInstanceOf(CreateRatesConsumer::class, $result);
-    }
-
-    public function testSetProductTaxClasses()
-    {
-        $sut = $this->getTestSubject();
-        $result = $this->callMethod($sut, 'setProductTaxClasses', [['arg_1']]);
-
-        self::assertInstanceOf(CreateRatesConsumer::class, $result);
-    }
-
-    public function testSetShippingTaxClass()
-    {
-        $sut = $this->getTestSubject();
-        $result = $this->callMethod($sut, 'setShippingTaxClass', ['arg_1']);
-
-        self::assertInstanceOf(CreateRatesConsumer::class, $result);
-    }
-
-    public function testSetMemberData()
-    {
-        $payload = [
-            'rates' => [
-                ['rate']
-            ],
-            'product_tax_classes' => [2, 3],
-            'customer_tax_classes' => [1],
-            'shipping_tax_class' => '4',
-        ];
-
-        $sut = $this->getTestSubject();
-        $sut->setPayload($payload);
-        $result = $this->callMethod($sut, 'setMemberData');
-
-        self::assertInstanceOf(CreateRatesConsumer::class, $result);
-    }
-
-    public function testReset()
-    {
-        $sut = $this->getTestSubject();
-        $result = $this->callMethod($sut, 'reset');
-
-        self::assertInstanceOf(CreateRatesConsumer::class, $result);
-    }
-
-    public function testValidatePayload()
+    public function testValidatePayloadReturnsSelfWithValidPayload()
     {
         $sut = $this->getTestSubject();
         $sut->setPayload([
@@ -154,7 +104,7 @@ class CreateRatesConsumerTest extends UnitTestCase
         self::assertInstanceOf(CreateRatesConsumer::class, $result);
     }
 
-    public function testValidatePayloadThrowsException()
+    public function testValidatePayloadThrowsExceptionWithInvalidPayload()
     {
         $sut = $this->getTestSubject();
         $sut->setPayload(null);
@@ -164,7 +114,7 @@ class CreateRatesConsumerTest extends UnitTestCase
         $this->callMethod($sut, 'validatePayload');
     }
 
-    public function testValidateBackupRatesEnabled()
+    public function testValidateBackupRatesEnabledReturnsSelfWhenEnabled()
     {
         $dataObject = new DataObject();
         $dataObject->setData('value', '1');
@@ -183,7 +133,7 @@ class CreateRatesConsumerTest extends UnitTestCase
         self::assertInstanceOf(CreateRatesConsumer::class, $result);
     }
 
-    public function testValidateBackupRatesEnabledThrowsException()
+    public function testValidateBackupRatesEnabledThrowsExceptionWhenDisabled()
     {
         $dataObject = new DataObject();
         $dataObject->setData('value', '0');
@@ -203,7 +153,7 @@ class CreateRatesConsumerTest extends UnitTestCase
         $this->callMethod($sut, 'validateBackupRatesEnabled');
     }
 
-    public function testValidateApiKey()
+    public function testValidateApiKeyReturnsSelfWhenApiKeyIsSet()
     {
         $this->taxjarConfig->expects($this->once())
             ->method('getApiKey')
@@ -215,25 +165,18 @@ class CreateRatesConsumerTest extends UnitTestCase
         self::assertInstanceOf(CreateRatesConsumer::class, $result);
     }
 
-    public function testValidateApiKeyThrowsException()
+    public function testValidateApiKeyThrowsExceptionWhenApiKeyEmpty()
     {
         $this->taxjarConfig->expects($this->once())
             ->method('getApiKey')
-            ->willReturn('valid-api-key');
+            ->willReturn('');
 
         $sut = $this->getTestSubject();
-        $result = $this->callMethod($sut, 'validateApiKey');
 
-        self::assertInstanceOf(CreateRatesConsumer::class, $result);
+        self::expectException(LocalizedException::class);
+
+        $this->callMethod($sut, 'validateApiKey');
     }
-
-//    public function testPurgeStaleCalculations()
-//    {
-//
-//
-//        $sut = $this->getTestSubject();
-//        $this->callMethod($sut, 'purgeStaleCalculations');
-//    }
 
     public function testBackupRatesEnabled()
     {
