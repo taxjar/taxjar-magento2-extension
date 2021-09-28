@@ -39,6 +39,7 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Tax\Model\Calculation\RateRepository;
 use Magento\Tax\Model\Config as MagentoTaxConfig;
 use Symfony\Component\HttpFoundation\Response;
+use Taxjar\SalesTax\Api\Client\ClientInterface;
 use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Model\ClientFactory;
@@ -73,11 +74,6 @@ class ImportRates implements ObserverInterface
      * @var ResourceConfig
      */
     private $resourceConfig;
-
-    /**
-     * @var ClientFactory
-     */
-    private $clientFactory;
 
     /**
      * @var RateFactory
@@ -130,9 +126,9 @@ class ImportRates implements ObserverInterface
     private $userContext;
 
     /**
-     * @var Client|null
+     * @var ClientInterface
      */
-    private $client;
+    public $client;
 
     /**
      * @var array|null
@@ -199,7 +195,7 @@ class ImportRates implements ObserverInterface
         $this->messageManager = $messageManager;
         $this->scopeConfig = $scopeConfig;
         $this->resourceConfig = $resourceConfig;
-        $this->clientFactory = $clientFactory;
+        $this->client = $clientFactory->create();
         $this->rateFactory = $rateFactory;
         $this->ruleFactory = $ruleFactory;
         $this->rateRepository = $rateRepository;
@@ -220,17 +216,6 @@ class ImportRates implements ObserverInterface
     private function getDate(): string
     {
         return date('m-d-Y');
-    }
-
-    /**
-     * @param Client $client Instance of TaxJar's API Client
-     * @return self
-     */
-    private function setClient(Client $client): self
-    {
-        $this->client = $client;
-
-        return $this;
     }
 
     /**
@@ -371,14 +356,12 @@ class ImportRates implements ObserverInterface
 
     private function setConfiguration(): void
     {
-        $client = $this->clientFactory->create();
         $zipCode = $this->backupRateOriginAddress->getShippingZipCode();
         $customerTaxClassConfig = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES);
         $productTaxClassConfig = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES);
         $shippingTaxClass = $this->scopeConfig->getValue(MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS);
 
-        $this->setClient($client)
-            ->setZipCode($zipCode)
+        $this->setZipCode($zipCode)
             ->setCustomerTaxClasses($customerTaxClassConfig)
             ->setProductTaxClasses($productTaxClassConfig)
             ->setShippingTaxClass($shippingTaxClass);

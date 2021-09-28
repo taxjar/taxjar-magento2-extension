@@ -119,11 +119,9 @@ abstract class AbstractRatesConsumer
     /**
      * @return $this
      */
-    public function setPayload(): self
+    public function setPayload(?array $payload): self
     {
-        $this->payload = $this->serializer->unserialize(
-            $this->operation->getSerializedData()
-        );
+        $this->payload = $payload;
 
         return $this;
     }
@@ -148,8 +146,11 @@ abstract class AbstractRatesConsumer
     public function process(OperationInterface $operation): void
     {
         try {
+            $serialized = $operation->getSerializedData();
+            $data = $this->serializer->unserialize($serialized);
+
             $this->setOperation($operation)
-                ->setPayload()
+                ->setPayload($data)
                 ->handle()
                 ->success();
         } catch (LocalizedException $e) {

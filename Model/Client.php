@@ -18,10 +18,11 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Framework\Exception\LocalizedException;
-use Taxjar\SalesTax\Model\BackupRateOriginAddress;
+use Taxjar\SalesTax\Api\Client\ClientInterface;
+use Taxjar\SalesTax\Helper\Data;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
-class Client
+class Client implements ClientInterface
 {
     /**
      * @var BackupRateOriginAddress
@@ -39,7 +40,7 @@ class Client
     protected $showResponseErrors;
 
     /**
-     * @var \Taxjar\SalesTax\Helper\Data
+     * @var Data
      */
     protected $tjHelper;
 
@@ -49,12 +50,12 @@ class Client
     protected $taxjarConfig;
 
     /**
-     * @param \Taxjar\SalesTax\Helper\Data $tjHelper
+     * @param Data $tjHelper
      * @param TaxjarConfig $taxjarConfig
      * @param BackupRateOriginAddress $backupRateOriginAddress
      */
     public function __construct(
-        \Taxjar\SalesTax\Helper\Data $tjHelper,
+        Data $tjHelper,
         TaxjarConfig $taxjarConfig,
         BackupRateOriginAddress $backupRateOriginAddress
     ) {

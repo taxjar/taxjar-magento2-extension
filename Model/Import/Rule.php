@@ -17,7 +17,7 @@
 
 namespace Taxjar\SalesTax\Model\Import;
 
-use Taxjar\SalesTax\Model\Import\RuleModelFactory as CalculationRuleFactory;
+use Magento\Tax\Api\TaxRuleRepositoryInterface;
 
 class Rule
 {
@@ -25,15 +25,21 @@ class Rule
      * @var \Magento\Tax\Model\Calculation\RuleFactory
      */
     protected $ruleFactory;
+    /**
+     * @var TaxRuleRepositoryInterface
+     */
+    private $ruleRepository;
 
     /**
-     * @param CalculationRuleFactory $ruleFactory
+     * @param \Magento\Tax\Model\Calculation\RuleFactory $ruleFactory
+     * @param TaxRuleRepositoryInterface $ruleRepository
      */
     public function __construct(
-        CalculationRuleFactory $ruleFactory
+        \Magento\Tax\Model\Calculation\RuleFactory $ruleFactory,
+        TaxRuleRepositoryInterface $ruleRepository
     ) {
         $this->ruleFactory = $ruleFactory;
-        return $this;
+        $this->ruleRepository = $ruleRepository;
     }
 
     /**
@@ -48,16 +54,24 @@ class Rule
      */
     public function create($code, $customerClasses, $productClasses, $position, $rates)
     {
+        $existingRateIds = [];
+
         $ruleModel = $this->ruleFactory->create();
         $ruleModel->load($code, 'code');
-        $ruleModel->setTaxRateIds(array_merge($ruleModel->getRates(), $rates));
+
+        if ($existingRates = $ruleModel->getRates()) {
+            $existingRateIds = $existingRates;
+        }
+
+        $ruleModel->setTaxRateIds(array_merge($existingRateIds, $rates));
         $ruleModel->setCode($code);
         $ruleModel->setCustomerTaxClassIds($customerClasses);
         $ruleModel->setProductTaxClassIds($productClasses);
         $ruleModel->setPosition($position);
         $ruleModel->setPriority(1);
         $ruleModel->setCalculateSubtotal(0);
-        $ruleModel->save();
+
+        $ruleModel = $this->ruleRepository->save($ruleModel);
 
         $this->saveCalculationData($ruleModel, $rates);
 
@@ -82,6 +96,7 @@ class Rule
                         'customer_tax_class_id' => $c,
                         'product_tax_class_id' => $p,
                     ];
+
                     $calculation = $ruleModel->getCalculationModel();
 
                     $calculationModel = $calculation->getCollection()
