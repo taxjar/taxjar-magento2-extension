@@ -31,7 +31,7 @@ class RuleTest extends UnitTestCase
         $mockRule->expects($this->once())->method('setPriority')->with(1);
         $mockRule->expects($this->once())->method('setCalculateSubtotal')->with(0);
 
-        $mockRuleFactory = $this->getMockBuilder(\Magento\Tax\Model\Calculation\RuleFactory::class)
+        $mockRuleFactory = $this->getMockBuilder(\Taxjar\SalesTax\Model\Import\RuleModelFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
@@ -122,7 +122,7 @@ class RuleTest extends UnitTestCase
             ->method('getCalculationModel')
             ->willReturn($mockCalculation);
 
-        $mockRuleFactory = $this->getMockBuilder(\Magento\Tax\Model\Calculation\RuleFactory::class)
+        $mockRuleFactory = $this->getMockBuilder(\Taxjar\SalesTax\Model\Import\RuleModelFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
