@@ -22,7 +22,7 @@ use Magento\Tax\Api\TaxRuleRepositoryInterface;
 class Rule
 {
     /**
-     * @var \Magento\Tax\Model\Calculation\RuleFactory
+     * @var RuleModelFactory
      */
     protected $ruleFactory;
     /**
@@ -31,11 +31,11 @@ class Rule
     private $ruleRepository;
 
     /**
-     * @param \Magento\Tax\Model\Calculation\RuleFactory $ruleFactory
+     * @param RuleModelFactory $ruleFactory
      * @param TaxRuleRepositoryInterface $ruleRepository
      */
     public function __construct(
-        \Magento\Tax\Model\Calculation\RuleFactory $ruleFactory,
+        RuleModelFactory $ruleFactory,
         TaxRuleRepositoryInterface $ruleRepository
     ) {
         $this->ruleFactory = $ruleFactory;
@@ -54,16 +54,16 @@ class Rule
      */
     public function create($code, $customerClasses, $productClasses, $position, $rates)
     {
-        $existingRateIds = [];
+        $existingRateIds = $rates;
 
         $ruleModel = $this->ruleFactory->create();
         $ruleModel->load($code, 'code');
 
         if ($existingRates = $ruleModel->getRates()) {
-            $existingRateIds = $existingRates;
+            $existingRateIds = array_merge($existingRates, $rates);
         }
 
-        $ruleModel->setTaxRateIds(array_merge($existingRateIds, $rates));
+        $ruleModel->setTaxRateIds(array_unique($existingRateIds));
         $ruleModel->setCode($code);
         $ruleModel->setCustomerTaxClassIds($customerClasses);
         $ruleModel->setProductTaxClassIds($productClasses);
@@ -71,8 +71,7 @@ class Rule
         $ruleModel->setPriority(1);
         $ruleModel->setCalculateSubtotal(0);
 
-        $ruleModel = $this->ruleRepository->save($ruleModel);
-
+        $this->ruleRepository->save($ruleModel);
         $this->saveCalculationData($ruleModel, $rates);
 
         return $ruleModel;
