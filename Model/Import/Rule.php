@@ -25,10 +25,11 @@ class Rule
      * @var RuleModelFactory
      */
     protected $ruleFactory;
+
     /**
      * @var TaxRuleRepositoryInterface
      */
-    private $ruleRepository;
+    protected $ruleRepository;
 
     /**
      * @param RuleModelFactory $ruleFactory

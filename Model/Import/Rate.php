@@ -27,6 +27,10 @@ use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
+/**
+ * Class used to create Rates or entries on the `tax_calculation_rate` table
+ * used in TaxJar's Backup Rates feature.
+ */
 class Rate
 {
     /**

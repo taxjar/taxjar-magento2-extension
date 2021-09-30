@@ -5,15 +5,21 @@ namespace Taxjar\SalesTax\Model\Import;
 use Magento\Tax\Model\Calculation\Rule;
 use Magento\Framework\Model\AbstractExtensibleModel;
 
+/**
+ * Class used to override Magento's Tax module's native `Rule::afterSave` method
+ * and prevent `Rule::saveCalculationData` from being executed on save.
+ */
 class RuleModel extends Rule
 {
 
     /**
-     * Triggers after save events
-     * Re-declared to prevent saveCalculationData from running after saving
-     * saveCalculationData causes all rates to be re-associated with the rule in the database
-     * Associating new rates already occurs in Taxjar\SalesTax\Model\Import\Rule::saveCalculationData
-     * Only associating new rates greatly increases performance during large imports
+     * This method explicitly does not call `::saveCalculationData` like the native
+     * Magento Tax's Rule class that this class extends from.
+     *
+     * TaxJar's tax extension manages backup rates asynchronously, and since calling
+     * `saveCalculationData` re-associates Rates with the Rule (by re-creating Calculations),
+     * without bypassing the method call, existing calculations would be deleted when
+     * new calculations are added.
      *
      * @return $this
      */
