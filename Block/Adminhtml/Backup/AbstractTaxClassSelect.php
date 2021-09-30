@@ -11,6 +11,9 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Taxjar\SalesTax\Block\Adminhtml\Multiselect;
 use Taxjar\SalesTax\Block\CachesConfiguration;
 
+/**
+ * Abstract definition for HTML `<select>` element for displaying and caching tax classes.
+ */
 abstract class AbstractTaxClassSelect extends Multiselect
 {
     use CachesConfiguration;
@@ -49,7 +52,17 @@ abstract class AbstractTaxClassSelect extends Multiselect
         return parent::_getElementHtml($element);
     }
 
+    /**
+     * Returns the multi-select element's length
+     *
+     * @return int
+     */
     abstract function getSize(): int;
 
+    /**
+     * Returns the cache key (aka identifier) for the data source
+     *
+     * @return string
+     */
     abstract function getCacheIdentifier(): string;
 }

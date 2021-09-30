@@ -250,6 +250,12 @@ class CreateRatesConsumer extends AbstractRatesConsumer
         return $this;
     }
 
+    /**
+     * Deletes existing calculation entries that are no longer related to a configured
+     * product or customer tax class.
+     *
+     * @param $ruleModel
+     */
     private function purgeStaleCalculations($ruleModel): void
     {
         $productTaxClassIds = $this->productTaxClasses;
