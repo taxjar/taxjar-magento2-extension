@@ -17,18 +17,14 @@
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
-use Magento\Framework\Api\Filter;
+use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Store\Model\StoreManager;
-use Magento\Framework\Event\Observer;
-use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\TransactionFactory;
-use Taxjar\SalesTax\Model\Transaction\OrderFactory;
-use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 
 class Backfill
 {
@@ -135,6 +131,14 @@ class Backfill
     }
 
     /**
+     * @param OperationInterface $operation
+     */
+    public function process(OperationInterface $operation)
+    {
+        //
+    }
+
+    /**
      * Start the transaction backfill process
      *
      * @param array $data
@@ -143,8 +147,6 @@ class Backfill
     public function start(
         array $data = []
     ) {
-        // @codingStandardsIgnoreEnd
-
         $this->apiKey = $this->taxjarConfig->getApiKey();
 
         if (!$this->apiKey) {
