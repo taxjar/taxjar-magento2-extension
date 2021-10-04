@@ -7,7 +7,6 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Backup;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Config\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Taxjar\SalesTax\Block\Adminhtml\Multiselect;
 use Taxjar\SalesTax\Block\CachesConfiguration;
 
@@ -26,10 +25,9 @@ abstract class AbstractTaxClassSelect extends Multiselect
     public function __construct(
         CacheInterface $cache,
         Context $context,
-        array $data = [],
-        ?SecureHtmlRenderer $secureRenderer = null
+        array $data = []
     ) {
-        parent::__construct($context, $data, $secureRenderer);
+        parent::__construct($context, $data);
         $this->cache = $cache;
     }
 
