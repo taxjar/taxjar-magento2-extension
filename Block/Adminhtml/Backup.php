@@ -22,7 +22,10 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Shipping\Model\Config as MagentoShippingConfig;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Backend\Model\UrlInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -55,7 +58,7 @@ class Backup extends Field
     /**
      * @var \Taxjar\SalesTax\Model\Import\RateFactory
      */
-    protected $importRateFactory;
+    protected $rateFactory;
 
     /**
      * @var \Magento\Directory\Model\RegionFactory
@@ -83,8 +86,9 @@ class Backup extends Field
     protected $taxjarConfig;
 
     /**
+     * @param CacheInterface $cache
      * @param Context $context
-     * @param RateFactory $importRateFactory
+     * @param RateFactory $rateFactory
      * @param TaxRateRepositoryInterface $rateService
      * @param RegionFactory $regionFactory
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
@@ -94,8 +98,9 @@ class Backup extends Field
      * @param array $data
      */
     public function __construct(
+        CacheInterface $cache,
         Context $context,
-        RateFactory $importRateFactory,
+        RateFactory $rateFactory,
         TaxRateRepositoryInterface $rateService,
         RegionFactory $regionFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
@@ -104,10 +109,10 @@ class Backup extends Field
         TaxjarConfig $taxjarConfig,
         array $data = []
     ) {
-        $this->cache = $context->getCache();
+        $this->cache = $cache;
         $this->scopeConfig = $context->getScopeConfig();
         $this->rateService = $rateService;
-        $this->importRateFactory = $importRateFactory;
+        $this->rateFactory = $rateFactory;
         $this->regionFactory = $regionFactory;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
@@ -116,7 +121,7 @@ class Backup extends Field
         $this->apiKey = $taxjarConfig->getApiKey();
 
         $region = $this->regionFactory->create();
-        $regionId = $this->scopeConfig->getValue('shipping/origin/region_id');
+        $regionId = $this->scopeConfig->getValue(MagentoShippingConfig::XML_PATH_ORIGIN_REGION_ID);
         $this->_regionCode = $region->load($regionId)->getCode();
 
         parent::__construct($context, $data);
@@ -128,7 +133,7 @@ class Backup extends Field
      * @param AbstractElement $element
      * @return string
      */
-    protected function _getElementHtml(AbstractElement $element)
+    protected function _getElementHtml(AbstractElement $element): string
     {
         if ($this->apiKey) {
             $this->_cacheElementValue($element);
@@ -154,143 +159,38 @@ class Backup extends Field
      *
      * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
-
-        if ($isEnabled) {
-            return true;
-        }
-
-        return false;
+        return (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
     }
 
-    /**
-     * Build HTML list of states
-     *
-     * @return string
-     */
-    public function getStateList()
+    public function getActualRateCount(): int
     {
-        $states = json_decode($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_STATES), true);
-        $states[] = $this->_regionCode;
-        $statesHtml = '';
-        $lastUpdate = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE);
+        $rateModel = $this->rateFactory->create();
+        $rates = $rateModel->getExistingRates() ?? [];
 
-        sort($states);
+        return count($rates) ?? 0;
+    }
 
-        $taxRatesByState = $this->_getNumberOfRatesLoaded($states);
+    public function getExpectedRateCount(): int
+    {
+        return $this->taxjarConfig->getBackupRateCount();
+    }
 
-        foreach (array_unique($states) as $state) {
-            $statesHtml .= $this->_getStateListItem($taxRatesByState, $state);
-        }
-
-        if ($taxRatesByState['rates_loaded'] != $taxRatesByState['total_rates']) {
-            $matches = 'error';
-        } else {
-            $matches = 'success';
-        }
-
-        $statesHtml .= '<p class="' . $matches . '-msg" style="background: none !important;">';
-        $statesHtml .= '<small>&nbsp;&nbsp;' . number_format($taxRatesByState['total_rates']);
-        $statesHtml .= ' of ' . number_format($taxRatesByState['rates_loaded']);
-        $statesHtml .= ' expected rates loaded.</small></p>';
-
-        if (!empty($lastUpdate)) {
-            $statesHtml .= '<p class="' . $matches . '-msg" style="background: none !important;">';
-            $statesHtml .= '<small>&nbsp;&nbsp;' . 'Last synced on ' . $lastUpdate . '.</small>';
-            $statesHtml .= '</p><br/>';
-        }
-
-        return $statesHtml;
+    public function getLastSyncedDate(): string
+    {
+        return $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE) ?? 'N/A';
     }
 
     /**
      * Get store URL
      *
      * @param string $route
-     * @param array $params
+     * @param array|null $params
      * @return string
      */
-    public function getStoreUrl($route, $params = [])
+    public function getStoreUrl(string $route, ?array $params = []): string
     {
         return $this->backendUrl->getUrl($route, $params);
-    }
-
-    /**
-     * Get region name from region code
-     *
-     * @param string $regionCode
-     * @return string
-     */
-    private function _getStateName($regionCode)
-    {
-        $region = $this->regionFactory->create();
-        return $region->loadByCode($regionCode, 'US')->getDefaultName();
-    }
-
-    /**
-     * Generate state list item
-     *
-     * @param array $rates
-     * @param string $state
-     * @return string
-     */
-    private function _getStateListItem($rates, $state)
-    {
-        $originResourceUrl = 'http://blog.taxjar.com/charging-sales-tax-rates/';
-        $nexusUrl = $this->getUrl('taxjar/nexus/index');
-
-        if (($name = $this->_getStateName($state)) && !empty($name)) {
-            if ($rates['rates_by_state'][$state] == 1 && ($rates['rates_loaded'] == $rates['total_rates'])) {
-                $class = 'success';
-                $total = "1 rate (<a href='{$originResourceUrl}' target='_blank'>Origin-based</a>)";
-            } elseif ($rates['rates_by_state'][$state] == 0 && ($rates['rates_loaded'] == $rates['total_rates'])) {
-                $class = 'error';
-                $total = "<a href='{$nexusUrl}'>Click here</a> and add a zip code for this state to load rates.";
-            } else {
-                $class = 'success';
-                $total = number_format($rates['rates_by_state'][$state]) . ' rates';
-            }
-
-            $itemClass = "message message-{$class} {$class}";
-
-            return "<div class='{$itemClass}'><span style='font-size: 1.2em'>{$name}</span>: {$total}</div>";
-        }
-
-        return '';
-    }
-
-    /**
-     * Get the number of rates loaded
-     *
-     * @param array $states
-     * @return array
-     */
-    private function _getNumberOfRatesLoaded($states)
-    {
-        $ratesByState = [];
-
-        foreach (array_unique($states) as $state) {
-            $region = $this->regionFactory->create();
-            $regionId = $region->loadByCode($state, 'US')->getId();
-            $filter = $this->filterBuilder
-                ->setField('tax_region_id')
-                ->setValue($regionId)
-                ->create();
-            $searchCriteria = $this->searchCriteriaBuilder->addFilters([$filter])->create();
-
-            $ratesByState[$state] = $this->rateService->getList($searchCriteria)->getTotalCount();
-        }
-
-        $importRateModel = $this->importRateFactory->create();
-
-        $rateCalcs = [
-            'total_rates' => array_sum($ratesByState),
-            'rates_loaded' => count($importRateModel->getExistingRates()),
-            'rates_by_state' => $ratesByState
-        ];
-
-        return $rateCalcs;
     }
 }

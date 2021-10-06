@@ -15,26 +15,55 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-// @codingStandardsIgnoreFile
-
+/** @var \Taxjar\SalesTax\Block\Adminhtml\Backup $block */
 ?>
-<p class='note'><span>Download zip-based rates from TaxJar as a fallback. TaxJar uses your shipping origin and nexus addresses to sync rates each month.</span></p><br/>
+
+<p class='note'>
+    <span>
+        Download zip-based rates from TaxJar as a fallback. TaxJar uses your shipping origin and nexus addresses to
+        sync rates each month.
+    </span>
+</p>
 
 <?php if ($block->isEnabled()) { ?>
-    <?php echo $block->getStateList() ?>
-    <p><button type="button" class="scalable" onclick="syncBackupRates()"><span>Sync Backup Rates</span></button></p>
+    <p class="success-msg" style="background: none !important; padding-left: 1rem; font-weight: 700;">
+        <small>
+            <?php echo $block->getActualRateCount() ?>
+            of
+            <?php echo $block->getExpectedRateCount() ?>
+            expected rates loaded.
+        </small>
+    </p>
+
+    <p class="success-msg" style="background: none !important; padding-left: 1rem;">
+        <small>Last synced on <?php echo $block->getLastSyncedDate() ?>.</small>
+    </p>
+
+    <p style="margin-top: 1rem">
+        <button type="button" class="scalable" onclick="syncBackupRates()">
+            <span>Sync Backup Rates</span>
+        </button>
+    </p>
+
     <script>
         function syncBackupRates() {
-            new Ajax.Request('<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/syncRates')) ?>', {
-                method: 'get',
-                onCreate: function(request) {
-                    varienLoaderHandler.handler.onCreate({options: {loaderArea: true}});
-                },
-                onComplete: function(data) {
-                    varienLoaderHandler.handler.onComplete();
-                    window.location = '<?php echo $block->escapeUrl($block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax'])) ?>';
+            new Ajax.Request(
+                '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/syncRates')) ?>',
+                {
+                    method: 'get',
+                    onCreate: function(request) {
+                        varienLoaderHandler.handler.onCreate({
+                            options: { loaderArea: true }
+                        });
+                    },
+                    onComplete: function(data) {
+                        varienLoaderHandler.handler.onComplete();
+                        window.location = '<?php echo $block->escapeUrl(
+                            $block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax'])
+                        )?>';
+                    }
                 }
-            });
+            );
         }
     </script>
 <?php } ?>

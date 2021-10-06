@@ -17,23 +17,30 @@
 
 namespace Taxjar\SalesTax\Model\Import;
 
-use Magento\Tax\Model\Calculation\RuleFactory as CalculationRuleFactory;
+use Magento\Tax\Api\TaxRuleRepositoryInterface;
 
 class Rule
 {
     /**
-     * @var \Magento\Tax\Model\Calculation\RuleFactory
+     * @var RuleModelFactory
      */
     protected $ruleFactory;
 
     /**
-     * @param CalculationRuleFactory $ruleFactory
+     * @var TaxRuleRepositoryInterface
+     */
+    protected $ruleRepository;
+
+    /**
+     * @param RuleModelFactory $ruleFactory
+     * @param TaxRuleRepositoryInterface $ruleRepository
      */
     public function __construct(
-        CalculationRuleFactory $ruleFactory
+        RuleModelFactory $ruleFactory,
+        TaxRuleRepositoryInterface $ruleRepository
     ) {
         $this->ruleFactory = $ruleFactory;
-        return $this;
+        $this->ruleRepository = $ruleRepository;
     }
 
     /**
@@ -44,28 +51,67 @@ class Rule
      * @param array $productClasses
      * @param integer $position
      * @param array $rates
-     * @return void
+     * @throws \Exception
      */
     public function create($code, $customerClasses, $productClasses, $position, $rates)
     {
-        $rule = $this->ruleFactory->create();
-        $ruleModel = $this->ruleFactory->create();
-        $rule->load($code, 'code');
+        $existingRateIds = $rates;
 
-        if (isset($rule)) {
-            $ruleModel->setTaxRateIds(array_merge($rule->getRates(), $rates));
-            $rule->delete();
-        } else {
-            $ruleModel->setTaxRateIds($rates);
+        $ruleModel = $this->ruleFactory->create();
+        $ruleModel->load($code, 'code');
+
+        if ($existingRates = $ruleModel->getRates()) {
+            $existingRateIds = array_merge($existingRates, $rates);
         }
 
+        $ruleModel->setTaxRateIds(array_unique($existingRateIds));
         $ruleModel->setCode($code);
         $ruleModel->setCustomerTaxClassIds($customerClasses);
         $ruleModel->setProductTaxClassIds($productClasses);
         $ruleModel->setPosition($position);
         $ruleModel->setPriority(1);
         $ruleModel->setCalculateSubtotal(0);
-        $ruleModel->save();
-        $ruleModel->saveCalculationData();
+
+        $this->ruleRepository->save($ruleModel);
+        $this->saveCalculationData($ruleModel, $rates);
+
+        return $ruleModel;
+    }
+
+    /**
+     * @param $ruleModel
+     * @param $rates
+     */
+    public function saveCalculationData($ruleModel, $rates)
+    {
+        $ctc = $ruleModel->getData('customer_tax_class_ids');
+        $ptc = $ruleModel->getData('product_tax_class_ids');
+
+        foreach ($ctc as $c) {
+            foreach ($ptc as $p) {
+                foreach ($rates as $r) {
+                    $dataArray = [
+                        'tax_calculation_rule_id' => $ruleModel->getId(),
+                        'tax_calculation_rate_id' => $r,
+                        'customer_tax_class_id' => $c,
+                        'product_tax_class_id' => $p,
+                    ];
+
+                    $calculation = $ruleModel->getCalculationModel();
+
+                    $calculationModel = $calculation->getCollection()
+                        ->addFieldToFilter('tax_calculation_rate_id', $r)
+                        ->addFieldToFilter('customer_tax_class_id', $c)
+                        ->addFieldToFilter('product_tax_class_id', $p)
+                        ->getFirstItem();
+
+                    if ($calculationModel->getId()) {
+                        $calculationModel->delete();
+                    }
+
+                    $calculation->setData($dataArray)->save();
+                }
+            }
+        }
     }
 }

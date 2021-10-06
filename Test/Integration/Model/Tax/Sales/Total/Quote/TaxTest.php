@@ -1,4 +1,4 @@
-<?php // @codingStandardsIgnoreStart
+<?php
 /**
  * Taxjar_SalesTax
  *
@@ -17,7 +17,6 @@
 
 namespace Taxjar\SalesTax\Test\Integration\Model\Tax\Sales\Total\Quote;
 
-use Magento\Tax\Model\Calculation;
 use Magento\TestFramework\Helper\Bootstrap;
 
 require_once __DIR__ . '/SetupUtil.php';

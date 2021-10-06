@@ -19,11 +19,15 @@ namespace Taxjar\SalesTax\Block\Adminhtml;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Taxjar\SalesTax\Block\CachesConfiguration;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Enabled extends PopupField
 {
+    use CachesConfiguration;
+
     /**
      * @var string
      */
@@ -67,18 +71,20 @@ class Enabled extends PopupField
     protected $taxjarConfig;
 
     /**
+     * @param CacheInterface $cache
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param TaxjarConfig $taxjarConfig
      * @param array $data
      */
     public function __construct(
+        CacheInterface $cache,
         Context $context,
         UrlInterface $backendUrl,
         TaxjarConfig $taxjarConfig,
         array $data = []
     ) {
-        $this->cache = $context->getCache();
+        $this->cache = $cache;
         $this->request = $context->getRequest();
         $this->scopeConfig = $context->getScopeConfig();
         $this->backendUrl = $backendUrl;
@@ -100,22 +106,14 @@ class Enabled extends PopupField
         if (!$this->apiKey) {
             $element->setDisabled('disabled');
         } else {
-            $this->_cacheElementValue($element);
+            $this->onCache($this->cache)
+                ->cacheValue(
+                    (string) $element->getValue(),
+                    'taxjar_salestax_config_enabled'
+                );
         }
 
         return parent::_getElementHtml($element) . $this->_toHtml();
-    }
-
-    /**
-     * Cache the element value
-     *
-     * @param AbstractElement $element
-     * @return void
-     */
-    protected function _cacheElementValue(AbstractElement $element)
-    {
-        $elementValue = (string) $element->getValue();
-        $this->cache->save($elementValue, 'taxjar_salestax_config_enabled');
     }
 
     /**

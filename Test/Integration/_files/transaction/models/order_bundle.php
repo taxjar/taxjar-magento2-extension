@@ -31,8 +31,8 @@ $objectManager = ObjectManager::getInstance();
 $billingAddress = $objectManager->create(OrderAddress::class, ['data' => $addressData]);
 $billingAddress->setAddressType('billing');
 
-$shippingAddress = clone $billingAddress;
-$shippingAddress->setId(null)->setAddressType('shipping');
+$shippingAddress = $objectManager->create(OrderAddress::class, ['data' => $addressData]);
+$shippingAddress->setAddressType('shipping');
 
 /** @var Payment $payment */
 $payment = $objectManager->create(Payment::class);
@@ -105,4 +105,9 @@ foreach($orderItems as $orderItem){
 
 /** @var OrderRepositoryInterface $orderRepository */
 $orderRepository = $objectManager->create(OrderRepositoryInterface::class);
-$orderRepository->save($order);
+
+try {
+    $orderRepository->save($order);
+} catch (Exception $e) {
+    $msg = $e->getMessage();
+}

@@ -17,9 +17,10 @@
 
 namespace Taxjar\SalesTax\Model;
 
-use Magento\Config\Model\ResourceModel\Config;
+use Magento\Config\Model\ResourceModel\Config as MagentoConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Model\Config as MagentoTaxConfig;
 
 class Configuration
 {
@@ -32,6 +33,7 @@ class Configuration
     const TAXJAR_APIKEY               = 'tax/taxjar/apikey';
     const TAXJAR_SANDBOX_APIKEY       = 'tax/taxjar/sandbox_apikey';
     const TAXJAR_BACKUP               = 'tax/taxjar/backup';
+    const TAXJAR_BACKUP_RATE_COUNT    = 'tax/taxjar/backup_rate_count';
     const TAXJAR_CONNECTED            = 'tax/taxjar/connected';
     const TAXJAR_CUSTOMER_TAX_CLASSES = 'tax/taxjar/customer_tax_classes';
     const TAXJAR_DEBUG                = 'tax/taxjar/debug';
@@ -54,23 +56,25 @@ class Configuration
     const TAXJAR_GIFT_CARD_TAX_CODE   = '14111803A0001';
     const TAXJAR_BACKUP_RATE_CODE     = 'TaxJar Backup Rates';
     const TAXJAR_X_API_VERSION        = '2020-08-07';
+    const TAXJAR_TOPIC_CREATE_RATES   = 'taxjar.backup_rates.create';
+    const TAXJAR_TOPIC_DELETE_RATES   = 'taxjar.backup_rates.delete';
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config
+     * @var MagentoConfig
      */
     protected $resourceConfig;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @param Config $resourceConfig
+     * @param MagentoConfig $resourceConfig
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        Config $resourceConfig,
+        MagentoConfig $resourceConfig,
         ScopeConfigInterface $scopeConfig
     ) {
         $this->resourceConfig = $resourceConfig;
@@ -82,7 +86,7 @@ class Configuration
      *
      * @return string
      */
-    public function getApiUrl()
+    public function getApiUrl(): string
     {
         return $this->isSandboxEnabled() ? self::TAXJAR_SANDBOX_API_URL : self::TAXJAR_API_URL;
     }
@@ -90,10 +94,10 @@ class Configuration
     /**
      * Returns the scoped API token
      *
-     * @param int $storeId
+     * @param int|null $storeId
      * @return string
      */
-    public function getApiKey($storeId = null)
+    public function getApiKey(?int $storeId = null): string
     {
         return preg_replace('/\s+/', '', $this->scopeConfig->getValue(
             $this->isSandboxEnabled() ? self::TAXJAR_SANDBOX_APIKEY : self::TAXJAR_APIKEY,
@@ -107,17 +111,18 @@ class Configuration
      *
      * @return bool
      */
-    public function isSandboxEnabled() {
-        return (bool) $this->scopeConfig->getValue(self::TAXJAR_SANDBOX_ENABLED);
+    public function isSandboxEnabled(): bool
+    {
+        return (bool) (int) $this->scopeConfig->getValue(self::TAXJAR_SANDBOX_ENABLED);
     }
 
     /**
      * Sets tax basis in Magento
      *
-     * @param string $configJson
+     * @param $configJson
      * @return void
      */
-    public function setTaxBasis($configJson)
+    public function setTaxBasis($configJson): void
     {
         $basis = 'shipping';
 
@@ -125,7 +130,17 @@ class Configuration
             $basis = 'origin';
         }
 
-        $this->_setConfig('tax/calculation/based_on', $basis);
+        $this->_setConfig(MagentoTaxConfig::CONFIG_XML_PATH_BASED_ON, $basis);
+    }
+
+    public function getBackupRateCount(): int
+    {
+        return (int) $this->scopeConfig->getValue(self::TAXJAR_BACKUP_RATE_COUNT);
+    }
+
+    public function setBackupRateCount($value): void
+    {
+        $this->_setConfig(self::TAXJAR_BACKUP_RATE_COUNT, $value);
     }
 
     /**
@@ -133,14 +148,14 @@ class Configuration
      *
      * @return void
      */
-    public function setDisplaySettings()
+    public function setDisplaySettings(): void
     {
         $settings = [
-            'tax/display/type',
-            'tax/display/shipping',
-            'tax/cart_display/price',
-            'tax/cart_display/subtotal',
-            'tax/cart_display/shipping'
+            MagentoTaxConfig::CONFIG_XML_PATH_PRICE_DISPLAY_TYPE,
+            MagentoTaxConfig::CONFIG_XML_PATH_DISPLAY_SHIPPING,
+            MagentoTaxConfig::XML_PATH_DISPLAY_CART_PRICE,
+            MagentoTaxConfig::XML_PATH_DISPLAY_CART_SUBTOTAL,
+            MagentoTaxConfig::XML_PATH_DISPLAY_CART_SHIPPING,
         ];
 
         foreach ($settings as $setting) {
@@ -152,11 +167,11 @@ class Configuration
      * Store config
      *
      * @param string $path
-     * @param string $value
+     * @param mixed $value
      * @return void
      */
-    private function _setConfig($path, $value)
+    private function _setConfig(string $path, $value): void
     {
-        $this->resourceConfig->saveConfig($path, $value, 'default', 0);
+        $this->resourceConfig->saveConfig($path, $value, 'default');
     }
 }

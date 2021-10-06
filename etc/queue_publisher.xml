@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/publisher.xsd">
+    <publisher topic="taxjar.backup_rates.delete">
+        <connection name="db" exchange="taxjar" />
+    </publisher>
+    <publisher topic="taxjar.backup_rates.create">
+        <connection name="db" exchange="taxjar" />
+    </publisher>
+</config>

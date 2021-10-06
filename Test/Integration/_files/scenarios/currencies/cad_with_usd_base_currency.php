@@ -77,25 +77,25 @@ $taxCalculationData['cad_with_usd_base_currency'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => (3.90 * 1.28),
-            'base_tax_amount' => 3.90,
-            'subtotal' => (29.99 * 1.28),
+            'tax_amount' => 6.3872, // 4.99 * 1.28
+            'base_tax_amount' => 4.99,
+            'subtotal' => 38.39, // round(29.99 * 1.28, 2),
             'base_subtotal' => 29.99,
-            'subtotal_incl_tax' => (29.99 * 1.28) + (3.90 * 1.28),
-            'base_subtotal_incl_tax' => 29.99 + 3.90,
-            'grand_total' => (29.99 * 1.28) + (3.90 * 1.28),
-            'base_grand_total' => 29.99 + 3.90
+            'subtotal_incl_tax' => 44.7772, // round(29.99 * 1.28, 2) + (3.90 * 1.28),
+            'base_subtotal_incl_tax' => 34.98, // 29.99 + 4.99,
+            'grand_total' => 44.7772, // round(29.99 * 1.28, 2) + (3.90 * 1.28),
+            'base_grand_total' => 34.98, // 29.99 + 4.99
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => (3.90 * 1.28),
+                'tax_amount' => 6.3872, // 4.99 * 1.28
                 'tax_percent' => 13.0,
                 'price' => 29.99,
-                'price_incl_tax' => (29.99 * 1.28) + (3.90 * 1.28),
-                'row_total' => (29.99 * 1.28),
+                'price_incl_tax' => 44.78, // round(round(29.99 * 1.28, 2) + (3.90 * 1.28), 2),
+                'row_total' => 38.39, // round(29.99 * 1.28, 2),
                 'base_row_total' => 29.99,
-                'row_total_incl_tax' => (29.99 * 1.28) + (3.90 * 1.28),
-                'base_row_total_incl_tax' => 29.99 + 3.90,
+                'row_total_incl_tax' => 44.7772, // round(29.99 * 1.28, 2) + (3.90 * 1.28),
+                'base_row_total_incl_tax' => 34.98, // 29.99 + 4.99
                 'applied_taxes' => [
                     [
                         'id' => 5,

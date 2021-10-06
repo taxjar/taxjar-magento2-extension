@@ -15,13 +15,14 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
+use Magento\Catalog\Model\Product\Type;
 use Magento\TestFramework\ObjectManager;
 
 $objectManager = ObjectManager::getInstance();
 
 $productData = [
     [
-        'type_id' => \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
+        'type_id' => Type::TYPE_SIMPLE,
         'name' => 'Sprite Stasis Ball 65 cm',
         'sku' => '24-WG082-blue',
         'price' => 27.0,
@@ -29,7 +30,7 @@ $productData = [
         'weight' => 1,
     ],
     [
-        'type_id' => \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
+        'type_id' => Type::TYPE_SIMPLE,
         'name' => 'Sprite Foam Yoga Brick',
         'sku' => '24-WG084',
         'price' => 5.0,
@@ -37,7 +38,7 @@ $productData = [
         'weight' => 1,
     ],
     [
-        'type_id' => \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
+        'type_id' => Type::TYPE_SIMPLE,
         'name' => 'Sprite Yoga Strap 8 foot',
         'sku' => '24-WG086',
         'price' => 17.0,
@@ -45,7 +46,7 @@ $productData = [
         'weight' => 1,
     ],
     [
-        'type_id' => \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
+        'type_id' => Type::TYPE_SIMPLE,
         'name' => 'Sprite Foam Roller',
         'sku' => '24-WG088',
         'price' => 19.0,
@@ -64,22 +65,23 @@ foreach($productData as $data) {
     $product->isObjectNew(true);
     $product->setTypeId($data['type_id'])
         ->setId($x++)
-//        ->setAttributeSetId(4)
+        ->setAttributeSetId(4)
         ->setWebsiteIds([1])
         ->setName($data['name'])
         ->setSku($data['sku'])
         ->setPrice($data['price'])
-        ->setWeight($data['weight'])
-        ->setShortDescription('Short description')
-        ->setTaxClassId(0)
-        ->setDescription('Description with <b>html tag</b>')
         ->setMetaTitle('meta title')
         ->setMetaKeyword('meta keyword')
         ->setMetaDescription('meta description')
+        ->setShortDescription('Short description')
+        ->setTaxClassId(0)
+        ->setDescription('Description with <b>html tag</b>')
         ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
         ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
         ->setCanSaveCustomOptions(true)
         ->setHasOptions(false)
+        ->setPriceView(1)
+        ->setWeight($data['weight'])
         ->setStockData(
             [
                 'use_config_manage_stock' => 1,

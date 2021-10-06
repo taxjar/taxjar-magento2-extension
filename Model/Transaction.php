@@ -213,9 +213,13 @@ class Transaction
         foreach ($items as $item) {
             $itemType = $item->getProductType();
 
-            if (is_null($itemType) && method_exists($item, 'getOrderItem')) {
+            if (
+                is_null($itemType)
+                && method_exists($item, 'getOrderItem')
+                && $orderItem = $item->getOrderItem()
+            ) {
                 $creditMemoItem = $item;
-                $item = $item->getOrderItem();
+                $item = $orderItem;
                 $itemType = $item->getProductType();
             }
 
@@ -245,8 +249,10 @@ class Transaction
                 continue;  // Skip dynamic bundle parent item
             }
 
-            if (method_exists($item, 'getOrderItem') && $item->getOrderItem()->getParentItemId()) {
-                continue;
+            if (method_exists($item, 'getOrderItem') && $orderItem = $item->getOrderItem()) {
+                if ($orderItem->getParentItemId()) {
+                    continue;
+                }
             }
 
             $itemId = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
@@ -339,8 +345,8 @@ class Transaction
                 $parentItemId = $item->getParentItemId();
             }
 
-            if (method_exists($item, 'getOrderItem') && $item->getOrderItem()->getParentItemId()) {
-                $parentItemId = $item->getOrderItem()->getParentItemId();
+            if (method_exists($item, 'getOrderItem') && $orderItem = $item->getOrderItem()) {
+                $parentItemId = $orderItem->getParentItemId();
             }
 
             if (isset($parentItemId)) {
