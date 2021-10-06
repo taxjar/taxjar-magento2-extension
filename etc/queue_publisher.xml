@@ -6,4 +6,7 @@
     <publisher topic="taxjar.backup_rates.create">
         <connection name="db" exchange="taxjar" />
     </publisher>
+    <publisher topic="taxjar.transactions.backfill">
+        <connection name="db" exchange="taxjar" />
+    </publisher>
 </config>
