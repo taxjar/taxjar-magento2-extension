@@ -18,6 +18,10 @@
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
+use Magento\Framework\Api\Filter;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteria;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Bulk\BulkManagementInterface;
@@ -26,6 +30,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Serialize;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManager;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
@@ -41,63 +46,60 @@ class BackfillTransactions extends AsynchronousObserver
      */
     protected const BATCH_SIZE = 100;
 
+    protected const SYNCABLE_STATUSES = ['complete', 'closed'];
+
     /**
-     * @var \Taxjar\SalesTax\Model\Transaction\Backfill
+     * @var Backfill
      */
     protected $backfill;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
     protected $request;
 
     /**
-     * @var \Magento\Store\Model\StoreManager
+     * @var StoreManager
      */
     protected $storeManager;
 
     /**
-     * @var \Taxjar\SalesTax\Model\TransactionFactory
+     * @var TransactionFactory
      */
     protected $transactionFactory;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Transaction\OrderFactory
+     * @var OrderFactory
      */
     protected $orderFactory;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Transaction\RefundFactory
+     * @var RefundFactory
      */
     protected $refundFactory;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @var \Magento\Framework\Api\FilterBuilder
+     * @var FilterBuilder
      */
     protected $filterBuilder;
 
     /**
-     * @var \Magento\Framework\Api\Search\FilterGroupBuilder
-     */
-    protected $filterGroupBuilder;
-
-    /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     * @var SearchCriteriaBuilder
      */
     protected $searchCriteriaBuilder;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Logger
+     * @var Logger
      */
     protected $logger;
 
@@ -123,12 +125,10 @@ class BackfillTransactions extends AsynchronousObserver
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Logger $logger
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
-     * @param \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderRepositoryInterface $orderRepository
+     * @param FilterBuilder $filterBuilder
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TaxjarConfig $taxjarConfig
-     * @param Backfill $backfill
      */
     public function __construct(
         IdentityService $identityService,
@@ -142,12 +142,10 @@ class BackfillTransactions extends AsynchronousObserver
         OrderFactory $orderFactory,
         RefundFactory $refundFactory,
         Logger $logger,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\Api\FilterBuilder $filterBuilder,
-        \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        TaxjarConfig $taxjarConfig,
-        Backfill $backfill
+        OrderRepositoryInterface $orderRepository,
+        FilterBuilder $filterBuilder,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        TaxjarConfig $taxjarConfig
     ) {
         parent::__construct(
             $identityService,
@@ -165,10 +163,8 @@ class BackfillTransactions extends AsynchronousObserver
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG)->force();
         $this->orderRepository = $orderRepository;
         $this->filterBuilder = $filterBuilder;
-        $this->filterGroupBuilder = $filterGroupBuilder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->taxjarConfig = $taxjarConfig;
-        $this->backfill = $backfill;
     }
 
     /**
@@ -183,97 +179,14 @@ class BackfillTransactions extends AsynchronousObserver
         $this->apiKey = $this->taxjarConfig->getApiKey();
 
         if (!$this->apiKey) {
-            throw new LocalizedException(__('Could not sync transactions with TaxJar. Please make sure you have an API key.'));
-        }
-
-        $statesToMatch = ['complete', 'closed'];
-        $fromDate = $this->request->getParam('from_date');
-        $toDate = $this->request->getParam('to_date');
-        $storeId = $this->request->getParam('store');
-        $websiteId = $this->request->getParam('website');
-
-        if (isset($data['from_date'])) {
-            $fromDate = $data['from_date'];
-        }
-
-        if (isset($data['to_date'])) {
-            $toDate = $data['to_date'];
+            throw new LocalizedException(
+                __('Could not sync transactions with TaxJar. Please make sure you have an API key.')
+            );
         }
 
         $this->logger->log('Initializing TaxJar transaction sync');
 
-        if (!empty($fromDate)) {
-            $fromDate = (new \DateTime($fromDate));
-        } else {
-            $fromDate = (new \DateTime())->sub(new \DateInterval('P1D'));
-        }
-
-        if (!empty($toDate)) {
-            $toDate = (new \DateTime($toDate));
-        } else {
-            $toDate = (new \DateTime());
-        }
-
-        if ($fromDate > $toDate) {
-            throw new LocalizedException(__("To date can't be earlier than from date."));
-        }
-
-        $this->logger->log('Finding ' . implode(', ', $statesToMatch) . ' transactions from ' . $fromDate->format('m/d/Y') . ' - ' . $toDate->format('m/d/Y'));
-
-        // If the store id is empty but the website id is defined, load stores that match the website id
-        if (is_null($storeId) && !is_null($websiteId)) {
-            $storeId = [];
-            foreach ($this->storeManager->getStores() as $store) {
-                if ($store->getWebsiteId() == $websiteId) {
-                    $storeId[] = $store->getId();
-                }
-            }
-        }
-
-        // If the store id is defined, build a filter based on it
-        if (!is_null($storeId) && !empty($storeId)) {
-            $storeFilter = $this->filterBuilder->setField('store_id')
-                ->setConditionType(is_array($storeId) ? 'in' : 'eq')
-                ->setValue($storeId)
-                ->create();
-
-            $storeFilterGroup = $this->filterGroupBuilder
-                ->setFilters([$storeFilter])
-                ->create();
-
-            $this->logger->log('Limiting transaction sync to store id(s): ' .
-                (is_array($storeId) ? implode(',', $storeId) : $storeId));
-        }
-
-        $fromDate->setTime(0, 0, 0);
-        $toDate->setTime(23, 59, 59);
-
-        $fromFilter = $this->filterBuilder->setField('created_at')
-            ->setConditionType('gteq')
-            ->setValue($fromDate->format('Y-m-d H:i:s'))
-            ->create();
-
-        $fromFilterGroup = $this->filterGroupBuilder->setFilters([$fromFilter])->create();
-
-        $toFilter = $this->filterBuilder->setField('created_at')
-            ->setConditionType('lteq')
-            ->setValue($toDate->format('Y-m-d H:i:s'))
-            ->create();
-
-        $toFilterGroup = $this->filterGroupBuilder->setFilters([$toFilter])->create();
-
-        $stateFilterGroup = $this->filterGroupBuilder
-            ->setFilters(array_map([$this, 'orderStateFilter'], $statesToMatch))
-            ->create();
-
-        $filterGroups = [$fromFilterGroup, $toFilterGroup, $stateFilterGroup];
-
-        if (isset($storeFilterGroup)) {
-            $filterGroups[] = $storeFilterGroup;
-        }
-
-        $criteria = $this->searchCriteriaBuilder->setFilterGroups($filterGroups)->create();
-
+        $criteria = $this->getSearchCriteria($data);
         $orderResult = $this->orderRepository->getList($criteria);
         $orders = $orderResult->getItems();
 
@@ -286,14 +199,80 @@ class BackfillTransactions extends AsynchronousObserver
         );
     }
 
-    /**
-     * Filter orders to sync by order state (e.g. completed, closed)
-     *
-     * @param string $state
-     * @return \Magento\Framework\Api\Filter
-     */
-    protected function orderStateFilter($state)
+    public function getSearchCriteria($data): SearchCriteria
     {
-        return $this->filterBuilder->setField('state')->setValue($state)->create();
+        $fromDate = $data['from_date'] ?: $this->request->getParam('from_date');
+        $toDate = $data['to_date'] ?: $this->request->getParam('to_date');
+        $storeId = $this->request->getParam('store');
+        $websiteId = $this->request->getParam('website');
+
+        // If the store id is empty but the website id is defined, load stores that match the website id
+        if (is_null($storeId) && ! is_null($websiteId)) {
+            $storeId = $this->getWebsiteStoreIds($websiteId);
+        }
+
+        // If the store id is defined, build a filter based on it
+        if (! empty($storeId)) {
+            $conditionType = is_array($storeId) ? 'in' : 'eq';
+            $this->searchCriteriaBuilder->addFilter('store_id', $storeId, $conditionType);
+            $idString = (is_array($storeId) ? implode(',', $storeId) : $storeId);
+            $this->logger->log(
+                sprintf('Limiting transaction sync to store id(s): %s', $idString)
+            );
+        }
+
+        if (! empty($fromDate)) {
+            $fromDate = (new \DateTime($fromDate));
+        } else {
+            $fromDate = (new \DateTime())->sub(new \DateInterval('P1D'));
+        }
+
+        if (! empty($toDate)) {
+            $toDate = (new \DateTime($toDate));
+        } else {
+            $toDate = (new \DateTime());
+        }
+
+        if ($fromDate > $toDate) {
+            throw new LocalizedException(__("To date can't be earlier than from date."));
+        }
+
+        $this->logger->log(
+            sprintf(
+                'Finding %s transactions from %s - %s',
+                implode(', ', self::SYNCABLE_STATUSES),
+                $fromDate->format('m/d/Y'),
+                $toDate->format('m/d/Y')
+            )
+        );
+
+        $fromDate->setTime(0, 0, 0)->format('Y-m-d H:i:s');
+        $toDate->setTime(23, 59, 59)->format('Y-m-d H:i:s');
+
+        return $this->searchCriteriaBuilder->addFilter('created_at', $fromDate, 'gteq')
+            ->addFilter('created_at', $toDate, 'lteq')
+            ->addFilters(array_map([$this, 'getOrderStateFilter'], self::SYNCABLE_STATUSES))
+            ->create();
+    }
+
+    protected function getOrderStateFilter(string $state): Filter
+    {
+        return $this->filterBuilder->setField('state')
+            ->setValue($state)
+            ->setConditionType('eq')
+            ->create();
+    }
+
+    protected function getWebsiteStoreIds($websiteId): array
+    {
+        $storeIds = [];
+
+        foreach ($this->storeManager->getStores() as $store) {
+            if ($store->getWebsiteId() == $websiteId) {
+                $storeIds[] = $store->getId();
+            }
+        }
+
+        return $storeIds;
     }
 }
