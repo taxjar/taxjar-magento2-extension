@@ -20,6 +20,7 @@ namespace Taxjar\SalesTax\Model\Transaction;
 use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Serialize\Serializer\Serialize;
 use Magento\Store\Model\StoreManager;
 use Magento\Framework\Exception\LocalizedException;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -89,6 +90,11 @@ class Backfill
     protected $taxjarConfig;
 
     /**
+     * @var Serialize
+     */
+    protected $serializer;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param RequestInterface $request
      * @param StoreManager $storeManager
@@ -114,7 +120,8 @@ class Backfill
         \Magento\Framework\Api\FilterBuilder $filterBuilder,
         \Magento\Framework\Api\Search\FilterGroupBuilder $filterGroupBuilder,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        Serialize $serializer
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
@@ -128,14 +135,25 @@ class Backfill
         $this->filterGroupBuilder = $filterGroupBuilder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->taxjarConfig = $taxjarConfig;
+        $this->serializer = $serializer;
     }
 
     /**
      * @param OperationInterface $operation
+     * @return void
+     * @throws LocalizedException
      */
-    public function process(OperationInterface $operation)
+    public function process(OperationInterface $operation): void
     {
-        //
+        $orders = $this->serializer->unserialize($operation->getSerializedData());
+
+        foreach ($orders as $order) {
+            try {
+                $this->backfillOrder($order);
+            } catch (\Exception $e) {
+                $this->logger->log('Error syncing order #' . $order->getIncrementId() . ' - ' . $e->getMessage(), 'error');
+            }
+        }
     }
 
     /**
@@ -257,22 +275,7 @@ class Backfill
         ignore_user_abort(true);
 
         foreach ($orders as $order) {
-            $orderTransaction = $this->orderFactory->create();
-
-            if ($orderTransaction->isSyncable($order)) {
-                $orderTransaction->build($order);
-                $orderTransaction->push();
-
-                $creditMemos = $order->getCreditmemosCollection();
-
-                foreach ($creditMemos as $creditMemo) {
-                    $refundTransaction = $this->refundFactory->create();
-                    $refundTransaction->build($order, $creditMemo);
-                    $refundTransaction->push();
-                }
-            } else {
-                $this->logger->log('Order #' . $order->getIncrementId() . ' is not syncable', 'skip');
-            }
+            $this->backfillOrder($order);
         }
 
         return $this;
@@ -287,5 +290,29 @@ class Backfill
     protected function orderStateFilter($state)
     {
         return $this->filterBuilder->setField('state')->setValue($state)->create();
+    }
+
+    /**
+     * @param  \Magento\Sales\Api\Data\OrderInterface|\Magento\Sales\Model\Order $order
+     * @throws LocalizedException
+     */
+    private function backfillOrder($order): void
+    {
+        $orderTransaction = $this->orderFactory->create();
+
+        if ($orderTransaction->isSyncable($order)) {
+            $orderTransaction->build($order);
+            $orderTransaction->push();
+
+            $creditMemos = $order->getCreditmemosCollection();
+
+            foreach ($creditMemos as $creditMemo) {
+                $refundTransaction = $this->refundFactory->create();
+                $refundTransaction->build($order, $creditMemo);
+                $refundTransaction->push();
+            }
+        } else {
+            $this->logger->log('Order #' . $order->getIncrementId() . ' is not syncable', 'skip');
+        }
     }
 }

@@ -58,6 +58,7 @@ class Configuration
     const TAXJAR_X_API_VERSION        = '2020-08-07';
     const TAXJAR_TOPIC_CREATE_RATES   = 'taxjar.backup_rates.create';
     const TAXJAR_TOPIC_DELETE_RATES   = 'taxjar.backup_rates.delete';
+    const TAXJAR_TOPIC_BACKFILL_TRANSACTIONS = 'taxjar.transactions.backfill';
 
     /**
      * @var MagentoConfig
