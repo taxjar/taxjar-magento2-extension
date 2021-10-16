@@ -3,6 +3,6 @@
     <exchange name="taxjar" type="topic" connection="db">
         <binding id="deleteRatesBinding" topic="taxjar.backup_rates.delete" destinationType="queue" destination="taxjar.backup_rates.delete"/>
         <binding id="createRatesBinding" topic="taxjar.backup_rates.create" destinationType="queue" destination="taxjar.backup_rates.create"/>
-        <binding id="backfillTransactionsBinding" topic="taxjar.transactions.backfill" destinationType="queue" destination="taxjar.transactions.backfill"/>
+        <binding id="syncBinding" topic="taxjar.transactions.sync" destinationType="queue" destination="taxjar.transactions.sync"/>
     </exchange>
 </config>

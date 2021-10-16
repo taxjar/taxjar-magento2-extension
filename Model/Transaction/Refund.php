@@ -17,17 +17,20 @@
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Refund extends \Taxjar\SalesTax\Model\Transaction
 {
     /**
-     * @var \Magento\Sales\Model\Order
+     * @var OrderInterface
      */
     protected $originalOrder;
 
     /**
-     * @var \Magento\Sales\Model\Order\Creditmemo
+     * @var CreditmemoInterface
      */
     protected $originalRefund;
 
@@ -39,14 +42,15 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     /**
      * Build a refund transaction
      *
-     * @param \Magento\Sales\Model\Order $order
-     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     * @param OrderInterface $order
+     * @param CreditmemoInterface $creditmemo
      * @return array
+     * @throws LocalizedException
      */
     public function build(
-        \Magento\Sales\Model\Order $order,
-        \Magento\Sales\Model\Order\Creditmemo $creditmemo
-    ) {
+        OrderInterface $order,
+        CreditmemoInterface $creditmemo
+    ): array {
         $subtotal = (float) $creditmemo->getSubtotal();
         $shipping = (float) $creditmemo->getShippingAmount();
         $discount = (float) $creditmemo->getDiscountAmount();
@@ -116,6 +120,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
      *
      * @param string|null $forceMethod
      * @return void
+     * @throws LocalizedException
      */
     public function push($forceMethod = null) {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
@@ -159,7 +164,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $this->originalRefund->setTjSalestaxSyncDate(gmdate('Y-m-d H:i:s'));
             $this->originalRefund->getResource()->saveAttribute($this->originalRefund, 'tj_salestax_sync_date');
 
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
 

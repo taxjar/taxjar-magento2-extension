@@ -17,29 +17,24 @@
 
 namespace Taxjar\SalesTax\Observer;
 
+use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Bulk\BulkManagementInterface;
-use Magento\Framework\DataObject\IdentityService;
+use Magento\Framework\DataObject\IdentityGeneratorInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Serialize\Serializer\Serialize;
-use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\StoreManager;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
-use Taxjar\SalesTax\Model\Transaction\Backfill;
-use Taxjar\SalesTax\Model\Transaction\OrderFactory;
-use Taxjar\SalesTax\Model\Transaction\RefundFactory;
-use Taxjar\SalesTax\Model\TransactionFactory;
 
-class BackfillTransactions extends AsynchronousObserver
+class BackfillTransactions implements ObserverInterface
 {
     /**
      * The default batch size used for bulk operations
@@ -47,16 +42,6 @@ class BackfillTransactions extends AsynchronousObserver
     protected const BATCH_SIZE = 100;
 
     protected const SYNCABLE_STATUSES = ['complete', 'closed'];
-
-    /**
-     * @var Backfill
-     */
-    protected $backfill;
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
 
     /**
      * @var RequestInterface
@@ -69,19 +54,9 @@ class BackfillTransactions extends AsynchronousObserver
     protected $storeManager;
 
     /**
-     * @var TransactionFactory
+     * @var Logger
      */
-    protected $transactionFactory;
-
-    /**
-     * @var OrderFactory
-     */
-    protected $orderFactory;
-
-    /**
-     * @var RefundFactory
-     */
-    protected $refundFactory;
+    protected $logger;
 
     /**
      * @var OrderRepositoryInterface
@@ -99,83 +74,79 @@ class BackfillTransactions extends AsynchronousObserver
     protected $searchCriteriaBuilder;
 
     /**
-     * @var Logger
-     */
-    protected $logger;
-
-    /**
      * @var TaxjarConfig
      */
     protected $taxjarConfig;
 
     /**
-     * @var Serialize
+     * @var BulkManagementInterface
+     */
+    protected $bulkManagement;
+
+    /**
+     * @var OperationInterfaceFactory
+     */
+    protected $operationFactory;
+
+    /**
+     * @var IdentityGeneratorInterface
+     */
+    protected $identityService;
+
+    /**
+     * @var \Magento\Framework\Serialize\SerializerInterface
      */
     protected $serializer;
 
     /**
-     * @param IdentityService $identityService
-     * @param OperationInterfaceFactory $operationInterfaceFactory
-     * @param SerializerInterface $serializer
-     * @param BulkManagementInterface $bulkManagement
-     * @param ScopeConfigInterface $scopeConfig
+     * @var \Magento\Authorization\Model\UserContextInterface
+     */
+    protected $userContext;
+
+    /**
      * @param RequestInterface $request
      * @param StoreManager $storeManager
-     * @param TransactionFactory $transactionFactory
-     * @param OrderFactory $orderFactory
-     * @param RefundFactory $refundFactory
      * @param Logger $logger
      * @param OrderRepositoryInterface $orderRepository
      * @param FilterBuilder $filterBuilder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param TaxjarConfig $taxjarConfig
+     * @param BulkManagementInterface $bulkManagement
+     * @param OperationInterfaceFactory $operationFactory
+     * @param IdentityGeneratorInterface $identityService
+     * @param \Magento\Framework\Serialize\SerializerInterface $serializer
+     * @param \Magento\Authorization\Model\UserContextInterface $userContext
      */
     public function __construct(
-        IdentityService $identityService,
-        OperationInterfaceFactory $operationInterfaceFactory,
-        SerializerInterface $serializer,
-        BulkManagementInterface $bulkManagement,
-        ScopeConfigInterface $scopeConfig,
         RequestInterface $request,
         StoreManager $storeManager,
-        TransactionFactory $transactionFactory,
-        OrderFactory $orderFactory,
-        RefundFactory $refundFactory,
         Logger $logger,
         OrderRepositoryInterface $orderRepository,
         FilterBuilder $filterBuilder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        \Magento\Framework\Bulk\BulkManagementInterface $bulkManagement,
+        \Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory $operationFactory,
+        \Magento\Framework\DataObject\IdentityGeneratorInterface $identityService,
+        \Magento\Framework\Serialize\SerializerInterface $serializer,
+        \Magento\Authorization\Model\UserContextInterface $userContext
     ) {
-        parent::__construct(
-            $identityService,
-            $operationInterfaceFactory,
-            $serializer,
-            $bulkManagement
-        );
-
-        $this->scopeConfig = $scopeConfig;
         $this->request = $request;
         $this->storeManager = $storeManager;
-        $this->transactionFactory = $transactionFactory;
-        $this->orderFactory = $orderFactory;
-        $this->refundFactory = $refundFactory;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG)->force();
         $this->orderRepository = $orderRepository;
         $this->filterBuilder = $filterBuilder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->taxjarConfig = $taxjarConfig;
+        $this->bulkManagement = $bulkManagement;
+        $this->operationFactory = $operationFactory;
+        $this->identityService = $identityService;
+        $this->serializer = $serializer;
+        $this->userContext = $userContext;
     }
 
-    /**
-     * @param  Observer $observer
-     * @return void
-     * @throws LocalizedException
-     */
     public function execute(Observer $observer): void
     {
-        $data = $observer->getData();
-
         $this->apiKey = $this->taxjarConfig->getApiKey();
 
         if (!$this->apiKey) {
@@ -184,35 +155,53 @@ class BackfillTransactions extends AsynchronousObserver
             );
         }
 
-        $this->logger->log('Initializing TaxJar transaction sync');
+        $this->logger->log(__('Initializing TaxJar transaction sync'));
 
-        $criteria = $this->getSearchCriteria($data);
+        $criteria = $this->getSearchCriteria($observer->getData());
         $orderResult = $this->orderRepository->getList($criteria);
-        $orders = $orderResult->getItems();
 
-        $this->logger->log(count($orders) . ' transaction(s) found');
+        $this->logger->log(__('%s transaction(s) found', $orderResult->getTotalCount()));
 
-        $this->schedule(
-            array_chunk($orders, self::BATCH_SIZE),
-            TaxjarConfig::TAXJAR_TOPIC_BACKFILL_TRANSACTIONS,
-            'TaxJar transaction sync backfill'
-        );
+        $orderIds = $this->getOrderIds($orderResult->getItems());
+        $orderIdsChunks = array_chunk($orderIds, self::BATCH_SIZE);
+        $bulkUuid = $this->identityService->generateId();
+        $bulkDescription = __('TaxJar Transaction Sync Backfill');
+        $operations = [];
+
+        foreach ($orderIdsChunks as $orderIdsChunk) {
+            $operations[] = $this->makeOperation($bulkUuid, $orderIdsChunk);
+        }
+
+        if (!empty($operations)) {
+            $result = $this->bulkManagement->scheduleBulk(
+                $bulkUuid,
+                $operations,
+                $bulkDescription,
+                $this->userContext->getUserId()
+            );
+            if (!$result) {
+                throw new LocalizedException(
+                    __('Something went wrong while processing the request.')
+                );
+            }
+            $this->logger->log(__('Action scheduled. Bulk UUID: %s %s', $bulkUuid, PHP_EOL));
+        }
     }
 
     public function getSearchCriteria($data): SearchCriteria
     {
-        $fromDate = $data['from_date'] ?: $this->request->getParam('from_date');
-        $toDate = $data['to_date'] ?: $this->request->getParam('to_date');
+        $fromDate = $data['from_date'] ?? $this->request->getParam('from_date');
+        $toDate = $data['to_date'] ?? $this->request->getParam('to_date');
         $storeId = $this->request->getParam('store');
         $websiteId = $this->request->getParam('website');
 
         // If the store id is empty but the website id is defined, load stores that match the website id
-        if (is_null($storeId) && ! is_null($websiteId)) {
+        if (is_null($storeId) && !is_null($websiteId)) {
             $storeId = $this->getWebsiteStoreIds($websiteId);
         }
 
         // If the store id is defined, build a filter based on it
-        if (! empty($storeId)) {
+        if (!empty($storeId)) {
             $conditionType = is_array($storeId) ? 'in' : 'eq';
             $this->searchCriteriaBuilder->addFilter('store_id', $storeId, $conditionType);
             $idString = (is_array($storeId) ? implode(',', $storeId) : $storeId);
@@ -221,13 +210,13 @@ class BackfillTransactions extends AsynchronousObserver
             );
         }
 
-        if (! empty($fromDate)) {
+        if (!empty($fromDate)) {
             $fromDate = (new \DateTime($fromDate));
         } else {
             $fromDate = (new \DateTime())->sub(new \DateInterval('P1D'));
         }
 
-        if (! empty($toDate)) {
+        if (!empty($toDate)) {
             $toDate = (new \DateTime($toDate));
         } else {
             $toDate = (new \DateTime());
@@ -238,8 +227,8 @@ class BackfillTransactions extends AsynchronousObserver
         }
 
         $this->logger->log(
-            sprintf(
-                'Finding %s transactions from %s - %s',
+            __(
+                'Finding transactions with statuses of %s from %s - %s',
                 implode(', ', self::SYNCABLE_STATUSES),
                 $fromDate->format('m/d/Y'),
                 $toDate->format('m/d/Y')
@@ -274,5 +263,31 @@ class BackfillTransactions extends AsynchronousObserver
         }
 
         return $storeIds;
+    }
+
+    protected function getOrderIds(array $orders): array
+    {
+        return array_map(function ($order) {
+            return $order->getIncrementId();
+        }, $orders);
+    }
+
+    protected function makeOperation(
+        string $bulkUuid,
+        $body
+    ): OperationInterface {
+        $dataToEncode = [
+            'meta_information' => $body,
+        ];
+        $data = [
+            'data' => [
+                'bulk_uuid' => $bulkUuid,
+                'topic_name' => TaxjarConfig::TAXJAR_TOPIC_SYNC_TRANSACTIONS,
+                'serialized_data' => $this->serializer->serialize($dataToEncode),
+                'status' => \Magento\Framework\Bulk\OperationInterface::STATUS_TYPE_OPEN,
+            ]
+        ];
+
+        return $this->operationFactory->create($data);
     }
 }

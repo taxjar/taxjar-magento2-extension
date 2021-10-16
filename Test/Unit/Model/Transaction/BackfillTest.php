@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Taxjar\SalesTax\Test\Unit\Model\Transaction;
 
 use Magento\AsynchronousOperations\Api\Data\OperationInterface;
+use Magento\Framework\EntityManager\EntityManager;
 use Magento\Framework\Serialize\Serializer\Serialize;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Taxjar\SalesTax\Model\Transaction\Backfill;
 use \Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
@@ -18,13 +20,17 @@ use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 class BackfillTest extends UnitTestCase
 {
     /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|OrderFactory
+     * @var OrderRepositoryInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
-    private $orderFactory;
+    private $orderRepository;
     /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|RefundFactory
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|TaxjarOrder
      */
-    private $refundFactory;
+    private $orderTransaction;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|Refund
+     */
+    private $refundTransaction;
     /**
      * @var mixed|\PHPUnit\Framework\MockObject\MockObject|Logger
      */
@@ -33,15 +39,21 @@ class BackfillTest extends UnitTestCase
      * @var Serialize|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
     private $serializer;
+    /**
+     * @var EntityManager|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $entityManager;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->orderFactory = $this->createMock(OrderFactory::class);
-        $this->refundFactory = $this->createMock(RefundFactory::class);
+        $this->orderRepository = $this->createMock(OrderRepositoryInterface::class);
+        $this->orderTransaction = $this->createMock(\Taxjar\SalesTax\Model\Transaction\Order::class);
+        $this->refundTransaction = $this->createMock(Refund::class);
         $this->logger = $this->createMock(Logger::class);
         $this->serializer = $this->createMock(Serialize::class);
+        $this->entityManager = $this->createMock(EntityManager::class);
 
         $this->logger->expects($this->once())->method('setFilename')->with('transactions.log')->willReturnSelf();
         $this->logger->expects($this->once())->method('force')->willReturnSelf();
@@ -53,14 +65,12 @@ class BackfillTest extends UnitTestCase
         $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
 
         $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')->willReturn(null);
+        $operation->expects($this->any())->method('getSerializedData')->willReturn("['meta_information' => 'some values']");
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn([$mockOrder]);
+        $this->serializer->expects($this->any())->method('unserialize')->willReturn(['meta_information' => ['9']]);
+        $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
+        $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(false);
 
-        $mockTjOrder = $this->createMock(TaxjarOrder::class);
-        $mockTjOrder->expects($this->any())->method('isSyncable')->with($mockOrder)->willReturn(false);
-
-        $this->orderFactory->expects($this->any())->method('create')->willReturn($mockTjOrder);
         $this->logger->expects($this->any())->method('log')->with('Order #9 is not syncable', 'skip');
 
         $sut = $this->getTestSubject();
@@ -77,20 +87,19 @@ class BackfillTest extends UnitTestCase
 
         $operation = $this->createMock(OperationInterface::class);
         $operation->expects($this->any())->method('getSerializedData')->willReturn(null);
+        $operation->expects($this->any())->method('setStatus')->with(1)->willReturnSelf();
+        $operation->expects($this->any())->method('setErrorCode')->with(null)->willReturnSelf();
+        $operation->expects($this->any())->method('setResultMessage')->with(null)->willReturnSelf();
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn([$mockOrder]);
+        $this->serializer->expects($this->any())->method('unserialize')->willReturn(['meta_information' => ['9']]);
+        $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
+        $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(true);
+        $this->orderTransaction->expects($this->any())->method('build')->with($mockOrder);
+        $this->orderTransaction->expects($this->any())->method('push');
+        $this->refundTransaction->expects($this->any())->method('build')->with($mockOrder, $mockCreditmemo);
+        $this->refundTransaction->expects($this->any())->method('push');
 
-        $mockRefund = $this->createMock(Refund::class);
-        $mockRefund->expects($this->any())->method('build')->with($mockOrder, $mockCreditmemo);
-        $mockRefund->expects($this->any())->method('push');
-
-        $mockTjOrder = $this->createMock(TaxjarOrder::class);
-        $mockTjOrder->expects($this->any())->method('isSyncable')->with($mockOrder)->willReturn(true);
-        $mockTjOrder->expects($this->any())->method('build')->with($mockOrder);
-        $mockTjOrder->expects($this->any())->method('push');
-
-        $this->orderFactory->expects($this->any())->method('create')->willReturn($mockTjOrder);
-        $this->refundFactory->expects($this->any())->method('create')->willReturn($mockRefund);
+        $this->entityManager->expects($this->any())->method('save');
 
         $sut = $this->getTestSubject();
         $sut->process($operation);
@@ -98,16 +107,15 @@ class BackfillTest extends UnitTestCase
 
     public function testProcessLogsCaughtException()
     {
-        $mockOrder = $this->createMock(Order::class);
-        $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
-
         $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')->willReturn(null);
+        $operation->expects($this->any())->method('getSerializedData')->willReturn("['meta_information' => ['9']");
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn([$mockOrder]);
-        $this->orderFactory->expects($this->any())->method('create')->willThrowException(new \Exception('test error'));
+        $this->serializer->expects($this->any())->method('unserialize')->willReturn(['meta_information' => ['9']]);
+        $this->orderRepository->expects($this->any())->method('get')->with('9')
+            ->willThrowException(new \Exception('testing'));
 
-        $this->logger->expects($this->any())->method('log')->with('Error syncing order #9 - test error', 'error');
+        $this->logger->expects($this->any())->method('log')
+            ->with('Error syncing order #9 - testing', 'error');
 
         $sut = $this->getTestSubject();
         $sut->process($operation);
@@ -116,10 +124,12 @@ class BackfillTest extends UnitTestCase
     protected function getTestSubject(): Backfill
     {
         return new Backfill(
-            $this->orderFactory,
-            $this->refundFactory,
+            $this->orderRepository,
+            $this->orderTransaction,
+            $this->refundTransaction,
             $this->logger,
-            $this->serializer
+            $this->serializer,
+            $this->entityManager
         );
     }
 }

@@ -4,46 +4,27 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Observer\Concerns;
 
-use Magento\AsynchronousOperations\Api\Data\OperationInterface;
-use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
-use Magento\Framework\Bulk\BulkManagementInterface;
-use Magento\Framework\Bulk\OperationInterface as BulkOperationInterface;
-use Magento\Framework\DataObject\IdentityService;
-use Magento\Framework\Serialize\SerializerInterface;
+use Magento\AsynchronousOperations\Model\MassSchedule;
+use Magento\Framework\Exception\BulkException;
+use Magento\Framework\Exception\LocalizedException;
 
 trait SchedulesOperations
 {
-    public function schedule(array $data, string $topic, string $description, $userId = null): self
+    /**
+     * @throws BulkException|LocalizedException
+     */
+    public function schedule(array $data, string $topic): self
     {
-        $uuid = $this->getIdentityService()->generateId();
+        $result = $this->getMassSchedule()->publishMass($topic, $data);
 
-        foreach ($data as $datum) {
-            $operations[] = $this->makeOperation($uuid, $topic, $datum);
-        }
-
-        if (! empty($operations)) {
-            $this->getBulkManagementInterface()
-                ->scheduleBulk($uuid, $operations, $description, $userId);
+        if (! $result) {
+            throw new LocalizedException(
+                __('Something went wrong while processing the request.')
+            );
         }
 
         return $this;
     }
 
-    protected function makeOperation(string $bulkUuid, string $topic, array $payload): OperationInterface
-    {
-        $operation = $this->getOperationFactory()->create();
-        $operation->setBulkUuid($bulkUuid);
-        $operation->setTopicName($topic);
-        $operation->setStatus(BulkOperationInterface::STATUS_TYPE_OPEN);
-        $operation->setSerializedData($this->getSerializerInterface()->serialize($payload));
-        return $operation;
-    }
-
-    abstract protected function getIdentityService(): IdentityService;
-
-    abstract protected function getOperationFactory(): OperationInterfaceFactory;
-
-    abstract protected function getSerializerInterface(): SerializerInterface;
-
-    abstract protected function getBulkManagementInterface(): BulkManagementInterface;
+    abstract protected function getMassSchedule(): MassSchedule;
 }

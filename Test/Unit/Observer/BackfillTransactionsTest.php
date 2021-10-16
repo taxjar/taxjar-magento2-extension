@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Taxjar\SalesTax\Test\Unit\Observer;
 
 use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
+use Magento\Authorization\Model\UserContextInterface;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteria;
@@ -29,26 +30,6 @@ use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 class BackfillTransactionsTest extends UnitTestCase
 {
     /**
-     * @var IdentityService|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $identityService;
-    /**
-     * @var OperationInterfaceFactory|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $operationInterfaceFactory;
-    /**
-     * @var SerializerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $serializer;
-    /**
-     * @var BulkManagementInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $bulkManagement;
-    /**
-     * @var ScopeConfigInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $scopeConfig;
-    /**
      * @var RequestInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
     private $request;
@@ -56,18 +37,6 @@ class BackfillTransactionsTest extends UnitTestCase
      * @var StoreManager|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
     private $storeManager;
-    /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|TransactionFactory
-     */
-    private $transactionFactory;
-    /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|OrderFactory
-     */
-    private $orderFactory;
-    /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|RefundFactory
-     */
-    private $refundFactory;
     /**
      * @var mixed|\PHPUnit\Framework\MockObject\MockObject|Logger
      */
@@ -88,26 +57,43 @@ class BackfillTransactionsTest extends UnitTestCase
      * @var mixed|\PHPUnit\Framework\MockObject\MockObject|TaxjarConfig
      */
     private $taxjarConfig;
+    /**
+     * @var BulkManagementInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $bulkManagement;
+    /**
+     * @var OperationInterfaceFactory|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $operationInterfaceFactory;
+    /**
+     * @var IdentityService|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $identityService;
+    /**
+     * @var SerializerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $serializer;
+    /**
+     * @var UserContextInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $userContext;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->identityService = $this->createMock(IdentityService::class);
-        $this->operationInterfaceFactory = $this->createMock(OperationInterfaceFactory::class);
-        $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->bulkManagement = $this->createMock(BulkManagementInterface::class);
-        $this->scopeConfig = $this->createMock(ScopeConfigInterface::class);
         $this->request = $this->createMock(RequestInterface::class);
         $this->storeManager = $this->createMock(StoreManager::class);
-        $this->transactionFactory = $this->createMock(TransactionFactory::class);
-        $this->orderFactory = $this->createMock(OrderFactory::class);
-        $this->refundFactory = $this->createMock(RefundFactory::class);
         $this->logger = $this->createMock(Logger::class);
         $this->orderRepository = $this->createMock(OrderRepositoryInterface::class);
         $this->filterBuilder = $this->createMock(FilterBuilder::class);
         $this->searchCriteriaBuilder = $this->createMock(SearchCriteriaBuilder::class);
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
+        $this->bulkManagement = $this->createMock(BulkManagementInterface::class);
+        $this->operationInterfaceFactory = $this->getMockBuilder(OperationInterfaceFactory::class)->disableOriginalConstructor()->getMock();
+        $this->identityService = $this->createMock(IdentityService::class);
+        $this->serializer = $this->createMock(SerializerInterface::class);
+        $this->userContext = $this->createMock(UserContextInterface::class);
 
         $this->logger->expects($this->once())->method('setFilename')->with('transactions.log')->willReturnSelf();
         $this->logger->expects($this->once())->method('force')->willReturnSelf();
@@ -117,16 +103,7 @@ class BackfillTransactionsTest extends UnitTestCase
     {
         $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('');
 
-        $this->expectExceptionMe(LocalizedException::class);
-
-        $sut = $this->getTestSubject();
-        $sut->execute(new Observer());
-    }
-
-    public function testExecuteExceptionWithoutApiKeyMessage()
-    {
-        $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('');
-
+        $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage('Could not sync transactions with TaxJar. Please make sure you have an API key.');
 
         $sut = $this->getTestSubject();
@@ -157,21 +134,18 @@ class BackfillTransactionsTest extends UnitTestCase
     protected function getTestSubject(): BackfillTransactions
     {
         return new BackfillTransactions(
-            $this->identityService,
-            $this->operationInterfaceFactory,
-            $this->serializer,
-            $this->bulkManagement,
-            $this->scopeConfig,
             $this->request,
             $this->storeManager,
-            $this->transactionFactory,
-            $this->orderFactory,
-            $this->refundFactory,
             $this->logger,
             $this->orderRepository,
             $this->filterBuilder,
             $this->searchCriteriaBuilder,
-            $this->taxjarConfig
+            $this->taxjarConfig,
+            $this->bulkManagement,
+            $this->operationInterfaceFactory,
+            $this->identityService,
+            $this->serializer,
+            $this->userContext
         );
     }
 }
