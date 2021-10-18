@@ -17,12 +17,23 @@
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use DateTime;
+use Exception;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Order extends \Taxjar\SalesTax\Model\Transaction
 {
+    protected const SYNCABLE_STATES = ['complete', 'closed'];
+
+    protected const SYNCABLE_CURRENCIES = ['USD'];
+
+    protected const SYNCABLE_COUNTRIES = ['US'];
+
     /**
-     * @var \Magento\Sales\Model\Order
+     * @var OrderInterface
      */
     protected $originalOrder;
 
@@ -34,13 +45,13 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     /**
      * Build an order transaction
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @return array
+     * @throws Exception
      */
-    public function build(
-        \Magento\Sales\Model\Order $order
-    ) {
-        $createdAt = new \DateTime($order->getCreatedAt());
+    public function build(OrderInterface $order): array
+    {
+        $createdAt = new DateTime($order->getCreatedAt());
         $subtotal = (float) $order->getSubtotal();
         $shipping = (float) $order->getShippingAmount();
         $discount = (float) $order->getDiscountAmount();
@@ -53,7 +64,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             'plugin' => 'magento',
             'provider' => $this->getProvider($order),
             'transaction_id' => $order->getIncrementId(),
-            'transaction_date' => $createdAt->format(\DateTime::ISO8601),
+            'transaction_date' => $createdAt->format(DateTime::ISO8601),
             'amount' => $subtotal + $shipping - abs($discount),
             'shipping' => $shipping - abs($shippingDiscount),
             'sales_tax' => $salesTax
@@ -73,106 +84,121 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     /**
      * Push an order transaction to SmartCalcs
      *
-     * @param string|null $forceMethod
+     * @param string|null $method
      * @return void
+     * @throws LocalizedException
      */
-    public function push($forceMethod = null) {
+    public function push(string $method = null) {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
-        $orderSyncedAt = $this->originalOrder->getTjSalestaxSyncDate();
-        $this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId());
+        $orderSyncedAt = $this->originalOrder->getData('tj_salestax_sync_date');
 
-        if (!$this->isSynced($orderSyncedAt)) {
-            $method = 'POST';
-        } else {
-            if ($orderSyncedAt < $orderUpdatedAt) {
-                $method = 'PUT';
+        if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
+            $this->client->setApiKey($this->apiKey);
+        }
+
+        if ($orderUpdatedAt >= $orderSyncedAt) {
+            if ($method) {
+                $this->logger->log('Forced update of Order #' . $this->request['transaction_id'], 'api');
             } else {
                 $this->logger->log('Order #' . $this->request['transaction_id'] . ' not updated since last sync', 'skip');
                 return;
             }
         }
 
-        if ($this->apiKey) {
-            $this->client->setApiKey($this->apiKey);
-        }
-
-        if ($forceMethod) {
-            $method = $forceMethod;
-        }
+        $httpMethod = $method ?: ($this->isSynced($orderSyncedAt) ? Request::METHOD_PUT : Request::METHOD_POST);
 
         try {
-            $this->logger->log('Pushing order #' . $this->request['transaction_id'] . ': ' . json_encode($this->request), $method);
+            $this->logger->log(__(
+                'Pushing order #%s: %s',
+                $this->request['transaction_id'],
+                json_encode($this->request)
+            ), $method);
 
-            if ($method == 'POST') {
-                $response = $this->client->postResource('orders', $this->request);
-                $this->logger->log('Order #' . $this->request['transaction_id'] . ' created in TaxJar: ' . json_encode($response), 'api');
-            } else {
-                $response = $this->client->putResource('orders', $this->request['transaction_id'], $this->request);
-                $this->logger->log('Order #' . $this->request['transaction_id'] . ' updated in TaxJar: ' . json_encode($response), 'api');
-            }
+            $response = $this->makeRequest($httpMethod);
 
-            $this->originalOrder->setTjSalestaxSyncDate(gmdate('Y-m-d H:i:s'))->save();
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this->logger->log(__(
+                'Order #%s saved to TaxJar: %s',
+                $this->request['transaction_id'],
+                json_encode($response)
+            ), 'api');
+
+            $this->originalOrder->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'))->save();
+        } catch (LocalizedException $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
-
-            // Retry push for not found records using POST
-            if (!$forceMethod && $method == 'PUT' && $error && $error->status == 404) {
-                $this->logger->log('Attempting to create order #' . $this->request['transaction_id'], 'retry');
-                return $this->push('POST');
+            if ($error && !$method) {
+                $this->handleError($error, $httpMethod);
             }
+        }
+    }
 
-            // Retry push for existing records using PUT
-            if (!$forceMethod && $method == 'POST' && $error && $error->status == 422) {
-                $this->logger->log('Attempting to update order #' . $this->request['transaction_id'], 'retry');
-                return $this->push('PUT');
-            }
+    /**
+     * @param string $method
+     * @return array
+     * @throws LocalizedException
+     */
+    protected function makeRequest(string $method): array
+    {
+        switch ($method) {
+            case Request::METHOD_POST:
+                return $this->client->postResource('orders', $this->request);
+            case Request::METHOD_PUT:
+                return $this->client->putResource('orders', $this->request['transaction_id'], $this->request);
+            default:
+                throw new LocalizedException(
+                    __('Unhandled HTTP method "%s" in TaxJar order transaction sync.', $method)
+                );
+        }
+    }
+
+    protected function handleError($error, string $method): void
+    {
+        if ($method == Request::METHOD_POST && $error->status == Response::HTTP_UNPROCESSABLE_ENTITY) {
+            $retry = Request::METHOD_PUT;
+        }
+
+        if ($method == Request::METHOD_PUT && $error->status == Response::HTTP_NOT_FOUND) {
+            $retry = Request::METHOD_POST;
+        }
+
+        if (isset($retry)) {
+            $this->logger->log(__('Attempting to retry saving order #%s', $this->request['transaction_id']), 'retry');
+            $this->push($retry);
         }
     }
 
     /**
      * Determines if an order can be synced
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @return bool
      */
-    public function isSyncable(
-        \Magento\Sales\Model\Order $order
-    ) {
-        $states = ['complete', 'closed'];
+    public function isSyncable(OrderInterface $order): bool
+    {
+        return $this->stateIsSyncable($order)
+            && $this->currencyIsSyncable($order)
+            && $this->countryIsSyncable($order)
+            && $this->transactionSyncIsEnabled($order);
+    }
 
-        if (!($order instanceof \Magento\Framework\Model\AbstractModel)) {
-            return false;
-        }
+    protected function stateIsSyncable($order): bool
+    {
+        return in_array($order->getState(), self::SYNCABLE_STATES);
+    }
 
-        if (!in_array($order->getState(), $states)) {
-            return false;
-        }
+    protected function currencyIsSyncable($order): bool
+    {
+        return in_array($order->getOrderCurrencyCode(), self::SYNCABLE_CURRENCIES);
+    }
 
-        // USD currency orders for reporting only
-        if ($order->getOrderCurrencyCode() != 'USD') {
-            return false;
-        }
+    protected function countryIsSyncable(\Magento\Sales\Model\Order $order): bool
+    {
+        $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
+        return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
+    }
 
-        if ($order->getIsVirtual()) {
-            $address = $order->getBillingAddress();
-        } else {
-            $address = $order->getShippingAddress();
-        }
-
-        // US orders for reporting only
-        if ($address->getCountryId() != 'US') {
-            return false;
-        }
-
-        // Check if transaction sync is disabled at the store level OR at the store AND website levels
-        $storeSyncEnabled = $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
-        $websiteSyncEnabled = $this->helper->isTransactionSyncEnabled($order->getStore()->getWebsiteId(), 'website');
-
-        if (!$storeSyncEnabled || (!$websiteSyncEnabled && !$storeSyncEnabled)) {
-            return false;
-        }
-
-        return true;
+    protected function transactionSyncIsEnabled($order): bool
+    {
+        return $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
     }
 }

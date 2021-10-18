@@ -6,7 +6,7 @@
     <topic name="taxjar.backup_rates.create" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
         <handler name="taxjar.backup_rates.create" type="Taxjar\SalesTax\Model\Import\CreateRatesConsumer" method="process" />
     </topic>
-    <topic name="taxjar.transactions.backfill" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
-        <handler name="taxjar.transactions.backfill" type="Taxjar\SalesTax\Model\Transaction\Backfill" method="process" />
+    <topic name="taxjar.transactions.sync" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
+        <handler name="taxjar.transactions.sync" type="Taxjar\SalesTax\Model\Transaction\Backfill" method="process" />
     </topic>
 </config>

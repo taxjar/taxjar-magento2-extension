@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Taxjar\SalesTax\Observer;
 
 use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
+use Magento\AsynchronousOperations\Model\MassSchedule;
+use Magento\Authorization\Model\UserContextInterface;
 use Magento\Framework\Bulk\BulkManagementInterface;
 use Magento\Framework\DataObject\IdentityService;
 use Magento\Framework\Event\Observer;
@@ -17,41 +19,17 @@ abstract class AsynchronousObserver implements ObserverInterface
     use SchedulesOperations;
 
     /**
-     * @var IdentityService
+     * @var MassSchedule
      */
-    protected $identityService;
+    protected $massSchedule;
 
     /**
-     * @var OperationInterfaceFactory
-     */
-    protected $operationInterfaceFactory;
-
-    /**
-     * @var SerializerInterface
-     */
-    protected $serializer;
-
-    /**
-     * @var BulkManagementInterface
-     */
-    protected $bulkManagement;
-
-    /**
-     * @param IdentityService $identityService
-     * @param OperationInterfaceFactory $operationInterfaceFactory
-     * @param SerializerInterface $serializer
-     * @param BulkManagementInterface $bulkManagement
+     * @param MassSchedule $massSchedule
      */
     public function __construct(
-        IdentityService $identityService,
-        OperationInterfaceFactory $operationInterfaceFactory,
-        SerializerInterface $serializer,
-        BulkManagementInterface $bulkManagement
+        MassSchedule $massSchedule
     ) {
-        $this->identityService = $identityService;
-        $this->operationInterfaceFactory = $operationInterfaceFactory;
-        $this->serializer = $serializer;
-        $this->bulkManagement = $bulkManagement;
+        $this->massSchedule = $massSchedule;
     }
 
     public function execute(Observer $observer): void
@@ -60,23 +38,8 @@ abstract class AsynchronousObserver implements ObserverInterface
         $this->schedule(...$data);
     }
 
-    protected function getIdentityService(): IdentityService
+    protected function getMassSchedule(): MassSchedule
     {
-        return $this->identityService;
-    }
-
-    protected function getOperationFactory(): OperationInterfaceFactory
-    {
-        return $this->operationInterfaceFactory;
-    }
-
-    protected function getSerializerInterface(): SerializerInterface
-    {
-        return $this->serializer;
-    }
-
-    protected function getBulkManagementInterface(): BulkManagementInterface
-    {
-        return $this->bulkManagement;
+        return $this->massSchedule;
     }
 }
