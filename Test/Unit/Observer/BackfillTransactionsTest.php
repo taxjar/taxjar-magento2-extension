@@ -126,7 +126,7 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->searchCriteriaBuilder->expects($this->exactly(1))->method('create')->willReturn($mockCriteria);
 
         $sut = $this->getTestSubject();
-        $result = $sut->getSearchCriteria([]);
+        $result = $sut->getSearchCriteria();
 
         self::assertInstanceOf(SearchCriteria::class, $result);
     }

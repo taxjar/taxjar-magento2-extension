@@ -115,10 +115,10 @@ class Transaction
     /**
      * Check if a transaction is synced
      *
-     * @param string $syncDate
+     * @param string|null $syncDate
      * @return bool
      */
-    protected function isSynced(string $syncDate): bool
+    protected function isSynced(?string $syncDate): bool
     {
         return ! (empty($syncDate) || $syncDate == '0000-00-00 00:00:00');
     }

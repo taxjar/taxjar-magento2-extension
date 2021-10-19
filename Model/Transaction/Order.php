@@ -82,13 +82,11 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     }
 
     /**
-     * Push an order transaction to SmartCalcs
-     *
+     * @param bool $forceFlag
      * @param string|null $method
-     * @return void
      * @throws LocalizedException
      */
-    public function push(string $method = null) {
+    public function push(bool $forceFlag = false, string $method = null) {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
         $orderSyncedAt = $this->originalOrder->getData('tj_salestax_sync_date');
 
@@ -96,8 +94,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             $this->client->setApiKey($this->apiKey);
         }
 
-        if ($orderUpdatedAt >= $orderSyncedAt) {
-            if ($method) {
+        if ($orderUpdatedAt <= $orderSyncedAt) {
+            if ($forceFlag) {
                 $this->logger->log('Forced update of Order #' . $this->request['transaction_id'], 'api');
             } else {
                 $this->logger->log('Order #' . $this->request['transaction_id'] . ' not updated since last sync', 'skip');
@@ -181,23 +179,23 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             && $this->transactionSyncIsEnabled($order);
     }
 
-    protected function stateIsSyncable($order): bool
+    protected function stateIsSyncable(OrderInterface $order): bool
     {
         return in_array($order->getState(), self::SYNCABLE_STATES);
     }
 
-    protected function currencyIsSyncable($order): bool
+    protected function currencyIsSyncable(OrderInterface $order): bool
     {
         return in_array($order->getOrderCurrencyCode(), self::SYNCABLE_CURRENCIES);
     }
 
-    protected function countryIsSyncable(\Magento\Sales\Model\Order $order): bool
+    protected function countryIsSyncable(OrderInterface $order): bool
     {
         $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
         return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
     }
 
-    protected function transactionSyncIsEnabled($order): bool
+    protected function transactionSyncIsEnabled(OrderInterface$order): bool
     {
         return $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
     }

@@ -20,17 +20,19 @@ namespace Taxjar\SalesTax\Model\Transaction;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Magento\Sales\Model\Order\Creditmemo;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Refund extends \Taxjar\SalesTax\Model\Transaction
 {
     /**
-     * @var OrderInterface
+     * @var OrderInterface|\Magento\Sales\Model\Order
      */
     protected $originalOrder;
 
     /**
-     * @var CreditmemoInterface
+     * @var CreditmemoInterface|Creditmemo
      */
     protected $originalRefund;
 
@@ -115,70 +117,81 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         return $this->request;
     }
 
-    /**
-     * Push refund transaction to SmartCalcs
-     *
-     * @param string|null $forceMethod
-     * @return void
-     * @throws LocalizedException
-     */
-    public function push($forceMethod = null) {
+    public function push(bool $forceFlag = false, string $method = null)
+    {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
-        $refundSyncedAt = $this->originalRefund->getTjSalestaxSyncDate();
-        $this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId());
+        $refundSyncedAt = $this->originalRefund->getData('tj_salestax_sync_date');
 
-        if (!$this->isSynced($refundSyncedAt)) {
-            $method = 'POST';
-        } else {
-            if ($refundSyncedAt < $refundUpdatedAt) {
-                $method = 'PUT';
+        if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
+            $this->client->setApiKey($this->apiKey);
+        }
+
+        if ($refundUpdatedAt <= $refundSyncedAt) {
+            if ($forceFlag) {
+                $this->logger->log('Forced update of Refund #' . $this->request['transaction_id'], 'api');
             } else {
                 $this->logger->log('Refund #' . $this->request['transaction_id']
-                                        . ' for order #' . $this->request['transaction_reference_id']
-                                        . ' not updated since last sync', 'skip');
+                    . ' for order #' . $this->request['transaction_reference_id']
+                    . ' not updated since last sync', 'skip');
                 return;
             }
         }
 
-        if ($this->apiKey) {
-            $this->client->setApiKey($this->apiKey);
-        }
-
-        if ($forceMethod) {
-            $method = $forceMethod;
-        }
+        $httpMethod = $method ?: ($this->isSynced($refundSyncedAt) ? Request::METHOD_PUT : Request::METHOD_POST);
 
         try {
             $this->logger->log('Pushing refund / credit memo #' . $this->request['transaction_id']
-                                    . ' for order #' . $this->request['transaction_reference_id']
-                                    . ': ' . json_encode($this->request), $method);
+                . ' for order #' . $this->request['transaction_reference_id']
+                . ': ' . json_encode($this->request), $method);
 
-            if ($method == 'POST') {
-                $response = $this->client->postResource('refunds', $this->request);
-                $this->logger->log('Refund #' . $this->request['transaction_id'] . ' created: ' . json_encode($response), 'api');
-            } else {
-                $response = $this->client->putResource('refunds', $this->request['transaction_id'], $this->request);
-                $this->logger->log('Refund #' . $this->request['transaction_id'] . ' updated: ' . json_encode($response), 'api');
-            }
+            $response = $this->makeRequest($httpMethod);
 
-            $this->originalRefund->setTjSalestaxSyncDate(gmdate('Y-m-d H:i:s'));
+            $this->logger->log(
+                sprintf('Refund #%s saved: %s', $this->request['transaction_id'], json_encode($response)),
+                'api'
+            );
+
+            $this->originalRefund->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
             $this->originalRefund->getResource()->saveAttribute($this->originalRefund, 'tj_salestax_sync_date');
-
-        } catch (LocalizedException $e) {
+        } catch (\Exception $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
-
-            // Retry push for not found records using POST
-            if (!$forceMethod && $method == 'PUT' && $error && $error->status == 404) {
-                $this->logger->log('Attempting to create refund / credit memo #' . $this->request['transaction_id'], 'retry');
-                return $this->push('POST');
+            if ($error && !$method) {
+                $this->handleError($error, $httpMethod);
             }
+        }
+    }
 
-            // Retry push for existing records using PUT
-            if (!$forceMethod && $method == 'POST' && $error && $error->status == 422) {
-                $this->logger->log('Attempting to update refund / credit memo #' . $this->request['transaction_id'], 'retry');
-                return $this->push('PUT');
-            }
+    protected function makeRequest(string $method): array
+    {
+        switch ($method) {
+            case Request::METHOD_POST:
+                return $this->client->postResource('refunds', $this->request);
+            case Request::METHOD_PUT:
+                return $this->client->putResource('refunds', $this->request['transaction_id'], $this->request);
+            default:
+                throw new LocalizedException(
+                    __('Unhandled HTTP method "%s" in TaxJar refund transaction sync.', $method)
+                );
+        }
+    }
+
+    protected function handleError($error, string $method): void
+    {
+        if ($method == Request::METHOD_POST && $error->status == Response::HTTP_UNPROCESSABLE_ENTITY) {
+            $retry = Request::METHOD_PUT;
+        }
+
+        if ($method == Request::METHOD_PUT && $error->status == Response::HTTP_NOT_FOUND) {
+            $retry = Request::METHOD_POST;
+        }
+
+        if (isset($retry)) {
+            $this->logger->log(
+                sprintf('Attempting to retry saving refund / credit memo #%s', $this->request['transaction_id']),
+                'retry'
+            );
+            $this->push($retry);
         }
     }
 }

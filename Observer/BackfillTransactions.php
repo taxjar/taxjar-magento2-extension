@@ -145,6 +145,10 @@ class BackfillTransactions implements ObserverInterface
         $this->userContext = $userContext;
     }
 
+    /**
+     * @param Observer $observer
+     * @throws LocalizedException
+     */
     public function execute(Observer $observer): void
     {
         $this->apiKey = $this->taxjarConfig->getApiKey();
@@ -160,7 +164,7 @@ class BackfillTransactions implements ObserverInterface
         $criteria = $this->getSearchCriteria($observer->getData());
         $orderResult = $this->orderRepository->getList($criteria);
 
-        $this->logger->log(__('%s transaction(s) found', $orderResult->getTotalCount()));
+        $this->logger->log(sprintf('%s transaction(s) found', $orderResult->getTotalCount()));
 
         $orderIds = $this->getOrderIds($orderResult->getItems());
         $orderIdsChunks = array_chunk($orderIds, self::BATCH_SIZE);
@@ -169,7 +173,10 @@ class BackfillTransactions implements ObserverInterface
         $operations = [];
 
         foreach ($orderIdsChunks as $orderIdsChunk) {
-            $operations[] = $this->makeOperation($bulkUuid, $orderIdsChunk);
+            $operations[] = $this->makeOperation($bulkUuid, [
+                'orderIds' => $orderIdsChunk,
+                'force' => $observer->getData('force'),
+            ]);
         }
 
         if (!empty($operations)) {
@@ -184,11 +191,16 @@ class BackfillTransactions implements ObserverInterface
                     __('Something went wrong while processing the request.')
                 );
             }
-            $this->logger->log(__('Action scheduled. Bulk UUID: %s %s', $bulkUuid, PHP_EOL));
+            $this->logger->log(sprintf('Action scheduled. Bulk UUID: %s %s', $bulkUuid, PHP_EOL));
         }
     }
 
-    public function getSearchCriteria($data): SearchCriteria
+    /**
+     * @param array $data
+     * @return SearchCriteria
+     * @throws LocalizedException
+     */
+    public function getSearchCriteria(array $data = []): SearchCriteria
     {
         $fromDate = $data['from_date'] ?? $this->request->getParam('from_date');
         $toDate = $data['to_date'] ?? $this->request->getParam('to_date');
@@ -227,7 +239,7 @@ class BackfillTransactions implements ObserverInterface
         }
 
         $this->logger->log(
-            __(
+            sprintf(
                 'Finding transactions with statuses of %s from %s - %s',
                 implode(', ', self::SYNCABLE_STATUSES),
                 $fromDate->format('m/d/Y'),
@@ -244,6 +256,10 @@ class BackfillTransactions implements ObserverInterface
             ->create();
     }
 
+    /**
+     * @param string $state
+     * @return Filter
+     */
     protected function getOrderStateFilter(string $state): Filter
     {
         return $this->filterBuilder->setField('state')
@@ -252,6 +268,10 @@ class BackfillTransactions implements ObserverInterface
             ->create();
     }
 
+    /**
+     * @param $websiteId
+     * @return array
+     */
     protected function getWebsiteStoreIds($websiteId): array
     {
         $storeIds = [];
@@ -265,6 +285,10 @@ class BackfillTransactions implements ObserverInterface
         return $storeIds;
     }
 
+    /**
+     * @param array $orders
+     * @return array
+     */
     protected function getOrderIds(array $orders): array
     {
         return array_map(function ($order) {
@@ -272,6 +296,11 @@ class BackfillTransactions implements ObserverInterface
         }, $orders);
     }
 
+    /**
+     * @param string $bulkUuid
+     * @param $body
+     * @return OperationInterface
+     */
     protected function makeOperation(
         string $bulkUuid,
         $body

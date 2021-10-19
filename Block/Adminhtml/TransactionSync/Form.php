@@ -103,6 +103,16 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
+        $fieldset->addField(
+            'force',
+            'checkbox',
+            [
+                'name' => 'force',
+                'label' => __('Force'),
+                'title' => __('Force'),
+            ]
+        );
+
         $form->setAction('#');
         $form->setUseContainer(true);
         $form->setId(self::FORM_ELEMENT_ID);

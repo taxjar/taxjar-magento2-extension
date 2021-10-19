@@ -12,9 +12,7 @@ use Magento\Sales\Model\Order;
 use Taxjar\SalesTax\Model\Transaction\Backfill;
 use \Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
 use Taxjar\SalesTax\Model\Logger;
-use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\Refund;
-use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
 class BackfillTest extends UnitTestCase
@@ -59,15 +57,42 @@ class BackfillTest extends UnitTestCase
         $this->logger->expects($this->once())->method('force')->willReturnSelf();
     }
 
+    public function testInvalidOperationDataThrowsException()
+    {
+        $operation = $this->createMock(OperationInterface::class);
+        $operation->expects($this->any())->method('getSerializedData')
+            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => false]]");
+
+        $this->serializer->expects($this->any())->method('unserialize')->willReturn([
+            'meta_information' => [
+                'force' => false,
+            ],
+        ]);
+
+        $this->logger->expects($this->any())->method('log')->with(
+            'Error syncing order #UNKNOWN - Operation data could not be parsed. Required array key `orderIds` does not exist.',
+            'error'
+        );
+
+        $sut = $this->getTestSubject();
+        $sut->process($operation);
+    }
+
     public function testProcessLogsNonSyncableOrder()
     {
         $mockOrder = $this->createMock(Order::class);
         $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
 
         $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')->willReturn("['meta_information' => 'some values']");
+        $operation->expects($this->any())->method('getSerializedData')
+            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => false]]");
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn(['meta_information' => ['9']]);
+        $this->serializer->expects($this->any())->method('unserialize')->willReturn([
+            'meta_information' => [
+                'orderIds' => ['9'],
+                'force' => false,
+            ],
+        ]);
         $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
         $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(false);
 
@@ -86,16 +111,24 @@ class BackfillTest extends UnitTestCase
         $mockOrder->expects($this->any())->method('getCreditmemosCollection')->willReturn([$mockCreditmemo]);
 
         $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')->willReturn(null);
+        $operation->expects($this->any())->method('getSerializedData')
+            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => false]]");
         $operation->expects($this->any())->method('setStatus')->with(1)->willReturnSelf();
         $operation->expects($this->any())->method('setErrorCode')->with(null)->willReturnSelf();
         $operation->expects($this->any())->method('setResultMessage')->with(null)->willReturnSelf();
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn(['meta_information' => ['9']]);
+        $this->serializer->expects($this->any())->method('unserialize')
+            ->willReturn([
+                'meta_information' => [
+                    'orderIds' => ['9'],
+                    'force' => false,
+                ],
+            ]);
+
         $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
         $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(true);
         $this->orderTransaction->expects($this->any())->method('build')->with($mockOrder);
-        $this->orderTransaction->expects($this->any())->method('push');
+        $this->orderTransaction->expects($this->any())->method('push')->with(false);
         $this->refundTransaction->expects($this->any())->method('build')->with($mockOrder, $mockCreditmemo);
         $this->refundTransaction->expects($this->any())->method('push');
 
@@ -108,14 +141,57 @@ class BackfillTest extends UnitTestCase
     public function testProcessLogsCaughtException()
     {
         $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')->willReturn("['meta_information' => ['9']");
+        $operation->expects($this->any())->method('getSerializedData')->willReturn("['meta_information' => ['orderIds' => ['9']]]");
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn(['meta_information' => ['9']]);
+        $this->serializer->expects($this->any())->method('unserialize')
+            ->willReturn([
+                'meta_information' => [
+                    'orderIds' => ['9'],
+                    'force' => false,
+                ],
+            ]);
+
         $this->orderRepository->expects($this->any())->method('get')->with('9')
             ->willThrowException(new \Exception('testing'));
 
         $this->logger->expects($this->any())->method('log')
             ->with('Error syncing order #9 - testing', 'error');
+
+        $sut = $this->getTestSubject();
+        $sut->process($operation);
+    }
+
+    public function testProcessForceNonSyncableOrder()
+    {
+        $mockCreditmemo = $this->createMock(Order\Creditmemo::class);
+
+        $mockOrder = $this->createMock(Order::class);
+        $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
+        $mockOrder->expects($this->any())->method('getCreditmemosCollection')->willReturn([$mockCreditmemo]);
+
+        $operation = $this->createMock(OperationInterface::class);
+        $operation->expects($this->any())->method('getSerializedData')
+            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => true]]");
+        $operation->expects($this->any())->method('setStatus')->with(1)->willReturnSelf();
+        $operation->expects($this->any())->method('setErrorCode')->with(null)->willReturnSelf();
+        $operation->expects($this->any())->method('setResultMessage')->with(null)->willReturnSelf();
+
+        $this->serializer->expects($this->any())->method('unserialize')
+            ->willReturn([
+                'meta_information' => [
+                    'orderIds' => ['9'],
+                    'force' => true,
+                ],
+            ]);
+
+        $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
+        $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(false);
+        $this->orderTransaction->expects($this->any())->method('build')->with($mockOrder);
+        $this->orderTransaction->expects($this->any())->method('push')->with(true);
+        $this->refundTransaction->expects($this->any())->method('build')->with($mockOrder, $mockCreditmemo);
+        $this->refundTransaction->expects($this->any())->method('push');
+
+        $this->entityManager->expects($this->any())->method('save');
 
         $sut = $this->getTestSubject();
         $sut->process($operation);
