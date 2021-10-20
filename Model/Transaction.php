@@ -219,7 +219,7 @@ class Transaction
 
             $parentItem = $item->getParentItem();
             $unitPrice = (float) $item->getPrice();
-            $quantity = (int) $item->getQtyOrdered();
+            $quantity = (int) $item->getQtyInvoiced();
 
             if ($type == 'refund' && isset($creditMemoItem)) {
                 $quantity = (int) $creditMemoItem->getQty();
