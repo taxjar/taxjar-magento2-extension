@@ -43,12 +43,12 @@ class Backfill
     /**
      * @var Order
      */
-    private $orderTransaction;
+    protected $orderTransaction;
 
     /**
      * @var Refund
      */
-    private $refundTransaction;
+    protected $refundTransaction;
 
     /**
      * @var \Taxjar\SalesTax\Model\Logger
@@ -106,23 +106,23 @@ class Backfill
     public function process(OperationInterface $operation): void
     {
         try {
-            [$orderIds, $forced] = $this->getOperationData($operation);
+            [$orderIds, $forceFlag] = $this->getOperationData($operation);
             foreach ($orderIds as $orderId) {
                 $order = $this->orderRepository->get($orderId);
 
-                if (! $this->orderTransaction->isSyncable($order)) {
+                if (!$this->orderTransaction->isSyncable($order)) {
                     $this->logger->log('Order #' . $orderId . ' is not syncable', 'skip');
                     continue;
                 }
 
                 $this->orderTransaction->build($order);
-                $this->orderTransaction->push($forced);
+                $this->orderTransaction->push($forceFlag);
 
                 $creditMemos = $order->getCreditmemosCollection();
 
                 foreach ($creditMemos as $creditMemo) {
                     $this->refundTransaction->build($order, $creditMemo);
-                    $this->refundTransaction->push($forced);
+                    $this->refundTransaction->push($forceFlag);
                 }
             }
             $this->success($operation);

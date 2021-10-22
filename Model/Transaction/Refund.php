@@ -117,6 +117,13 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         return $this->request;
     }
 
+    /**
+     * Sends the current member's $request property via client.
+     *
+     * @param bool $forceFlag Ignore last updated and synced dates
+     * @param string|null $method Optionally specify HTTP method
+     * @throws LocalizedException
+     */
     public function push(bool $forceFlag = false, string $method = null)
     {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
@@ -157,11 +164,18 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
             if ($error && !$method) {
-                $this->handleError($error, $httpMethod);
+                $this->handleError($error, $httpMethod, $forceFlag);
             }
         }
     }
 
+    /**
+     * Uses TaxJar Client class to call API
+     *
+     * @param string $method HTTP method to use for request
+     * @return array Client response data array
+     * @throws LocalizedException
+     */
     protected function makeRequest(string $method): array
     {
         switch ($method) {
@@ -176,7 +190,16 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         }
     }
 
-    protected function handleError($error, string $method): void
+    /**
+     * Handles case where error occurs when POSTing a resource that already
+     * exists of PUTing a resource that has not been created yet.
+     *
+     * @param object $error `jsonDecode()`ed response error message object
+     * @param string $method HTTP method used in request
+     * @param bool $forceFlag Request ignores last updated and synced dates
+     * @throws LocalizedException
+     */
+    protected function handleError($error, string $method, bool $forceFlag): void
     {
         if ($method == Request::METHOD_POST && $error->status == Response::HTTP_UNPROCESSABLE_ENTITY) {
             $retry = Request::METHOD_PUT;
@@ -191,7 +214,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                 sprintf('Attempting to retry saving refund / credit memo #%s', $this->request['transaction_id']),
                 'retry'
             );
-            $this->push($retry);
+            $this->push($forceFlag, $retry);
         }
     }
 }

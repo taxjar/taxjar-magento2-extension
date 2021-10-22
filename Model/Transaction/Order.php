@@ -106,26 +106,32 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         $httpMethod = $method ?: ($this->isSynced($orderSyncedAt) ? Request::METHOD_PUT : Request::METHOD_POST);
 
         try {
-            $this->logger->log(__(
+            $this->logger->log(
+                sprintf(
                 'Pushing order #%s: %s',
-                $this->request['transaction_id'],
-                json_encode($this->request)
-            ), $method);
+                    $this->request['transaction_id'],
+                    json_encode($this->request)
+                ),
+                $httpMethod
+            );
 
             $response = $this->makeRequest($httpMethod);
 
-            $this->logger->log(__(
-                'Order #%s saved to TaxJar: %s',
-                $this->request['transaction_id'],
-                json_encode($response)
-            ), 'api');
+            $this->logger->log(
+                sprintf(
+                    'Order #%s saved to TaxJar: %s',
+                    $this->request['transaction_id'],
+                    json_encode($response)
+                ),
+                'api'
+            );
 
             $this->originalOrder->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'))->save();
         } catch (LocalizedException $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
             if ($error && !$method) {
-                $this->handleError($error, $httpMethod);
+                $this->handleError($error, $httpMethod, $forceFlag);
             }
         }
     }
@@ -149,7 +155,13 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         }
     }
 
-    protected function handleError($error, string $method): void
+    /**
+     * @param $error
+     * @param string $method
+     * @param bool $forceFlag
+     * @throws LocalizedException
+     */
+    protected function handleError($error, string $method, bool $forceFlag): void
     {
         if ($method == Request::METHOD_POST && $error->status == Response::HTTP_UNPROCESSABLE_ENTITY) {
             $retry = Request::METHOD_PUT;
@@ -160,8 +172,11 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         }
 
         if (isset($retry)) {
-            $this->logger->log(__('Attempting to retry saving order #%s', $this->request['transaction_id']), 'retry');
-            $this->push($retry);
+            $this->logger->log(
+                sprintf('Attempting to retry saving order #%s', $this->request['transaction_id']),
+                'retry'
+            );
+            $this->push($forceFlag, $retry);
         }
     }
 
@@ -195,7 +210,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
     }
 
-    protected function transactionSyncIsEnabled(OrderInterface$order): bool
+    protected function transactionSyncIsEnabled(OrderInterface $order): bool
     {
         return $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
     }

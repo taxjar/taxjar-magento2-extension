@@ -17,6 +17,7 @@ class SyncTransactionsCommand extends Command
     const FROM_ARGUMENT = '<from>';
     const TO_ARGUMENT = '<to>';
     const OPTION_FORCE = 'force';
+    const OPTION_FORCE_SHORT = 'f';
 
     /**
      * @var \Magento\Framework\App\State
@@ -66,7 +67,7 @@ class SyncTransactionsCommand extends Command
             ->setDescription('Sync transactions from Magento to TaxJar')
             ->addArgument(self::FROM_ARGUMENT, InputArgument::OPTIONAL)
             ->addArgument(self::TO_ARGUMENT, InputArgument::OPTIONAL)
-            ->addOption(self::OPTION_FORCE, 'f');
+            ->addOption(self::OPTION_FORCE, self::OPTION_FORCE_SHORT);
     }
 
     /**
