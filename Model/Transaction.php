@@ -19,7 +19,6 @@ namespace Taxjar\SalesTax\Model;
 
 use Magento\Bundle\Model\Product\Price;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -250,8 +249,13 @@ class Transaction
             }
 
             $itemId = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
-            $discount = (float) $item->getDiscountAmount();
-            $tax = (float) $item->getTaxAmount();
+            $discount = (float) $item->getDiscountInvoiced();
+            $tax = (float) $item->getTaxInvoiced();
+
+            if ($type == 'refund' && isset($creditMemoItem)) {
+                $discount = (float) $creditMemoItem->getDiscountAmount();
+                $tax = (float) $creditMemoItem->getTaxAmount();
+            }
 
             if (isset($parentDiscounts[$itemId])) {
                 $discount = $parentDiscounts[$itemId] ?: $discount;
