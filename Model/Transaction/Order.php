@@ -21,6 +21,7 @@ use DateTime;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\AbstractModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -33,7 +34,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     protected const SYNCABLE_COUNTRIES = ['US'];
 
     /**
-     * @var OrderInterface
+     * @var OrderInterface|AbstractModel
      */
     protected $originalOrder;
 
@@ -126,7 +127,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
                 'api'
             );
 
-            $this->originalOrder->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'))->save();
+            $this->originalOrder->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
+            $this->originalOrder->getResource()->saveAttribute($this->originalOrder, 'tj_salestax_sync_date');
         } catch (LocalizedException $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());

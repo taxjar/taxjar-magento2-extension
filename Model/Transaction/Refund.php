@@ -192,7 +192,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
 
     /**
      * Handles case where error occurs when POSTing a resource that already
-     * exists of PUTing a resource that has not been created yet.
+     * exists or PUTing a resource that has not been created yet.
      *
      * @param object $error `jsonDecode()`ed response error message object
      * @param string $method HTTP method used in request

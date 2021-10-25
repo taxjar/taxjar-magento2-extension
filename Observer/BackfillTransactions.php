@@ -29,7 +29,10 @@ use Magento\Framework\DataObject\IdentityGeneratorInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\AbstractModel;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManager;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
@@ -166,7 +169,7 @@ class BackfillTransactions implements ObserverInterface
 
         $this->logger->log(sprintf('%s transaction(s) found', $orderResult->getTotalCount()));
 
-        $orderIds = $this->getOrderIds($orderResult->getItems());
+        $orderIds = array_map([$this, 'getEntityId'], $orderResult->getItems());
         $orderIdsChunks = array_chunk($orderIds, self::BATCH_SIZE);
         $bulkUuid = $this->identityService->generateId();
         $bulkDescription = __('TaxJar Transaction Sync Backfill');
@@ -175,7 +178,7 @@ class BackfillTransactions implements ObserverInterface
         foreach ($orderIdsChunks as $orderIdsChunk) {
             $operations[] = $this->makeOperation($bulkUuid, [
                 'orderIds' => $orderIdsChunk,
-                'force' => $observer->getData('force'),
+                'force' => (bool) ($observer->getData('force') ?? $this->request->getParam('force')),
             ]);
         }
 
@@ -286,14 +289,12 @@ class BackfillTransactions implements ObserverInterface
     }
 
     /**
-     * @param array $orders
-     * @return array
+     * @param AbstractModel $object
+     * @return int|null
      */
-    protected function getOrderIds(array $orders): array
+    protected function getEntityId($object): ?int
     {
-        return array_map(function ($order) {
-            return $order->getIncrementId();
-        }, $orders);
+        return $object->getEntityId();
     }
 
     /**
