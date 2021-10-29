@@ -29,7 +29,10 @@ use Magento\Framework\DataObject\IdentityGeneratorInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\AbstractModel;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManager;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
@@ -145,6 +148,10 @@ class BackfillTransactions implements ObserverInterface
         $this->userContext = $userContext;
     }
 
+    /**
+     * @param Observer $observer
+     * @throws LocalizedException
+     */
     public function execute(Observer $observer): void
     {
         $this->apiKey = $this->taxjarConfig->getApiKey();
@@ -160,16 +167,19 @@ class BackfillTransactions implements ObserverInterface
         $criteria = $this->getSearchCriteria($observer->getData());
         $orderResult = $this->orderRepository->getList($criteria);
 
-        $this->logger->log(__('%s transaction(s) found', $orderResult->getTotalCount()));
+        $this->logger->log(sprintf('%s transaction(s) found', $orderResult->getTotalCount()));
 
-        $orderIds = $this->getOrderIds($orderResult->getItems());
+        $orderIds = array_map([$this, 'getEntityId'], $orderResult->getItems());
         $orderIdsChunks = array_chunk($orderIds, self::BATCH_SIZE);
         $bulkUuid = $this->identityService->generateId();
         $bulkDescription = __('TaxJar Transaction Sync Backfill');
         $operations = [];
 
         foreach ($orderIdsChunks as $orderIdsChunk) {
-            $operations[] = $this->makeOperation($bulkUuid, $orderIdsChunk);
+            $operations[] = $this->makeOperation($bulkUuid, [
+                'orderIds' => $orderIdsChunk,
+                'force' => (bool) ($observer->getData('force') ?? $this->request->getParam('force')),
+            ]);
         }
 
         if (!empty($operations)) {
@@ -184,11 +194,16 @@ class BackfillTransactions implements ObserverInterface
                     __('Something went wrong while processing the request.')
                 );
             }
-            $this->logger->log(__('Action scheduled. Bulk UUID: %s %s', $bulkUuid, PHP_EOL));
+            $this->logger->log(sprintf('Action scheduled. Bulk UUID: %s %s', $bulkUuid, PHP_EOL));
         }
     }
 
-    public function getSearchCriteria($data): SearchCriteria
+    /**
+     * @param array $data
+     * @return SearchCriteria
+     * @throws LocalizedException
+     */
+    public function getSearchCriteria(array $data = []): SearchCriteria
     {
         $fromDate = $data['from_date'] ?? $this->request->getParam('from_date');
         $toDate = $data['to_date'] ?? $this->request->getParam('to_date');
@@ -227,7 +242,7 @@ class BackfillTransactions implements ObserverInterface
         }
 
         $this->logger->log(
-            __(
+            sprintf(
                 'Finding transactions with statuses of %s from %s - %s',
                 implode(', ', self::SYNCABLE_STATUSES),
                 $fromDate->format('m/d/Y'),
@@ -244,6 +259,10 @@ class BackfillTransactions implements ObserverInterface
             ->create();
     }
 
+    /**
+     * @param string $state
+     * @return Filter
+     */
     protected function getOrderStateFilter(string $state): Filter
     {
         return $this->filterBuilder->setField('state')
@@ -252,6 +271,10 @@ class BackfillTransactions implements ObserverInterface
             ->create();
     }
 
+    /**
+     * @param $websiteId
+     * @return array
+     */
     protected function getWebsiteStoreIds($websiteId): array
     {
         $storeIds = [];
@@ -265,13 +288,20 @@ class BackfillTransactions implements ObserverInterface
         return $storeIds;
     }
 
-    protected function getOrderIds(array $orders): array
+    /**
+     * @param AbstractModel $object
+     * @return int|null
+     */
+    protected function getEntityId($object): ?int
     {
-        return array_map(function ($order) {
-            return $order->getIncrementId();
-        }, $orders);
+        return $object->getEntityId();
     }
 
+    /**
+     * @param string $bulkUuid
+     * @param $body
+     * @return OperationInterface
+     */
     protected function makeOperation(
         string $bulkUuid,
         $body

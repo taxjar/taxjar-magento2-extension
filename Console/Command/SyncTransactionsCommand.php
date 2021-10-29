@@ -16,6 +16,8 @@ class SyncTransactionsCommand extends Command
 {
     const FROM_ARGUMENT = '<from>';
     const TO_ARGUMENT = '<to>';
+    const OPTION_FORCE = 'force';
+    const OPTION_FORCE_SHORT = 'f';
 
     /**
      * @var \Magento\Framework\App\State
@@ -64,7 +66,8 @@ class SyncTransactionsCommand extends Command
         $this->setName('taxjar:transactions:sync')
             ->setDescription('Sync transactions from Magento to TaxJar')
             ->addArgument(self::FROM_ARGUMENT, InputArgument::OPTIONAL)
-            ->addArgument(self::TO_ARGUMENT, InputArgument::OPTIONAL);
+            ->addArgument(self::TO_ARGUMENT, InputArgument::OPTIONAL)
+            ->addOption(self::OPTION_FORCE, self::OPTION_FORCE_SHORT);
     }
 
     /**
@@ -80,12 +83,11 @@ class SyncTransactionsCommand extends Command
         try {
             $this->state->setAreaCode('adminhtml');
             $this->logger->console($output);
-            $this->backfillTransactions->execute(
-                new Observer([
-                    'from_date' => $input->getArgument(self::FROM_ARGUMENT),
-                    'to_date' => $input->getArgument(self::TO_ARGUMENT)
-                ])
-            );
+            $this->backfillTransactions->execute(new Observer([
+                'from_date' => $input->getArgument(self::FROM_ARGUMENT),
+                'to_date' => $input->getArgument(self::TO_ARGUMENT),
+                'force' => (bool) $input->getOption(self::OPTION_FORCE)
+            ]));
         } catch (\Exception $e) {
             $output->writeln(PHP_EOL . '<error>Failed to sync transactions: ' . $e->getMessage() . '</error>');
         }

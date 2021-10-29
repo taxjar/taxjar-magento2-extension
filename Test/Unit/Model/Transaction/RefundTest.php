@@ -7,6 +7,10 @@ namespace Taxjar\SalesTax\Test\Unit\Model\Transaction;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Taxjar\SalesTax\Model\Logger;
+use Taxjar\SalesTax\Model\Transaction\Refund;
 use Taxjar\SalesTax\Model\Transaction\Refund as TaxjarRefund;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
@@ -22,26 +26,10 @@ class RefundTest extends UnitTestCase
      */
     private $mockCreditMemo;
 
-    public function setUp(): void
-    {
-        $this->mockOrder = $this->createMock(Order::class);
-        $this->mockOrder->expects($this->once())->method('getIncrementId')->willReturn('99999');
-
-        $this->mockCreditMemo = $this->createMock(Creditmemo::class);
-        $this->mockCreditMemo->expects($this->once())->method('getSubtotal')->willReturn(30);
-        $this->mockCreditMemo->expects($this->once())->method('getShippingAmount')->willReturn(5);
-        $this->mockCreditMemo->expects($this->once())->method('getDiscountAmount')->willReturn(3);
-        $this->mockCreditMemo->expects($this->once())->method('getTaxAmount')->willReturn(2.5);
-        $this->mockCreditMemo->expects($this->once())->method('getAdjustment')->willReturn(0);
-        $this->mockCreditMemo->expects($this->once())->method('getIncrementId')->willReturn('999');
-        $this->mockCreditMemo->expects($this->once())->method('getCreatedAt')->willReturn('2021-01-01');
-        $this->mockCreditMemo->expects($this->once())->method('getAllItems')->willReturn([]);
-        $this->mockCreditMemo->expects($this->once())->method('getAdjustmentNegative')->willReturn(0);
-        $this->mockCreditMemo->expects($this->once())->method('getAdjustmentPositive')->willReturn(15);
-    }
-
     public function testBuildReturnsArray()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -52,6 +40,8 @@ class RefundTest extends UnitTestCase
 
     public function testBuildPayloadContainsOrderAndCreditMemoData()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -71,6 +61,8 @@ class RefundTest extends UnitTestCase
 
     public function testBuildPayloadContainsFromAddress()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -86,6 +78,8 @@ class RefundTest extends UnitTestCase
 
     public function testBuildPayloadContainsToAddress()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -101,6 +95,8 @@ class RefundTest extends UnitTestCase
 
     public function testBuildPayloadContainsArrayKeyLineItemsAsArray()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -112,6 +108,8 @@ class RefundTest extends UnitTestCase
 
     public function testBuildPayloadContainsOrderLineItems()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -130,6 +128,8 @@ class RefundTest extends UnitTestCase
 
     public function testBuildPayloadContainsAdjustmentLineItem()
     {
+        $this->setBuildRefundExpectations();
+
         /** @var TaxjarRefund|MockObject $sut */
         $sut = $this->getTaxjarRefundObject();
 
@@ -146,6 +146,81 @@ class RefundTest extends UnitTestCase
         $this->assertSame(15, $result['line_items'][1]['unit_price']);
         $this->assertSame(0, $result['line_items'][1]['discount']);
         $this->assertSame(0, $result['line_items'][1]['sales_tax']);
+    }
+
+    /**
+     * @dataProvider getHandleErrorDataProvider
+     * @param int $status
+     * @param string $method
+     * @param bool $forceFlag
+     * @param string $expectedMethod
+     */
+    public function testHandleErrorPersistsForceFlagAndCallsOppositeMethodOnRetry(
+        int $status,
+        string $method,
+        bool $forceFlag,
+        string $expectedMethod
+    ) {
+        $mockError = (object) ['status' => $status];
+
+        $mockLogger = $this->createMock(Logger::class);
+        $mockLogger->expects($this->once())->method('log');
+
+        $sut = $this->createPartialMock(Refund::class, ['push']);
+
+        $this->setProperty($sut, 'logger', $mockLogger);
+        $this->setProperty($sut, 'request', ['transaction_id' => 1]);
+
+        $sut->expects($this->once())
+            ->method('push')
+            ->with($forceFlag, $expectedMethod);
+
+        $this->callMethod($sut, 'handleError', [
+            $mockError,
+            $method,
+            $forceFlag
+        ]);
+    }
+
+    /**
+     *
+     * DataProvider data format:
+     * [
+     *     Response::SOME_STATUS, <---The error object's HTTP status code
+     *     Request::SOME_METHOD, <---The (mock) last request's HTTP method
+     *     true/false, <---Whether the last (mock) request was "forced"
+     * ];
+     *
+     * @return array[]
+     */
+    public function getHandleErrorDataProvider(): array
+    {
+        return [
+            'post_already_exists_error' => [
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                Request::METHOD_POST,
+                false,
+                Request::METHOD_PUT,
+            ],
+            'put_does_not_exist_error' => [
+                Response::HTTP_NOT_FOUND,
+                Request::METHOD_PUT,
+                false,
+                Request::METHOD_POST,
+            ],
+            'force_post_already_exists_error' => [
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                Request::METHOD_POST,
+                true,
+                Request::METHOD_PUT,
+            ],
+            'force_put_does_not_exist_error' => [
+                Response::HTTP_NOT_FOUND,
+                Request::METHOD_PUT,
+                true,
+                Request::METHOD_POST,
+            ],
+        ];
     }
 
     private function getTaxjarRefundObject()
@@ -190,5 +265,23 @@ class RefundTest extends UnitTestCase
         $sut->expects($this->once())->method('buildCustomerExemption')->willReturn([]);
 
         return $sut;
+    }
+
+    private function setBuildRefundExpectations()
+    {
+        $this->mockOrder = $this->createMock(Order::class);
+        $this->mockOrder->expects($this->once())->method('getIncrementId')->willReturn('99999');
+
+        $this->mockCreditMemo = $this->createMock(Creditmemo::class);
+        $this->mockCreditMemo->expects($this->once())->method('getSubtotal')->willReturn(30);
+        $this->mockCreditMemo->expects($this->once())->method('getShippingAmount')->willReturn(5);
+        $this->mockCreditMemo->expects($this->once())->method('getDiscountAmount')->willReturn(3);
+        $this->mockCreditMemo->expects($this->once())->method('getTaxAmount')->willReturn(2.5);
+        $this->mockCreditMemo->expects($this->once())->method('getAdjustment')->willReturn(0);
+        $this->mockCreditMemo->expects($this->once())->method('getIncrementId')->willReturn('999');
+        $this->mockCreditMemo->expects($this->once())->method('getCreatedAt')->willReturn('2021-01-01');
+        $this->mockCreditMemo->expects($this->once())->method('getAllItems')->willReturn([]);
+        $this->mockCreditMemo->expects($this->once())->method('getAdjustmentNegative')->willReturn(0);
+        $this->mockCreditMemo->expects($this->once())->method('getAdjustmentPositive')->willReturn(15);
     }
 }

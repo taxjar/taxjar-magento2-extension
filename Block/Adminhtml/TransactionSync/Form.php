@@ -103,6 +103,36 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
             ]
         );
 
+        $fieldset->addField(
+            'force_sync_flag',
+            'select',
+            [
+                'name' => 'force_sync_flag',
+                'label' => __('Force sync'),
+                'title' => __('Enable force transaction sync'),
+                'values' => [
+                    [
+                        'value' => 0,
+                        'label' => 'No',
+                    ],
+                    [
+                        'value' => 1,
+                        'label' => 'Yes',
+                    ],
+                ],
+                'class' => 'select',
+                'after_element_html' => '
+                    <span class="tooltip-top" style="margin-left: 0.5rem">
+                        <a href="#" class="tooltip-toggle">What is this?</a>
+                        <span class="tooltip-content">
+                            The "Force sync" option will update all selected orders and credit
+                            memos in TaxJar regardless of last updated or synced dates.
+                        </span>
+                    </span>
+                ',
+            ]
+        );
+
         $form->setAction('#');
         $form->setUseContainer(true);
         $form->setId(self::FORM_ELEMENT_ID);

@@ -33,20 +33,22 @@ class Backfill
 {
     protected const OPERATION_DATA_KEY = 'meta_information';
 
+    protected const OPERATION_PARAMETER_KEYS = ['orderIds', 'force'];
+
     /**
      * @var OrderRepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Transaction\OrderFactory
+     * @var Order
      */
-    protected $orderFactory;
+    protected $orderTransaction;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Transaction\RefundFactory
+     * @var Refund
      */
-    protected $refundFactory;
+    protected $refundTransaction;
 
     /**
      * @var \Taxjar\SalesTax\Model\Logger
@@ -71,14 +73,6 @@ class Backfill
      * @var EntityManager
      */
     protected $entityManager;
-    /**
-     * @var Order
-     */
-    private $orderTransaction;
-    /**
-     * @var Refund
-     */
-    private $refundTransaction;
 
     /**
      * @param OrderRepositoryInterface $orderRepository
@@ -111,25 +105,24 @@ class Backfill
      */
     public function process(OperationInterface $operation): void
     {
-        $orderIds = $this->getOperationData($operation);
-
         try {
+            [$orderIds, $forceFlag] = $this->getOperationData($operation);
             foreach ($orderIds as $orderId) {
                 $order = $this->orderRepository->get($orderId);
 
-                if (! $this->orderTransaction->isSyncable($order)) {
+                if (!$this->orderTransaction->isSyncable($order)) {
                     $this->logger->log('Order #' . $orderId . ' is not syncable', 'skip');
                     continue;
                 }
 
                 $this->orderTransaction->build($order);
-                $this->orderTransaction->push();
+                $this->orderTransaction->push($forceFlag);
 
                 $creditMemos = $order->getCreditmemosCollection();
 
                 foreach ($creditMemos as $creditMemo) {
                     $this->refundTransaction->build($order, $creditMemo);
-                    $this->refundTransaction->push();
+                    $this->refundTransaction->push($forceFlag);
                 }
             }
             $this->success($operation);
@@ -139,13 +132,32 @@ class Backfill
         }
     }
 
-    private function getOperationData($operation)
+    /**
+     * @param $operation
+     * @return array
+     * @throws LocalizedException
+     */
+    private function getOperationData($operation): array
     {
         $serialized = $operation->getSerializedData();
         $unserialized = $this->serializer->unserialize($serialized);
-        return $unserialized[self::OPERATION_DATA_KEY];
+        $data = $unserialized[self::OPERATION_DATA_KEY];
+        foreach (self::OPERATION_PARAMETER_KEYS as $key) {
+            if (!array_key_exists($key, $data)) {
+                throw new LocalizedException(
+                    __('Operation data could not be parsed. Required array key `%1` does not exist.', $key)
+                );
+            }
+        }
+        return array_map(function ($key) use ($data) {
+            return $data[$key];
+        }, self::OPERATION_PARAMETER_KEYS);
     }
 
+    /**
+     * @param $operation
+     * @throws \Exception
+     */
     private function success($operation)
     {
         $operation->setStatus(BulkOperationInterface::STATUS_TYPE_COMPLETE);
@@ -155,7 +167,13 @@ class Backfill
         $this->entityManager->save($operation);
     }
 
-    private function fail($operation, $code, $message)
+    /**
+     * @param OperationInterface $operation
+     * @param int $code
+     * @param string $message
+     * @throws \Exception
+     */
+    private function fail(OperationInterface $operation, int $code, string $message)
     {
         $operation->setStatus(BulkOperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED);
         $operation->setErrorCode($code);

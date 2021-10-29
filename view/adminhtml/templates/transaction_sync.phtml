@@ -66,6 +66,7 @@
             window.backfillTransactions = function(syncButton) {
                 var fromDate = $('#date_from').val();
                 var toDate = $('#date_to').val();
+                var force = $('#force_sync_flag').val()
 
                 $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
 
@@ -75,6 +76,7 @@
                     data: {
                         from_date: fromDate,
                         to_date: toDate,
+                        force: force,
                         store: '<?php echo $this->getRequest()->getParam('store') ?>',
                         website: '<?php echo $this->getRequest()->getParam('website') ?>',
                     }
