@@ -53,11 +53,11 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     public function build(OrderInterface $order): array
     {
         $createdAt = new DateTime($order->getCreatedAt());
-        $subtotal = (float) $order->getSubtotal();
-        $shipping = (float) $order->getShippingAmount();
-        $discount = (float) $order->getDiscountAmount();
+        $subtotal = (float) $order->getSubtotalInvoiced();
+        $shipping = (float) $order->getShippingInvoiced();
+        $discount = (float) $order->getDiscountInvoiced();
         $shippingDiscount = (float) $order->getShippingDiscountAmount();
-        $salesTax = (float) $order->getTaxAmount();
+        $salesTax = (float) $order->getTaxInvoiced();
 
         $this->originalOrder = $order;
 
