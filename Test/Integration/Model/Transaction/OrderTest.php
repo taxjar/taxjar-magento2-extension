@@ -18,6 +18,7 @@
 namespace Taxjar\SalesTax\Test\Integration\Model\Transaction;
 
 use Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
+use Taxjar\SalesTax\Test\Fixture\Sales\InvoiceBuilder;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
 use Taxjar\SalesTax\Test\Fixture\Catalog\ProductBuilder;
 use Taxjar\SalesTax\Test\Fixture\Customer\AddressBuilder;
@@ -45,6 +46,8 @@ class OrderTest extends IntegrationTestCase
     public function testBuildTaxjarOrderTransaction()
     {
         $order = OrderBuilder::anOrder()->build();
+        InvoiceBuilder::forOrder($order)->build();
+
         $result = $this->taxjarOrder->build($order);
 
         $this->assertEquals('api', $result['provider'], 'Invalid provider');
@@ -76,6 +79,7 @@ class OrderTest extends IntegrationTestCase
     {
         $order = OrderBuilder::anOrder()->build();
         $order->setShippingAmount(20.0);
+        InvoiceBuilder::forOrder($order)->build();
 
         $result = $this->taxjarOrder->build($order);
 
