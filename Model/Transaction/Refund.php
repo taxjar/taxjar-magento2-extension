@@ -19,6 +19,7 @@ namespace Taxjar\SalesTax\Model\Transaction;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\CreditmemoItemInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Creditmemo;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,15 +51,16 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
      * @throws LocalizedException
      */
     public function build(
-        OrderInterface $order,
+        OrderInterface      $order,
         CreditmemoInterface $creditmemo
-    ): array {
-        $subtotal = (float) $creditmemo->getSubtotal();
-        $shipping = (float) $creditmemo->getShippingAmount();
-        $discount = (float) $creditmemo->getDiscountAmount();
-        $salesTax = (float) $creditmemo->getTaxAmount();
-        $adjustment = (float) $creditmemo->getAdjustment();
-        $itemDiscounts = 0;
+    ): array
+    {
+        $subtotal = (float)$creditmemo->getSubtotal();
+        $shipping = (float)$creditmemo->getShippingAmount();
+        $discount = (float)$creditmemo->getDiscountAmount();
+        $shippingDiscount = $this->getShippingDiscount($creditmemo);
+        $salesTax = (float)$creditmemo->getTaxAmount();
+        $adjustment = (float)$creditmemo->getAdjustment();
 
         $this->originalOrder = $order;
         $this->originalRefund = $creditmemo;
@@ -70,7 +72,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             'transaction_reference_id' => $order->getIncrementId(),
             'transaction_date' => $creditmemo->getCreatedAt(),
             'amount' => $subtotal + $shipping - abs($discount) + $adjustment,
-            'shipping' => $shipping,
+            'shipping' => $shipping - $shippingDiscount,
             'sales_tax' => $salesTax
         ];
 
@@ -85,18 +87,6 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         if (isset($this->request['line_items'])) {
             $adjustmentFee = $creditmemo->getAdjustmentNegative();
             $adjustmentRefund = $creditmemo->getAdjustmentPositive();
-
-            // Discounts on credit memos act as fees and shouldn't be included in $itemDiscounts
-            foreach ($this->request['line_items'] as $k => $lineItem) {
-                $lineItemDiscount = $this->request['line_items'][$k]['discount'];
-
-                if ($subtotal != 0) {
-                    $lineItemSubtotal = $lineItem['unit_price'] * $lineItem['quantity'];
-                    $lineItemDiscount += $adjustmentFee * ($lineItemSubtotal / $subtotal);
-                }
-
-                $itemDiscounts += $lineItemDiscount;
-            }
 
             if (!is_null($adjustmentFee) && $adjustmentFee != 0.0) {
                 $this->request['line_items'][] = [
@@ -121,11 +111,6 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                     'sales_tax' => 0
                 ];
             }
-        }
-
-        if ((abs($discount) - $itemDiscounts) > 0) {
-            $shippingDiscount = abs($discount) - $itemDiscounts;
-            $this->request['shipping'] = $shipping - $shippingDiscount;
         }
 
         return $this->request;
@@ -230,5 +215,14 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             );
             $this->push($forceFlag, $retry);
         }
+    }
+
+    protected function getShippingDiscount(CreditmemoInterface $creditmemo): float
+    {
+        $orderShippingAmount = (float) $creditmemo->getOrder()->getShippingAmount();
+        $orderShippingDiscount = (float) abs($creditmemo->getOrder()->getShippingDiscountAmount());
+        $shippingRatio = $creditmemo->getShippingAmount() / $orderShippingAmount;
+
+        return $orderShippingDiscount * $shippingRatio;
     }
 }
