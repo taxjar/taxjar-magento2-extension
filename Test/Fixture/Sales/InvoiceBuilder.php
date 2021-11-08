@@ -41,7 +41,7 @@ class InvoiceBuilder
      */
     private $orderItems;
 
-    final public function __construct(
+    public function __construct(
         InvoiceItemCreationInterfaceFactory $itemFactory,
         InvoiceOrderInterface $invoiceOrder,
         InvoiceRepositoryInterface $invoiceRepository,
