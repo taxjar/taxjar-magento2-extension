@@ -41,7 +41,7 @@ class CreditmemoBuilder
      */
     private $orderItems;
 
-    final public function __construct(
+    public function __construct(
         CreditmemoItemCreationInterfaceFactory $itemFactory,
         RefundOrderInterface $refundOrder,
         CreditmemoRepositoryInterface $creditmemoRepository,

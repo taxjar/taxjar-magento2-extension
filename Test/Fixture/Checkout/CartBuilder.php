@@ -28,7 +28,7 @@ class CartBuilder
      */
     private $addToCartRequests;
 
-    final public function __construct(ProductRepositoryInterface $productRepository, Cart $cart)
+    public function __construct(ProductRepositoryInterface $productRepository, Cart $cart)
     {
         $this->productRepository = $productRepository;
         $this->cart = $cart;

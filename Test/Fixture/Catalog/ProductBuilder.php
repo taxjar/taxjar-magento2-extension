@@ -81,7 +81,7 @@ class ProductBuilder
      * @param int[] $websiteIds
      * @param mixed[] $storeSpecificValues
      */
-    final public function __construct(
+    public function __construct(
         ProductRepositoryInterface $productRepository,
         StockItemRepositoryInterface $stockItemRepository,
         ProductWebsiteLinkRepositoryInterface $websiteLinkRepository,
