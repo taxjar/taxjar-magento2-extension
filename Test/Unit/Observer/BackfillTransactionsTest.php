@@ -209,7 +209,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
-                    ['force', null, false],
+                    ['force', null, '0'],
                 ],
                 'observer' => [
                     ['from', null, null],
@@ -229,7 +229,7 @@ class BackfillTransactionsTest extends UnitTestCase
                 'observer' => [
                     ['from', null, null],
                     ['to', null, null],
-                    ['force', null, false],
+                    ['force', null, '0'],
                 ],
             ],
 
@@ -239,7 +239,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
-                    ['force', null, true],
+                    ['force', null, '1'],
                 ],
                 'observer' => [
                     ['from', null, null],
@@ -259,7 +259,7 @@ class BackfillTransactionsTest extends UnitTestCase
                 'observer' => [
                     ['from', null, null],
                     ['to', null, null],
-                    ['force', null, true],
+                    ['force', null, '1'],
                 ],
             ],
 
@@ -299,7 +299,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['website', null, null],
                     ['from', null, '2021-01-01'],
                     ['to', null, '2021-01-31'],
-                    ['force', null, true],
+                    ['force', null, '1'],
                 ],
                 'observer' => [
                     ['from', null, null],
@@ -319,7 +319,7 @@ class BackfillTransactionsTest extends UnitTestCase
                 'observer' => [
                     ['from', null, '2021-01-01'],
                     ['to', null, '2021-01-31'],
-                    ['force', null, true],
+                    ['force', null, '1'],
                 ],
             ],
 
@@ -466,7 +466,7 @@ class BackfillTransactionsTest extends UnitTestCase
         $expectedMessage .= json_encode([
             'from' => null,
             'to' => null,
-            'force_sync' => null,
+            'force_sync' => false,
         ]);
 
         $this->loggerMock->expects($this->once())
@@ -498,7 +498,7 @@ class BackfillTransactionsTest extends UnitTestCase
         $dataMap = [
             ['from', null, '2021-01-01'],
             ['to', null, '2021-01-31'],
-            ['force', null, false],
+            ['force', null, '0'],
         ];
 
         $observerMock = $this->getMockBuilder(Observer::class)->disableOriginalConstructor()->getMock();

@@ -132,7 +132,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
             }
 
             $criteria = $this->getSearchCriteria();
-            $orders = $this->getOrders($criteria, $this->getInput('force'));
+            $orders = $this->getOrders($criteria, (bool)$this->getInput('force'));
 
             if (!empty($orders)) {
                 $this->syncTransactions($orders);
@@ -264,7 +264,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         $dataToEncode = [
             'meta_information' => [
                 'orderIds' => $body,
-                'force' => $this->getInput('force'),
+                'force' => (bool)$this->getInput('force'),
             ],
         ];
 
@@ -316,7 +316,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         return [
             'from' => $this->getInput('from'),
             'to' => $this->getInput('to'),
-            'force_sync' => $this->getInput('force'),
+            'force_sync' => (bool)$this->getInput('force'),
         ];
     }
 
