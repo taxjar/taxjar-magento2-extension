@@ -105,7 +105,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         \Taxjar\SalesTax\Model\Configuration $taxjarConfig
     ) {
         $this->request = $request;
-        $this->logger = $logger->setFilename(\Taxjar\SalesTax\Model\Configuration::TAXJAR_TRANSACTIONS_LOG)->force();
+        $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->storeManager = $storeManager;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -115,10 +115,12 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         $this->userContext = $userContext;
         $this->taxjarConfig = $taxjarConfig;
         $this->uuid = $identityService->generateId();
+
+        $this->logger->setFilename(\Taxjar\SalesTax\Model\Configuration::TAXJAR_TRANSACTIONS_LOG)->force();
     }
 
     /**
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException|\Exception|\Throwable
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
@@ -149,24 +151,41 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      */
     public function success()
     {
-        $message = 'Transaction sync successfully scheduled. ';
-        $message .= json_encode($this->getConfiguration());
-
-        $this->logger->log($message);
+        $this->log('Transaction sync successfully scheduled.');
     }
 
     /**
-     * @param \Exception $e
-     * @throws \Exception
+     * @param \Magento\Framework\Exception\LocalizedException|\Exception|\Throwable $e
+     * @throws \Magento\Framework\Exception\LocalizedException|\Exception|\Throwable
      */
-    public function fail($e): void {
-        $message = 'Failed to schedule transaction sync! ';
-        $message .= $e->getMessage() . ' - ';
-        $message .= json_encode($this->getConfiguration());
+    public function fail($e): void
+    {
+        $exceptionMessage = $e->getMessage();
 
-        $this->logger->log($message);
+        $this->log("Failed to schedule transaction sync! Message: \"$exceptionMessage\"");
 
         throw $e;
+    }
+
+    /**
+     * Because the transaction backfill process can be triggered via UI or CLI, and the process that handles the
+     * HTTP backfill request relies on the `Logger::class`'s `playback()` value to create the UI message, it is
+     * necessary to manually override the `playback` value after writing to the log file in order to prevent
+     * displaying unnecessary JSON configuration details in the web UI.
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function log($message)
+    {
+        $configuration = $this->getConfiguration();
+        $encodedConfig = json_encode($configuration);
+        $detail = "Detail: \"$encodedConfig\"";
+
+        $playback = $this->logger->playback();
+        $playback[] = $message;
+
+        $this->logger->log("$message $detail");
+        $this->logger->setPlayback($playback);
     }
 
     /**
@@ -213,7 +232,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * @return \Magento\Framework\Api\SearchCriteriaInterface
+     * @return \Magento\Framework\Api\SearchCriteriaInterface|\Magento\Framework\Api\SearchCriteria
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getSearchCriteria(): \Magento\Framework\Api\SearchCriteriaInterface
@@ -245,7 +264,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
             $fromDt->sub(new \DateInterval('P1D'));
         }
 
-        $fromDt->setTime(0,0)->format('Y-m-d H:i:s');
+        $fromDt->setTime(0, 0)->format('Y-m-d H:i:s');
         $toDt->setTime(23, 59, 59)->format('Y-m-d H:i:s');
 
         return $this->searchCriteriaBuilder
@@ -313,10 +332,17 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      */
     private function getConfiguration(): array
     {
+        try {
+            $criteria = $this->getSearchCriteria()->__toArray();
+        } catch (\Exception $e) {
+            $criteria = null;
+        }
+
         return [
             'from' => $this->getInput('from'),
             'to' => $this->getInput('to'),
             'force_sync' => (bool)$this->getInput('force'),
+            'criteria' => $criteria,
         ];
     }
 

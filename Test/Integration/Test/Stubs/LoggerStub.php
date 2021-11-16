@@ -4,8 +4,13 @@ namespace Taxjar\SalesTax\Test\Integration\Test\Stubs;
 
 class LoggerStub extends \Taxjar\SalesTax\Model\Logger
 {
-    public function log($message, $label = '')
+    public function log($message, $label = ''): void
     {
-        // Do nothing...
+        // Set member variables...
+        if ($this->isRecording) {
+            $this->playback[] = $message;
+        }
+
+        // Otherwise, do nothing...
     }
 }

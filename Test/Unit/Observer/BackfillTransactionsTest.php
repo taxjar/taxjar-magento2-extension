@@ -165,11 +165,12 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->expectExceptionMessage('Could not sync transactions with TaxJar. Please make sure you have an API key.');
 
         $this->taxjarConfigMock->expects($this->once())->method('getApiKey')->willReturn('');
+        $this->expectSearchCriteria();
         $this->setExpectations();
 
         /** @var Observer|MockObject $observerMock */
         $observerMock = $this->createMock(Observer::class);
-        $observerMock->expects($this->any())->method('getData')->willReturn([]);
+        $observerMock->expects($this->any())->method('getData')->willReturnMap([]);
 
         $this->sut->execute($observerMock);
     }
@@ -408,7 +409,7 @@ class BackfillTransactionsTest extends UnitTestCase
 
         $this->bulkManagementMock->expects($this->once())->method('scheduleBulk')->willReturn(false);
 
-        $operationMock = $this->getMockForAbstractClass( OperationInterface::class);
+        $operationMock = $this->getMockForAbstractClass(OperationInterface::class);
         $this->operationFactoryMock->expects($this->once())->method('create')->willReturn($operationMock);
 
         $this->setExpectations();
@@ -426,7 +427,7 @@ class BackfillTransactionsTest extends UnitTestCase
     {
         $this->bulkManagementMock->expects($this->once())->method('scheduleBulk')->willReturn(true);
 
-        $operationMock = $this->getMockForAbstractClass( OperationInterface::class);
+        $operationMock = $this->getMockForAbstractClass(OperationInterface::class);
         $this->operationFactoryMock->expects($this->exactly($count))->method('create')->willReturn($operationMock);
 
         $this->setExpectations();
@@ -438,22 +439,22 @@ class BackfillTransactionsTest extends UnitTestCase
     {
         return [
             'single_operation_without_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1,100)),
+                'orders' => array_map([$this, 'getOrderStub'], range(1, 100)),
                 'count' => 1,
                 'force' => false,
             ],
             'single_operation_with_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1,100)),
+                'orders' => array_map([$this, 'getOrderStub'], range(1, 100)),
                 'count' => 1,
                 'force' => true,
             ],
             'multiple_operations_without_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1,500)),
+                'orders' => array_map([$this, 'getOrderStub'], range(1, 500)),
                 'count' => 5,
                 'force' => false,
             ],
             'multiple_operations_with_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1,500)),
+                'orders' => array_map([$this, 'getOrderStub'], range(1, 500)),
                 'count' => 5,
                 'force' => true,
             ],
@@ -462,18 +463,22 @@ class BackfillTransactionsTest extends UnitTestCase
 
     public function testSuccessMethod()
     {
-        $expectedMessage = 'Transaction sync successfully scheduled. ';
-        $expectedMessage .= json_encode([
+        $expectedConfig = json_encode([
             'from' => null,
             'to' => null,
             'force_sync' => false,
+            'criteria' => (object)[],
         ]);
+
+        $expectedMessage = "Transaction sync successfully scheduled.";
+        $expectedLogMessage = "$expectedMessage Detail: \"$expectedConfig\"";
 
         $this->loggerMock->expects($this->once())
             ->method('log')
-            ->with($expectedMessage)
+            ->with($expectedLogMessage)
             ->willReturnSelf();
 
+        $this->expectSearchCriteria();
         $this->setExpectations();
 
         $this->sut->success();
@@ -484,12 +489,14 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('test-error');
 
-        $logMessage = 'Failed to schedule transaction sync! test-error - ';
-        $logMessage .= json_encode([
+        $payload = json_encode([
             'from' => '2021-01-01',
             'to' => '2021-01-31',
             'force_sync' => false,
+            'criteria' => (object)[],
         ]);
+
+        $logMessage = "Failed to schedule transaction sync! Message: \"test-error\" Detail: \"$payload\"";
 
         $this->loggerMock->expects($this->once())->method('log')->with($logMessage)->willReturnSelf();
 
@@ -504,9 +511,22 @@ class BackfillTransactionsTest extends UnitTestCase
         $observerMock = $this->getMockBuilder(Observer::class)->disableOriginalConstructor()->getMock();
         $observerMock->expects($this->any())->method('getData')->willReturnMap($dataMap);
 
+        $this->expectSearchCriteria();
         $this->setExpectations();
         $this->sut->observer = $observerMock;
         $this->sut->fail($exception);
+    }
+
+    protected function expectSearchCriteria(): void
+    {
+        $searchCriteriaMock = $this->getMockBuilder(SearchCriteriaInterface::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['__toArray'])
+            ->getMockForAbstractClass();
+        $searchCriteriaMock->expects($this->once())->method('__toArray')->willReturn((object)[]);
+
+        $this->searchCriteriaBuilderMock->expects($this->exactly(3))->method('addFilter')->willReturnSelf();
+        $this->searchCriteriaBuilderMock->expects($this->once())->method('create')->willReturn($searchCriteriaMock);
     }
 
     /**

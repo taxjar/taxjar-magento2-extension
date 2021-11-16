@@ -15,48 +15,26 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Model;
+declare(strict_types=1);
 
-use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Exception\LocalizedException;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+namespace Taxjar\SalesTax\Model;
 
 class Logger
 {
-    /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList
-     */
-    protected $directoryList;
-
-    /**
-     * @var \Magento\Framework\Filesystem\Driver\File
-     */
-    protected $driverFile;
-
-    /**
-     * @var array
-     */
-    protected $playback = [];
-
-    /**
-     * @var bool
-     */
-    protected $isRecording;
-
-    /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
-     */
-    protected $console;
-
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var string
+     * @var \Magento\Framework\App\Filesystem\DirectoryList
      */
-    protected $filename = TaxjarConfig::TAXJAR_DEFAULT_LOG;
+    protected $directoryList;
+
+    /**
+     * @var \Magento\Framework\Filesystem\DriverInterface
+     */
+    protected $fileDriver;
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -64,30 +42,53 @@ class Logger
     protected $storeManager;
 
     /**
-     * @var TaxjarConfig
+     * @var \Taxjar\SalesTax\Model\Configuration
      */
     protected $taxjarConfig;
 
     /**
-     * @var boolean
+     * @var \Symfony\Component\Console\Output\ConsoleOutput
+     */
+    protected $console;
+
+    /**
+     * @var string
+     */
+    protected $filename = \Taxjar\SalesTax\Model\Configuration::TAXJAR_DEFAULT_LOG;
+
+    /**
+     * @var bool
      */
     protected $isForced = false;
 
     /**
+     * @var bool
+     */
+    protected $isRecording;
+
+    /**
+     * @var array
+     */
+    protected $playback = [];
+
+    /**
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
-     * @param \Magento\Framework\Filesystem\Driver\File $driverFile
+     * @param \Magento\Framework\Filesystem\DriverInterface $fileDriver
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Taxjar\SalesTax\Model\Configuration $taxjarConfig
      */
     public function __construct(
-        \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
-        \Magento\Framework\Filesystem\Driver\File $driverFile,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
+        \Magento\Framework\Filesystem\DriverInterface $fileDriver,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        TaxjarConfig $taxjarConfig
+        \Taxjar\SalesTax\Model\Configuration $taxjarConfig
     ) {
         $this->directoryList = $directoryList;
-        $this->driverFile = $driverFile;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
+        $this->fileDriver = $fileDriver;
         $this->taxjarConfig = $taxjarConfig;
     }
 
@@ -97,9 +98,21 @@ class Logger
      * @param string $filename
      * @return Logger
      */
-    public function setFilename($filename)
+    public function setFilename(string $filename): Logger
     {
         $this->filename = $filename;
+        return $this;
+    }
+
+    /**
+     * Manually set the playback value
+     *
+     * @param string[] $playback
+     * @return Logger
+     */
+    public function setPlayback(array $playback): Logger
+    {
+        $this->playback = $playback;
         return $this;
     }
 
@@ -109,7 +122,7 @@ class Logger
      * @param boolean $isForced
      * @return Logger
      */
-    public function force($isForced = true)
+    public function force(bool $isForced = true): Logger
     {
         $this->isForced = $isForced;
         return $this;
@@ -119,10 +132,15 @@ class Logger
      * Get the temp log filename
      *
      * @return string
+     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function getPath()
+    public function getPath(): string
     {
-        return $this->directoryList->getPath(DirectoryList::LOG) . DIRECTORY_SEPARATOR . 'taxjar' . DIRECTORY_SEPARATOR . $this->filename;
+        return sprintf(
+            '%s/taxjar/%s',
+            $this->directoryList->getPath(\Magento\Framework\App\Filesystem\DirectoryList::LOG),
+            $this->filename
+        );
     }
 
     /**
@@ -130,18 +148,16 @@ class Logger
      *
      * @param string $message
      * @param string $label
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return void
      */
-    public function log($message, $label = '')
+    public function log(string $message, string $label = ''): void
     {
         if ($this->scopeConfig->getValue(
-            TaxjarConfig::TAXJAR_DEBUG,
+            \Taxjar\SalesTax\Model\Configuration::TAXJAR_DEBUG,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->storeManager->getStore()->getId())
-            ||
-            $this->isForced
-        ) {
+            $this->storeManager->getStore()->getId()
+        ) || $this->isForced) {
             try {
                 if (!empty($label)) {
                     $label = '[' . strtoupper($label) . '] ';
@@ -154,12 +170,15 @@ class Logger
                 $timestamp = date('d M Y H:i:s', time());
                 $message = sprintf('%s%s - %s%s', PHP_EOL, $timestamp, $label, $message);
 
-                if (!is_dir(dirname($this->getPath()))) {
+                $path = $this->getPath();
+                $dirname = $this->fileDriver->getParentDirectory($path);
+
+                if (!$this->fileDriver->isDirectory($dirname)) {
                     // dir doesn't exist, make it
-                    mkdir(dirname($this->getPath()));
+                    $this->fileDriver->createDirectory($dirname);
                 }
 
-                $this->driverFile->filePutContents($this->getPath(), $message, FILE_APPEND);
+                $this->fileDriver->filePutContents($this->getPath(), $message, FILE_APPEND);
 
                 if ($this->isRecording) {
                     $this->playback[] = $message;
@@ -168,9 +187,13 @@ class Logger
                     $this->console->write($message);
                 }
             } catch (\Exception $e) {
-                // @codingStandardsIgnoreStart
-                throw new LocalizedException(__('Could not write to your Magento log directory under /var/log. Please make sure the directory is created and check permissions for %1.', $this->directoryList->getPath('log')));
-                // @codingStandardsIgnoreEnd
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    __(
+                        'Could not write to your Magento log directory under /var/log. ' .
+                        'Please make sure the directory is created and check permissions for %1.',
+                        $this->directoryList->getPath(\Magento\Framework\App\Filesystem\DirectoryList::LOG)
+                    )
+                );
             }
         }
     }
@@ -180,7 +203,7 @@ class Logger
      *
      * @return void
      */
-    public function record()
+    public function record(): void
     {
         $this->isRecording = true;
     }
@@ -190,7 +213,7 @@ class Logger
      *
      * @return array
      */
-    public function playback()
+    public function playback(): array
     {
         return $this->playback;
     }
@@ -198,9 +221,10 @@ class Logger
     /**
      * Set console output interface
      *
+     * @param $output
      * @return void
      */
-    public function console($output)
+    public function console($output): void
     {
         $this->console = $output;
     }
