@@ -78,7 +78,7 @@ class TransactionTest extends UnitTestCase
                 'getProductType',
                 'getPrice',
                 'getQtyInvoiced',
-                'getTaxAmount',
+                'getTaxInvoiced',
                 'getSku',
                 'getName',
             ])
@@ -88,7 +88,7 @@ class TransactionTest extends UnitTestCase
         $mockItem->expects($this->once())->method('getPrice')->willReturn(60.0);
         $mockItem->expects($this->once())->method('getQtyInvoiced')->willReturn(2);
         $mockItem->expects($this->once())->method('getProductType')->willReturn('simple');
-        $mockItem->expects($this->once())->method('getTaxAmount')->willReturn(5.0);
+        $mockItem->expects($this->once())->method('getTaxInvoiced')->willReturn(5.0);
         $mockItem->expects($this->any())->method('getTjPtc')->willReturn('22222');
         $mockItem->expects($this->any())->method('getSku')->willReturn('some-sku');
         $mockItem->expects($this->any())->method('getName')->willReturn('A great product');
