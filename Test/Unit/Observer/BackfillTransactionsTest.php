@@ -165,7 +165,6 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->expectExceptionMessage('Could not sync transactions with TaxJar. Please make sure you have an API key.');
 
         $this->taxjarConfigMock->expects($this->once())->method('getApiKey')->willReturn('');
-        $this->expectSearchCriteria();
         $this->setExpectations();
 
         /** @var Observer|MockObject $observerMock */
@@ -179,8 +178,9 @@ class BackfillTransactionsTest extends UnitTestCase
      * @dataProvider searchCriteriaDataProvider
      * @param $paramReturnMap
      * @param $dataReturnMap
+     * @param $dateRange
      */
-    public function testGetSearchCriteriaMethod($paramReturnMap, $dataReturnMap)
+    public function testGetSearchCriteriaMethod($paramReturnMap, $dataReturnMap, $dateRange)
     {
         $this->requestMock->expects($this->any())->method('getParam')->willReturnMap($paramReturnMap);
         $this->setStoreExpectations();
@@ -198,11 +198,13 @@ class BackfillTransactionsTest extends UnitTestCase
         $observerMock->expects($this->any())->method('getData')->willReturnMap($dataReturnMap);
         $this->sut->observer = $observerMock;
 
-        $this->assertSame($searchCriteriaMock, $this->sut->getSearchCriteria());
+        $this->assertSame($searchCriteriaMock, $this->sut->getSearchCriteria(...$dateRange));
     }
 
     public function searchCriteriaDataProvider(): array
     {
+        $testDates = $this->getTestDates();
+
         return [
             'request_without_configuration' => [
                 'request' => [
@@ -217,6 +219,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, null],
                     ['force', null, null],
                 ],
+                'date_range' => $testDates,
             ],
 
             'observer_without_configuration' => [
@@ -232,6 +235,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, null],
                     ['force', null, '0'],
                 ],
+                'date_range' => $testDates,
             ],
 
             'request_with_force_sync_enabled' => [
@@ -247,6 +251,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, null],
                     ['force', null, null],
                 ],
+                'date_range' => $testDates,
             ],
 
             'observer_with_force_sync_enabled' => [
@@ -262,6 +267,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, null],
                     ['force', null, '1'],
                 ],
+                'date_range' => $testDates,
             ],
 
             'request_with_date_range' => [
@@ -276,6 +282,10 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
+                ],
+                'date_range' => [
+                    '2021-01-01 00:00:00',
+                    '2021-01-31 23:59:59',
                 ],
             ],
 
@@ -292,6 +302,10 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, '2021-01-31'],
                     ['force', null, null],
                 ],
+                'date_range' => [
+                    '2021-01-01 00:00:00',
+                    '2021-01-31 23:59:59',
+                ],
             ],
 
             'request_with_date_range_and_force_sync_enabled' => [
@@ -306,6 +320,10 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
+                ],
+                'date_range' => [
+                    '2021-01-01 00:00:00',
+                    '2021-01-31 23:59:59',
                 ],
             ],
 
@@ -322,6 +340,10 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, '2021-01-31'],
                     ['force', null, '1'],
                 ],
+                'date_range' => [
+                    '2021-01-01 00:00:00',
+                    '2021-01-31 23:59:59',
+                ],
             ],
 
             'request_with_website' => [
@@ -337,6 +359,7 @@ class BackfillTransactionsTest extends UnitTestCase
                     ['to', null, null],
                     ['force', null, null],
                 ],
+                'date_range' => $testDates,
             ],
         ];
     }
@@ -367,9 +390,17 @@ class BackfillTransactionsTest extends UnitTestCase
 
         $this->setExpectations();
 
+        $observerMock = $this->createMock(Observer::class);
+        $observerMock->expects($this->any())->method('getData')->willReturnMap([
+            ['from', null, null],
+            ['to', null, null],
+            ['force', null, $forceSync],
+        ],);
+        $this->sut->observer = $observerMock;
+
         $criteriaMock = $this->getMockForAbstractClass(SearchCriteriaInterface::class);
 
-        $this->assertCount($count, $this->sut->getOrders($criteriaMock, $forceSync));
+        $this->assertCount($count, $this->sut->getOrders($criteriaMock));
     }
 
     public function orderDataProvider(): array
@@ -463,14 +494,13 @@ class BackfillTransactionsTest extends UnitTestCase
 
     public function testSuccessMethod()
     {
+        [$startDate, $endDate] = $this->getTestDates();
         $expectedConfig = json_encode([
-            'from' => null,
-            'to' => null,
+            'date_start' => $startDate,
+            'date_end' => $endDate,
             'force_sync' => false,
-            'criteria' => (object)[],
         ]);
-
-        $expectedMessage = "Transaction sync successfully scheduled.";
+        $expectedMessage = "No un-synced orders were found!";
         $expectedLogMessage = "$expectedMessage Detail: \"$expectedConfig\"";
 
         $this->loggerMock->expects($this->once())
@@ -478,7 +508,6 @@ class BackfillTransactionsTest extends UnitTestCase
             ->with($expectedLogMessage)
             ->willReturnSelf();
 
-        $this->expectSearchCriteria();
         $this->setExpectations();
 
         $this->sut->success();
@@ -490,10 +519,9 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->expectExceptionMessage('test-error');
 
         $payload = json_encode([
-            'from' => '2021-01-01',
-            'to' => '2021-01-31',
+            'date_start' => '2021-01-01 00:00:00',
+            'date_end' => '2021-01-31 23:59:59',
             'force_sync' => false,
-            'criteria' => (object)[],
         ]);
 
         $logMessage = "Failed to schedule transaction sync! Message: \"test-error\" Detail: \"$payload\"";
@@ -511,7 +539,6 @@ class BackfillTransactionsTest extends UnitTestCase
         $observerMock = $this->getMockBuilder(Observer::class)->disableOriginalConstructor()->getMock();
         $observerMock->expects($this->any())->method('getData')->willReturnMap($dataMap);
 
-        $this->expectSearchCriteria();
         $this->setExpectations();
         $this->sut->observer = $observerMock;
         $this->sut->fail($exception);
@@ -579,5 +606,18 @@ class BackfillTransactionsTest extends UnitTestCase
             $this->userContextMock,
             $this->taxjarConfigMock
         );
+    }
+
+    /**
+     * This method is necessary to replicate the hard dependency of DateTime object
+     * @return array
+     */
+    private function getTestDates(): array
+    {
+        $date = new \DateTimeImmutable();
+        return [
+            $date->sub(new \DateInterval('P1D'))->setTime(0, 0)->format('Y-m-d H:i:s'),
+            $date->setTime(23, 59, 59)->format('Y-m-d H:i:s'),
+        ];
     }
 }

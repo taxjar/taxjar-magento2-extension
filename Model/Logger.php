@@ -146,12 +146,12 @@ class Logger
     /**
      * Save a message to taxjar.log
      *
-     * @param string $message
-     * @param string $label
+     * @param string|mixed $message
+     * @param mixed|null $label
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return void
      */
-    public function log(string $message, string $label = ''): void
+    public function log($message, $label = ''): void
     {
         if ($this->scopeConfig->getValue(
             \Taxjar\SalesTax\Model\Configuration::TAXJAR_DEBUG,

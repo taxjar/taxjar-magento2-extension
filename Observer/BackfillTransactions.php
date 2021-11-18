@@ -77,6 +77,10 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      * @var string|null
      */
     public $uuid;
+    /**
+     * @var string[]|array|null
+     */
+    protected $dateRange;
 
     /**
      * @param \Magento\Framework\App\RequestInterface $request
@@ -133,25 +137,60 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
                 );
             }
 
-            $criteria = $this->getSearchCriteria();
-            $orders = $this->getOrders($criteria, (bool)$this->getInput('force'));
+            $dateRange = $this->getDateRange();
+            $criteria = $this->getSearchCriteria(...$dateRange);
+            $orders = $this->getOrders($criteria);
 
             if (!empty($orders)) {
                 $this->syncTransactions($orders);
             }
 
-            $this->success();
+            $this->success(count($orders));
         } catch (\Exception $e) {
             $this->fail($e);
         }
     }
 
+    public function getDateRange(): array
+    {
+        if (empty($this->dateRange)) {
+            $this->setDateRange();
+        }
+
+        return $this->dateRange;
+    }
+
+    public function setDateRange(): BackfillTransactions
+    {
+        $from = $this->getInput('from') ?? 'now';
+        $to = $this->getInput('to') ?? 'now';
+        $fromDt = new \DateTime($from);
+        $toDt = new \DateTime($to);
+
+        if ($from == 'now') {
+            $fromDt->sub(new \DateInterval('P1D'));
+        }
+
+        $this->dateRange = [
+            $fromDt->setTime(0, 0)->format('Y-m-d H:i:s'),
+            $toDt->setTime(23, 59, 59)->format('Y-m-d H:i:s')
+        ];
+
+        return $this;
+    }
+
     /**
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function success()
+    public function success(int $count = 0): void
     {
-        $this->log('Transaction sync successfully scheduled.');
+        $message = 'No un-synced orders were found!';
+
+        if ($count > 0) {
+            $message = "Successfully scheduled $count order(s) and any related credit memos for sync with TaxJar!";
+        }
+
+        $this->log($message);
     }
 
     /**
@@ -173,9 +212,11 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      * necessary to manually override the `playback` value after writing to the log file in order to prevent
      * displaying unnecessary JSON configuration details in the web UI.
      *
+     * @param $message
+     * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function log($message)
+    protected function log($message): void
     {
         $configuration = $this->getConfiguration();
         $encodedConfig = json_encode($configuration);
@@ -217,14 +258,13 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
 
     /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $criteria
-     * @param bool $force
      * @return array
      */
-    public function getOrders(\Magento\Framework\Api\SearchCriteriaInterface $criteria, ?bool $force): array
+    public function getOrders(\Magento\Framework\Api\SearchCriteriaInterface $criteria): array
     {
         $orders = $this->orderRepository->getList($criteria)->getItems();
 
-        if (!$force) {
+        if (!$this->getInput('force')) {
             $orders = array_filter($orders, [$this, 'isOrderSyncable']);
         }
 
@@ -232,17 +272,19 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * @param string $from
+     * @param string $to
      * @return \Magento\Framework\Api\SearchCriteriaInterface|\Magento\Framework\Api\SearchCriteria
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getSearchCriteria(): \Magento\Framework\Api\SearchCriteriaInterface
+    public function getSearchCriteria(string $from, string $to): \Magento\Framework\Api\SearchCriteriaInterface
     {
         // Limit orders to specific store
         $storeId = $this->request->getParam('store');
         $websiteId = $this->request->getParam('website');
 
         // If the store id is empty but the website id is defined, load stores that match the website id
-        if (is_null($storeId) && !is_null($websiteId)) {
+        if ($websiteId && $storeId === null) {
             $stores = $this->storeManager->getStores();
             $storeId = array_filter($stores, [$this, 'compareStoreWebsiteId']);
         }
@@ -254,22 +296,9 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
             $this->logger->log(sprintf('Limiting transaction sync to store id(s): %s', implode(',', $storeId)));
         }
 
-        // Limit orders to within date range
-        $from = $this->getInput('from') ?? 'now';
-        $to = $this->getInput('to') ?? 'now';
-        $fromDt = new \DateTime($from);
-        $toDt = new \DateTime($to);
-
-        if ($from == 'now') {
-            $fromDt->sub(new \DateInterval('P1D'));
-        }
-
-        $fromDt->setTime(0, 0)->format('Y-m-d H:i:s');
-        $toDt->setTime(23, 59, 59)->format('Y-m-d H:i:s');
-
         return $this->searchCriteriaBuilder
-            ->addFilter('created_at', $fromDt, 'gteq')
-            ->addFilter('created_at', $toDt, 'lteq')
+            ->addFilter('created_at', $from, 'gteq')
+            ->addFilter('created_at', $to, 'lteq')
             ->addFilter('state', self::SYNCABLE_STATUSES, 'in')
             ->create();
     }
@@ -305,8 +334,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      */
     private function compareStoreWebsiteId(\Magento\Store\Api\Data\StoreInterface $store): bool
     {
-        $websiteId = $store->getWebsiteId();
-        return (!is_null($websiteId) && $websiteId == $this->getInput('websiteId'));
+        $storeWebsiteId = $store->getWebsiteId();
+        return $storeWebsiteId !== null && $storeWebsiteId == $this->getInput('websiteId');
     }
 
     /**
@@ -332,17 +361,12 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      */
     private function getConfiguration(): array
     {
-        try {
-            $criteria = $this->getSearchCriteria()->__toArray();
-        } catch (\Exception $e) {
-            $criteria = null;
-        }
+        [$startDate, $endDate] = $this->getDateRange();
 
         return [
-            'from' => $this->getInput('from'),
-            'to' => $this->getInput('to'),
+            'date_start' => $startDate,
+            'date_end' => $endDate,
             'force_sync' => (bool)$this->getInput('force'),
-            'criteria' => $criteria,
         ];
     }
 
