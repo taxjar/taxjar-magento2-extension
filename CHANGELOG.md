@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.7.1] - 2021-11-08
+- Fix minor code standards issue
+
+## [1.7.0] - 2021-10-06
+- Improve backup rate sync by making process asynchronous
+
 ## [1.6.5] - 2021-07-08
 - Fix issue preventing export of credit memos
 - Fix address validation issues when creating an order in admin
@@ -238,7 +244,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.5...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.7.1..HEAD
+[1.7.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.5...v1.7.0
 [1.6.5]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.2...v1.6.3
