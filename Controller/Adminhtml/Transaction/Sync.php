@@ -19,20 +19,17 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Controller\Adminhtml\Transaction;
 
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Controller\ResultFactory;
-
 class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
 {
     /**
-     * @var RequestInterface
+     * @var \Magento\Framework\App\RequestInterface
      */
     private $request;
 
     /**
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Taxjar\SalesTax\Model\Logger $logger
-     * @param RequestInterface $request
+     * @param \Magento\Framework\App\RequestInterface $request
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
@@ -52,8 +49,6 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
     public function execute()
     {
         try {
-            $this->logger->record();
-
             $this->eventManager->dispatch('taxjar_salestax_sync_transaction', [
                 'order_id' => $this->request->getParam('order_id'),
                 'force' => true,
@@ -62,7 +57,6 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
             $responseContent = [
                 'success' => true,
                 'error_message' => '',
-                'result' => $this->logger->playback(),
             ];
         } catch (\Exception $e) {
             $responseContent = [
@@ -72,7 +66,7 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
         }
 
         /** @var \Magento\Framework\Controller\Result\Json $resultJson */
-        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $resultJson = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_JSON);
         $resultJson->setData($responseContent);
         return $resultJson;
     }
