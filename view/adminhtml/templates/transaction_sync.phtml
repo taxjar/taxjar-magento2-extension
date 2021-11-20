@@ -20,7 +20,9 @@
 ?>
 <p class='note'><span>Sync orders and refunds with TaxJar for automated sales tax reporting and filing. Complete and closed transactions sync automatically on update.</span></p><br/>
 
-<?php if ($block->isEnabled()) { ?>
+<?php
+/** @var \Taxjar\SalesTax\Block\Adminhtml\TransactionSync $block */
+if ($block->isEnabled()) { ?>
     <p><button type="button" class="scalable" onclick="openTransactionSyncModal()"><span>Sync Transactions</span></button></p>
     <script>
         require([
@@ -71,14 +73,14 @@
                 $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
 
                 $.ajax({
-                    url: '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
+                    url: '<?= $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
                     method: 'GET',
                     data: {
                         from: fromDate,
                         to: toDate,
                         force: force,
-                        store: '<?php echo $this->getRequest()->getParam('store') ?>',
-                        website: '<?php echo $this->getRequest()->getParam('website') ?>',
+                        store: '<?= $this->getRequest()->getParam('store') ?>',
+                        website: '<?= $this->getRequest()->getParam('website') ?>',
                     }
                 }).done(function(data) {
                     if (data.result) {

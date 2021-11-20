@@ -20,12 +20,19 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceCurrencyInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Data extends AbstractHelper
 {
+    protected const SYNCABLE_STATES = ['complete', 'closed'];
+
+    protected const SYNCABLE_CURRENCIES = ['USD'];
+
+    protected const SYNCABLE_COUNTRIES = ['US'];
+
     protected $request;
 
     /**
@@ -117,8 +124,7 @@ class Data extends AbstractHelper
     public function isTransactionSyncEnabled($scopeCode = 0, $scope = ScopeInterface::SCOPE_STORE)
     {
         $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
-        $syncEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
-        return (bool) $syncEnabled;
+        return (bool)$this->scopeConfig->getValue(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
     }
 
     /**
@@ -131,6 +137,7 @@ class Data extends AbstractHelper
         $disabledFunctions = explode(',', ini_get('disable_functions'));
         $os = !in_array('php_uname', $disabledFunctions) ? php_uname('a') : '';
         $php = 'PHP ' . PHP_VERSION;
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction
         $curl = !in_array('curl_version', $disabledFunctions) ? 'cURL ' . curl_version()['version'] : '';
         $openSSL = defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : '';
         $magento = 'Magento ' . $this->productMetadata->getEdition() . ' ' . $this->productMetadata->getVersion();
@@ -143,10 +150,82 @@ class Data extends AbstractHelper
     /**
      * Return the base url of the current store
      *
-     * @return string
+     * @return string|null
      */
-    public function getStoreUrl()
+    public function getStoreUrl(): ?string
     {
-        return (string) $this->storeManager->getStore()->getBaseUrl();
+        return $this->storeManager->getStore()->getBaseUrl();
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return \Magento\Sales\Api\Data\OrderAddressInterface|null
+     */
+    public function getOrderAddress(
+        \Magento\Sales\Api\Data\OrderInterface $order
+    ): ?\Magento\Sales\Api\Data\OrderAddressInterface {
+        return $order->getIsVirtual()
+            ? $order->getBillingAddress()
+            : $order->getShippingAddress();
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @param string|null $key
+     * @return bool
+     */
+    public function isSyncableOrder(\Magento\Sales\Api\Data\OrderInterface $order, string $key = null): bool
+    {
+        $validated = $this->getOrderValidation($order);
+
+        if ($key !== null) {
+            return array_key_exists($key, $validated) ? $validated[$key] : false;
+        }
+
+        return array_reduce($validated, function ($a, $b) {
+            return $a && $b;
+        }, true);
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return array
+     */
+    public function getOrderValidation(\Magento\Sales\Api\Data\OrderInterface $order): array
+    {
+        return [
+            'state' => $this->isSyncableOrderState($order),
+            'order_currency_code' => $this->isSyncableOrderCurrency($order),
+            'country' => $this->isSyncableOrderCountry(
+                $this->getOrderAddress($order)
+            ),
+        ];
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return bool
+     */
+    public function isSyncableOrderState(\Magento\Sales\Api\Data\OrderInterface $order): bool
+    {
+        return in_array($order->getState(), self::SYNCABLE_STATES);
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return bool
+     */
+    public function isSyncableOrderCurrency(\Magento\Sales\Api\Data\OrderInterface $order): bool
+    {
+        return in_array($order->getOrderCurrencyCode(), self::SYNCABLE_CURRENCIES);
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return bool
+     */
+    public function isSyncableOrderCountry(\Magento\Sales\Api\Data\OrderAddressInterface $address): bool
+    {
+        return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
     }
 }
