@@ -4,208 +4,233 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Model\Transaction;
 
-use Magento\AsynchronousOperations\Api\Data\OperationInterface;
-use Magento\Framework\EntityManager\EntityManager;
-use Magento\Framework\Serialize\Serializer\Serialize;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order;
-use Taxjar\SalesTax\Model\Transaction\Backfill;
-use \Taxjar\SalesTax\Model\Transaction\Order as TaxjarOrder;
-use Taxjar\SalesTax\Model\Logger;
-use Taxjar\SalesTax\Model\Transaction\Refund;
-use Taxjar\SalesTax\Test\Unit\UnitTestCase;
-
-class BackfillTest extends UnitTestCase
+class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
-     * @var OrderRepositoryInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     * @var \Magento\Sales\Api\OrderRepositoryInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
-    private $orderRepository;
+    protected $orderRepositoryMock;
     /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|TaxjarOrder
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|\Taxjar\SalesTax\Model\Transaction\Order
      */
-    private $orderTransaction;
+    protected $orderTransactionMock;
     /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|Refund
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|\Taxjar\SalesTax\Model\Transaction\Refund
      */
-    private $refundTransaction;
+    protected $refundTransactionMock;
     /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|Logger
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|\Taxjar\SalesTax\Model\Logger
      */
-    private $logger;
+    protected $loggerMock;
     /**
-     * @var Serialize|mixed|\PHPUnit\Framework\MockObject\MockObject
+     * @var \Magento\Framework\Serialize\SerializerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
-    private $serializer;
+    protected $serializerMock;
     /**
-     * @var EntityManager|mixed|\PHPUnit\Framework\MockObject\MockObject
+     * @var \Magento\Framework\EntityManager\EntityManager|mixed|\PHPUnit\Framework\MockObject\MockObject
      */
-    private $entityManager;
+    protected $entityManagerMock;
+    /**
+     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|\Taxjar\SalesTax\Helper\Data
+     */
+    protected $tjSalesTaxDataMock;
+    /**
+     * @var \Magento\AsynchronousOperations\Api\Data\OperationInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $operationMock;
+    /**
+     * @var \Taxjar\SalesTax\Model\Transaction\Backfill
+     */
+    protected $sut;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->orderRepository = $this->createMock(OrderRepositoryInterface::class);
-        $this->orderTransaction = $this->createMock(\Taxjar\SalesTax\Model\Transaction\Order::class);
-        $this->refundTransaction = $this->createMock(Refund::class);
-        $this->logger = $this->createMock(Logger::class);
-        $this->serializer = $this->createMock(Serialize::class);
-        $this->entityManager = $this->createMock(EntityManager::class);
+        $this->orderRepositoryMock = $this->getMockBuilder(\Magento\Sales\Api\OrderRepositoryInterface::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+        $this->orderTransactionMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Transaction\Order::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->refundTransactionMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Transaction\Refund::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->loggerMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Logger::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->serializerMock = $this->getMockBuilder(\Magento\Framework\Serialize\SerializerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+        $this->entityManagerMock = $this->getMockBuilder(\Magento\Framework\EntityManager\EntityManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->tjSalesTaxDataMock = $this->getMockBuilder(\Taxjar\SalesTax\Helper\Data::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->operationMock = $this->getMockBuilder(\Magento\AsynchronousOperations\Api\Data\OperationInterface::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
 
-        $this->logger->expects($this->once())->method('setFilename')->with('transactions.log')->willReturnSelf();
-        $this->logger->expects($this->once())->method('force')->willReturnSelf();
+        $this->setExpectations();
     }
 
-    public function testInvalidOperationDataThrowsException()
+    public function testProcessMethodWithInvalidOperationData()
     {
-        $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')
-            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => false]]");
+        // Mock an operation with data where required key `orderIds` is missing
+        $serializedMock = "['meta_information' => ['force' => false]]";
+        $unserializedMock = ['meta_information' => ['force' => false]];
+        $this->expectOperationData($serializedMock, $unserializedMock);
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn([
-            'meta_information' => [
-                'force' => false,
-            ],
-        ]);
-
-        $this->logger->expects($this->any())->method('log')->with(
-            'Error syncing order #UNKNOWN - Operation data could not be parsed. Required array key `orderIds` does not exist.',
-            'error'
+        // Expect result of fail method
+        $exceptionMessage = 'Operation data could not be parsed. Required array key `orderIds` does not exist.';
+        $this->loggerMock->expects(static::once())
+            ->method('log')
+            ->with("Error syncing order #UNKNOWN - $exceptionMessage", 'error');
+        $this->expectOperationUpdated(
+            \Magento\Framework\Bulk\OperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED,
+            0,
+            "$exceptionMessage"
         );
 
-        $sut = $this->getTestSubject();
-        $sut->process($operation);
+        $this->setExpectations();
+
+        $this->sut->process($this->operationMock);
     }
 
     public function testProcessLogsNonSyncableOrder()
     {
-        $mockOrder = $this->createMock(Order::class);
-        $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
+        $serializedMock = "['meta_information' => ['orderIds' => ['9'], 'force' => false]]";
+        $unserializedMock = ['meta_information' => ['orderIds' => ['9'], 'force' => false]];
+        $this->expectOperationData($serializedMock, $unserializedMock);
 
-        $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')
-            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => false]]");
+        $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->orderRepositoryMock->expects(static::once())
+            ->method('get')
+            ->with(9)
+            ->willReturn($orderMock);
+        $this->orderTransactionMock->expects(static::once())
+            ->method('isSyncable')
+            ->with($orderMock)
+            ->willReturn(false);
 
-        $this->serializer->expects($this->any())->method('unserialize')->willReturn([
-            'meta_information' => [
-                'orderIds' => ['9'],
-                'force' => false,
-            ],
-        ]);
-        $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
-        $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(false);
+        $this->loggerMock->expects(static::once())
+            ->method('log')
+            ->with('Order #9 is not syncable', 'skip');
 
-        $this->logger->expects($this->any())->method('log')->with('Order #9 is not syncable', 'skip');
-
-        $sut = $this->getTestSubject();
-        $sut->process($operation);
-    }
-
-    public function testProcessSyncableOrder()
-    {
-        $mockCreditmemo = $this->createMock(Order\Creditmemo::class);
-
-        $mockOrder = $this->createMock(Order::class);
-        $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
-        $mockOrder->expects($this->any())->method('getCreditmemosCollection')->willReturn([$mockCreditmemo]);
-
-        $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')
-            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => false]]");
-        $operation->expects($this->any())->method('setStatus')->with(1)->willReturnSelf();
-        $operation->expects($this->any())->method('setErrorCode')->with(null)->willReturnSelf();
-        $operation->expects($this->any())->method('setResultMessage')->with(null)->willReturnSelf();
-
-        $this->serializer->expects($this->any())->method('unserialize')
-            ->willReturn([
-                'meta_information' => [
-                    'orderIds' => ['9'],
-                    'force' => false,
-                ],
-            ]);
-
-        $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
-        $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(true);
-        $this->orderTransaction->expects($this->any())->method('build')->with($mockOrder);
-        $this->orderTransaction->expects($this->any())->method('push')->with(false);
-        $this->refundTransaction->expects($this->any())->method('build')->with($mockOrder, $mockCreditmemo);
-        $this->refundTransaction->expects($this->any())->method('push');
-
-        $this->entityManager->expects($this->any())->method('save');
-
-        $sut = $this->getTestSubject();
-        $sut->process($operation);
-    }
-
-    public function testProcessLogsCaughtException()
-    {
-        $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')->willReturn("['meta_information' => ['orderIds' => ['9']]]");
-
-        $this->serializer->expects($this->any())->method('unserialize')
-            ->willReturn([
-                'meta_information' => [
-                    'orderIds' => ['9'],
-                    'force' => false,
-                ],
-            ]);
-
-        $this->orderRepository->expects($this->any())->method('get')->with('9')
-            ->willThrowException(new \Exception('testing'));
-
-        $this->logger->expects($this->any())->method('log')
-            ->with('Error syncing order #9 - testing', 'error');
-
-        $sut = $this->getTestSubject();
-        $sut->process($operation);
-    }
-
-    public function testProcessForceNonSyncableOrder()
-    {
-        $mockCreditmemo = $this->createMock(Order\Creditmemo::class);
-
-        $mockOrder = $this->createMock(Order::class);
-        $mockOrder->expects($this->any())->method('getIncrementId')->willReturn(9);
-        $mockOrder->expects($this->any())->method('getCreditmemosCollection')->willReturn([$mockCreditmemo]);
-
-        $operation = $this->createMock(OperationInterface::class);
-        $operation->expects($this->any())->method('getSerializedData')
-            ->willReturn("['meta_information' => ['orderIds' => ['9'], 'force' => true]]");
-        $operation->expects($this->any())->method('setStatus')->with(1)->willReturnSelf();
-        $operation->expects($this->any())->method('setErrorCode')->with(null)->willReturnSelf();
-        $operation->expects($this->any())->method('setResultMessage')->with(null)->willReturnSelf();
-
-        $this->serializer->expects($this->any())->method('unserialize')
-            ->willReturn([
-                'meta_information' => [
-                    'orderIds' => ['9'],
-                    'force' => true,
-                ],
-            ]);
-
-        $this->orderRepository->expects($this->any())->method('get')->with('9')->willReturn($mockOrder);
-        $this->orderTransaction->expects($this->any())->method('isSyncable')->willReturn(false);
-        $this->orderTransaction->expects($this->any())->method('build')->with($mockOrder);
-        $this->orderTransaction->expects($this->any())->method('push')->with(true);
-        $this->refundTransaction->expects($this->any())->method('build')->with($mockOrder, $mockCreditmemo);
-        $this->refundTransaction->expects($this->any())->method('push');
-
-        $this->entityManager->expects($this->any())->method('save');
-
-        $sut = $this->getTestSubject();
-        $sut->process($operation);
-    }
-
-    protected function getTestSubject(): Backfill
-    {
-        return new Backfill(
-            $this->orderRepository,
-            $this->orderTransaction,
-            $this->refundTransaction,
-            $this->logger,
-            $this->serializer,
-            $this->entityManager
+        $this->expectOperationUpdated(
+            \Magento\Framework\Bulk\OperationInterface::STATUS_TYPE_COMPLETE,
+            null,
+            null
         );
+
+        $this->setExpectations();
+
+        $this->sut->process($this->operationMock);
+    }
+
+    public function testProcessMethodOnSuccess()
+    {
+        $serializedMock = "['meta_information' => ['orderIds' => ['9'], 'force' => false]]";
+        $unserializedMock = ['meta_information' => ['orderIds' => ['9'], 'force' => false]];
+        $this->expectOperationData($serializedMock, $unserializedMock);
+
+        $creditmemoMock = $this->getMockBuilder(\Magento\Sales\Model\Order\Creditmemo::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $orderMock->expects(static::once())
+            ->method('getStoreId')
+            ->willReturn(1);
+        $orderMock->expects(static::once())
+            ->method('getCreditmemosCollection')
+            ->willReturn([$creditmemoMock]);
+        $this->orderRepositoryMock->expects(static::once())
+            ->method('get')
+            ->with(9)
+            ->willReturn($orderMock);
+
+        $this->orderTransactionMock->expects(static::once())
+            ->method('isSyncable')
+            ->with($orderMock)
+            ->willReturn(true);
+        $this->tjSalesTaxDataMock->expects(static::once())
+            ->method('isTransactionSyncEnabled')
+            ->with(1)
+            ->willReturn(true);
+
+        $this->orderTransactionMock->expects(static::once())
+            ->method('build')
+            ->with($orderMock);
+        $this->orderTransactionMock->expects(static::once())
+            ->method('push')
+            ->with(false);
+        $this->refundTransactionMock->expects(static::once())
+            ->method('build')
+            ->with($orderMock, $creditmemoMock);
+        $this->refundTransactionMock->expects(static::once())
+            ->method('push')
+            ->with(false);
+
+        $this->expectOperationUpdated(
+            \Magento\Framework\Bulk\OperationInterface::STATUS_TYPE_COMPLETE,
+            null,
+            null
+        );
+
+        $this->setExpectations();
+
+        $this->sut->process($this->operationMock);
+    }
+
+    protected function setExpectations(): void
+    {
+        $this->loggerMock->expects(static::atLeastOnce())
+            ->method('setFilename')
+            ->with('transactions.log')
+            ->willReturnSelf();
+        $this->loggerMock->expects(static::any())
+            ->method('force')
+            ->willReturnSelf();
+
+        $this->sut = new \Taxjar\SalesTax\Model\Transaction\Backfill(
+            $this->orderRepositoryMock,
+            $this->orderTransactionMock,
+            $this->refundTransactionMock,
+            $this->loggerMock,
+            $this->serializerMock,
+            $this->entityManagerMock,
+            $this->tjSalesTaxDataMock
+        );
+    }
+
+    private function expectOperationData($serialized, $unserialized)
+    {
+        $this->operationMock->expects(static::any())
+            ->method('getSerializedData')
+            ->willReturn($serialized);
+        $this->serializerMock->expects(static::once())
+            ->method('unserialize')
+            ->willReturn($unserialized);
+    }
+
+    private function expectOperationUpdated($status, $code, $message)
+    {
+        $this->operationMock->expects(static::once())
+            ->method('setStatus')
+            ->with($status);
+        $this->operationMock->expects(static::once())
+            ->method('setErrorCode')
+            ->with($code);
+        $this->operationMock->expects(static::once())
+            ->method('setResultMessage')
+            ->with($message);
+        $this->entityManagerMock->expects(static::once())
+            ->method('save')
+            ->with($this->operationMock);
     }
 }
