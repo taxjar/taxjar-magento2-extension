@@ -48,26 +48,24 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
      */
     public function execute()
     {
+        $responseContent = [
+            'success' => false,
+            'error_message' => '',
+        ];
+
         try {
             $this->eventManager->dispatch('taxjar_salestax_sync_transaction', [
                 'order_id' => $this->request->getParam('order_id'),
                 'force' => true,
             ]);
-
-            $responseContent = [
-                'success' => true,
-                'error_message' => '',
-            ];
+            $responseContent['success'] = true;
         } catch (\Exception $e) {
-            $responseContent = [
-                'success' => false,
-                'error_message' => $e->getMessage(),
-            ];
+            $responseContent['error_message'] = $e->getMessage();
         }
 
         /** @var \Magento\Framework\Controller\Result\Json $resultJson */
         $resultJson = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_JSON);
-        $resultJson->setData($responseContent);
+        $resultJson->setData(['data' => $responseContent]);
         return $resultJson;
     }
 }

@@ -39,13 +39,23 @@ class View
      */
     public function beforeSetLayout(\Magento\Sales\Block\Adminhtml\Order\View $subject)
     {
-        if ($this->_tjSalesTaxData->isSyncableOrder($subject->getOrder())) {
+        if ($this->shouldRender($subject->getOrder())) {
             $subject->addButton('taxjar_sync', [
                 'label' => __('Sync to TaxJar'),
                 'class' => 'taxjar-sync primary',
                 'onclick' => 'syncTransaction(\'' . $subject->getOrderId() . '\')'
             ]);
         }
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return bool
+     */
+    protected function shouldRender(\Magento\Sales\Api\Data\OrderInterface $order): bool
+    {
+        return $this->_tjSalesTaxData->isTransactionSyncEnabled()
+            && $this->_tjSalesTaxData->isSyncableOrder($order);
     }
 }
 

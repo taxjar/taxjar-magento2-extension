@@ -26,61 +26,61 @@ class ViewTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->setExpectations();
     }
 
-    public function testBeforeSetLayoutMethodWithSyncableOrder()
+    /**
+     * @param bool $transactionSyncEnabled
+     * @param bool $orderIsSyncable
+     * @dataProvider beforeSetLayoutMethodDataProvider
+     */
+    public function testBeforeSetLayoutMethod(bool $transactionSyncEnabled, bool $orderIsSyncable)
     {
         $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
             ->disableOriginalConstructor()
             ->getMock();
+
         $viewMock = $this->getMockBuilder(\Magento\Sales\Block\Adminhtml\Order\View::class)
             ->disableOriginalConstructor()
             ->getMock();
         $viewMock->expects(static::once())
             ->method('getOrder')
             ->willReturn($orderMock);
-        $viewMock->expects(static::once())
-            ->method('addButton')
-            ->with('taxjar_sync', [
-                'label' => __('Sync to TaxJar'),
-                'class' => 'taxjar-sync primary',
-                'onclick' => 'syncTransaction(\'9\')'
-            ])
-            ->willReturn($orderMock);
-        $viewMock->expects(static::once())
-            ->method('getOrderId')
-            ->willReturn(9);
+
+        $rule = ($transactionSyncEnabled && $orderIsSyncable) ? static::atLeastOnce() : static::never();
+        $viewMock->expects($rule)->method('addButton');
+        $viewMock->expects($rule)->method('getOrderId');
+
         $this->tjSalesTaxDataMock->expects(static::once())
+            ->method('isTransactionSyncEnabled')
+            ->willReturn($transactionSyncEnabled);
+        $this->tjSalesTaxDataMock->expects($transactionSyncEnabled ? static::once() : static::never())
             ->method('isSyncableOrder')
             ->with($orderMock)
-            ->willReturn(true);
+            ->willReturn($orderIsSyncable);
 
         $this->setExpectations();
 
         $this->sut->beforeSetLayout($viewMock);
     }
 
-    public function testBeforeSetLayoutMethodWithNonSyncableOrder()
+    public function beforeSetLayoutMethodDataProvider(): array
     {
-        $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $viewMock = $this->getMockBuilder(\Magento\Sales\Block\Adminhtml\Order\View::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $viewMock->expects(static::once())
-            ->method('getOrder')
-            ->willReturn($orderMock);
-        $viewMock->expects(static::never())
-            ->method('addButton');
-        $viewMock->expects(static::never())
-            ->method('getOrderId');
-        $this->tjSalesTaxDataMock->expects(static::once())
-            ->method('isSyncableOrder')
-            ->with($orderMock)
-            ->willReturn(false);
-
-        $this->setExpectations();
-
-        $this->sut->beforeSetLayout($viewMock);
+        return [
+            'feature_not_enabled_order_not_syncable' => [
+                'is_transaction_sync_enabled' => false,
+                'is_syncable_order' => false,
+            ],
+            'feature_enabled_order_not_syncable' => [
+                'is_transaction_sync_enabled' => true,
+                'is_syncable_order' => false,
+            ],
+            'feature_not_enabled_order_syncable' => [
+                'is_transaction_sync_enabled' => false,
+                'is_syncable_order' => true,
+            ],
+            'feature_enabled_order_syncable' => [
+                'is_transaction_sync_enabled' => true,
+                'is_syncable_order' => true,
+            ],
+        ];
     }
 
     protected function setExpectations()

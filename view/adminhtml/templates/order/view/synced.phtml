@@ -43,17 +43,15 @@ if ($synced) {
              $.ajax({
                  url: '<?= $block->escapeUrl($block->getUrl('taxjar/transaction/sync')) ?>',
                  method: 'POST',
-                 data: {
-                     order_id: orderId
-                 }
-             }).done(function(data) {
-                 if (data.result) {
+                 data: { order_id: orderId }
+             }).done(function(res) {
+                 if (res.data) {
                      window.location.reload();
                  } else {
-                     alert('Could not sync to TaxJar! Error: ' + data.error_message);
+                     alert('<?= __('Could not sync to TaxJar!') ?>');
+                     syncButton.prop('disabled', false);
+                     syncButton.find('span').text('Sync to TaxJar');
                  }
-                 syncButton.prop('disabled', false);
-                 syncButton.find('span').text('Sync to TaxJar');
              });
         };
     });

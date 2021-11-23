@@ -71,10 +71,10 @@ class SyncTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $resultMock = $this->createMock(\Magento\Framework\Controller\Result\Json::class);
         $resultMock->expects(static::once())
             ->method('setData')
-            ->with([
+            ->with(['data' => [
                 'success' => true,
                 'error_message' => '',
-            ])
+            ]])
             ->willReturnSelf();
         $this->resultFactoryMock->expects(static::atLeastOnce())
             ->method('create')
@@ -103,10 +103,10 @@ class SyncTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $resultMock = $this->createMock(\Magento\Framework\Controller\Result\Json::class);
         $resultMock->expects(static::once())
             ->method('setData')
-            ->with([
+            ->with(['data' => [
                 'success' => false,
                 'error_message' => 'test',
-            ])
+            ]])
             ->willReturnSelf();
         $this->resultFactoryMock->expects(static::atLeastOnce())
             ->method('create')
