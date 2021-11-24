@@ -41,4 +41,7 @@
     <type name="Magento\Sales\Model\Order\ItemRepository">
         <plugin name="taxjar_sales_order_itemrepository" type="Taxjar\SalesTax\Plugin\Sales\Model\Order\ItemRepository" />
     </type>
+    <type name="Magento\Sales\Block\Adminhtml\Order\View">
+        <plugin name="taxjar_sales_order_view" type="Taxjar\SalesTax\Plugin\Sales\Block\Adminhtml\Order\View"/>
+    </type>
 </config>

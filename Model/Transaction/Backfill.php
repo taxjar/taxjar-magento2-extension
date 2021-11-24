@@ -75,6 +75,11 @@ class Backfill
     protected $entityManager;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Data
+     */
+    private $_tjSalesTaxData;
+
+    /**
      * @param OrderRepositoryInterface $orderRepository
      * @param Order $orderFactory
      * @param Refund $refundFactory
@@ -88,14 +93,18 @@ class Backfill
         Refund $refundFactory,
         Logger $logger,
         SerializerInterface $serializer,
-        EntityManager $entityManager
+        EntityManager $entityManager,
+        \Taxjar\SalesTax\Helper\Data $tjSalesTaxData
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderTransaction = $orderFactory;
         $this->refundTransaction = $refundFactory;
-        $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG)->force();
+        $this->logger = $logger;
         $this->serializer = $serializer;
         $this->entityManager = $entityManager;
+        $this->_tjSalesTaxData = $tjSalesTaxData;
+
+        $this->logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG)->force();
     }
 
     /**
@@ -110,7 +119,9 @@ class Backfill
             foreach ($orderIds as $orderId) {
                 $order = $this->orderRepository->get($orderId);
 
-                if (!$this->orderTransaction->isSyncable($order)) {
+                if (!$this->orderTransaction->isSyncable($order) ||
+                    !$this->_tjSalesTaxData->isTransactionSyncEnabled($order->getStoreId())
+                ) {
                     $this->logger->log('Order #' . $orderId . ' is not syncable', 'skip');
                     continue;
                 }

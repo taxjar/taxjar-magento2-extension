@@ -192,8 +192,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     {
         return $this->stateIsSyncable($order)
             && $this->currencyIsSyncable($order)
-            && $this->countryIsSyncable($order)
-            && $this->transactionSyncIsEnabled($order);
+            && $this->countryIsSyncable($order);
     }
 
     protected function stateIsSyncable(OrderInterface $order): bool
@@ -210,10 +209,5 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     {
         $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
         return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
-    }
-
-    protected function transactionSyncIsEnabled(OrderInterface $order): bool
-    {
-        return $this->helper->isTransactionSyncEnabled($order->getStoreId(), 'store');
     }
 }
