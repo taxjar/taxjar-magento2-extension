@@ -96,7 +96,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                 $itemDiscounts += $lineItem['discount'];
             }
 
-            if ($adjustmentRefund) {
+            if ($adjustmentRefund > 0) {
                 $this->request['line_items'][] = [
                     'id' => 'adjustment-refund',
                     'quantity' => 1,
