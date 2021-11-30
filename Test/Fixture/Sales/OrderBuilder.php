@@ -37,7 +37,7 @@ class OrderBuilder
      */
     private $shippingMethod;
 
-    final public function __construct()
+    public function __construct()
     {
     }
 
