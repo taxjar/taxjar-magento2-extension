@@ -41,4 +41,19 @@ class BaseTestCase extends TestCase
         $property->setAccessible(true);
         return $property->getValue($object);
     }
+
+    /**
+     * @param $object
+     * @param $propertyName
+     * @param $value
+     * @throws \ReflectionException
+     */
+    public function setProperty($object, $propertyName, $value)
+    {
+        $reflection = new \ReflectionProperty($object, $propertyName);
+        $reflection->setAccessible(true);
+        $reflection->setValue($object, $value);
+
+        return $object;
+    }
 }

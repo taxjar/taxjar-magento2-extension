@@ -3,18 +3,21 @@
 namespace Taxjar\SalesTax\Console\Command;
 
 use Magento\Framework\App\State;
-use Magento\Framework\Event\Manager;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Event\Observer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Taxjar\SalesTax\Model\Logger;
-use Taxjar\SalesTax\Model\Transaction\Backfill;
+use Taxjar\SalesTax\Observer\BackfillTransactions;
 
 class SyncTransactionsCommand extends Command
 {
     const FROM_ARGUMENT = '<from>';
     const TO_ARGUMENT = '<to>';
+    const OPTION_FORCE = 'force';
+    const OPTION_FORCE_SHORT = 'f';
 
     /**
      * @var \Magento\Framework\App\State
@@ -32,26 +35,26 @@ class SyncTransactionsCommand extends Command
     protected $logger;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Transaction\Backfill
+     * @var \Taxjar\SalesTax\Observer\BackfillTransactions
      */
-    protected $backfill;
+    protected $backfillTransactions;
 
     /**
      * @param State $state
      * @param ManagerInterface $eventManager
      * @param Logger $logger
-     * @param Backfill $backfill
+     * @param BackfillTransactions $backfillTransactions
      */
     public function __construct(
         State $state,
-        Manager $eventManager,
+        ManagerInterface $eventManager,
         Logger $logger,
-        Backfill $backfill
+        BackfillTransactions $backfillTransactions
     ) {
         $this->state = $state;
         $this->eventManager = $eventManager;
         $this->logger = $logger;
-        $this->backfill = $backfill;
+        $this->backfillTransactions = $backfillTransactions;
         parent::__construct();
     }
 
@@ -63,7 +66,8 @@ class SyncTransactionsCommand extends Command
         $this->setName('taxjar:transactions:sync')
             ->setDescription('Sync transactions from Magento to TaxJar')
             ->addArgument(self::FROM_ARGUMENT, InputArgument::OPTIONAL)
-            ->addArgument(self::TO_ARGUMENT, InputArgument::OPTIONAL);
+            ->addArgument(self::TO_ARGUMENT, InputArgument::OPTIONAL)
+            ->addOption(self::OPTION_FORCE, self::OPTION_FORCE_SHORT);
     }
 
     /**
@@ -79,10 +83,11 @@ class SyncTransactionsCommand extends Command
         try {
             $this->state->setAreaCode('adminhtml');
             $this->logger->console($output);
-            $this->backfill->start([
+            $this->backfillTransactions->execute(new Observer([
                 'from_date' => $input->getArgument(self::FROM_ARGUMENT),
-                'to_date' => $input->getArgument(self::TO_ARGUMENT)
-            ]);
+                'to_date' => $input->getArgument(self::TO_ARGUMENT),
+                'force' => (bool) $input->getOption(self::OPTION_FORCE)
+            ]));
         } catch (\Exception $e) {
             $output->writeln(PHP_EOL . '<error>Failed to sync transactions: ' . $e->getMessage() . '</error>');
         }

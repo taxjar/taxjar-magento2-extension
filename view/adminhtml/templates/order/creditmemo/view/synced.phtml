@@ -19,8 +19,9 @@
 
 ?>
 <?php
-$order = $block->getCreditmemo()->getOrder();
+/** @var \Taxjar\SalesTax\Block\Adminhtml\Order\Creditmemo\View\Synced $block */
 $creditmemo = $block->getCreditmemo();
+$order = $creditmemo->getOrder();
 $orderSyncDate = '';
 $creditmemoSyncDate = '';
 

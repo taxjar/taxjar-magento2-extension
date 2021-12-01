@@ -18,7 +18,8 @@
 namespace Taxjar\SalesTax\Model;
 
 use Magento\Bundle\Model\Product\Price;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -113,27 +114,22 @@ class Transaction
     /**
      * Check if a transaction is synced
      *
-     * @param string $syncDate
-     * @return array
+     * @param string|null $syncDate
+     * @return bool
      */
-    protected function isSynced($syncDate)
+    protected function isSynced(?string $syncDate): bool
     {
-        if (empty($syncDate) || $syncDate == '0000-00-00 00:00:00') {
-            return false;
-        }
-
-        return true;
+        return ! (empty($syncDate) || $syncDate == '0000-00-00 00:00:00');
     }
 
     /**
      * Build `from` address for SmartCalcs request
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @return array
      */
-    protected function buildFromAddress(
-        \Magento\Sales\Model\Order $order
-    ) {
+    protected function buildFromAddress(OrderInterface $order): array
+    {
         $fromCountry = $this->scopeConfig->getValue(
             \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_COUNTRY_ID,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
@@ -174,17 +170,12 @@ class Transaction
     /**
      * Build `to` address for SmartCalcs request
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @return array
      */
-    protected function buildToAddress(
-        \Magento\Sales\Model\Order $order
-    ) {
-        if ($order->getIsVirtual()) {
-            $address = $order->getBillingAddress();
-        } else {
-            $address = $order->getShippingAddress();
-        }
+    protected function buildToAddress(OrderInterface $order): array
+    {
+        $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
 
         $toAddress = [
             'to_country' => $address->getCountryId(),
@@ -200,12 +191,14 @@ class Transaction
     /**
      * Build line items for SmartCalcs request
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @param array $items
      * @param string $type
      * @return array
+     * @throws LocalizedException
      */
-    protected function buildLineItems($order, $items, $type = 'order') {
+    protected function buildLineItems($order, $items, $type = 'order'): array
+    {
         $lineItems = [];
         $parentDiscounts = $this->getParentAmounts('discount', $items, $type);
         $parentTaxes = $this->getParentAmounts('tax', $items, $type);
@@ -225,7 +218,7 @@ class Transaction
 
             $parentItem = $item->getParentItem();
             $unitPrice = (float) $item->getPrice();
-            $quantity = (int) $item->getQtyOrdered();
+            $quantity = (int) $item->getQtyInvoiced();
 
             if ($type == 'refund' && isset($creditMemoItem)) {
                 $quantity = (int) $creditMemoItem->getQty();
@@ -256,8 +249,13 @@ class Transaction
             }
 
             $itemId = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
-            $discount = (float) $item->getDiscountAmount();
-            $tax = (float) $item->getTaxAmount();
+            $discount = (float) $item->getDiscountInvoiced();
+            $tax = (float) $item->getTaxInvoiced();
+
+            if ($type == 'refund' && isset($creditMemoItem)) {
+                $discount = (float) $creditMemoItem->getDiscountAmount();
+                $tax = (float) $creditMemoItem->getTaxAmount();
+            }
 
             if (isset($parentDiscounts[$itemId])) {
                 $discount = $parentDiscounts[$itemId] ?: $discount;
@@ -291,10 +289,10 @@ class Transaction
     /**
      * Add customer_id to transaction
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @return array
      */
-    protected function buildCustomerExemption($order)
+    protected function buildCustomerExemption($order): array
     {
         if ($order->getCustomerId()) {
             return ['customer_id' => $order->getCustomerId()];
@@ -304,10 +302,10 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Model\Order $order
+     * @param OrderInterface $order
      * @return string
      */
-    protected function getProvider($order)
+    protected function getProvider($order): string
     {
         $provider = 'api';
 
@@ -335,7 +333,8 @@ class Transaction
      * @param string $type
      * @return array
      */
-    protected function getParentAmounts($attr, $items, $type = 'order') {
+    protected function getParentAmounts($attr, $items, $type = 'order'): array
+    {
         $parentAmounts = [];
 
         foreach ($items as $item) {
@@ -374,10 +373,11 @@ class Transaction
      * Get the PTC, either assigned directly to the product or from the tax class
      *
      * @param $item
-     * @param \Magento\Sales\Model\Order $order
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param OrderInterface $order
+     * @return string
+     * @throws LocalizedException
      */
-    protected function getProductTaxCode($item, $order)
+    protected function getProductTaxCode($item, $order): string
     {
         // Check for a PTC saved to the Item
         // For configurable products, load the PTC of the child
