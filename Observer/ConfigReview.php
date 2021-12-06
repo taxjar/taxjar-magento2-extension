@@ -105,7 +105,6 @@ class ConfigReview implements ObserverInterface
 
             if ($enabled) {
                 $this->_reviewNexusAddresses();
-                $this->_reviewAddressValidation();
                 $this->_reviewSandboxMode();
             }
         }
@@ -124,22 +123,6 @@ class ConfigReview implements ObserverInterface
         if (!$nexusAddresses->getSize()) {
             // @codingStandardsIgnoreStart
             $this->messageManager->addErrorMessage(__('You have no nexus addresses loaded in Magento. Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'));
-            // @codingStandardsIgnoreEnd
-        }
-    }
-
-    /**
-     * @return void
-     * @SuppressWarnings(Generic.Files.LineLength.TooLong)
-     */
-    private function _reviewAddressValidation()
-    {
-        $enabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
-        $prevEnabled = $this->cache->load('taxjar_salestax_config_address_validation');
-
-        if (isset($prevEnabled) && $prevEnabled != $enabled) {
-            // @codingStandardsIgnoreStart
-            $this->messageManager->addWarningMessage(__('Please redeploy production mode in the Magento CLI ($ bin/magento deploy:mode:set production) to ensure address validation works correctly.'));
             // @codingStandardsIgnoreEnd
         }
     }
