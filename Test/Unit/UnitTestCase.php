@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit;
 
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Taxjar\SalesTax\Test\BaseTestCase;
 
 class UnitTestCase extends BaseTestCase
 {
     /**
-     * @var ObjectManagerInterface
+     * @param int|string $dataName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    protected $objectManager;
-
-    public function __construct()
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
-        parent::__construct();
-
-        $this->objectManager = new ObjectManager($this);
+        parent::__construct($name, $data, $dataName);
     }
 }
