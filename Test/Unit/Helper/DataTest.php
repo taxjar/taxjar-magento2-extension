@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Helper;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Taxjar\SalesTax\Model\Configuration;
+
 class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -52,6 +55,23 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
             ->getMockForAbstractClass();
 
         $this->setExpectations();
+    }
+
+    public function testIsEnabled()
+    {
+        $scopeConfigMock = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfigMock->expects(static::atLeastOnce())
+            ->method('getValue')
+            ->with(Configuration::TAXJAR_ENABLED, 'store', null)
+            ->willReturn(true);
+
+        $this->contextMock->expects(static::atLeastOnce())
+            ->method('getScopeConfig')
+            ->willReturn($scopeConfigMock);
+
+        $this->setExpectations();
+
+        static::assertTrue($this->sut->isEnabled());
     }
 
     /**
