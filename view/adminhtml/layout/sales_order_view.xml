@@ -22,9 +22,14 @@
             <referenceBlock name="order_info">
                 <block class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Synced" name="sales_order_view_synced" template="order/view/synced.phtml" after="-" />
             </referenceBlock>
+            <block class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info" name="order_taxjar_info">
+                <container name="taxjar_info_container">
+                    <uiComponent name="sales_order_taxjar_info_form"/>
+                </container>
+            </block>
             <action method="addTab">
-                <argument name="name" xsi:type="string">taxjar_info</argument>
-                <argument name="block" xsi:type="string">Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info</argument>
+                <argument name="name" xsi:type="string">taxjar_info_tab</argument>
+                <argument name="block" xsi:type="string">order_taxjar_info</argument>
             </action>
         </referenceBlock>
     </body>
