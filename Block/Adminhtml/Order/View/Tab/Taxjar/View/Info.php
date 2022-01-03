@@ -1,0 +1,120 @@
+<?php
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+
+declare(strict_types=1);
+
+namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View;
+
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Registry;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
+
+class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\Block\Widget\Tab\TabInterface
+{
+    /**
+     * Template
+     *
+     * @var string
+     */
+    protected $_template = 'Taxjar_SalesTax::order/view/tab/taxjar/info.phtml';
+
+    /**
+     * @var TaxjarHelper
+     */
+    private TaxjarHelper $tjHelper;
+
+    /**
+     * @var \Magento\Framework\Registry
+     */
+    private $coreRegistry;
+
+    /**
+     * @param TaxjarHelper $tjHelper
+     * @param \Magento\Framework\Registry $coreRegistry
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param array $data
+     * @param JsonHelper|null $jsonHelper
+     * @param DirectoryHelper|null $directoryHelper
+     */
+    public function __construct(
+        TaxjarHelper $tjHelper,
+        \Magento\Framework\Registry $coreRegistry,
+        \Magento\Backend\Block\Template\Context $context,
+        array $data = [],
+        ?JsonHelper $jsonHelper = null,
+        ?DirectoryHelper $directoryHelper = null
+    ) {
+        $this->tjHelper = $tjHelper;
+        $this->coreRegistry = $coreRegistry;
+
+        parent::__construct($context, $data, $jsonHelper, $directoryHelper);
+    }
+
+    /**
+     * @return \Magento\Framework\Phrase|string
+     */
+    public function getTabLabel()
+    {
+        return __('TaxJar Information');
+    }
+
+    /**
+     * @return \Magento\Framework\Phrase|string
+     */
+    public function getTabTitle()
+    {
+        return __('TaxJar Information');
+    }
+
+    /**
+     * @return bool
+     */
+    public function canShowTab()
+    {
+        return $this->tjHelper->isEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHidden()
+    {
+        return !$this->tjHelper->isEnabled();
+    }
+
+    /**
+     * Retrieve order model instance
+     *
+     * @return \Magento\Sales\Model\Order
+     */
+    public function getOrder()
+    {
+        return $this->coreRegistry->registry('current_order');
+    }
+
+    /**
+     * Get order admin date
+     *
+     * @param int $syncedAt
+     * @return \DateTime
+     */
+    public function getOrderSyncedAtDate($syncedAt)
+    {
+        return $this->_localeDate->date(new \DateTime($syncedAt));
+    }
+}
