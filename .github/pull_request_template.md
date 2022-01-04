@@ -21,8 +21,6 @@
 <!-- What version(s) did you test this change on? -->
 - [ ] Magento 2.4
 - [ ] Magento 2.3
-- [ ] Magento 2.2
-- [ ] Magento 2.1
 <!-- What edition(s) of Magento did you test this change on? -->
 - [ ] Magento Open Source (CE)
 - [ ] Magento Commerce (EE)
@@ -30,4 +28,3 @@
 - [ ] Magento Cloud
 <!-- What version of PHP did you test this change on? -->
 - [ ] PHP 7.x
-- [ ] PHP 5.x
