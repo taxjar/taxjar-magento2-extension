@@ -3,6 +3,7 @@
 namespace Taxjar\SalesTax\Console\Command;
 
 use Magento\Framework\App\State;
+use Magento\Framework\Event\Manager;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\Observer;
 use Symfony\Component\Console\Command\Command;
@@ -25,7 +26,7 @@ class SyncTransactionsCommand extends Command
     protected $state;
 
     /**
-     * @var \Magento\Framework\Event\ManagerInterface
+     * @var \Magento\Framework\Event\ManagerInterface|Manager
      */
     protected $eventManager;
 
@@ -41,13 +42,13 @@ class SyncTransactionsCommand extends Command
 
     /**
      * @param State $state
-     * @param ManagerInterface $eventManager
+     * @param ManagerInterface|Manager $eventManager
      * @param Logger $logger
      * @param BackfillTransactions $backfillTransactions
      */
     public function __construct(
         State $state,
-        ManagerInterface $eventManager,
+        Manager $eventManager,
         Logger $logger,
         BackfillTransactions $backfillTransactions
     ) {
@@ -74,7 +75,7 @@ class SyncTransactionsCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return string
+     * @return void
      */
     protected function execute(
         InputInterface $input,

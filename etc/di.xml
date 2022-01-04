@@ -44,4 +44,19 @@
     <type name="Magento\Sales\Block\Adminhtml\Order\View">
         <plugin name="taxjar_sales_order_view" type="Taxjar\SalesTax\Plugin\Sales\Block\Adminhtml\Order\View"/>
     </type>
+    <type name="Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand">
+        <arguments>
+            <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>
+            <argument name="logger" xsi:type="object">Taxjar\SalesTax\Model\Logger\Proxy</argument>
+            <argument name="importCategories" xsi:type="object">Taxjar\SalesTax\Observer\ImportCategories\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Taxjar\SalesTax\Console\Command\SyncTransactionsCommand">
+        <arguments>
+            <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>
+            <argument name="eventManager" xsi:type="object">Magento\Framework\Event\Manager\Proxy</argument>
+            <argument name="logger" xsi:type="object">Taxjar\SalesTax\Model\Logger\Proxy</argument>
+            <argument name="backfillTransactions" xsi:type="object">Taxjar\SalesTax\Observer\BackfillTransactions\Proxy</argument>
+        </arguments>
+    </type>
 </config>
