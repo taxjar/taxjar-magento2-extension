@@ -17,9 +17,13 @@
 
 namespace Taxjar\SalesTax\Setup;
 
+use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata;
 
 /**
  * @codeCoverageIgnore
@@ -43,7 +47,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $installer->getTable('sales_order'),
                 'tj_salestax_sync_date',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    'type' => Table::TYPE_TIMESTAMP,
                     'nullable' => true,
                     'comment' => 'Order sync date for TaxJar'
                 ]
@@ -56,7 +60,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $installer->getTable('sales_creditmemo'),
                 'tj_salestax_sync_date',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    'type' => Table::TYPE_TIMESTAMP,
                     'nullable' => true,
                     'comment' => 'Refund sync date for TaxJar'
                 ]
@@ -76,7 +80,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $installer->getTable('tax_nexus'),
                 'store_id',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                    'type' => Table::TYPE_SMALLINT,
                     'default' => 0,
                     'nullable' => false,
                     'unsigned' => true,
@@ -98,31 +102,31 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ->newTable($installer->getTable('tj_product_tax_categories'))
                 ->addColumn(
                     'id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     null,
                     ['identity' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
                     'ID'
                 )->addColumn(
                     'product_tax_code',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     32,
                     ['nullable' => false, 'default' => ''],
                     'Product Tax Code'
                 )->addColumn(
                     'name',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     255,
                     ['nullable' => false, 'default' => ''],
                     'Name'
                 )->addColumn(
                     'description',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     255,
                     ['nullable' => false, 'default' => ''],
                     'Description'
                 )->addColumn(
                     'plus_only',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_BOOLEAN,
+                    Table::TYPE_BOOLEAN,
                     null,
                     ['nullable' => false, 'default' => false],
                     'Plus only'
@@ -162,7 +166,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $installer->getTable('sales_order_item'),
                 'tj_ptc',
                 [
-                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'type' => Table::TYPE_TEXT,
                     'length' => 32,
                     'nullable' => true,
                     'default' => null,
@@ -171,6 +175,82 @@ class UpgradeSchema implements UpgradeSchemaInterface
             );
 
             $installer->endSetup();
+        }
+
+        /**
+         * Creates table `tj_sales_order_metadata`
+         */
+        if (version_compare($context->getVersion(), '1.0.7', '<')) {
+            $setup->startSetup();
+
+            $table = $setup
+                ->getConnection()
+                ->newTable($setup->getTable(Metadata::TABLE))
+                ->setComment('TaxJar Sales Order Metadata')
+                ->addColumn(
+                    MetadataInterface::ID,
+                    Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'identity' => true,
+                        'unsigned' => true,
+                        'primary'  => true,
+                        'nullable' => false
+                    ]
+                )
+                ->addColumn(
+                    MetadataInterface::ORDER_ID,
+                    Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'unsigned' => true,
+                        'nullable' => false,
+                        'type'     => Table::TYPE_INTEGER,
+                        'comment'  => 'Order ID'
+                    ]
+                )
+                ->addColumn(
+                    MetadataInterface::TAX_RESULT,
+                    Table::TYPE_TEXT,
+                    null,
+                    [
+                        'nullable' => false,
+                        'comment'  => 'Tax Result'
+                    ]
+                )
+                ->addColumn(
+                    MetadataInterface::CREATED_AT,
+                    Table::TYPE_DATETIME,
+                    null,
+                    [
+                        'nullable' => false,
+                        'comment'  => 'Created At'
+                    ]
+                )
+                ->addForeignKey(
+                    $setup->getFkName(
+                        $setup->getTable(Metadata::TABLE),
+                        MetadataInterface::ORDER_ID,
+                        'sales_order',
+                        'entity_id'
+                    ),
+                    MetadataInterface::ORDER_ID,
+                    $setup->getTable('sales_order'),
+                    'entity_id',
+                    Table::ACTION_CASCADE
+                )
+                ->addIndex(
+                    $setup->getIdxName(
+                        Metadata::TABLE,
+                        [MetadataInterface::ORDER_ID],
+                        AdapterInterface::INDEX_TYPE_UNIQUE
+                    ),
+                    [MetadataInterface::ORDER_ID],
+                    AdapterInterface::INDEX_TYPE_UNIQUE
+                );
+
+            $setup->getConnection()->createTable($table);
+            $setup->endSetup();
         }
     }
 }
