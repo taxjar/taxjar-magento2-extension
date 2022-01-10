@@ -14,12 +14,18 @@
  * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-?>
 
-<?php /** @var $block \Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info */ ?>
+namespace Taxjar\SalesTax\Model;
 
-<section class="admin__page-section">
-    <div class="admin__page-section-content">
-        <?= $block->getChildHtml('taxjar_info_container') ?>
-    </div>
-</section>
+class DataProvider extends \Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider
+{
+    /**
+     * Get data
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return [];
+    }
+}

@@ -21,7 +21,6 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View;
 
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Framework\Registry;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\Block\Widget\Tab\TabInterface
@@ -39,13 +38,7 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     private TaxjarHelper $tjHelper;
 
     /**
-     * @var \Magento\Framework\Registry
-     */
-    private $coreRegistry;
-
-    /**
      * @param TaxjarHelper $tjHelper
-     * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Backend\Block\Template\Context $context
      * @param array $data
      * @param JsonHelper|null $jsonHelper
@@ -53,14 +46,12 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
      */
     public function __construct(
         TaxjarHelper $tjHelper,
-        \Magento\Framework\Registry $coreRegistry,
         \Magento\Backend\Block\Template\Context $context,
         array $data = [],
         ?JsonHelper $jsonHelper = null,
         ?DirectoryHelper $directoryHelper = null
     ) {
         $this->tjHelper = $tjHelper;
-        $this->coreRegistry = $coreRegistry;
 
         parent::__construct($context, $data, $jsonHelper, $directoryHelper);
     }
@@ -95,26 +86,5 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     public function isHidden()
     {
         return !$this->tjHelper->isEnabled();
-    }
-
-    /**
-     * Retrieve order model instance
-     *
-     * @return \Magento\Sales\Model\Order
-     */
-    public function getOrder()
-    {
-        return $this->coreRegistry->registry('current_order');
-    }
-
-    /**
-     * Get order admin date
-     *
-     * @param int $syncedAt
-     * @return \DateTime
-     */
-    public function getOrderSyncedAtDate($syncedAt)
-    {
-        return $this->_localeDate->date(new \DateTime($syncedAt));
     }
 }
