@@ -19,22 +19,22 @@
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <item name="provider" xsi:type="string">sales_order_taxjar_info_form.taxjar_info_form_data_source</item>
+            <item name="provider" xsi:type="string">sales_order_taxjar_calculation_form.taxjar_calculation_form_data_source</item>
         </item>
         <item name="label" xsi:type="string" translate="true">TaxJar Information</item>
         <item name="template" xsi:type="string">templates/form/collapsible</item>
     </argument>
     <settings>
-        <namespace>sales_order_taxjar_info_form</namespace>
+        <namespace>sales_order_taxjar_calculation_form</namespace>
         <dataScope>data</dataScope>
         <deps>
-            <dep>sales_order_taxjar_info_form.taxjar_info_form_data_source</dep>
+            <dep>sales_order_taxjar_calculation_form.taxjar_calculation_form_data_source</dep>
         </deps>
     </settings>
-    <dataSource name="taxjar_info_form_data_source">
+    <dataSource name="taxjar_sync_form_data_source">
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">Taxjar\SalesTax\Model\DataProvider</argument>
-            <argument name="name" xsi:type="string">taxjar_info_form_data_source</argument>
+            <argument name="name" xsi:type="string">taxjar_calculation_form_data_source</argument>
             <argument name="primaryFieldName" xsi:type="string">id</argument>
             <argument name="requestFieldName" xsi:type="string">id</argument>
         </argument>
@@ -52,17 +52,6 @@
         <container name="order_taxjar_calculation">
             <htmlContent name="order_taxjar_calculation_html_content">
                 <block name="order_taxjar_calculation_info" class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Calculation" />
-            </htmlContent>
-        </container>
-    </fieldset>
-    <fieldset name="order_taxjar_sync">
-        <settings>
-            <collapsible>true</collapsible>
-            <label translate="true">Sync Status</label>
-        </settings>
-        <container name="order_taxjar_sync">
-            <htmlContent name="order_taxjar_sync_html_content">
-                <block name="order_taxjar_sync_info" class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Sync" />
             </htmlContent>
         </container>
     </fieldset>

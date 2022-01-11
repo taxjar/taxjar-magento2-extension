@@ -15,6 +15,8 @@
 
 namespace Taxjar\SalesTax\Helper;
 
+use ReflectionClass;
+
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     protected const SYNCABLE_STATES = ['complete', 'closed'];
@@ -189,5 +191,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function isSyncableOrderCountry(\Magento\Sales\Api\Data\OrderAddressInterface $address): bool
     {
         return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
+    }
+
+    public function getProperty($object, $propertyName)
+    {
+        $reflection = new ReflectionClass($object);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+        return $property->getValue($object);
     }
 }

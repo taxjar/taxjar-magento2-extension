@@ -20,6 +20,7 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -95,6 +96,8 @@ class Smartcalcs
     protected $taxjarConfig;
 
     /**
+     * Smartcalcs constructor.
+     *
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
@@ -104,6 +107,8 @@ class Smartcalcs
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
+     * @param \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig
+     * @param Logger $logger
      * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
@@ -219,6 +224,7 @@ class Smartcalcs
         ]);
 
         if ($this->_orderChanged($order)) {
+            $metadata = [];
             $client = $this->clientFactory->create();
             $client->setUri($this->taxjarConfig->getApiUrl() . '/magento/taxes');
             $client->setConfig([
@@ -235,22 +241,34 @@ class Smartcalcs
 
             $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
+            $metadata['request'] = $this->getRequestData($client);
+
             try {
                 $response = $client->request('POST');
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
 
+                $metadata['response'] = $this->getResponseData($client);
+
                 if (200 == $response->getStatus()) {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
                 } else {
                     $errorResponse = json_decode($response->getBody());
-                    $this->logger->log($errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail, 'error');
+                    $this->logger->log(
+                        $errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail,
+                        'error'
+                    );
                 }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
-                $this->logger->log('API timeout or network issue between your store and TaxJar, please try again later.', 'error');
+                $this->logger->log(
+                    'API timeout or network issue between your store and TaxJar, please try again later.',
+                    'error'
+                );
                 $this->response = null;
                 $this->_unsetSessionData('response');
+                $this->_unsetSessionData('order_metadata');
+                unset($metadata);
             }
         } else {
             $sessionResponse = $this->_getSessionData('response');
@@ -258,6 +276,10 @@ class Smartcalcs
             if (isset($sessionResponse)) {
                 $this->response = $sessionResponse;
             }
+        }
+
+        if (isset($metadata)) {
+            $this->_setSessionData('order_metadata', json_encode($metadata));
         }
 
         return $this;
@@ -582,5 +604,19 @@ class Smartcalcs
     private function _unsetSessionData($key)
     {
         return $this->checkoutSession->unsetData('taxjar_salestax_' . $key);
+    }
+
+    private function getRequestData(ZendClient $client)
+    {
+        return (object)[
+            'config' => $this->tjHelper->getProperty($client, 'config'),
+            'uri' => $this->tjHelper->getProperty($client, 'uri'),
+            'body' => $this->tjHelper->getProperty($client, 'raw_post_data')
+        ];
+    }
+
+    private function getResponseData(ZendClient $client)
+    {
+        return $client->getLastResponse();
     }
 }
