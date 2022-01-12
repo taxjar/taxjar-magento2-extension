@@ -16,7 +16,8 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Api/etc/extension_attributes.xsd">
     <extension_attributes for="Magento\Tax\Api\Data\QuoteDetailsItemInterface">
         <attribute code="tax_collectable" type="float" />
         <attribute code="combined_tax_rate" type="float" />
@@ -29,5 +30,12 @@
         <attribute code="tj_exemption_type" type="string" />
         <attribute code="tj_regions" type="string" />
         <attribute code="tj_last_sync" type="string" />
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
+        <attribute code="tj_tax_result" type="string">
+            <join reference_table="tj_sales_order_metadata" reference_field="entity_id" join_on_field="order_id">
+                <field>tax_result</field>
+            </join>
+        </attribute>
     </extension_attributes>
 </config>
