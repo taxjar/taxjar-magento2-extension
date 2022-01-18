@@ -22,6 +22,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
+use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -224,7 +225,6 @@ class Smartcalcs
         ]);
 
         if ($this->_orderChanged($order)) {
-            $metadata = [];
             $client = $this->clientFactory->create();
             $client->setUri($this->taxjarConfig->getApiUrl() . '/magento/taxes');
             $client->setConfig([
@@ -241,23 +241,21 @@ class Smartcalcs
 
             $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
-            $metadata['request'] = $this->getRequestData($client);
-
             try {
                 $response = $client->request('POST');
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
 
-                $metadata['response'] = $this->getResponseData($client);
-
                 if (200 == $response->getStatus()) {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
+                    $metadataTaxResult = Metadata::TAX_CALCULATION_STATUS_SUCCESS;
                 } else {
                     $errorResponse = json_decode($response->getBody());
                     $this->logger->log(
                         $errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail,
                         'error'
                     );
+                    $metadataTaxResult = Metadata::TAX_CALCULATION_STATUS_ERROR;
                 }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
@@ -267,8 +265,7 @@ class Smartcalcs
                 );
                 $this->response = null;
                 $this->_unsetSessionData('response');
-                $this->_unsetSessionData('order_metadata');
-                unset($metadata);
+                $metadataTaxResult = Metadata::TAX_CALCULATION_STATUS_ERROR;
             }
         } else {
             $sessionResponse = $this->_getSessionData('response');
@@ -278,8 +275,8 @@ class Smartcalcs
             }
         }
 
-        if (isset($metadata)) {
-            $this->_setSessionData('order_metadata', json_encode($metadata));
+        if (isset($metadataTaxResult)) {
+            $this->_setSessionData('order_metadata_tax_result', $metadataTaxResult);
         }
 
         return $this;
@@ -604,19 +601,5 @@ class Smartcalcs
     private function _unsetSessionData($key)
     {
         return $this->checkoutSession->unsetData('taxjar_salestax_' . $key);
-    }
-
-    private function getRequestData(ZendClient $client)
-    {
-        return (object)[
-            'config' => $this->tjHelper->getProperty($client, 'config'),
-            'uri' => $this->tjHelper->getProperty($client, 'uri'),
-            'body' => $this->tjHelper->getProperty($client, 'raw_post_data')
-        ];
-    }
-
-    private function getResponseData(ZendClient $client)
-    {
-        return $client->getLastResponse();
     }
 }

@@ -18,17 +18,10 @@
 /** @var $block \Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Calculation */
 
 $order = $block->getOrder();
-$taxResult = json_decode($block->getOrderTaxResult($order)->scalar);
-$requestBody = json_decode($taxResult->request->body);
-$responseBody = $taxResult->response;
 ?>
 
 <div class="admin__page-section-item">
     <div class="admin__page-section-item-content">
         <span><?= $block->escapeHtml($block->getOrderCalculationStatus($order)); ?></span>
-        <h2>Request</h2>
-        <pre><?= $block->escapeHtml(json_encode($requestBody, JSON_PRETTY_PRINT)); ?></pre>
-        <h2>Response</h2>
-        <pre><?= $block->escapeHtml(json_encode($responseBody, JSON_PRETTY_PRINT));?></pre>
     </div>
 </div>

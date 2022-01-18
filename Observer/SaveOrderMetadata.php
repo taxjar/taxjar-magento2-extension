@@ -20,13 +20,19 @@ namespace Taxjar\SalesTax\Observer;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\OrderExtensionFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterfaceFactory;
 
+/**
+ * Class SaveOrderMetadata
+ *
+ * Transfers stored tax calculation metadata from quote to order
+ */
 class SaveOrderMetadata implements ObserverInterface
 {
-    const ORDER_METADATA = 'taxjar_salestax_order_metadata';
+    const ORDER_METADATA_TAX_RESULT = 'taxjar_salestax_order_metadata_tax_result';
 
     /**
      * @var CheckoutSession $checkoutSession
@@ -39,31 +45,41 @@ class SaveOrderMetadata implements ObserverInterface
     private OrderRepositoryInterface $orderRepository;
 
     /**
-     * OrderMetadata constructor.
+     * @var OrderExtensionFactory $extensionFactory
+     */
+    private OrderExtensionFactory $extensionFactory;
+
+    /**
+     * SaveOrderMetadata constructor.
      *
      * @param CheckoutSession $checkoutSession
      * @param OrderRepositoryInterfaceFactory $orderRepositoryFactory
+     * @param OrderExtensionFactory $extensionFactory
      */
     public function __construct(
         CheckoutSession $checkoutSession,
-        OrderRepositoryInterfaceFactory $orderRepositoryFactory
+        OrderRepositoryInterfaceFactory $orderRepositoryFactory,
+        OrderExtensionFactory $extensionFactory
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->orderRepository = $orderRepositoryFactory->create();
+        $this->extensionFactory = $extensionFactory;
     }
 
     /**
-     * Transfer stored tax calculation request/response metadata from quote to order
+     * Retrieve tax calculation result from checkout session and update order
      *
      * @param Observer $observer
      */
     public function execute(Observer $observer)
     {
-        $result = $this->checkoutSession->getData(self::ORDER_METADATA);
+        $taxResult = $this->checkoutSession->getData(self::ORDER_METADATA_TAX_RESULT);
 
         /** @var OrderInterface $order */
         $order = $observer->getOrder();
-        $order->getExtensionAttributes()->setTjTaxResult($result);
+        $extensionAttributes = $order->getExtensionAttributes() ?? $this->extensionFactory->create();
+        $extensionAttributes->setTjTaxResult($taxResult);
+        $order->setExtensionAttributes($extensionAttributes);
 
         $this->orderRepository->save($order);
     }

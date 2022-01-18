@@ -19,24 +19,27 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info;
 
-use Magento\Backend\Block\Template\Context;
-use Magento\Framework\Registry;
 use Magento\Sales\Api\Data\OrderExtensionFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Block\Adminhtml\Order\AbstractOrder;
-use Magento\Sales\Helper\Admin as AdminHelper;
 use Magento\Shipping\Helper\Data as ShippingHelper;
 use Magento\Tax\Helper\Data as TaxHelper;
-use Taxjar\SalesTax\Helper\Data as DataHelper;
+use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 
 /**
  * Class Calculation
  *
- * This block is used to display order tax calculation data from tax_result value in
- * {@see \Taxjar\SalesTax\Model\OrderMetadata}
+ * This block is used to display order's tax calculation status.
  */
 class Calculation extends AbstractOrder
 {
+    const CALCULATION_SUCCESS = 'Tax was calculated in realtime through the TaxJar API.';
+
+    const CALCULATION_ERROR = 'TaxJar did not or was unable to perform a tax calculation on this order.';
+
+    const CALCULATION_NULL = 'No TaxJar calculation data is present on the order. This may indicate that TaxJar was
+        not enabled when this order was placed or tax was calculated using a prior version of the TaxJar extension.';
+
     /**
      * Template
      *
@@ -50,34 +53,26 @@ class Calculation extends AbstractOrder
     private OrderExtensionFactory $extensionFactory;
 
     /**
-     * @var DataHelper
-     */
-    private DataHelper $taxjarHelper;
-
-    /**
      * Calculation constructor.
      *
-     * @param OrderExtensionFactory $extensionFactory
-     * @param DataHelper $taxjarHelper
-     * @param Context $context
-     * @param Registry $registry
-     * @param AdminHelper $adminHelper
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param \Magento\Sales\Helper\Admin $adminHelper
      * @param array $data
      * @param ShippingHelper|null $shippingHelper
      * @param TaxHelper|null $taxHelper
+     * @param OrderExtensionFactory $extensionFactory
      */
     public function __construct(
-        OrderExtensionFactory $extensionFactory,
-        DataHelper $taxjarHelper,
-        Context $context,
-        Registry $registry,
-        AdminHelper $adminHelper,
+        \Magento\Backend\Block\Template\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Sales\Helper\Admin $adminHelper,
         array $data = [],
         ?ShippingHelper $shippingHelper = null,
-        ?TaxHelper $taxHelper = null
+        ?TaxHelper $taxHelper = null,
+        OrderExtensionFactory $extensionFactory
     ) {
         $this->extensionFactory = $extensionFactory;
-        $this->taxjarHelper = $taxjarHelper;
         parent::__construct(
             $context,
             $registry,
@@ -88,27 +83,33 @@ class Calculation extends AbstractOrder
         );
     }
 
-    public function getOrderCalculationStatus($order): string
+    /**
+     * Returns UI-friendly tax calculation status text.
+     *
+     * @param OrderInterface $order
+     * @return string
+     */
+    public function getOrderCalculationStatus(OrderInterface $order): string
     {
-        $extensionAttributes = $order->getExtensionAttributes();
-        if ($extensionAttributes && $extensionAttributes->getTjTaxResult()) {
-            return 'Tax was calculated for this order using the TaxJar API.';
-        }
-
-        return 'Tax was NOT calculated for this order using the TaxJar API.';
+        $extensionAttributes = $order->getExtensionAttributes() ?: $this->extensionFactory->create();
+        return $this->getStatusText($extensionAttributes->getTjTaxResult());
     }
 
     /**
-     * @param OrderInterface $order
-     * @return mixed
+     * Map calculation value to string constants.
+     *
+     * @param string|null $status
+     * @return string
      */
-    public function getOrderTaxResult(OrderInterface $order)
+    protected function getStatusText(?string $status): string
     {
-        $extensionAttributes = $order->getExtensionAttributes();
-        if ($extensionAttributes && $extensionAttributes->getTjTaxResult()) {
-            return (object)$extensionAttributes->getTjTaxResult();
+        switch ($status) {
+            case Metadata::TAX_CALCULATION_STATUS_SUCCESS:
+                return self::CALCULATION_SUCCESS;
+            case Metadata::TAX_CALCULATION_STATUS_ERROR:
+                return self::CALCULATION_ERROR;
+            default:
+                return self::CALCULATION_NULL;
         }
-
-        return 'No result found!';
     }
 }

@@ -35,7 +35,7 @@
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">Taxjar\SalesTax\Model\DataProvider</argument>
             <argument name="name" xsi:type="string">taxjar_info_form_data_source</argument>
-            <argument name="primaryFieldName" xsi:type="string">id</argument>
+            <argument name="primaryFieldName" xsi:type="string">entity_id</argument>
             <argument name="requestFieldName" xsi:type="string">id</argument>
         </argument>
         <argument name="data" xsi:type="array">
