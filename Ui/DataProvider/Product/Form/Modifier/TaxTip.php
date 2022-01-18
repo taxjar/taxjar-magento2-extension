@@ -28,8 +28,8 @@ class TaxTip extends AbstractModifier
     public function modifyMeta(array $meta)
     {
         if (isset($meta['product-details']['children']['container_tax_class_id']['children']['tax_class_id'])) {
-            $url = 'https://www.taxjar.com/guides/integrations/magento2/#product-sales-tax-exemptions';
-            $desc = 'TaxJar requires a product tax class assigned to a TaxJar category in order to exempt products from 
+            $url = \Taxjar\SalesTax\Model\Configuration::TAXJAR_MAGETWO_GUIDE_URL . '/#product-sales-tax-exemptions';
+            $desc = 'TaxJar requires a product tax class assigned to a TaxJar category in order to exempt products from
                      sales tax. <a href="' . $url . '" target="_blank">Click here</a> to learn more.';
             $meta['product-details']['children']['container_tax_class_id']['children']['tax_class_id']['arguments']
             ['data']['config']['tooltip'] = ['description' => $desc];
