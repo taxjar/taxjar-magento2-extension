@@ -91,7 +91,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     protected function _prepareForm()
     {
         $taxClassId = $this->_coreRegistry->registry('tax_class_id');
-        $url = \Taxjar\SalesTax\Model\Configuration::TAXJAR_MAGETWO_GUIDE_URL . '/#customer-sales-tax-exemptions';
+        $url = \Taxjar\SalesTax\Model\Configuration::TAXJAR_MAGETWO_GUIDE_URL . '/#section-customer-sales-tax-exemptions';
 
         try {
             if ($taxClassId) {
