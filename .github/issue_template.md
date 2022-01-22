@@ -1,7 +1,7 @@
 ### Prerequisites
 
 - [ ] Are you running the latest version of our extension?
-- [ ] Have you reviewed our [integration guide](https://www.taxjar.com/guides/integrations/magento2/)?
+- [ ] Have you reviewed our [integration guide](https://developers.taxjar.com/integrations/guides/magento2/)?
 - [ ] Did you search through [existing issues](https://github.com/taxjar/taxjar-magento2-extension/issues)?
 
 ### Description
