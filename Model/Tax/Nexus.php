@@ -37,6 +37,11 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     const KEY_UPDATED_AT  = 'updated_at';
     /**#@-*/
 
+    const COUNTRY_CODE_MAP = [
+        'UK' => 'GB',
+        'EL' => 'GR',
+    ];
+
     /**
      * @return void
      */
