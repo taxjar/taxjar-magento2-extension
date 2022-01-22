@@ -34,7 +34,7 @@ $allowedTags = ['br', 'pre'];
     <div class="admin__page-section-item-content taxjar-order-sync-information">
     <?php if($block->featureEnabled()): ?>
         <?php if(isset($orderAdminDate)): ?>
-            <span>Last synced at <?= $orderAdminDate ?></span>
+            <p><i>Last synced at <?= $orderAdminDate ?></i></p>
         <?php else: ?>
             <span><?= $block->escapeHtml($block->getOrderStateText($orderState), $allowedTags) ?></span>
             <br><br>

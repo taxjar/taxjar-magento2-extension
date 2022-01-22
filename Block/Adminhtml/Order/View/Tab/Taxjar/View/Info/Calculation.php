@@ -92,7 +92,7 @@ class Calculation extends AbstractOrder
     public function getOrderCalculationStatus(OrderInterface $order): string
     {
         $extensionAttributes = $order->getExtensionAttributes() ?: $this->extensionFactory->create();
-        return $this->getStatusText($extensionAttributes->getTjTaxResult());
+        return $this->getStatusText($extensionAttributes->getTjTaxCalculationStatus());
     }
 
     /**
@@ -111,5 +111,17 @@ class Calculation extends AbstractOrder
             default:
                 return self::CALCULATION_NULL;
         }
+    }
+
+    /**
+     * Returns any addition tax calculation result info.
+     *
+     * @param OrderInterface $order
+     * @return string|null
+     */
+    public function getOrderCalculationMessage(OrderInterface $order): ?string
+    {
+        $extensionAttributes = $order->getExtensionAttributes() ?: $this->extensionFactory->create();
+        return $extensionAttributes->getTjTaxCalculationMessage() ?? null;
     }
 }

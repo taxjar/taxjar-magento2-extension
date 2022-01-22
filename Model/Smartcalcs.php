@@ -22,6 +22,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -248,14 +249,19 @@ class Smartcalcs
 
                 if (200 == $response->getStatus()) {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
-                    $metadataTaxResult = Metadata::TAX_CALCULATION_STATUS_SUCCESS;
+                    $metadata = [
+                        MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_SUCCESS,
+                    ];
                 } else {
                     $errorResponse = json_decode($response->getBody());
                     $this->logger->log(
                         $errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail,
                         'error'
                     );
-                    $metadataTaxResult = Metadata::TAX_CALCULATION_STATUS_ERROR;
+                    $metadata = [
+                        MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                        MetadataInterface::TAX_CALCULATION_MESSAGE => $errorResponse->error . ' - ' . $errorResponse->detail,
+                    ];
                 }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
@@ -265,7 +271,10 @@ class Smartcalcs
                 );
                 $this->response = null;
                 $this->_unsetSessionData('response');
-                $metadataTaxResult = Metadata::TAX_CALCULATION_STATUS_ERROR;
+                $metadata = [
+                    MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                    MetadataInterface::TAX_CALCULATION_MESSAGE => $e->getMessage(),
+                ];
             }
         } else {
             $sessionResponse = $this->_getSessionData('response');
@@ -275,8 +284,8 @@ class Smartcalcs
             }
         }
 
-        if (isset($metadataTaxResult)) {
-            $this->_setSessionData('order_metadata_tax_result', $metadataTaxResult);
+        if (isset($metadata)) {
+            $this->_setSessionData('order_metadata', json_encode($metadata));
         }
 
         return $this;

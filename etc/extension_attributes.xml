@@ -32,9 +32,14 @@
         <attribute code="tj_last_sync" type="string" />
     </extension_attributes>
     <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
-        <attribute code="tj_tax_result" type="string">
+        <attribute code="tj_tax_calculation_status" type="string">
             <join reference_table="tj_sales_order_metadata" reference_field="entity_id" join_on_field="order_id">
-                <field>tax_result</field>
+                <field>tax_calculation_status</field>
+            </join>
+        </attribute>
+        <attribute code="tj_tax_calculation_message" type="string">
+            <join reference_table="tj_sales_order_metadata" reference_field="entity_id" join_on_field="order_id">
+                <field>tax_calculation_message</field>
             </join>
         </attribute>
     </extension_attributes>

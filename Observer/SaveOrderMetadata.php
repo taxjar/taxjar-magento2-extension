@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\OrderExtensionFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterfaceFactory;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
 
 /**
  * Class SaveOrderMetadata
@@ -32,7 +33,7 @@ use Magento\Sales\Api\OrderRepositoryInterfaceFactory;
  */
 class SaveOrderMetadata implements ObserverInterface
 {
-    const ORDER_METADATA_TAX_RESULT = 'taxjar_salestax_order_metadata_tax_result';
+    const ORDER_METADATA = 'taxjar_salestax_order_metadata';
 
     /**
      * @var CheckoutSession $checkoutSession
@@ -73,12 +74,21 @@ class SaveOrderMetadata implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        $taxResult = $this->checkoutSession->getData(self::ORDER_METADATA_TAX_RESULT);
+        $encodedMetadata = $this->checkoutSession->getData(self::ORDER_METADATA);
+        $metadata = json_decode($encodedMetadata, true);
 
         /** @var OrderInterface $order */
         $order = $observer->getOrder();
         $extensionAttributes = $order->getExtensionAttributes() ?? $this->extensionFactory->create();
-        $extensionAttributes->setTjTaxResult($taxResult);
+
+        if (isset($metadata[MetadataInterface::TAX_CALCULATION_STATUS])) {
+            $extensionAttributes->setTjTaxCalculationStatus($metadata[MetadataInterface::TAX_CALCULATION_STATUS]);
+        }
+
+        if (isset($metadata[MetadataInterface::TAX_CALCULATION_MESSAGE])) {
+            $extensionAttributes->setTjTaxCalculationMessage($metadata[MetadataInterface::TAX_CALCULATION_MESSAGE]);
+        }
+
         $order->setExtensionAttributes($extensionAttributes);
 
         $this->orderRepository->save($order);

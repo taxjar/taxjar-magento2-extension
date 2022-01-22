@@ -69,10 +69,18 @@ class QuoteManagement
     ): OrderInterface {
         /** @var OrderExtensionInterface $extensionAttributes */
         $extensionAttributes = $order->getExtensionAttributes();
-        if ($extensionAttributes && $extensionAttributes->getTjTaxResult()) {
-            $this->metadata->setOrderId($order->getEntityId());
-            $this->metadata->setTaxResult($extensionAttributes->getTjTaxResult());
-            $this->metadataRepository->save($this->metadata);
+        if ($extensionAttributes) {
+            if ($extensionAttributes->getTjTaxCalculationStatus()) {
+                $this->metadata->setOrderId($order->getEntityId());
+                $this->metadata->setTaxCalculationStatus($extensionAttributes->getTjTaxCalculationStatus());
+            }
+            if ($extensionAttributes->getTjTaxCalculationMessage()) {
+                $this->metadata->setOrderId($order->getEntityId());
+                $this->metadata->setTaxCalculationMessage($extensionAttributes->getTjTaxCalculationMessage());
+            }
+            if ($this->metadata->getOrderId() !== null) {
+                $this->metadataRepository->save($this->metadata);
+            }
         }
         return $order;
     }

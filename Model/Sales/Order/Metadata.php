@@ -113,17 +113,35 @@ class Metadata extends AbstractModel implements MetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function getTaxResult()
+    public function getTaxCalculationStatus()
     {
-        return $this->getData(self::TAX_RESULT);
+        return $this->getData(self::TAX_CALCULATION_STATUS);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setTaxResult($taxResult): self
+    public function setTaxCalculationStatus($taxCalculationStatus)
     {
-        $this->setData(self::TAX_RESULT, $taxResult);
+        $this->setData(self::TAX_CALCULATION_STATUS, $taxCalculationStatus);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTaxCalculationMessage()
+    {
+        return $this->getData(self::TAX_CALCULATION_MESSAGE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setTaxCalculationMessage($taxCalculationMessage)
+    {
+        $this->setData(self::TAX_CALCULATION_MESSAGE, $taxCalculationMessage);
 
         return $this;
     }

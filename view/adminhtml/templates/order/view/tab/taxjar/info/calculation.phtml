@@ -18,10 +18,17 @@
 /** @var $block \Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Calculation */
 
 $order = $block->getOrder();
+$status = $block->getOrderCalculationStatus($order);
+$message = $block->getOrderCalculationMessage($order);
 ?>
 
 <div class="admin__page-section-item">
     <div class="admin__page-section-item-content">
-        <span><?= $block->escapeHtml($block->getOrderCalculationStatus($order)); ?></span>
+        <p><i><?= $block->escapeHtml($status); ?></i></p>
+        <?php if ($message): ?>
+            <br>
+            <p>The following response was provided:</p>
+            <p><?= $block->escapeHtml($message) ?></p>
+        <?php endif; ?>
     </div>
 </div>

@@ -75,9 +75,10 @@ class OrderMetadata extends AbstractHelper
     {
         $extensionAttributes = $order->getExtensionAttributes() ?: $this->extensionFactory->create();
         $orderMetadata = $this->getOrderMetadata($order);
-        $taxResult = $orderMetadata ? $orderMetadata->getTaxResult() : null;
-        $extensionAttributes->setTjTaxResult($taxResult);
-
+        if ($orderMetadata) {
+            $extensionAttributes->setTjTaxCalculationStatus($orderMetadata->getTaxCalculationStatus());
+            $extensionAttributes->setTjTaxCalculationMessage($orderMetadata->getTaxCalculationMessage());
+        }
         return $order->setExtensionAttributes($extensionAttributes);
     }
 }
