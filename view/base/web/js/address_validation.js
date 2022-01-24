@@ -56,8 +56,8 @@ define([
                                 this.data.form.street_1.value = selectedAddress.street;
                                 this.data.form.city.value = selectedAddress.city;
                                 this.data.form.region_id.value = selectedAddress.regionId;
-                                this.data.form.postcode.value = selectedAddress.postcode;
                                 this.data.form.country_id.value = selectedAddress.countryId;
+                                this.data.form.postcode.value = selectedAddress.postcode;
                                 this.data.form.submit();
                             }
                         }
