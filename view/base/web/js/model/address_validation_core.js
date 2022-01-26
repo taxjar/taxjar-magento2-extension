@@ -105,11 +105,11 @@ function (ko, $) {
         isValidAddress: function (address) {
             return !!(
                 address &&
-                address.country_id &&
                 address.street &&
                 address.street[0] &&
                 address.city &&
                 address.region_id &&
+                address.country_id &&
                 address.postcode
             );
         },
