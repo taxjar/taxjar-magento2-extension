@@ -303,7 +303,7 @@ class Smartcalcs
      * @param $address
      * @return array
      */
-    public function _getOrder($quote, $quoteTaxDetails, $address)
+    private function _getOrder($quote, $quoteTaxDetails, $address)
     {
         $shipping = (float) $address->getShippingAmount();
         $shippingDiscount = (float) $address->getShippingDiscountAmount();
@@ -576,7 +576,7 @@ class Smartcalcs
      */
     private function _getNexusAddresses($storeId)
     {
-        $nexusCollection = $this->nexusFactory->create()->getCollection()->addStoreFilter($storeId);
+        $nexusCollection = $this->nexusFactory->create()->getCollection()->addStoreFilter($storeId)->getItems();
         return array_map([$this, '_getNexusAddress'], $nexusCollection);
     }
 
