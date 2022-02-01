@@ -105,6 +105,11 @@ class Smartcalcs
     private int $storeId;
 
     /**
+     * @var \Taxjar\SalesTax\Helper\Nexus
+     */
+    private \Taxjar\SalesTax\Helper\Nexus $nexusHelper;
+
+    /**
      * Smartcalcs constructor.
      *
      * @param \Magento\Checkout\Model\Session $checkoutSession
@@ -132,7 +137,8 @@ class Smartcalcs
         \Taxjar\SalesTax\Helper\Data $tjHelper,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Taxjar\SalesTax\Model\Logger $logger,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        \Taxjar\SalesTax\Helper\Nexus $nexusHelper
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -146,6 +152,7 @@ class Smartcalcs
         $this->postCodesConfig = $postCodesConfig;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
         $this->taxjarConfig = $taxjarConfig;
+        $this->nexusHelper = $nexusHelper;
     }
 
     /**
@@ -267,7 +274,13 @@ class Smartcalcs
             return false;
         }
 
-        if (!$this->_hasNexus($this->storeId, $address->getRegionCode(), $address->getCountry())) {
+        $hasNexus = $this->nexusHelper->hasNexusByLocation(
+            $this->storeId,
+            $address->getRegionCode(),
+            $address->getCountry()
+        );
+
+        if (!$hasNexus) {
             $this->_setSessionData('order_metadata', json_encode([
                 MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
                 MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - Order does not meet nexus requirements.'
@@ -329,7 +342,7 @@ class Smartcalcs
         return array_merge($fromAddress, $toAddress, [
             'shipping' => $shipping - abs($shippingDiscount),
             'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
-            'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
+            'nexus_addresses' => $this->nexusHelper->getNexusAddresses($quote->getStoreId()),
             'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : '',
             'plugin' => 'magento'
         ]);
@@ -436,33 +449,6 @@ class Smartcalcs
     }
 
     /**
-     * Verify if nexus is triggered for location
-     *
-     * @param int $storeId
-     * @param string $regionCode
-     * @param string $country
-     * @return bool
-     */
-    private function _hasNexus($storeId, $regionCode, $country)
-    {
-        $nexusCollection = $this->nexusFactory->create()
-            ->getCollection()
-            ->addStoreFilter($storeId);
-
-        if ($country == 'US') {
-            if (empty($regionCode)) {
-                return false;
-            }
-
-            $nexusCollection->addRegionCodeFilter($regionCode);
-        } else {
-            $nexusCollection->addCountryFilter($country);
-        }
-
-        return (bool)$nexusCollection->getSize();
-    }
-
-    /**
      * Verify if customer is exempt from sales tax
      *
      * @param \Magento\Quote\Model\Quote\Address $address
@@ -566,34 +552,6 @@ class Smartcalcs
         }
 
         return $lineItems;
-    }
-
-    /**
-     * Get international nexus addresses for `nexus_addresses` param
-     *
-     * @param int $storeId
-     * @return array
-     */
-    private function _getNexusAddresses($storeId)
-    {
-        $nexusCollection = $this->nexusFactory->create()->getCollection()->addStoreFilter($storeId)->getItems();
-        return array_map([$this, '_getNexusAddress'], $nexusCollection);
-    }
-
-    /**
-     * @param NexusInterface $nexusAddress
-     * @return array
-     */
-    private function _getNexusAddress($nexusAddress)
-    {
-        return [
-            'id' => $nexusAddress->getId(),
-            'country' => $nexusAddress->getCountryId(),
-            'zip' => $nexusAddress->getPostcode(),
-            'state' => $nexusAddress->getRegionCode(),
-            'city' => $nexusAddress->getCity(),
-            'street' => $nexusAddress->getStreet()
-        ];
     }
 
     /**
