@@ -29,7 +29,6 @@ interface MetadataInterface
     const ORDER_ID = 'order_id';
     const TAX_CALCULATION_STATUS = 'tax_calculation_status';
     const TAX_CALCULATION_MESSAGE = 'tax_calculation_message';
-    const CREATED_AT = 'created_at';
 
     /**
      * Get metadata entry's id
@@ -85,22 +84,6 @@ interface MetadataInterface
      * @return $this
      */
     public function setTaxCalculationMessage($taxCalculationMessage);
-
-    /**
-     * Get created at
-     *
-     * @return string
-     */
-    public function getCreatedAt();
-
-    /**
-     * Set created at
-     *
-     * @param string $createdAt
-     *
-     * @return $this
-     */
-    public function setCreatedAt($createdAt);
 
     /**
      * Save metadata

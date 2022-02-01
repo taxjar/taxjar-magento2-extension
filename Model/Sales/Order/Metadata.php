@@ -145,34 +145,4 @@ class Metadata extends AbstractModel implements MetadataInterface
 
         return $this;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreatedAt()
-    {
-        return $this->getData(self::CREATED_AT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setCreatedAt($createdAt): self
-    {
-        $this->setData(self::CREATED_AT, $createdAt);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function beforeSave()
-    {
-        if (! $this->getId()) {
-            $this->setCreatedAt($this->dateFactory->create()->gmtDate());
-        }
-
-        return parent::beforeSave();
-    }
 }
