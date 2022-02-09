@@ -38,7 +38,7 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $nexusInterfaceMock = $this->getMockBuilder(\Taxjar\SalesTax\Api\Data\Tax\NexusInterface::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
-        $nexusInterfaceMock->expects(static::any())->method('getId')->willReturn(1);
+        $nexusInterfaceMock->expects(static::any())->method('getId')->willReturn('99');
         $nexusInterfaceMock->expects(static::any())->method('getCountryId')->willReturn('US');
         $nexusInterfaceMock->expects(static::any())->method('getPostcode')->willReturn('94080');
         $nexusInterfaceMock->expects(static::any())->method('getRegionCode')->willReturn('CA');
@@ -50,7 +50,7 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
             ->getMock();
         $nexusCollectionMock->expects(static::once())
             ->method('getItems')
-            ->willReturn([$nexusInterfaceMock]);
+            ->willReturn(['99' => $nexusInterfaceMock]);
 
         $nexusMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Tax\Nexus::class)
             ->disableOriginalConstructor()
@@ -67,8 +67,8 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 
         static::assertSame(
             [
-                [
-                    'id' => 1,
+                0 => [
+                    'id' => '99',
                     'country' => 'US',
                     'zip' => '94080',
                     'state' => 'CA',
