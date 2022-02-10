@@ -210,21 +210,21 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ]
                 )
                 ->addColumn(
-                    MetadataInterface::TAX_RESULT,
+                    MetadataInterface::TAX_CALCULATION_STATUS,
                     Table::TYPE_TEXT,
                     null,
                     [
                         'nullable' => false,
-                        'comment'  => 'Tax Result'
+                        'comment'  => 'Tax Calculation Status'
                     ]
                 )
                 ->addColumn(
-                    MetadataInterface::CREATED_AT,
-                    Table::TYPE_DATETIME,
+                    MetadataInterface::TAX_CALCULATION_MESSAGE,
+                    Table::TYPE_TEXT,
                     null,
                     [
                         'nullable' => false,
-                        'comment'  => 'Created At'
+                        'comment'  => 'Tax Calculation Status'
                     ]
                 )
                 ->addForeignKey(

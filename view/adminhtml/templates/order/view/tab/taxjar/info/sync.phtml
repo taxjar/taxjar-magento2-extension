@@ -18,6 +18,7 @@
 /** @var $block \Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Sync */
 
 $order = $block->getOrder();
+$orderState = $order->getState();
 $syncDate = $order->getData('tj_salestax_sync_date');
 if ($syncDate) {
     $orderAdminDate = $block->formatDate(
@@ -26,18 +27,21 @@ if ($syncDate) {
         true
     );
 }
+$allowedTags = ['br', 'pre'];
 ?>
 
 <div class="admin__page-section-item">
-    <div class="admin__page-section-item-content">
+    <div class="admin__page-section-item-content taxjar-order-sync-information">
     <?php if($block->featureEnabled()): ?>
         <?php if(isset($orderAdminDate)): ?>
-            <span>Last synced at <?= $orderAdminDate ?></span>
+            <p><i>Last synced at <?= $orderAdminDate ?></i></p>
         <?php else: ?>
-            <span><?= $block->escapeHtml($block->getOrderStateText($order->getState())) ?></span>
+            <span><?= $block->escapeHtml($block->getOrderStateText($orderState), $allowedTags) ?></span>
+            <br><br>
+            <span><?= $block->escapeHtml($block->getOrderActionableText($orderState), $allowedTags) ?></span>
         <?php endif; ?>
     <?php else: ?>
-        <span><?= $block->escapeHtml($block->getFeatureDisabledText()) ?></span>
+        <span><?= $block->escapeHtml($block->getFeatureDisabledText(), $allowedTags) ?></span>
     <?php endif; ?>
     </div>
 </div>

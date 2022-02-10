@@ -93,7 +93,7 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     }
 
     /**
-     * Get alternate text for non-synced sales orders
+     * Get status text for sales orders
      *
      * @param string $state
      * @return \Magento\Framework\Phrase
@@ -101,18 +101,27 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     public function getOrderStateText($state)
     {
         if (in_array($state, static::SYNCABLE_STATES)) {
-            return __('This order has not been synced to TaxJar. You can manually sync this order.');
+            return __('This order has not been synced to TaxJar.');
+        }
+
+        return __('Current order state of %1 cannot be synced to TaxJar.', $this->insertPre($state));
+    }
+
+    /**
+     * Get actionable text for sales orders
+     *
+     * @param string $state
+     * @return \Magento\Framework\Phrase
+     */
+    public function getOrderActionableText($state)
+    {
+        if (in_array($state, static::SYNCABLE_STATES)) {
+            return __('You can manually sync this order.');
         }
 
         return __(
-            'Current order state of \'%1\' cannot be synced to TaxJar. ' .
-            'This order will automatically sync if Transaction Sync is ' .
-            'enabled when it transitions to one of the following states: %2.',
-            $state,
-            implode(
-                ', ',
-                array_map([$this, 'enquote'], static::SYNCABLE_STATES)
-            )
+            'Orders will automatically sync to TaxJar after transitioning to one of the following states: %1.',
+            implode(', ', array_map([$this, 'insertPre'], static::SYNCABLE_STATES))
         );
     }
 
@@ -121,15 +130,20 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
      */
     public function getFeatureDisabledText()
     {
-        return __('Transaction Sync is disabled. Visit "Stores > Configuration > Sales > Tax > TaxJar" to enable.');
+        return __(
+            'This feature is currently disabled. Visit %1 to enable Transaction Sync for automated sales tax
+            filing and remittance.',
+            $this->insertPre('Stores > Configuration > Sales > Tax > TaxJar')
+        );
     }
 
-    /**
-     * @param $string
-     * @return string
-     */
-    private function enquote($string)
+    protected function insertPre(string $htmlContent)
     {
-        return "'$string'";
+        return $this->insertTag('pre', $htmlContent);
+    }
+
+    private function insertTag(string $tagName, string $htmlContent)
+    {
+        return "<$tagName>$htmlContent</$tagName>";
     }
 }

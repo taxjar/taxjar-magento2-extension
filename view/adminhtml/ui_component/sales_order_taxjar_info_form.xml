@@ -35,7 +35,7 @@
         <argument name="dataProvider" xsi:type="configurableObject">
             <argument name="class" xsi:type="string">Taxjar\SalesTax\Model\DataProvider</argument>
             <argument name="name" xsi:type="string">taxjar_info_form_data_source</argument>
-            <argument name="primaryFieldName" xsi:type="string">id</argument>
+            <argument name="primaryFieldName" xsi:type="string">entity_id</argument>
             <argument name="requestFieldName" xsi:type="string">id</argument>
         </argument>
         <argument name="data" xsi:type="array">
@@ -44,6 +44,17 @@
             </item>
         </argument>
     </dataSource>
+    <fieldset name="order_taxjar_calculation">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Calculation Status</label>
+        </settings>
+        <container name="order_taxjar_calculation">
+            <htmlContent name="order_taxjar_calculation_html_content">
+                <block name="order_taxjar_calculation_info" class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Calculation" />
+            </htmlContent>
+        </container>
+    </fieldset>
     <fieldset name="order_taxjar_sync">
         <settings>
             <collapsible>true</collapsible>

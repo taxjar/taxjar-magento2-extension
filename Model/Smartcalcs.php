@@ -20,7 +20,12 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
+use Magento\Store\Model\ScopeInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
+use Taxjar\SalesTax\Api\Data\Tax\NexusInterface;
+use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -95,6 +100,18 @@ class Smartcalcs
     protected $taxjarConfig;
 
     /**
+     * @var int
+     */
+    private int $storeId;
+
+    /**
+     * @var \Taxjar\SalesTax\Helper\Nexus
+     */
+    private \Taxjar\SalesTax\Helper\Nexus $nexusHelper;
+
+    /**
+     * Smartcalcs constructor.
+     *
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
@@ -104,6 +121,8 @@ class Smartcalcs
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
+     * @param \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig
+     * @param Logger $logger
      * @param TaxjarConfig $taxjarConfig
      */
     public function __construct(
@@ -118,7 +137,8 @@ class Smartcalcs
         \Taxjar\SalesTax\Helper\Data $tjHelper,
         \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig,
         \Taxjar\SalesTax\Model\Logger $logger,
-        TaxjarConfig $taxjarConfig
+        TaxjarConfig $taxjarConfig,
+        \Taxjar\SalesTax\Helper\Nexus $nexusHelper
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->regionFactory = $regionFactory;
@@ -132,6 +152,7 @@ class Smartcalcs
         $this->postCodesConfig = $postCodesConfig;
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_CALCULATIONS_LOG);
         $this->taxjarConfig = $taxjarConfig;
+        $this->nexusHelper = $nexusHelper;
     }
 
     /**
@@ -147,76 +168,16 @@ class Smartcalcs
         \Magento\Tax\Api\Data\QuoteDetailsInterface $quoteTaxDetails,
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
     ) {
+        $this->storeId = $quote->getStoreId();
+
+        $apiKey = $this->taxjarConfig->getApiKey($this->storeId);
         $address = $shippingAssignment->getShipping()->getAddress();
-        $apiKey = $this->taxjarConfig->getApiKey($quote->getStoreId());
 
-        if (!$apiKey) {
+        if (!$this->_isValidRequest($address)) {
             return;
         }
 
-        if (!$address->getPostcode()) {
-            return;
-        }
-
-        if (!$this->_validatePostcode($address->getPostcode(), $address->getCountry())) {
-            return;
-        }
-
-        if (!$this->_hasNexus($quote->getStoreId(), $address->getRegionCode(), $address->getCountry())) {
-            return;
-        }
-
-        if (!count($address->getAllItems())) {
-            return;
-        }
-
-        if ($this->_isCustomerExempt($address)) {
-            return;
-        }
-
-        $shipping = (float) $address->getShippingAmount();
-        $shippingDiscount = (float) $address->getShippingDiscountAmount();
-
-        $shippingRegionId = $this->scopeConfig->getValue('shipping/origin/region_id',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $quote->getStoreId()
-        );
-
-        $fromAddress = [
-            'from_country' => $this->scopeConfig->getValue('shipping/origin/country_id',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                $quote->getStoreId()
-            ),
-            'from_zip' => $this->scopeConfig->getValue('shipping/origin/postcode',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                $quote->getStoreId()
-            ),
-            'from_state' => $this->regionFactory->create()->load($shippingRegionId)->getCode(),
-            'from_city' => $this->scopeConfig->getValue('shipping/origin/city',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                $quote->getStoreId()
-            ),
-            'from_street' => $this->scopeConfig->getValue('shipping/origin/street_line1',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                $quote->getStoreId()
-            ),
-        ];
-
-        $toAddress = [
-            'to_country' => $address->getCountry(),
-            'to_zip' => $address->getPostcode(),
-            'to_state' => $address->getRegionCode(),
-            'to_city' => $address->getCity(),
-            'to_street' => $address->getStreetLine(1)
-        ];
-
-        $order = array_merge($fromAddress, $toAddress, [
-            'shipping' => $shipping - abs($shippingDiscount),
-            'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
-            'nexus_addresses' => $this->_getNexusAddresses($quote->getStoreId()),
-            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : '',
-            'plugin' => 'magento'
-        ]);
+        $order = $this->_getOrder($quote, $quoteTaxDetails, $address);
 
         if ($this->_orderChanged($order)) {
             $client = $this->clientFactory->create();
@@ -226,7 +187,7 @@ class Smartcalcs
                 'referer' => $this->tjHelper->getStoreUrl()
             ]);
             $client->setHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
+                'Authorization' => "Bearer $apiKey",
                 'x-api-version' => TaxjarConfig::TAXJAR_X_API_VERSION
             ]);
             $client->setRawData(json_encode($order), 'application/json');
@@ -242,15 +203,32 @@ class Smartcalcs
 
                 if (200 == $response->getStatus()) {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
+                    $metadata = [
+                        MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_SUCCESS,
+                    ];
                 } else {
                     $errorResponse = json_decode($response->getBody());
-                    $this->logger->log($errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail, 'error');
+                    $this->logger->log(
+                        $errorResponse->status . ' ' . $errorResponse->error . ' - ' . $errorResponse->detail,
+                        'error'
+                    );
+                    $metadata = [
+                        MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                        MetadataInterface::TAX_CALCULATION_MESSAGE => $errorResponse->error . ' - ' . $errorResponse->detail,
+                    ];
                 }
             } catch (\Zend_Http_Client_Exception $e) {
                 // Catch API timeouts and network issues
-                $this->logger->log('API timeout or network issue between your store and TaxJar, please try again later.', 'error');
+                $this->logger->log(
+                    'API timeout or network issue between your store and TaxJar, please try again later.',
+                    'error'
+                );
                 $this->response = null;
                 $this->_unsetSessionData('response');
+                $metadata = [
+                    MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                    MetadataInterface::TAX_CALCULATION_MESSAGE => $e->getMessage(),
+                ];
             }
         } else {
             $sessionResponse = $this->_getSessionData('response');
@@ -260,7 +238,114 @@ class Smartcalcs
             }
         }
 
+        if (isset($metadata)) {
+            $this->_setSessionData('order_metadata', json_encode($metadata));
+        }
+
         return $this;
+    }
+
+    public function _isValidRequest($address)
+    {
+        if ($this->taxjarConfig->getApiKey($this->storeId) == null) {
+            $this->_setSessionData('order_metadata', json_encode([
+                MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - No TaxJar API key found.'
+            ]));
+
+            return false;
+        }
+
+        if (!$address->getPostcode()) {
+            $this->_setSessionData('order_metadata', json_encode([
+                MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - No postal code found on address.'
+            ]));
+
+            return false;
+        }
+
+        if (!$this->_validatePostcode($address->getPostcode(), $address->getCountry())) {
+            $this->_setSessionData('order_metadata', json_encode([
+                MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - Could not validate address postal code.'
+            ]));
+
+            return false;
+        }
+
+        $hasNexus = $this->nexusHelper->hasNexusByLocation(
+            $this->storeId,
+            $address->getRegionCode(),
+            $address->getCountry()
+        );
+
+        if (!$hasNexus) {
+            $this->_setSessionData('order_metadata', json_encode([
+                MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - Order does not meet nexus requirements.'
+            ]));
+
+            return false;
+        }
+
+        if (!count($address->getAllItems())) {
+            $this->_setSessionData('order_metadata', json_encode([
+                MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - No items found for address.'
+            ]));
+
+            return false;
+        }
+
+        if ($this->_isCustomerExempt($address)) {
+            $this->_setSessionData('order_metadata', json_encode([
+                MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
+                MetadataInterface::TAX_CALCULATION_MESSAGE => 'SKIPPED - Customer belongs to an exempt tax class.'
+            ]));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $quote
+     * @param $quoteTaxDetails
+     * @param $address
+     * @return array
+     */
+    private function _getOrder($quote, $quoteTaxDetails, $address)
+    {
+        $shipping = (float) $address->getShippingAmount();
+        $shippingDiscount = (float) $address->getShippingDiscountAmount();
+
+        $shippingRegionId = $this->_getStoreValue('shipping/origin/region_id', $quote->getStoreId());
+
+        $fromAddress = [
+            'from_country' => $this->_getStoreValue('shipping/origin/country_id', $quote->getStoreId()),
+            'from_zip' => $this->_getStoreValue('shipping/origin/postcode', $quote->getStoreId()),
+            'from_state' => $this->regionFactory->create()->load($shippingRegionId)->getCode(),
+            'from_city' => $this->_getStoreValue('shipping/origin/city', $quote->getStoreId()),
+            'from_street' => $this->_getStoreValue('shipping/origin/street_line1', $quote->getStoreId()),
+        ];
+
+        $toAddress = [
+            'to_country' => $address->getCountry(),
+            'to_zip' => $address->getPostcode(),
+            'to_state' => $address->getRegionCode(),
+            'to_city' => $address->getCity(),
+            'to_street' => $address->getStreetLine(1)
+        ];
+
+        return array_merge($fromAddress, $toAddress, [
+            'shipping' => $shipping - abs($shippingDiscount),
+            'line_items' => $this->_getLineItems($quote, $quoteTaxDetails),
+            'nexus_addresses' => $this->nexusHelper->getNexusAddresses($quote->getStoreId()),
+            'customer_id' => $quote->getCustomerId() ? $quote->getCustomerId() : '',
+            'plugin' => 'magento'
+        ]);
     }
 
     /**
@@ -364,41 +449,6 @@ class Smartcalcs
     }
 
     /**
-     * Verify if nexus is triggered for location
-     *
-     * @param int $storeId
-     * @param string $regionCode
-     * @param string $country
-     * @return bool
-     */
-    private function _hasNexus($storeId, $regionCode, $country)
-    {
-        if ($country == 'US') {
-            if (empty($regionCode)) {
-                return false;
-            }
-
-            $nexusInRegion = $this->nexusFactory->create()->getCollection()
-                ->addStoreFilter($storeId)
-                ->addRegionCodeFilter($regionCode);
-
-            if ($nexusInRegion->getSize()) {
-                return true;
-            }
-        } else {
-            $nexusInCountry = $this->nexusFactory->create()->getCollection()
-                ->addStoreFilter($storeId)
-                ->addCountryFilter($country);
-
-            if ($nexusInCountry->getSize()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Verify if customer is exempt from sales tax
      *
      * @param \Magento\Quote\Model\Quote\Address $address
@@ -410,10 +460,7 @@ class Smartcalcs
         if ($address->getQuote()->getCustomerTaxClassId()) {
             $customerTaxClass = $this->taxClassRepository->get($address->getQuote()->getCustomerTaxClassId());
             $customerTaxCode = $customerTaxClass->getTjSalestaxCode();
-
-            if ($customerTaxCode == TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE) {
-                return true;
-            }
+            return $customerTaxCode == TaxjarConfig::TAXJAR_EXEMPT_TAX_CODE;
         }
 
         return false;
@@ -508,31 +555,6 @@ class Smartcalcs
     }
 
     /**
-     * Get international nexus addresses for `nexus_addresses` param
-     *
-     * @param int $storeId
-     * @return array
-     */
-    private function _getNexusAddresses($storeId)
-    {
-        $nexusAddresses = $this->nexusFactory->create()->getCollection()->addStoreFilter($storeId);
-        $addresses = [];
-
-        foreach ($nexusAddresses as $nexusAddress) {
-            $addresses[] = [
-                'id' => $nexusAddress->getId(),
-                'country' => $nexusAddress->getCountryId(),
-                'zip' => $nexusAddress->getPostcode(),
-                'state' => $nexusAddress->getRegionCode(),
-                'city' => $nexusAddress->getCity(),
-                'street' => $nexusAddress->getStreet()
-            ];
-        }
-
-        return $addresses;
-    }
-
-    /**
      * Verify if the order changed compared to session
      *
      * @param  array $currentOrder
@@ -545,9 +567,9 @@ class Smartcalcs
 
         if ($sessionOrder) {
             return $currentOrder !== $sessionOrder;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -582,5 +604,10 @@ class Smartcalcs
     private function _unsetSessionData($key)
     {
         return $this->checkoutSession->unsetData('taxjar_salestax_' . $key);
+    }
+
+    private function _getStoreValue($value, $storeId)
+    {
+        return $this->scopeConfig->getValue($value, ScopeInterface::SCOPE_STORE, $storeId);
     }
 }

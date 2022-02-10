@@ -25,10 +25,10 @@ use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResource
  */
 interface MetadataInterface
 {
-    public const ID = 'entity_id';
-    public const ORDER_ID = 'order_id';
-    public const TAX_RESULT = 'tax_result';
-    public const CREATED_AT = 'created_at';
+    const ID = 'entity_id';
+    const ORDER_ID = 'order_id';
+    const TAX_CALCULATION_STATUS = 'tax_calculation_status';
+    const TAX_CALCULATION_MESSAGE = 'tax_calculation_message';
 
     /**
      * Get metadata entry's id
@@ -54,36 +54,36 @@ interface MetadataInterface
     public function setOrderId($orderId);
 
     /**
-     * Get tax result
+     * Get tax calculation status
      *
-     * @return string
+     * @return mixed
      */
-    public function getTaxResult();
+    public function getTaxCalculationStatus();
 
     /**
-     * Set tax result
+     * Set tax calculation status
      *
-     * @param string $taxResult
+     * @param string $taxCalculationStatus
      *
      * @return $this
      */
-    public function setTaxResult($taxResult);
+    public function setTaxCalculationStatus($taxCalculationStatus);
 
     /**
-     * Get created at
+     * Get tax calculation message
      *
-     * @return string
+     * @return mixed
      */
-    public function getCreatedAt();
+    public function getTaxCalculationMessage();
 
     /**
-     * Set created at
+     * Set tax calculation message
      *
-     * @param string $createdAt
+     * @param string $taxCalculationMessage
      *
      * @return $this
      */
-    public function setCreatedAt($createdAt);
+    public function setTaxCalculationMessage($taxCalculationMessage);
 
     /**
      * Save metadata

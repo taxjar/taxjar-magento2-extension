@@ -36,6 +36,10 @@ use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResource
  */
 class Metadata extends AbstractModel implements MetadataInterface
 {
+    const TAX_CALCULATION_STATUS_SUCCESS = 'success';
+
+    const TAX_CALCULATION_STATUS_ERROR = 'error';
+
     const CACHE_TAG = 'taxjar_salestax_order_metadata';
 
     protected $_cacheTag = 'taxjar_salestax_order_metadata';
@@ -48,7 +52,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     private DateTimeFactory $dateFactory;
 
     /**
-     * OrderMetadata constructor.
+     * Metadata constructor.
      *
      * @param Context               $context
      * @param Registry              $registry
@@ -109,17 +113,17 @@ class Metadata extends AbstractModel implements MetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function getTaxResult()
+    public function getTaxCalculationStatus()
     {
-        return $this->getData(self::TAX_RESULT);
+        return $this->getData(self::TAX_CALCULATION_STATUS);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setTaxResult($taxResult): self
+    public function setTaxCalculationStatus($taxCalculationStatus)
     {
-        $this->setData(self::TAX_RESULT, $taxResult);
+        $this->setData(self::TAX_CALCULATION_STATUS, $taxCalculationStatus);
 
         return $this;
     }
@@ -127,30 +131,18 @@ class Metadata extends AbstractModel implements MetadataInterface
     /**
      * {@inheritDoc}
      */
-    public function getCreatedAt()
+    public function getTaxCalculationMessage()
     {
-        return $this->getData(self::CREATED_AT);
+        return $this->getData(self::TAX_CALCULATION_MESSAGE);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setCreatedAt($createdAt): self
+    public function setTaxCalculationMessage($taxCalculationMessage)
     {
-        $this->setData(self::CREATED_AT, $createdAt);
+        $this->setData(self::TAX_CALCULATION_MESSAGE, $taxCalculationMessage);
 
         return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function beforeSave()
-    {
-        if (! $this->getId()) {
-            $this->setCreatedAt($this->dateFactory->create()->gmtDate());
-        }
-
-        return parent::beforeSave();
     }
 }
