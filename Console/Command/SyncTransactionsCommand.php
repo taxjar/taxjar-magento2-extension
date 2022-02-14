@@ -85,8 +85,8 @@ class SyncTransactionsCommand extends Command
             $this->state->setAreaCode('adminhtml');
             $this->logger->console($output);
             $this->backfillTransactions->execute(new Observer([
-                'from_date' => $input->getArgument(self::FROM_ARGUMENT),
-                'to_date' => $input->getArgument(self::TO_ARGUMENT),
+                'from' => $input->getArgument(self::FROM_ARGUMENT),
+                'to' => $input->getArgument(self::TO_ARGUMENT),
                 'force' => (bool) $input->getOption(self::OPTION_FORCE)
             ]));
         } catch (\Exception $e) {
