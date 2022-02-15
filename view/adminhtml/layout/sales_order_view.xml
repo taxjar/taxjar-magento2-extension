@@ -18,8 +18,19 @@
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceBlock name="order_info">
-            <block class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Synced" name="sales_order_view_synced" template="order/view/synced.phtml" after="-" />
+        <referenceBlock name="sales_order_tabs">
+            <referenceBlock name="order_info">
+                <block class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Synced" name="sales_order_view_synced" template="order/view/synced.phtml" after="-" />
+            </referenceBlock>
+            <block class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info" name="order_taxjar_info">
+                <container name="taxjar_info_container">
+                    <uiComponent name="sales_order_taxjar_info_form"/>
+                </container>
+            </block>
+            <action method="addTab">
+                <argument name="name" xsi:type="string">taxjar_info_tab</argument>
+                <argument name="block" xsi:type="string">order_taxjar_info</argument>
+            </action>
         </referenceBlock>
     </body>
 </page>

@@ -121,10 +121,13 @@ function (
                 var originalAddress = $.extend({}, checkoutProvider.get('shippingAddress'));
 
                 originalAddress.city = addrs[id].address.city;
+                originalAddress.region_id = addrs[id].address.regionId;
                 originalAddress.country_id = addrs[id].address.countryId;
                 originalAddress.postcode = addrs[id].address.postcode;
-                originalAddress.region_id = addrs[id].address.regionId;
-                originalAddress.telephone = addrs[id].address.telephone ?? quote.shippingAddress().telephone;
+
+                if (originalAddress.telephone === null) {
+                    originalAddress.telephone = addrs[id].address.telephone ?? quote.shippingAddress().telephone;
+                }
 
                 addrs[id].address.street.forEach(function(item, index) {
                    originalAddress.street[index] = item;

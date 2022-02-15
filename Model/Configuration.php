@@ -28,6 +28,7 @@ class Configuration
     const TAXJAR_AUTH_URL                   = 'https://app.taxjar.com';
     const TAXJAR_API_URL                    = 'https://api.taxjar.com/v2';
     const TAXJAR_SANDBOX_API_URL            = 'https://api.sandbox.taxjar.com/v2';
+    const TAXJAR_MAGETWO_GUIDE_URL          = 'https://developers.taxjar.com/integrations/guides/magento2';
     const TAXJAR_FEED_URL                   = 'www.taxjar.com/magento2/feed.xml';
     const TAXJAR_ADDRESS_VALIDATION         = 'tax/taxjar/address_validation';
     const TAXJAR_APIKEY                     = 'tax/taxjar/apikey';

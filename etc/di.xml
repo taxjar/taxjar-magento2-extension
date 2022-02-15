@@ -22,8 +22,10 @@
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
     <preference for="Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface" type="Taxjar\SalesTax\Model\Tax\Nexus\Repository" />
     <preference for="Taxjar\SalesTax\Api\AddressValidationInterface" type="Taxjar\SalesTax\Model\AddressValidation" />
-    <preference for="Taxjar\SalesTax\Api\Client\ClientFactoryInterface" type="Taxjar\SalesTax\Model\ClientFactory" />
     <preference for="Taxjar\SalesTax\Api\Client\ClientInterface" type="Taxjar\SalesTax\Model\Client" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface" type="Taxjar\SalesTax\Model\Sales\Order\Metadata" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface" type="Taxjar\SalesTax\Model\Sales\Order\MetadataSearchResult" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\MetadataRepositoryInterface" type="Taxjar\SalesTax\Model\Sales\Order\MetadataRepository" />
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -43,6 +45,15 @@
     </type>
     <type name="Magento\Sales\Block\Adminhtml\Order\View">
         <plugin name="taxjar_sales_order_view" type="Taxjar\SalesTax\Plugin\Sales\Block\Adminhtml\Order\View"/>
+    </type>
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="taxjar_quote_management" type="Taxjar\SalesTax\Plugin\Quote\Model\QuoteManagement" />
+    </type>
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="taxjar_order_repository" type="Taxjar\SalesTax\Plugin\Sales\Model\OrderRepository" />
+    </type>
+    <type name="Magento\Quote\Model\QuoteManagement">
+        <plugin name="taxjar_quote_management_after_submit" type="Taxjar\SalesTax\Plugin\Quote\Model\QuoteManagement" />
     </type>
     <type name="Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand">
         <arguments>

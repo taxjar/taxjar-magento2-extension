@@ -172,42 +172,44 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
                     continue;
                 }
 
-                $addressRegion = $this->regionFactory->create()->loadByCode($address['state'], $address['country']);
-                $addressCountry = $this->countryFactory->create()->loadByCode($address['country']);
+                $countryCode = $this->parseCountryCode($address['country']);
+                $addressRegion = $this->regionFactory->create()->loadByCode($address['state'], $countryCode);
+                $addressCountry = $this->countryFactory->create()->loadByCode($countryCode);
                 $addressCollection = $this->nexusFactory->create()->getCollection();
 
                 // Find existing address by region if US, otherwise country
                 // @codingStandardsIgnoreStart
-                if ($address['country'] == 'US') {
+                if ($countryCode == 'US') {
                     $existingAddress = $addressCollection->addRegionFilter($addressRegion->getId())->getFirstItem();
                 } else {
                     $existingAddress = $addressCollection->addCountryFilter($addressCountry->getId())->getFirstItem();
                 }
 
-                if ($existingAddress->getId()) {
-                    $existingAddress->addData([
-                        'api_id'     => $address['id'],
-                        'street'     => $address['street'],
-                        'city'       => $address['city'],
-                        'postcode'   => $address['zip']
-                    ]);
-                    $existingAddress->save();
-                } else {
-                    $newAddress = $this->nexusFactory->create();
-                    $newAddress->setData([
-                        'api_id'      => $address['id'],
-                        'street'      => $address['street'],
-                        'city'        => $address['city'],
+                $data = [
+                    'api_id'     => $address['id'],
+                    'street'     => $address['street'],
+                    'city'       => $address['city'],
+                    'postcode'   => $address['zip']
+                ];
+
+                if (!$existingAddress->getId()) {
+                    $data = array_merge($data, [
                         'country_id'  => $addressCountry->getId(),
                         'region'      => $addressRegion->getName(),
                         'region_id'   => $addressRegion->getId(),
-                        'region_code' => $addressRegion->getCode(),
-                        'postcode'    => $address['zip']
+                        'region_code' => $addressRegion->getCode()
                     ]);
-                    $newAddress->save();
                 }
-                // @codingStandardsIgnoreEnd
+
+                $nexusAddress = $existingAddress->getId() ? $existingAddress : $this->nexusFactory->create();
+                $nexusAddress->setData($data);
+                $nexusAddress->save();
             }
         }
+    }
+
+    private function parseCountryCode($countryCode)
+    {
+        return static::COUNTRY_CODE_MAP[$countryCode] ?? $countryCode;
     }
 }

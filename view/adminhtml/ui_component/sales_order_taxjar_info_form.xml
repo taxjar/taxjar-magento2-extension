@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">sales_order_taxjar_info_form.taxjar_info_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">TaxJar Information</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <namespace>sales_order_taxjar_info_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>sales_order_taxjar_info_form.taxjar_info_form_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="taxjar_info_form_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">Taxjar\SalesTax\Model\DataProvider</argument>
+            <argument name="name" xsi:type="string">taxjar_info_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">entity_id</argument>
+            <argument name="requestFieldName" xsi:type="string">id</argument>
+        </argument>
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+    </dataSource>
+    <fieldset name="order_taxjar_calculation">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Calculation Status</label>
+        </settings>
+        <container name="order_taxjar_calculation">
+            <htmlContent name="order_taxjar_calculation_html_content">
+                <block name="order_taxjar_calculation_info" class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Calculation" />
+            </htmlContent>
+        </container>
+    </fieldset>
+    <fieldset name="order_taxjar_sync">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Sync Status</label>
+        </settings>
+        <container name="order_taxjar_sync">
+            <htmlContent name="order_taxjar_sync_html_content">
+                <block name="order_taxjar_sync_info" class="Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Sync" />
+            </htmlContent>
+        </container>
+    </fieldset>
+</form>

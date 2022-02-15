@@ -377,7 +377,7 @@ class Transaction
      * @return string
      * @throws LocalizedException
      */
-    protected function getProductTaxCode($item, $order): string
+    protected function getProductTaxCode($item, $order)
     {
         // Check for a PTC saved to the Item
         // For configurable products, load the PTC of the child

@@ -65,6 +65,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->priceCurrency = $priceCurrency;
     }
 
+    public function isEnabled(
+        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+        $scopeCode = null
+    ): bool {
+        return $this->scopeConfig->getValue(
+            \Taxjar\SalesTax\Model\Configuration::TAXJAR_ENABLED,
+            $scope,
+            $scopeCode
+        );
+    }
+
     /**
      * Transaction Sync enabled check
      *
