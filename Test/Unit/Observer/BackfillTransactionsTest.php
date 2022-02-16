@@ -531,8 +531,8 @@ class BackfillTransactionsTest extends UnitTestCase
         $exception = new Exception('test-error');
 
         $dataMap = [
-            ['from', null, '2021-01-01'],
-            ['to', null, '2021-01-31'],
+            ['from_date', null, '2021-01-01'],
+            ['to_date', null, '2021-01-31'],
             ['force', null, '0'],
         ];
 

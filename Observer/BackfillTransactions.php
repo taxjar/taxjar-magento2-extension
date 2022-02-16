@@ -162,8 +162,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
 
     public function setDateRange(): BackfillTransactions
     {
-        $from = $this->getInput('from') ?? 'now';
-        $to = $this->getInput('to') ?? 'now';
+        $from = $this->getInput('from_date') ?? 'now';
+        $to = $this->getInput('to_date') ?? 'now';
         $fromDt = new \DateTime($from);
         $toDt = new \DateTime($to);
 
