@@ -76,8 +76,8 @@ if ($block->isEnabled()) { ?>
                     url: '<?= $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
                     method: 'GET',
                     data: {
-                        from: fromDate,
-                        to: toDate,
+                        from_date: fromDate,
+                        to_date: toDate,
                         force: force,
                         store: '<?= $this->getRequest()->getParam('store') ?>',
                         website: '<?= $this->getRequest()->getParam('website') ?>',
