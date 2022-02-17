@@ -375,8 +375,7 @@ class BackfillTransactionsTest extends UnitTestCase
     {
         $orderMock = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getTjSalestaxSyncDate'])
-            ->onlyMethods(['getUpdatedAt'])
+            ->setMethods(['getTjSalestaxSyncDate', 'getUpdatedAt'])
             ->getMock();
 
         if (!$forceSync) {
@@ -548,7 +547,7 @@ class BackfillTransactionsTest extends UnitTestCase
     {
         $searchCriteriaMock = $this->getMockBuilder(SearchCriteriaInterface::class)
             ->disableOriginalConstructor()
-            ->addMethods(['__toArray'])
+            ->setMethods(['__toArray'])
             ->getMockForAbstractClass();
         $searchCriteriaMock->expects($this->once())->method('__toArray')->willReturn((object)[]);
 

@@ -34,12 +34,12 @@ class QuoteManagement
     /**
      * @var Metadata $metadata
      */
-    private Metadata $metadata;
+    private $metadata;
 
     /**
      * @var MetadataRepositoryInterface $metadataRepository
      */
-    private MetadataRepositoryInterface $metadataRepository;
+    private $metadataRepository;
 
     /**
      * QuoteManagement constructor.

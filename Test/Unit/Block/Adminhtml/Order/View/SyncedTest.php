@@ -20,7 +20,7 @@ class SyncedTest extends UnitTestCase
     {
         $orderMock = $this->getMockBuilder(OrderInterface::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getTjSalestaxSyncDate']) // added to DB in module's setup script
+            ->setMethods(['getTjSalestaxSyncDate']) // added to DB in module's setup script
             ->getMockForAbstractClass();
         $orderMock->expects(static::once())->method('getTjSalestaxSyncDate');
         $sut = $this->objectManager->getObject(Synced::class);

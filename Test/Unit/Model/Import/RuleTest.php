@@ -46,7 +46,7 @@ class RuleTest extends UnitTestCase
 
         $sut = $this->getMockBuilder(\Taxjar\SalesTax\Model\Import\Rule::class)
             ->setConstructorArgs([$mockRuleFactory, $mockRuleRepository])
-            ->onlyMethods(['saveCalculationData'])
+            ->setMethods(['saveCalculationData'])
             ->getMock();
 
         $sut->expects($this->any())->method('saveCalculationData')->willReturn(true);
@@ -60,8 +60,15 @@ class RuleTest extends UnitTestCase
     {
         $mockCalculation = $this->getMockBuilder(Calculation::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['setData', 'save', 'getCollection', 'getId', 'delete'])
-            ->addMethods(['addFieldToFilter', 'getFirstItem'])
+            ->setMethods([
+                'setData',
+                'save',
+                'getCollection',
+                'getId',
+                'delete',
+                'addFieldToFilter',
+                'getFirstItem'
+            ])
             ->getMock();
 
         $mockCalculation->expects($this->any())->method('getCollection')->willReturnSelf();

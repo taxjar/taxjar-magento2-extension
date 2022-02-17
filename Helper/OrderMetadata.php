@@ -27,12 +27,12 @@ class OrderMetadata extends AbstractHelper
     /**
      * @var OrderExtensionFactory $extensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * @var CollectionFactory $collectionFactory
      */
-    private CollectionFactory $collectionFactory;
+    private $collectionFactory;
 
     /**
      * OrderMetadata constructor.

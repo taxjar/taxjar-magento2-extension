@@ -38,17 +38,17 @@ class SaveOrderMetadata implements ObserverInterface
     /**
      * @var CheckoutSession $checkoutSession
      */
-    private CheckoutSession $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var OrderRepositoryInterface $orderRepository
      */
-    private OrderRepositoryInterface $orderRepository;
+    private $orderRepository;
 
     /**
      * @var OrderExtensionFactory $extensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * SaveOrderMetadata constructor.

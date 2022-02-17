@@ -47,7 +47,7 @@ class RuleModelTest extends UnitTestCase
                 $this->createMock(AbstractResource::class),
                 $this->createMock(AbstractDb::class)
             ])
-            ->onlyMethods(['_init'])
+            ->setMethods(['_init'])
             ->getMock();
 
         $sut->method('_init')->will($this->returnValue(true));

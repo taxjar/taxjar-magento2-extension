@@ -49,7 +49,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     /**
      * @var DateTimeFactory
      */
-    private DateTimeFactory $dateFactory;
+    private $dateFactory;
 
     /**
      * Metadata constructor.

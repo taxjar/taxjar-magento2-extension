@@ -17,7 +17,10 @@ namespace Taxjar\SalesTax\Helper;
 
 class Nexus extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    private \Taxjar\SalesTax\Model\Tax\NexusFactory $nexusFactory;
+    /**
+     * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
+     */
+    private $nexusFactory;
 
     /**
      * Nexus constructor.
@@ -43,7 +46,9 @@ class Nexus extends \Magento\Framework\App\Helper\AbstractHelper
     {
         /** @var array|\Taxjar\SalesTax\Api\Data\Tax\NexusInterface[] $nexusArray */
         $nexusArray = array_values($this->getNexusCollection($storeId)->getItems());
-        return array_map(fn ($nexus) => $this->getNexusData($nexus), $nexusArray);
+        return array_map(function ($nexus) {
+            return $this->getNexusData($nexus);
+        }, $nexusArray);
     }
 
     /**

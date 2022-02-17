@@ -102,12 +102,12 @@ class Smartcalcs
     /**
      * @var int
      */
-    private int $storeId;
+    private $storeId;
 
     /**
      * @var \Taxjar\SalesTax\Helper\Nexus
      */
-    private \Taxjar\SalesTax\Helper\Nexus $nexusHelper;
+    private $nexusHelper;
 
     /**
      * Smartcalcs constructor.
@@ -124,6 +124,7 @@ class Smartcalcs
      * @param \Magento\Directory\Model\Country\Postcode\ConfigInterface $postCodesConfig
      * @param Logger $logger
      * @param TaxjarConfig $taxjarConfig
+     * @param \Taxjar\SalesTax\Helper\Nexus $nexusHelper
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,

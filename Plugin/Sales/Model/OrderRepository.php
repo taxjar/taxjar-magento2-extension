@@ -32,7 +32,7 @@ class OrderRepository
     /**
      * @var OrderMetadataHelper $helper
      */
-    private OrderMetadataHelper $helper;
+    private $helper;
 
     /**
      * Get constructor.
