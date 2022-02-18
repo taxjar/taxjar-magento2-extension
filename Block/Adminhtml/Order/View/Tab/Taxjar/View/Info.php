@@ -35,7 +35,7 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     /**
      * @var TaxjarHelper
      */
-    private TaxjarHelper $tjHelper;
+    private $tjHelper;
 
     /**
      * @param TaxjarHelper $tjHelper

@@ -50,6 +50,7 @@ class MetadataRepository implements MetadataRepositoryInterface
      * @var MetadataSearchResultInterfaceFactory
      */
     private $searchResultFactory;
+
     /**
      * @var CollectionProcessorInterface
      */

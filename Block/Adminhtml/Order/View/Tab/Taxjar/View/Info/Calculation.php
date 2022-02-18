@@ -48,9 +48,9 @@ class Calculation extends AbstractOrder
     protected $_template = 'Taxjar_SalesTax::order/view/tab/taxjar/info/calculation.phtml';
 
     /**
-     * @var OrderExtensionFactory $extensionFactory
+     * @var OrderExtensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * Calculation constructor.

@@ -17,7 +17,10 @@ namespace Taxjar\SalesTax\Helper;
 
 class Nexus extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    private \Taxjar\SalesTax\Model\Tax\NexusFactory $nexusFactory;
+    /**
+     * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
+     */
+    private $nexusFactory;
 
     /**
      * Nexus constructor.
