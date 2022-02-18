@@ -25,14 +25,14 @@ use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory;
 class OrderMetadata extends AbstractHelper
 {
     /**
-     * @var OrderExtensionFactory $extensionFactory
+     * @var OrderExtensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
-     * @var CollectionFactory $collectionFactory
+     * @var CollectionFactory
      */
-    private CollectionFactory $collectionFactory;
+    private $collectionFactory;
 
     /**
      * OrderMetadata constructor.

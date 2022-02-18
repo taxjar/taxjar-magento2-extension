@@ -30,9 +30,9 @@ use Taxjar\SalesTax\Helper\OrderMetadata as OrderMetadataHelper;
 class OrderRepository
 {
     /**
-     * @var OrderMetadataHelper $helper
+     * @var OrderMetadataHelper
      */
-    private OrderMetadataHelper $helper;
+    private $helper;
 
     /**
      * Get constructor.
