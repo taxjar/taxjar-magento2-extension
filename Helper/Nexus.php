@@ -43,7 +43,7 @@ class Nexus extends \Magento\Framework\App\Helper\AbstractHelper
     {
         /** @var array|\Taxjar\SalesTax\Api\Data\Tax\NexusInterface[] $nexusArray */
         $nexusArray = array_values($this->getNexusCollection($storeId)->getItems());
-        return array_map(fn ($nexus) => $this->getNexusData($nexus), $nexusArray);
+        return array_map([$this, 'getNexusData'], $nexusArray);
     }
 
     /**
