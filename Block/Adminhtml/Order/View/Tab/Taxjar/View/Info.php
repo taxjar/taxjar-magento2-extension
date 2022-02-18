@@ -19,8 +19,6 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View;
 
-use Magento\Directory\Helper\Data as DirectoryHelper;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 
 class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\Block\Widget\Tab\TabInterface
@@ -41,19 +39,15 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
      * @param TaxjarHelper $tjHelper
      * @param \Magento\Backend\Block\Template\Context $context
      * @param array $data
-     * @param JsonHelper|null $jsonHelper
-     * @param DirectoryHelper|null $directoryHelper
      */
     public function __construct(
         TaxjarHelper $tjHelper,
         \Magento\Backend\Block\Template\Context $context,
-        array $data = [],
-        ?JsonHelper $jsonHelper = null,
-        ?DirectoryHelper $directoryHelper = null
+        array $data = []
     ) {
         $this->tjHelper = $tjHelper;
 
-        parent::__construct($context, $data, $jsonHelper, $directoryHelper);
+        parent::__construct($context, $data);
     }
 
     /**
