@@ -19,9 +19,6 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info;
 
-use Magento\Shipping\Helper\Data as ShippingHelper;
-use Magento\Tax\Helper\Data as TaxHelper;
-
 class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
 {
     /**
@@ -50,26 +47,20 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Sales\Helper\Admin $adminHelper
      * @param array $data
-     * @param ShippingHelper|null $shippingHelper
-     * @param TaxHelper|null $taxHelper
      */
     public function __construct(
         \Taxjar\SalesTax\Helper\Data $taxjarHelper,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Sales\Helper\Admin $adminHelper,
-        array $data = [],
-        ?ShippingHelper $shippingHelper = null,
-        ?TaxHelper $taxHelper = null
+        array $data = []
     ) {
         $this->taxjarHelper = $taxjarHelper;
         parent::__construct(
             $context,
             $registry,
             $adminHelper,
-            $data,
-            $shippingHelper,
-            $taxHelper
+            $data
         );
     }
 
