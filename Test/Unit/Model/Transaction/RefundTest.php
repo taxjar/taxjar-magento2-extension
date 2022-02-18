@@ -35,7 +35,7 @@ class RefundTest extends UnitTestCase
 
         $result = $sut->build($this->mockOrder, $this->mockCreditMemo);
 
-        $this->assertIsArray($result);
+        $this->assertArrayHasKey('provider', $result);
     }
 
     public function testBuildPayloadContainsOrderAndCreditMemoData()
@@ -102,7 +102,6 @@ class RefundTest extends UnitTestCase
 
         $result = $sut->build($this->mockOrder, $this->mockCreditMemo);
 
-        $this->assertIsArray($result['line_items']);
         $this->assertEquals(2, count($result['line_items']));
     }
 
@@ -135,7 +134,6 @@ class RefundTest extends UnitTestCase
 
         $result = $sut->build($this->mockOrder, $this->mockCreditMemo);
 
-        $this->assertIsArray($result['line_items']);
         $this->assertEquals(2, count($result['line_items']));
 
         // Validate Adjustment Item data (NOTE: values are NOT cast to `float` like order item above)

@@ -41,7 +41,6 @@ class RefundTest extends IntegrationTestCase
 
         $result = $this->taxjarRefund->build($order, $creditmemo);
 
-        $this->assertIsArray($result);
         $this->assertCount(3, $result['line_items']);
     }
 
@@ -55,7 +54,6 @@ class RefundTest extends IntegrationTestCase
 
         $result = $this->taxjarRefund->build($order, $creditmemo);
 
-        $this->assertIsArray($result);
         $this->assertCount(1, $result['line_items']);
     }
 }

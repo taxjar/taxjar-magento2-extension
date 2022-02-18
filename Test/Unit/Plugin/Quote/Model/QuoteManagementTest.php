@@ -44,7 +44,7 @@ class QuoteManagementTest extends UnitTestCase
             ->getMock();
         $this->metadataMock = $this->getMockBuilder(Metadata::class)
             ->disableOriginalConstructor()
-            ->onlyMethods([
+            ->setMethods([
                 'getOrderId',
                 'setOrderId',
                 'setTaxCalculationStatus',
