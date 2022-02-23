@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.9.0] - 2022-2-23
+- Adds additional logging visibility in Sales Order UI
+- Fix Nexus region import bug for TaxJar's non-standard ISO codes
+- Fix transaction backfill CLI command's date input bug
+- Fix missing DI preference for DriverInterface in some installations
+- Extend compatibility for older Magento 2.3 versions
+- Update documentation URLs, issue template
+
 ## [1.8.0] - 2021-12-06
 - Improve transaction backfill by making process asynchronous
 - Add "force sync" feature to transaction sync and transaction backfill
@@ -251,7 +259,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.8.0..HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.0..HEAD
+[1.9.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.6.5...v1.7.0

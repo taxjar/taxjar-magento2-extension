@@ -24,7 +24,7 @@ use Magento\Tax\Model\Config as MagentoTaxConfig;
 
 class Configuration
 {
-    const TAXJAR_VERSION                    = '1.8.0';
+    const TAXJAR_VERSION                    = '1.9.0';
     const TAXJAR_AUTH_URL                   = 'https://app.taxjar.com';
     const TAXJAR_API_URL                    = 'https://api.taxjar.com/v2';
     const TAXJAR_SANDBOX_API_URL            = 'https://api.sandbox.taxjar.com/v2';
