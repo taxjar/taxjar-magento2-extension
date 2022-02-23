@@ -73,7 +73,7 @@ class TransactionTest extends UnitTestCase
         $mockOrder = $this->createMock(\Magento\Sales\Model\Order::class);
         $mockItem = $this->getMockBuilder(\Magento\Sales\Model\Order\Item::class)
             ->disableOriginalConstructor()
-            ->onlyMethods([
+            ->setMethods([
                 'getItemId',
                 'getProductType',
                 'getPrice',
@@ -81,8 +81,8 @@ class TransactionTest extends UnitTestCase
                 'getTaxInvoiced',
                 'getSku',
                 'getName',
+                'getTjPtc'
             ])
-            ->addMethods(['getTjPtc']) // The interface that provides this method signature is generated in compile
             ->getMock();
         $mockItem->expects($this->once())->method('getItemId')->willReturn(9);
         $mockItem->expects($this->once())->method('getPrice')->willReturn(60.0);

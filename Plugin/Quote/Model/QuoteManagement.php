@@ -32,14 +32,14 @@ use Taxjar\SalesTax\Model\Sales\Order\MetadataFactory;
 class QuoteManagement
 {
     /**
-     * @var Metadata $metadata
+     * @var Metadata
      */
-    private Metadata $metadata;
+    private $metadata;
 
     /**
-     * @var MetadataRepositoryInterface $metadataRepository
+     * @var MetadataRepositoryInterface
      */
-    private MetadataRepositoryInterface $metadataRepository;
+    private $metadataRepository;
 
     /**
      * QuoteManagement constructor.

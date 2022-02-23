@@ -19,7 +19,7 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     /**
      * @var Nexus
      */
-    private Nexus $sut;
+    private $sut;
 
     protected function setUp(): void
     {

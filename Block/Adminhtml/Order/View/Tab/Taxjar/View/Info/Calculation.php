@@ -22,8 +22,6 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info;
 use Magento\Sales\Api\Data\OrderExtensionFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Block\Adminhtml\Order\AbstractOrder;
-use Magento\Shipping\Helper\Data as ShippingHelper;
-use Magento\Tax\Helper\Data as TaxHelper;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 
 /**
@@ -48,38 +46,32 @@ class Calculation extends AbstractOrder
     protected $_template = 'Taxjar_SalesTax::order/view/tab/taxjar/info/calculation.phtml';
 
     /**
-     * @var OrderExtensionFactory $extensionFactory
+     * @var OrderExtensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * Calculation constructor.
      *
+     * @param OrderExtensionFactory $extensionFactory
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Sales\Helper\Admin $adminHelper
      * @param array $data
-     * @param ShippingHelper|null $shippingHelper
-     * @param TaxHelper|null $taxHelper
-     * @param OrderExtensionFactory $extensionFactory
      */
     public function __construct(
+        OrderExtensionFactory $extensionFactory,
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Sales\Helper\Admin $adminHelper,
-        array $data = [],
-        ?ShippingHelper $shippingHelper = null,
-        ?TaxHelper $taxHelper = null,
-        OrderExtensionFactory $extensionFactory
+        array $data = []
     ) {
         $this->extensionFactory = $extensionFactory;
         parent::__construct(
             $context,
             $registry,
             $adminHelper,
-            $data,
-            $shippingHelper,
-            $taxHelper
+            $data
         );
     }
 

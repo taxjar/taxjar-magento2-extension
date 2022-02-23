@@ -30,9 +30,9 @@ use Taxjar\SalesTax\Helper\OrderMetadata as OrderMetadataHelper;
 class OrderRepository
 {
     /**
-     * @var OrderMetadataHelper $helper
+     * @var OrderMetadataHelper
      */
-    private OrderMetadataHelper $helper;
+    private $helper;
 
     /**
      * Get constructor.
@@ -63,7 +63,9 @@ class OrderRepository
         OrderRepositoryInterface   $subject,
         OrderSearchResultInterface $searchResult
     ): OrderSearchResultInterface {
-        $items = array_map([$this->helper, 'setOrderExtensionAttributeData'], $searchResult->getItems());
-        return $searchResult->setItems($items);
+        foreach ($searchResult->getItems() as &$order) {
+            $this->helper->setOrderExtensionAttributeData($order);
+        }
+        return $searchResult;
     }
 }

@@ -36,19 +36,19 @@ class SaveOrderMetadata implements ObserverInterface
     const ORDER_METADATA = 'taxjar_salestax_order_metadata';
 
     /**
-     * @var CheckoutSession $checkoutSession
+     * @var CheckoutSession
      */
-    private CheckoutSession $checkoutSession;
+    private $checkoutSession;
 
     /**
-     * @var OrderRepositoryInterface $orderRepository
+     * @var OrderRepositoryInterface
      */
-    private OrderRepositoryInterface $orderRepository;
+    private $orderRepository;
 
     /**
-     * @var OrderExtensionFactory $extensionFactory
+     * @var OrderExtensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * SaveOrderMetadata constructor.

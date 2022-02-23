@@ -24,7 +24,6 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
-use Magento\Framework\Stdlib\DateTime\DateTimeFactory;
 use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
 use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResource;
 
@@ -47,16 +46,10 @@ class Metadata extends AbstractModel implements MetadataInterface
     protected $_eventPrefix = 'taxjar_salestax_order_metadata';
 
     /**
-     * @var DateTimeFactory
-     */
-    private DateTimeFactory $dateFactory;
-
-    /**
      * Metadata constructor.
      *
      * @param Context               $context
      * @param Registry              $registry
-     * @param DateTimeFactory       $dateFactory
      * @param AbstractResource|null $resource
      * @param AbstractDb|null       $resourceCollection
      * @param array                 $data
@@ -64,12 +57,10 @@ class Metadata extends AbstractModel implements MetadataInterface
     public function __construct(
         Context $context,
         Registry $registry,
-        DateTimeFactory $dateFactory,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        $this->dateFactory = $dateFactory;
         parent::__construct(
             $context,
             $registry,
