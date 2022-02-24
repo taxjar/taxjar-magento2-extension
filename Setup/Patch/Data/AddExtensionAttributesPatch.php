@@ -1,0 +1,240 @@
+<?php
+
+namespace Taxjar\SalesTax\Setup\Patch\Data;
+
+use Magento\Customer\Api\CustomerMetadataInterface;
+use Magento\Eav\Model\Config;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType;
+use Taxjar\SalesTax\Model\Attribute\Source\Regions;
+
+class AddExtensionAttributesPatch implements DataPatchInterface
+{
+    public const TJ_EXEMPTION_TYPE_CODE = 'tj_exemption_type';
+
+    public const TJ_REGIONS_CODE = 'tj_regions';
+
+    public const TJ_LAST_SYNC_CODE = 'tj_last_sync';
+
+    /**
+     * @var ModuleDataSetupInterface
+     */
+    private $moduleDataSetup;
+    /**
+     * @var Config
+     */
+    private $eavConfig;
+    /**
+     * @var EavSetupFactory
+     */
+    private $eavSetupFactory;
+
+    /**
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param Config $eavConfig
+     * @param EavSetupFactory $eavSetupFactory
+     */
+    public function __construct(
+        ModuleDataSetupInterface $moduleDataSetup,
+        Config $eavConfig,
+        EavSetupFactory $eavSetupFactory
+    ) {
+        $this->moduleDataSetup = $moduleDataSetup;
+        $this->eavConfig = $eavConfig;
+        $this->eavSetupFactory = $eavSetupFactory;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function apply()
+    {
+        $this->moduleDataSetup->getConnection()->startSetup();
+
+        $eavSetup = $this->eavSetupFactory->create([
+            'setup' => $this->moduleDataSetup
+        ]);
+
+        $this->createTjExemptionTypeAttribute($eavSetup);
+        $this->createTjRegionsAttribute($eavSetup);
+        $this->createTjLastSyncAttribute($eavSetup);
+
+        $this->moduleDataSetup->getConnection()->endSetup();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getDependencies()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAliases()
+    {
+        return [];
+    }
+
+    protected function createTjExemptionTypeAttribute($eavSetup)
+    {
+        $tjExemptionTypeAttribute = $eavSetup->getAttribute(
+            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            self::TJ_EXEMPTION_TYPE_CODE
+        );
+
+        if (!$tjExemptionTypeAttribute) {
+            $eavSetup->addAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_EXEMPTION_TYPE_CODE,
+                [
+                    'group' => 'General',
+                    'type' => 'varchar',
+                    'label' => 'TaxJar Exemption Type',
+                    'input' => 'select',
+
+                    'required' => false,
+                    'visible' => true,
+                    'user_defined' => true,
+                    'position' => 501,
+                    'system' => 0,
+                    'sort_order' => 50,
+                    'default' => 'non_exempt',
+
+                    'source' => CustomerExemptionType::class,
+                    'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+
+                    'is_used_in_grid' => true,
+                    'is_visible_in_grid' => true,
+                    'is_filterable_in_grid' => true,
+                    'is_html_allowed_on_front' => true,
+                    'visible_on_front' => true
+                ]
+            );
+
+            $eavSetup->addAttributeToSet(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
+                null,
+                self::TJ_EXEMPTION_TYPE_CODE
+            );
+
+            $exemptionType = $this->eavConfig->getAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_EXEMPTION_TYPE_CODE
+            );
+
+            $exemptionType->setData('used_in_forms', ['adminhtml_customer']);
+            $exemptionType->getResource()->save($exemptionType); // phpcs:ignore
+        }
+    }
+
+    protected function createTjRegionsAttribute($eavSetup)
+    {
+        $tjRegionsAttribute = $eavSetup->getAttribute(
+            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            self::TJ_REGIONS_CODE
+        );
+
+        if (!$tjRegionsAttribute) {
+            $eavSetup->addAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_REGIONS_CODE,
+                [
+                    'group' => 'General',
+                    'type' => 'text',
+                    'label' => 'TaxJar Exempt Regions',
+                    'input' => 'multiselect',
+
+                    'required' => false,
+                    'visible' => true,
+                    'user_defined' => true,
+                    'position' => 502,
+                    'system' => 0,
+                    'sort_order' => 51,
+                    'disabled' => false,
+
+                    'source' => Regions::class,
+                    'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+
+                    'is_used_in_grid' => false,
+                    'is_visible_in_grid' => false,
+                    'is_filterable_in_grid' => false,
+                    'is_html_allowed_on_front' => true,
+                    'visible_on_front' => true
+                ]
+            );
+
+            $eavSetup->addAttributeToSet(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
+                null,
+                self::TJ_REGIONS_CODE
+            );
+
+            $regionsCodeId = $this->eavConfig->getAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_REGIONS_CODE
+            );
+
+            $regionsCodeId->setData('used_in_forms', ['adminhtml_customer']);
+            $regionsCodeId->getResource()->save($regionsCodeId); // phpcs:ignore
+        }
+    }
+
+    protected function createTjLastSyncAttribute($eavSetup)
+    {
+        $tjLastSync = $this->eavConfig->getAttribute(
+            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            self::TJ_LAST_SYNC_CODE
+        );
+
+        if (!$tjLastSync) {
+            $eavSetup->addAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_LAST_SYNC_CODE,
+                [
+                    'group' => 'General',
+                    'type' => 'datetime',
+                    'label' => 'TaxJar Last Sync Date',
+                    'input' => 'date',
+
+                    'required' => false,
+                    'visible' => true,
+                    'user_defined' => true,
+                    'position' => 502,
+                    'system' => 0,
+                    'sort_order' => 52,
+
+                    'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+
+                    'is_used_in_grid' => false,
+                    'is_visible_in_grid' => false,
+                    'is_filterable_in_grid' => false,
+                    'is_html_allowed_on_front' => true,
+                    'visible_on_front' => false
+                ]
+            );
+
+            $eavSetup->addAttributeToSet(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
+                null,
+                self::TJ_LAST_SYNC_CODE
+            );
+
+            $lastSyncCodeId = $this->eavConfig->getAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_LAST_SYNC_CODE
+            );
+
+            $lastSyncCodeId->setData('used_in_forms', ['adminhtml_customer',]);
+            $lastSyncCodeId->getResource()->save($lastSyncCodeId); // phpcs:ignore
+        }
+    }
+}
