@@ -19,7 +19,7 @@ use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\TestFramework\ObjectManager;
 
-$orderData = include 'data/order_data.php';
+$orderData = include 'assets/order_data.php';
 
 $objectManager = ObjectManager::getInstance();
 $registry = $objectManager->get(Registry::class);

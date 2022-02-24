@@ -23,8 +23,8 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\TestFramework\ObjectManager;
 
-$addressData = include 'data/address_data.php';
-$orderData = include 'data/order_data.php';
+$addressData = include 'assets/address_data.php';
+$orderData = include 'assets/order_data.php';
 
 $objectManager = ObjectManager::getInstance();
 
