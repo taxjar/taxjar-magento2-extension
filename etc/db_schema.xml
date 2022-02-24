@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="tax_class" resource="default">
+    <column xsi:type="text" name="tj_salestax_code" nullable="false" comment="Class Tax Code for TaxJar"/>
+  </table>
+  <table name="tax_nexus" resource="default" engine="innodb" comment="TaxJar Nexus Address">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="int" name="api_id" padding="10" unsigned="true" nullable="true" identity="false" comment="API ID"/>
+    <column xsi:type="varchar" name="street" nullable="true" length="255" comment="Street"/>
+    <column xsi:type="varchar" name="city" nullable="true" length="255" comment="City"/>
+    <column xsi:type="varchar" name="country_id" nullable="true" length="2" comment="Country Id"/>
+    <column xsi:type="varchar" name="region" nullable="true" length="255" comment="Region"/>
+    <column xsi:type="int" name="region_id" padding="11" unsigned="false" nullable="true" identity="false" comment="Region Id"/>
+    <column xsi:type="varchar" name="region_code" nullable="true" length="255" comment="Region Code"/>
+    <column xsi:type="varchar" name="postcode" nullable="true" length="255" comment="Postcode"/>
+    <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+    <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+    <column xsi:type="smallint" name="store_id" padding="5" unsigned="true" nullable="false" identity="false" default="0" comment="Store ID"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <index referenceId="TAX_NEXUS_COUNTRY_ID" indexType="btree">
+      <column name="country_id"/>
+    </index>
+    <index referenceId="TAX_NEXUS_REGION_ID" indexType="btree">
+      <column name="region_id"/>
+    </index>
+    <index referenceId="TAX_NEXUS_REGION_CODE" indexType="btree">
+      <column name="region_code"/>
+    </index>
+  </table>
+  <table name="sales_order" resource="default">
+    <column xsi:type="timestamp" name="tj_salestax_sync_date" on_update="false" nullable="true" comment="Order sync date for TaxJar"/>
+  </table>
+  <table name="sales_creditmemo" resource="default">
+    <column xsi:type="timestamp" name="tj_salestax_sync_date" on_update="false" nullable="true" comment="Refund sync date for TaxJar"/>
+  </table>
+  <table name="tj_product_tax_categories" resource="default" engine="innodb" comment="TaxJar Product Tax Codes">
+    <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="ID"/>
+    <column xsi:type="varchar" name="product_tax_code" nullable="false" length="32" default="" comment="Product Tax Code"/>
+    <column xsi:type="varchar" name="name" nullable="false" length="255" default="" comment="Name"/>
+    <column xsi:type="varchar" name="description" nullable="false" length="255" default="" comment="Description"/>
+    <column xsi:type="boolean" name="plus_only" nullable="false" comment="Plus only" disabled="true"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="id"/>
+    </constraint>
+    <index referenceId="TJ_PRODUCT_TAX_CATEGORIES_PRODUCT_TAX_CODE" indexType="btree">
+      <column name="product_tax_code"/>
+    </index>
+  </table>
+  <table name="sales_order_item" resource="default">
+    <column xsi:type="varchar" name="tj_ptc" nullable="true" length="32" comment="TaxJar Product Tax Code"/>
+  </table>
+  <table name="tj_sales_order_metadata" resource="default" engine="innodb" comment="TaxJar Sales Order Metadata">
+    <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity_id"/>
+    <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order_id"/>
+    <column xsi:type="text" name="tax_calculation_status" nullable="false" comment="Tax_calculation_status"/>
+    <column xsi:type="text" name="tax_calculation_message" nullable="false" comment="Tax_calculation_message"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="TJ_SALES_ORDER_METADATA_ORDER_ID_SALES_ORDER_ENTITY_ID" table="tj_sales_order_metadata" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <index referenceId="TJ_SALES_ORDER_METADATA_ORDER_ID" indexType="btree">
+      <column name="order_id"/>
+    </index>
+  </table>
+</schema>
