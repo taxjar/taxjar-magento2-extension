@@ -21,7 +21,7 @@ use Magento\Quote\Model\Quote\Address;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
 
-$addressData = include 'data/address_data.php';
+$addressData = include 'assets/address_data.php';
 $customerId = 0;
 $storeId = 1;
 

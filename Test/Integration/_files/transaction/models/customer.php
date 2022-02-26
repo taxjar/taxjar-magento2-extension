@@ -18,7 +18,7 @@
 use Magento\TestFramework\ObjectManager;
 use Magento\Customer\Model\Customer;
 
-$customerData = include 'data/customer_data.php';
+$customerData = include 'assets/customer_data.php';
 
 $objectManager = ObjectManager::getInstance();
 
