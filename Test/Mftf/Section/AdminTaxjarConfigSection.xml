@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminTaxjarConfigSection">
+        <element name="header" type="block" selector="#tax_taxjar-head"/>
+        <element name="connect" type="button" selector="#taxjar_connect"/>
+        <element name="disconnect" type="button" selector="#taxjar_disconnect" timeout="10"/>
+        <element name="learnMore" type="button" selector="#taxjar_learn-more" timeout="10"/>
+    </section>
+</sections>

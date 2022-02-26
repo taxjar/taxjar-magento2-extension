@@ -69,7 +69,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
         $scopeCode = null
     ): bool {
-        return $this->scopeConfig->getValue(
+        return (bool) $this->scopeConfig->getValue(
             \Taxjar\SalesTax\Model\Configuration::TAXJAR_ENABLED,
             $scope,
             $scopeCode
@@ -86,9 +86,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function isTransactionSyncEnabled(
         $scopeCode = 0,
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    ) {
+    ): bool {
         $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
-        return (bool)$this->scopeConfig->getValue(
+        return (bool) $this->scopeConfig->getValue(
             \Taxjar\SalesTax\Model\Configuration::TAXJAR_TRANSACTION_SYNC,
             $scope,
             $scopeCode

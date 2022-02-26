@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminTaxjarConnectActionGroup">
+        <annotations>
+            <description>Navigate to Stores->Configuration->Sales->Tax</description>
+        </annotations>
+        <arguments>
+            <argument name="title" type="string"/>
+        </arguments>
+
+        <amOnPage url="{{AdminSystemConfigTaxPage.url}}" stepKey="navigateToTaxConfig"/>
+        <see selector=".page-title" userInput="{{title}}" stepKey="assertPageTitle"/>
+        <click selector="{{AdminTaxjarConfigSection.header}}" stepKey="expandHeader"/>
+        <click selector="{{AdminTaxjarConfigSection.connect}}" stepKey="clickConnect"/>
+    </actionGroup>
+</actionGroups>

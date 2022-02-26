@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminTaxjarConnectTest">
+        <annotations>
+            <features value="Taxjar"/>
+            <stories value="Connect to TaxJar"/>
+            <title value="Admin should be able to connect to TaxJar"/>
+            <description value="Admin should be able to connect to TaxJar with module enabled"/>
+            <severity value="CRITICAL"/>
+            <group value="taxjar"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <actionGroup ref="AdminTaxjarConnectActionGroup" stepKey="navigateTaxConfig">
+            <argument name="title" value="Configuration"/>
+        </actionGroup>
+    </test>
+</tests>
