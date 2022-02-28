@@ -7,12 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.9.0] - 2022-2-23
+## [1.9.0] - 2022-2-28
 - Adds additional logging visibility in Sales Order UI
 - Fix Nexus region import bug for TaxJar's non-standard ISO codes
 - Fix transaction backfill CLI command's date input bug
 - Fix missing DI preference for DriverInterface in some installations
 - Extend compatibility for older Magento 2.3 versions
+- Migrate to declarative schema
 - Update documentation URLs, issue template
 
 ## [1.8.0] - 2021-12-06
