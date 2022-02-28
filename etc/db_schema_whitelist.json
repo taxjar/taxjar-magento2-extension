@@ -1,0 +1,76 @@
+{
+    "tax_class": {
+        "column": {
+            "tj_salestax_code": true
+        }
+    },
+    "tax_nexus": {
+        "column": {
+            "id": true,
+            "api_id": true,
+            "street": true,
+            "city": true,
+            "country_id": true,
+            "region": true,
+            "region_id": true,
+            "region_code": true,
+            "postcode": true,
+            "created_at": true,
+            "updated_at": true,
+            "store_id": true
+        },
+        "index": {
+            "TAX_NEXUS_COUNTRY_ID": true,
+            "TAX_NEXUS_REGION_ID": true,
+            "TAX_NEXUS_REGION_CODE": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "tj_salestax_sync_date": true
+        }
+    },
+    "sales_creditmemo": {
+        "column": {
+            "tj_salestax_sync_date": true
+        }
+    },
+    "tj_product_tax_categories": {
+        "column": {
+            "id": true,
+            "product_tax_code": true,
+            "name": true,
+            "description": true,
+            "plus_only": true
+        },
+        "index": {
+            "TJ_PRODUCT_TAX_CATEGORIES_PRODUCT_TAX_CODE": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "sales_order_item": {
+        "column": {
+            "tj_ptc": true
+        }
+    },
+    "tj_sales_order_metadata": {
+        "column": {
+            "entity_id": true,
+            "order_id": true,
+            "tax_calculation_status": true,
+            "tax_calculation_message": true
+        },
+        "index": {
+            "TJ_SALES_ORDER_METADATA_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "TJ_SALES_ORDER_METADATA_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    }
+}
