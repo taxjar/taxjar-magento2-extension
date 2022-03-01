@@ -69,7 +69,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
         $scopeCode = null
     ): bool {
-        return $this->scopeConfig->getValue(
+        return (bool) $this->scopeConfig->getValue(
             \Taxjar\SalesTax\Model\Configuration::TAXJAR_ENABLED,
             $scope,
             $scopeCode
