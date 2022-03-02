@@ -1,0 +1,25 @@
+name: Static Analysis
+on: [pull_request]
+jobs:
+    phpcs:
+        name: PHP Code Sniffer
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: extdn/github-actions-m2/magento-coding-standard@master
+    phpmd:
+        name: PHP Mess Detector
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: extdn/github-actions-m2/magento-mess-detector@master
+    phpstan:
+        name: PhpStan
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: extdn/github-actions-m2/magento-phpstan@master
+              with:
+                  composer_name: taxjar/module-taxjar
+
+
