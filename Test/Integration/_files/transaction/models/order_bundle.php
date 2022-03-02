@@ -62,7 +62,7 @@ $orderBundleItem->setProductId($bundleProduct->getId())
 $orderItems[] = $orderBundleItem;
 
 // Create the remaining simple items
-foreach($products as $product) {
+foreach ($products as $product) {
     /** @var OrderItem $orderItem */
     $orderItem = $objectManager->create(OrderItem::class);
     $orderItem->setProductId($product->getId())
@@ -99,7 +99,7 @@ $order->setIncrementId($orderData['increment_id'])
     ->setStoreId($objectManager->get(StoreManagerInterface::class)->getStore()->getId())
     ->setPayment($payment);
 
-foreach($orderItems as $orderItem){
+foreach ($orderItems as $orderItem){
     $order->addItem($orderItem);
 }
 

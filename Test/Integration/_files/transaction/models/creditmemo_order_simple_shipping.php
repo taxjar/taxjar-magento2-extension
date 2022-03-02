@@ -33,7 +33,7 @@ $creditmemo = $creditmemoFactory->createByOrder($order, $order->getData());
 
 $items = $creditmemo->getAllItems();
 
-foreach($items as $item) {
+foreach ($items as $item) {
     $item->setQty(3);
 }
 
