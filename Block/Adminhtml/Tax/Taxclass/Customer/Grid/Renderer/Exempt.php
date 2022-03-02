@@ -26,17 +26,6 @@ use Magento\Framework\DataObject;
 class Exempt extends AbstractRenderer
 {
     /**
-     * @param \Magento\Backend\Block\Context $context
-     * @param array $data
-     */
-    public function __construct(
-        \Magento\Backend\Block\Context $context,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-    }
-
-    /**
      * Renders grid column
      *
      * @param DataObject $row
