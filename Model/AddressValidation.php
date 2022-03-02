@@ -269,7 +269,10 @@ class AddressValidation implements AddressValidationInterface
             $errorMessage = json_decode($e->getMessage());
             $response = false;
 
-            $this->logger->log($errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail, 'error');
+            $this->logger->log(
+                $errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail,
+                'error'
+            );
         }
 
         return $response;

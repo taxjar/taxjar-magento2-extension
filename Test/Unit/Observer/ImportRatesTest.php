@@ -109,15 +109,27 @@ class ImportRatesTest extends UnitTestCase
         $this->messageManager = $this->createMock(MessageManagerInterface::class);
         $this->scopeConfig = $this->createMock(ScopeConfigInterface::class);
         $this->resourceConfig = $this->createMock(Config::class);
-        $this->clientFactory = $this->getMockBuilder(ClientFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
-        $this->rateFactory = $this->getMockBuilder(RateFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
-        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->clientFactory = $this->getMockBuilder(ClientFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->rateFactory = $this->getMockBuilder(RateFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
         $this->rateRepository = $this->createMock(RateRepository::class);
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
         $this->backupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
         $this->identityService = $this->createMock(IdentityGeneratorInterface::class);
         $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->operationFactory = $this->getMockBuilder(OperationInterfaceFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->operationFactory = $this->getMockBuilder(OperationInterfaceFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            >getMock();
         $this->bulkManagement = $this->createMock(BulkManagementInterface::class);
         $this->userContext = $this->createMock(UserContextInterface::class);
         $this->cacheManager = $this->createMock(Manager::class);
@@ -156,7 +168,10 @@ class ImportRatesTest extends UnitTestCase
             $this->getMockClient($this->mockRates)
         );
         $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
-        $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
+
+        $this->backupRateOriginAddress->expects($this->once())
+            ->method('getShippingZipCode')
+            ->willReturn('99999');
 
         $sut = $this->getTestSubject();
         $result = $sut->execute(new Observer());
@@ -277,7 +292,9 @@ class ImportRatesTest extends UnitTestCase
                 '0'
             );
 
-        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
+        $this->clientFactory->expects($this->once())
+            ->method('create')
+            ->willReturn($this->getMockClient($this->mockRates));
         $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
         $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
         $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(false);
@@ -301,7 +318,9 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithExistingRates()
     {
-        $this->eventManager->expects($this->once())->method('dispatch')->with('taxjar_salestax_import_rates_after');
+        $this->eventManager->expects($this->once())
+            ->method('dispatch')
+            ->with('taxjar_salestax_import_rates_after');
         $this->messageManager->expects($this->once())->method('addSuccessMessage');
 
         $this->scopeConfig->expects($this->exactly(5))
@@ -321,7 +340,10 @@ class ImportRatesTest extends UnitTestCase
             );
 
         $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
-        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
+
+        $this->clientFactory->expects($this->once())
+            ->method('create')
+            ->willReturn($this->getMockClient($this->mockRates));
 
         $mockRateModel = $this->createMock(Rate::class);
         $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn(['old_rate_1', 'old_rate_2']);
@@ -337,9 +359,17 @@ class ImportRatesTest extends UnitTestCase
         $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
         $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
         $this->identityService->expects($this->exactly(2))->method('generateId')->willReturn('unique-identifier');
-        $this->serializer->expects($this->exactly(2))->method('serialize')->willReturn(json_encode(['data' => 'payload']));
-        $this->operationFactory->expects($this->exactly(2))->method('create')->withAnyParameters()->willReturn($this->createMock(Operation::class));
-        $this->bulkManagement->expects($this->exactly(2))->method('scheduleBulk')->withAnyParameters()->willReturn(true);
+        $this->serializer->expects($this->exactly(2))
+            ->method('serialize')
+            ->willReturn(json_encode(['data' => 'payload']));
+        $this->operationFactory->expects($this->exactly(2))
+            ->method('create')
+            ->withAnyParameters()
+            ->willReturn($this->createMock(Operation::class));
+        $this->bulkManagement->expects($this->exactly(2))
+            ->method('scheduleBulk')
+            ->withAnyParameters()
+            ->willReturn(true);
         $this->userContext->expects($this->exactly(2))->method('getUserId')->willReturn('9999999');
         $this->cacheManager->expects($this->once())->method('flush')->withAnyParameters()->willReturn(true);
 
@@ -351,7 +381,9 @@ class ImportRatesTest extends UnitTestCase
 
     public function testExecuteWithoutExistingRates()
     {
-        $this->eventManager->expects($this->once())->method('dispatch')->with('taxjar_salestax_import_rates_after');
+        $this->eventManager->expects($this->once())
+            ->method('dispatch')
+            ->with('taxjar_salestax_import_rates_after');
         $this->messageManager->expects($this->once())->method('addSuccessMessage');
 
         $this->scopeConfig->expects($this->exactly(5))
@@ -371,7 +403,9 @@ class ImportRatesTest extends UnitTestCase
             );
 
         $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
-        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
+        $this->clientFactory->expects($this->once())
+            ->method('create')
+            ->willReturn($this->getMockClient($this->mockRates));
 
         $mockRateModel = $this->createMock(Rate::class);
         $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn([]);
@@ -396,7 +430,9 @@ class ImportRatesTest extends UnitTestCase
 
     public function testCron()
     {
-        $this->eventManager->expects($this->once())->method('dispatch')->with('taxjar_salestax_import_rates_after');
+        $this->eventManager->expects($this->once())
+            ->method('dispatch')
+            ->with('taxjar_salestax_import_rates_after');
         $this->messageManager->expects($this->once())->method('addSuccessMessage');
 
         $this->scopeConfig->expects($this->exactly(5))
@@ -416,7 +452,9 @@ class ImportRatesTest extends UnitTestCase
             );
 
         $this->resourceConfig->expects($this->any())->method('saveConfig');
-        $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient($this->mockRates));
+        $this->clientFactory->expects($this->once())
+            ->method('create')
+            ->willReturn($this->getMockClient($this->mockRates));
 
         $mockRateModel = $this->createMock(Rate::class);
         $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn(['old_rate_1', 'old_rate_2']);
@@ -431,12 +469,17 @@ class ImportRatesTest extends UnitTestCase
         $this->backupRateOriginAddress->expects($this->once())->method('getShippingZipCode')->willReturn('99999');
         $this->backupRateOriginAddress->expects($this->once())->method('isScopeCountryCodeUS')->willReturn(true);
         $this->identityService->expects($this->exactly(2))->method('generateId')->willReturn('unique-identifier');
-        $this->serializer->expects($this->exactly(2))->method('serialize')->willReturn(json_encode(['data' => 'payload']));
+        $this->serializer->expects($this->exactly(2))
+            ->method('serialize')
+            ->willReturn(json_encode(['data' => 'payload']));
         $this->operationFactory->expects($this->exactly(2))->method('create')->withAnyParameters()->willReturn(
             $this->createMock(Operation::class)
         );
 
-        $this->bulkManagement->expects($this->exactly(2))->method('scheduleBulk')->withAnyParameters()->willReturn(true);
+        $this->bulkManagement->expects($this->exactly(2))
+            ->method('scheduleBulk')
+            ->withAnyParameters()
+            ->willReturn(true);
         $this->userContext->expects($this->exactly(2))->method('getUserId')->willReturn('9999999');
 
         $sut = $this->getTestSubject();

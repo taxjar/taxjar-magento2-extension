@@ -168,7 +168,9 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
                     continue;
                 }
 
-                if (($address['country'] == 'US' || $address['country'] == 'CA') && (!isset($address['state']) || empty($address['state']))) {
+                if (($address['country'] == 'US' || $address['country'] == 'CA') &&
+                    (!isset($address['state']) || empty($address['state']))
+                ) {
                     continue;
                 }
 

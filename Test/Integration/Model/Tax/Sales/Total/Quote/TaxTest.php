@@ -141,7 +141,11 @@ class TaxTest extends \PHPUnit\Framework\TestCase
             if ($key == 'applied_taxes') {
                 $this->verifyAppliedTaxes($quoteAddress->getAppliedTaxes(), $value);
             } else {
-                $this->assertEquals($value, $quoteAddress->getData($key), 'Quote address ' . $key . ' is incorrect', 0.01);
+                $this->assertEquals(
+                    $value,
+                    $quoteAddress->getData($key),
+                    'Quote address ' . $key . ' is incorrect',
+                );
             }
         }
 

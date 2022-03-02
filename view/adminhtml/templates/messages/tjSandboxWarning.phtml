@@ -17,7 +17,11 @@
 
 /** @var \Magento\Framework\View\Element\Template $block */
 
-$msg = __('Sandbox mode is enabled for sales tax calculations. We recommend only using this mode in a staging environment. Some features may not work as expected.');
+$msg = __(
+    'Sandbox mode is enabled for sales tax calculations. ' .
+    'We recommend only using this mode in a staging environment. ' .
+    'Some features may not work as expected.'
+);
 $url = 'https://developers.taxjar.com/api/reference/#sandbox-environment';
 $href = '<a href="%1" target="_blank" rel="noopener">' . __('Learn more') . '</a>';
 
