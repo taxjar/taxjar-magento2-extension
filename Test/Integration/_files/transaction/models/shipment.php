@@ -12,7 +12,7 @@ if (!$order->canShip()) {
 $convertOrder = $objectManager->create(ConvertOrder::class);
 $shipment = $convertOrder->toShipment($order);
 
-foreach ($order->getAllItems() AS $orderItem) {
+foreach ($order->getAllItems() as $orderItem) {
     if (!$orderItem->getQtyToShip() || $orderItem->getIsVirtual()) {
         continue;
     }

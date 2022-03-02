@@ -393,11 +393,13 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->setExpectations();
 
         $observerMock = $this->createMock(Observer::class);
-        $observerMock->expects($this->any())->method('getData')->willReturnMap([
-            ['from', null, null],
-            ['to', null, null],
-            ['force', null, $forceSync],
-        ],);
+        $observerMock->expects($this->any())
+            ->method('getData')
+            ->willReturnMap([
+                ['from', null, null],
+                ['to', null, null],
+                ['force', null, $forceSync],
+            ]);
         $this->sut->observer = $observerMock;
 
         $criteriaMock = $this->getMockForAbstractClass(SearchCriteriaInterface::class);

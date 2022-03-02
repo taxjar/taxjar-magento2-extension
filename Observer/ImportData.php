@@ -59,7 +59,7 @@ class ImportData implements ObserverInterface
     protected $apiKey;
 
     /**
-     * @var string
+     * @var \Taxjar\SalesTax\Model\Client
      */
     protected $client;
 
@@ -103,14 +103,12 @@ class ImportData implements ObserverInterface
      * @throws LocalizedException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    // @codingStandardsIgnoreStart
     public function execute(Observer $observer)
     {
-        // @codingStandardsIgnoreEnd
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
 
-	        $region = $this->backupRateOriginAddress->getShippingRegionCode();
+            $region = $this->backupRateOriginAddress->getShippingRegionCode();
 
             if ($region) {
                 $this->_setConfiguration();
@@ -125,7 +123,7 @@ class ImportData implements ObserverInterface
     /**
      * Get TaxJar user account configuration
      *
-     * @return string
+     * @return array
      */
     private function _getConfigJson()
     {

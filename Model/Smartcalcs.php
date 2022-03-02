@@ -527,24 +527,25 @@ class Smartcalcs
                         $taxCode = $taxClass->getTjSalestaxCode();
                     }
 
-                    if ($this->productMetadata->getEdition() == 'Enterprise' ||
+                    if ((
+                        $this->productMetadata->getEdition() == 'Enterprise' ||
                         $this->productMetadata->getEdition() == 'B2B'
-                    ) {
-                        if ($extensionAttributes->getProductType() ==
+                        ) && (
+                            $extensionAttributes->getProductType() ==
                             \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD
-                        ) {
-                            $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class',
-                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                                $quote->getStoreId()
-                            );
+                        )
+                    ) {
+                        $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class',
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                            $quote->getStoreId()
+                        );
 
-                            if ($giftTaxClassId) {
-                                $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
-                                $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
-                                $taxCode = $giftTaxClassCode;
-                            } else {
-                                $taxCode = TaxjarConfig::TAXJAR_GIFT_CARD_TAX_CODE;
-                            }
+                        if ($giftTaxClassId) {
+                            $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
+                            $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
+                            $taxCode = $giftTaxClassCode;
+                        } else {
+                            $taxCode = TaxjarConfig::TAXJAR_GIFT_CARD_TAX_CODE;
                         }
                     }
 
