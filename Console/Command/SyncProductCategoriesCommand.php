@@ -85,7 +85,9 @@ class SyncProductCategoriesCommand extends Command
             $output->writeln(PHP_EOL . 'Successfully synced product tax categories.');
 
         } catch (\Exception $e) {
-            $output->writeln(PHP_EOL . '<error>Failed to sync product tax categories: ' . $e->getMessage() . '</error>');
+            $output->writeln(
+                PHP_EOL . '<error>Failed to sync product tax categories: ' . $e->getMessage() . '</error>'
+            );
         }
     }
 }

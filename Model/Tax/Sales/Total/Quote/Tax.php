@@ -356,7 +356,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                 $children = $item->getChildren();
 
                 if (is_array($children) && isset($children[0])) {
-                    $product = $this->productRepository->getById($children[0]->getProductId(), false, $item->getStoreId());
+                    $product = $this->productRepository->getById(
+                        $children[0]->getProductId(),
+                        false,
+                        $item->getStoreId()
+                    );
                 }
             }
 

@@ -351,7 +351,9 @@ class Transaction
             if (isset($parentItemId)) {
                 switch ($attr) {
                     case 'discount':
-                        $amount = (float) (($type == 'order') ? $item->getDiscountAmount() : $item->getDiscountRefunded());
+                        $amount = (float) (
+                            ($type == 'order') ? $item->getDiscountAmount() : $item->getDiscountRefunded()
+                        );
                         break;
                     case 'tax':
                         $amount = (float) (($type == 'order') ? $item->getTaxAmount() : $item->getTaxRefunded());
@@ -424,7 +426,8 @@ class Transaction
             }
 
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            $msg = 'Product #' . $item->getProductId() . ' does not exist.  Order #' . $order->getIncrementId() . ' possibly missing product tax codes.';
+            $msg = 'Product #' . $item->getProductId() . ' does not exist.  ';
+            $msg .= 'Order #' . $order->getIncrementId() . ' possibly missing product tax codes.';
             $this->logger->log($msg, 'error');
         }
 

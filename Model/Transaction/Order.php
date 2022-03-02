@@ -99,7 +99,10 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             if ($forceFlag) {
                 $this->logger->log('Forced update of Order #' . $this->request['transaction_id'], 'api');
             } else {
-                $this->logger->log('Order #' . $this->request['transaction_id'] . ' not updated since last sync', 'skip');
+                $this->logger->log(
+                    'Order #' . $this->request['transaction_id'] . ' not updated since last sync',
+                    'skip'
+                );
                 return;
             }
         }

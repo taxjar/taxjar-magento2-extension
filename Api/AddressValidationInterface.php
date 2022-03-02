@@ -30,5 +30,12 @@ interface AddressValidationInterface
      * @param string $postcode
      * @return mixed
      */
-    public function validateAddress($street0 = null, $street1 = null, $city = null, $region = null, $country = null, $postcode = null);
+    public function validateAddress(
+        $street0 = null,
+        $street1 = null,
+        $city = null,
+        $region = null,
+        $country = null,
+        $postcode = null
+    );
 }
