@@ -87,7 +87,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
      * @param string|null $method
      * @throws LocalizedException
      */
-    public function push(bool $forceFlag = false, string $method = null) {
+    public function push(bool $forceFlag = false, string $method = null)
+    {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
         $orderSyncedAt = $this->originalOrder->getData('tj_salestax_sync_date');
 
