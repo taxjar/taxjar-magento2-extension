@@ -99,7 +99,7 @@ $order->setIncrementId($orderData['increment_id'])
     ->setStoreId($objectManager->get(StoreManagerInterface::class)->getStore()->getId())
     ->setPayment($payment);
 
-foreach($orderItems as $orderItem){
+foreach($orderItems as $orderItem) {
     $order->addItem($orderItem);
 }
 
