@@ -47,7 +47,7 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
      */
     public function _construct()
     {
-        $this->_init('Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus');
+        $this->_init(\Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus::class);
     }
 
     /**
