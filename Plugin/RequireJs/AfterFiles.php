@@ -52,18 +52,17 @@ class AfterFiles
         Theme $theme = null
     ) {
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
-        $areaCode = '';
 
         try {
             if (!is_null($theme)) {
                 $areaCode = $theme->getArea();
             }
         } catch (LocalizedException $e) {
-            // no-op
+            $areaCode = '';
         }
 
         // If address validation is disabled, remove frontend RequireJs dependencies
-        if (!$isEnabled && $areaCode == 'frontend') {
+        if (!$isEnabled && isset($areaCode) && $areaCode == 'frontend') {
             foreach ($result as $key => &$file) {
                 if ($file->getModule() == 'Taxjar_SalesTax') {
                     unset($result[$key]);

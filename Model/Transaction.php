@@ -319,7 +319,7 @@ class Transaction
                 }
             }
         } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
-            // noop: M2e order does not exist or component mode can't be loaded
+            $this->logger->log('M2e order does not exist or component mode can\'t be loaded');
         }
 
         return $provider;
