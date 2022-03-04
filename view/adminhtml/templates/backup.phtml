@@ -17,8 +17,8 @@
 
 /** @var \Taxjar\SalesTax\Block\Adminhtml\Backup $block */
 
-$syncRatesUrl = $block->escapeXssInUrl($block->getStoreUrl('taxjar/config/syncRates'));
-$systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax']);
+$syncRatesUrl = $block->getUrl('taxjar/config/syncRates');
+$systemTaxConfigUrl = $block->getUrl('adminhtml/system_config/edit', ['section' => 'tax']);
 ?>
 
 <p class='note'>
