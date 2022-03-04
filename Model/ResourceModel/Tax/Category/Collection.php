@@ -24,6 +24,9 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init('Taxjar\SalesTax\Model\Tax\Category', 'Taxjar\SalesTax\Model\ResourceModel\Tax\Category');
+        $this->_init(
+            \Taxjar\SalesTax\Model\Tax\Category::class,
+            \Taxjar\SalesTax\Model\ResourceModel\Tax\Category::class
+        );
     }
 }

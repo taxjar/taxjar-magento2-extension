@@ -68,9 +68,9 @@ class Save extends Customer
                 'street' => implode(", ", $customerAddress->getStreet())
             ]);
 
-            if (get_class($customerAddress) == 'Magento\Customer\Model\Address') {
+            if (get_class($customerAddress) == \Magento\Customer\Model\Address::class) {
                 $data['state'] = $customerAddress->getRegionCode();
-            } elseif (get_class($customerAddress) == 'Magento\Customer\Model\Data\Address') {
+            } elseif (get_class($customerAddress) == \Magento\Customer\Model\Data\Address::class) {
                 $data['state'] = $customerAddress->getRegion()->getRegionCode();
             }
         }
