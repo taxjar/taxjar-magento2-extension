@@ -287,7 +287,7 @@ class ImportRates implements ObserverInterface
         $rateCount = count($rates);
 
         if ($rateCount) {
-            foreach($rates as $rate) {
+            foreach ($rates as $rate) {
                 $codes[] = $this->getRateCode($rate);
             }
         }

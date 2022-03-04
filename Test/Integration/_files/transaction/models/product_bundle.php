@@ -31,7 +31,7 @@ $productData = [
 $objectManager = ObjectManager::getInstance();
 $id = 0;
 
-foreach($productData as $data) {
+foreach ($productData as $data) {
     /** @var $bundleProduct \Magento\Catalog\Model\Product */
     $bundleProduct = $objectManager->create(\Magento\Catalog\Model\Product::class);
 

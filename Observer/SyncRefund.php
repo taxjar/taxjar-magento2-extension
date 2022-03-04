@@ -95,7 +95,7 @@ class SyncRefund implements ObserverInterface
                 $refundTransaction = $this->refundFactory->create();
                 $refundTransaction->build($order, $creditmemo);
                 $refundTransaction->push();
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
         }
