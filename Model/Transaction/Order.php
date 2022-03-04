@@ -113,7 +113,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         try {
             $this->logger->log(
                 sprintf(
-                'Pushing order #%s: %s',
+                    'Pushing order #%s: %s',
                     $this->request['transaction_id'],
                     json_encode($this->request)
                 ),

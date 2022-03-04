@@ -28,8 +28,8 @@ if ($synced) {
 ?>
 <?php if (isset($orderSyncDate)):?>
 <tr>
-    <th><?= /* @escapeNotVerified */ __('Synced to TaxJar') ?></th>
-    <td><?= /* @escapeNotVerified */ $orderSyncDate ?></td>
+    <th><?= $block->escapeHtml(__('Synced to TaxJar')) ?></th>
+    <td><?= $block->escapeHtml($orderSyncDate) ?></td>
 </tr>
 <script>
     require([
@@ -48,7 +48,7 @@ if ($synced) {
                  if (res.data) {
                      window.location.reload();
                  } else {
-                     alert('<?= __('Could not sync to TaxJar!') ?>');
+                     alert('<?= $block->escapeHtml(__('Could not sync to TaxJar!')) ?>');
                      syncButton.prop('disabled', false);
                      syncButton.find('span').text('Sync to TaxJar');
                  }

@@ -255,6 +255,5 @@ class AddressBuilder
         } catch (Exception $e) {
             throw new Exception('Could not create fake address with unsupported locale.');
         }
-
     }
 }

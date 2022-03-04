@@ -11,7 +11,6 @@ use Magento\Framework\Model\AbstractExtensibleModel;
  */
 class RuleModel extends Rule
 {
-
     /**
      * This method explicitly does not call `::saveCalculationData` like the native
      * Magento Tax's Rule class that this class extends from.
@@ -29,5 +28,4 @@ class RuleModel extends Rule
         $this->_eventManager->dispatch('tax_settings_change_after');
         return $this;
     }
-
 }

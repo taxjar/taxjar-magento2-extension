@@ -17,7 +17,7 @@
 
 /** @var \Taxjar\SalesTax\Block\Adminhtml\Backup $block */
 
-$syncRatesUrl = $block->getStoreUrl('taxjar/config/syncRates');
+$syncRatesUrl = $block->escapeXssInUrl($block->getStoreUrl('taxjar/config/syncRates'));
 $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax']);
 ?>
 
@@ -30,13 +30,11 @@ $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['sect
 
 <?php if ($block->isEnabled()): ?>
     <p class="success-msg" style="background: none !important; padding-left: 1rem; font-weight: 700;">
-        <small>
-            <?= $block->getActualRateCount() ?> of <?= $block->getExpectedRateCount() ?> expected rates loaded.
-        </small>
+        <small><?= $block->escapeHtml($block->getRatesLoadedText()) ?></small>
     </p>
 
     <p class="success-msg" style="background: none !important; padding-left: 1rem;">
-        <small>Last synced on <?php echo $block->getLastSyncedDate() ?>.</small>
+        <small><?= $block->escapeHtml($block->getLastSyncedDateText()) ?></small>
     </p>
 
     <p style="margin-top: 1rem">
@@ -61,4 +59,4 @@ $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['sect
             });
         }
     </script>
-<?php endif ?>
+<?php endif; ?>

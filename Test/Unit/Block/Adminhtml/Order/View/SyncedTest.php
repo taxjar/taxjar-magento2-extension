@@ -27,4 +27,3 @@ class SyncedTest extends UnitTestCase
         $sut->getSyncedAtDate($orderMock);
     }
 }
-
