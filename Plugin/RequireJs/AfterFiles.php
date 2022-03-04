@@ -55,7 +55,7 @@ class AfterFiles
         $areaCode = '';
 
         try {
-            if (!is_null($theme)) {
+            if ($theme !== null) {
                 $areaCode = $theme->getArea();
             }
         } catch (LocalizedException $e) {

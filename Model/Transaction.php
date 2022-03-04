@@ -206,10 +206,9 @@ class Transaction
         foreach ($items as $item) {
             $itemType = $item->getProductType();
 
-            if (
-                is_null($itemType)
-                && method_exists($item, 'getOrderItem')
-                && $orderItem = $item->getOrderItem()
+            if ($itemType === null &&
+                method_exists($item, 'getOrderItem') &&
+                $orderItem = $item->getOrderItem()
             ) {
                 $creditMemoItem = $item;
                 $item = $orderItem;

@@ -30,7 +30,7 @@ class Save extends Customer
     {
         $customer = $observer->getCustomer();
 
-        if (is_null($customer) || !$customer->getId()) {
+        if ($customer === null|| !$customer->getId()) {
             return;
         }
 
