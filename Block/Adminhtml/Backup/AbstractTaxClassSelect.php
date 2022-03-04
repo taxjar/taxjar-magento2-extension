@@ -55,12 +55,12 @@ abstract class AbstractTaxClassSelect extends Multiselect
      *
      * @return int
      */
-    abstract function getSize(): int;
+    abstract public function getSize(): int;
 
     /**
      * Returns the cache key (aka identifier) for the data source
      *
      * @return string
      */
-    abstract function getCacheIdentifier(): string;
+    abstract public function getCacheIdentifier(): string;
 }

@@ -345,7 +345,7 @@ class AddressValidation implements AddressValidationInterface
      * @param array $new
      * @return array
      */
-    function simplediff($old, $new)
+    public function simplediff($old, $new)
     {
         $matrix = [];
         $maxlen = 0;
@@ -383,7 +383,7 @@ class AddressValidation implements AddressValidationInterface
      * @param string $new
      * @return string
      */
-    function htmlDiff($old, $new)
+    public function htmlDiff($old, $new)
     {
         $ret = '';
         $pattern = "/[\s]+/";

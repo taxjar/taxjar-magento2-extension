@@ -24,7 +24,7 @@ class ProductTaxClassSelect extends AbstractTaxClassSelect
      *
      * @return int
      */
-    function getSize(): int
+    public function getSize(): int
     {
         return self::SELECT_LENGTH;
     }
@@ -34,7 +34,7 @@ class ProductTaxClassSelect extends AbstractTaxClassSelect
      *
      * @return string
      */
-    function getCacheIdentifier(): string
+    public function getCacheIdentifier(): string
     {
         return self::CACHE_IDENTIFIER;
     }
