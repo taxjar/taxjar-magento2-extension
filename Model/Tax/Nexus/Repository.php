@@ -246,9 +246,13 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         && $nexus->getCountryId() != 'US'
         && $nexus->getCountryId() != 'CA') {
             if ($nexus->getStoreId() != 0) {
-                $exception->addError(__('Only one address per country (outside of US/CA) is currently supported per store.'));
+                $exception->addError(
+                    __('Only one address per country (outside of US/CA) is currently supported per store.')
+                );
             } else {
-                $exception->addError(__('Only one address per country (outside of US/CA) is currently supported across all stores.'));
+                $exception->addError(
+                    __('Only one address per country (outside of US/CA) is currently supported across all stores.')
+                );
             }
         }
 
@@ -258,7 +262,9 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
             if ($nexus->getStoreId() != 0) {
                 $exception->addError(__('Only one address per region / state is currently supported per store.'));
             } else {
-                $exception->addError(__('Only one address per region / state is currently supported across all stores.'));
+                $exception->addError(
+                    __('Only one address per region / state is currently supported across all stores.')
+                );
             }
         }
 
