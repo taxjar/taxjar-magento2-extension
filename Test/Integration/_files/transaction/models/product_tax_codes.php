@@ -32,4 +32,3 @@ $taxClass
 $taxClassRepository = $objectManager->create(TaxClassRepositoryInterface::class);
 
 $ptcID = $taxClassRepository->save($taxClass);
-

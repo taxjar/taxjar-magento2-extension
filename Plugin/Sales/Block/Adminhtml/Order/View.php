@@ -58,4 +58,3 @@ class View
             && $this->_tjSalesTaxData->isSyncableOrder($order);
     }
 }
-

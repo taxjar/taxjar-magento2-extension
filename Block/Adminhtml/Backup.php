@@ -25,6 +25,7 @@ use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Phrase;
 use Magento\Shipping\Model\Config as MagentoShippingConfig;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Backend\Model\UrlInterface;
@@ -164,6 +165,11 @@ class Backup extends Field
         return (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
     }
 
+    public function getRatesLoadedText(): Phrase
+    {
+        return __('%1 of %2 expected rates loaded.', $this->getActualRateCount(), $this->getExpectedRateCount());
+    }
+
     public function getActualRateCount(): int
     {
         $rateModel = $this->rateFactory->create();
@@ -177,9 +183,9 @@ class Backup extends Field
         return $this->taxjarConfig->getBackupRateCount();
     }
 
-    public function getLastSyncedDate(): string
+    public function getLastSyncedDateText(): Phrase
     {
-        return $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE) ?? 'N/A';
+        return __('Last synced on %1', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE) ?? 'N/A');
     }
 
     /**

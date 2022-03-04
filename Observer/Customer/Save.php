@@ -32,7 +32,7 @@ class Save extends Customer
         /** @var CustomerInterface $customer */
         $customer = $observer->getCustomer();
 
-        if ($customer === null|| !$customer->getId()) {
+        if ($customer === null || !$customer->getId()) {
             return;
         }
 

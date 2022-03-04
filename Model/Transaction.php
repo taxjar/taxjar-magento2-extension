@@ -153,7 +153,8 @@ class Transaction
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );
-        $fromStreet = $this->scopeConfig->getValue('shipping/origin/street_line1',
+        $fromStreet = $this->scopeConfig->getValue(
+            'shipping/origin/street_line1',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $order->getStoreId()
         );
