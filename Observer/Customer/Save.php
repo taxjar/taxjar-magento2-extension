@@ -17,6 +17,7 @@
 
 namespace Taxjar\SalesTax\Observer\Customer;
 
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
 
@@ -28,6 +29,7 @@ class Save extends Customer
      */
     public function execute(Observer $observer)
     {
+        /** @var CustomerInterface $customer */
         $customer = $observer->getCustomer();
 
         if ($customer === null|| !$customer->getId()) {
@@ -44,7 +46,7 @@ class Save extends Customer
                 $customerAddress = $this->addressRepository->getById($shippingAddressId);
             }
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            // noop
+            $this->logger->log($e->getMessage());
         }
 
         // Null values are used to delete old address data
