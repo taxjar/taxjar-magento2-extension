@@ -24,7 +24,10 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init('Taxjar\SalesTax\Model\Tax\Nexus', 'Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus');
+        $this->_init(
+            \Taxjar\SalesTax\Model\Tax\Nexus::class,
+            \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus::class
+        );
     }
 
     /**

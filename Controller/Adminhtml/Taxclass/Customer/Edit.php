@@ -30,7 +30,7 @@ class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
         $taxClassId = $this->getRequest()->getParam('class');
         $this->coreRegistry->register('tax_class_id', $taxClassId);
         /** @var \Magento\Backend\Model\Session $backendSession */
-        $backendSession = $this->_objectManager->get('Magento\Backend\Model\Session');
+        $backendSession = $this->_objectManager->get(\Magento\Backend\Model\Session::class);
 
         if ($taxClassId) {
             try {

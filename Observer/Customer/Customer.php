@@ -98,12 +98,16 @@ abstract class Customer implements ObserverInterface
 
                 if (isset($message->status) && $message->status == 422) {  //unprocessable
                     try {
-                        $this->logger->log('Could not create customer #' . $customerId . ', attempting to update instead',
-                            'fallback');
+                        $this->logger->log(
+                            'Could not create customer #' . $customerId . ', attempting to update instead',
+                            'fallback'
+                        );
                         $response = $this->client->putResource('customers', $customerId, $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log('Could not update customer #' . $customerId . ": " . $e->getMessage(),
-                            'error');
+                        $this->logger->log(
+                            'Could not update customer #' . $customerId . ": " . $e->getMessage(),
+                            'error'
+                        );
                     }
                 } else {
                     $this->logger->log('Could not create customer #' . $customerId . ': ' . $e->getMessage(), 'error');
@@ -117,12 +121,16 @@ abstract class Customer implements ObserverInterface
 
                 if (isset($message->status) && $message->status == 404) {  //unprocessable
                     try {
-                        $this->logger->log('Could not update customer #' . $customerId . ', attempting to create instead',
-                            'fallback');
+                        $this->logger->log(
+                            'Could not update customer #' . $customerId . ', attempting to create instead',
+                            'fallback'
+                        );
                         $response = $this->client->postResource('customers', $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log('Could not create customer #' . $customerId . ": " . $e->getMessage(),
-                            'error');
+                        $this->logger->log(
+                            'Could not create customer #' . $customerId . ": " . $e->getMessage(),
+                            'error'
+                        );
                     }
                 } else {
                     $this->logger->log('Could not update customer #' . $customerId . ': ' . $e->getMessage(), 'error');

@@ -210,7 +210,8 @@ class Client implements ClientInterface
                 $apiUrl .= '/plugins/magento/configuration/' . $this->backupRateOriginAddress->getShippingRegionCode();
                 break;
             case 'rates':
-                $apiUrl .= '/plugins/magento/rates/' . $this->backupRateOriginAddress->getShippingRegionCode() . '/' . $this->backupRateOriginAddress->getShippingZipCode();
+                $apiUrl .= '/plugins/magento/rates/' . $this->backupRateOriginAddress->getShippingRegionCode();
+                $apiUrl .= '/' . $this->backupRateOriginAddress->getShippingZipCode();
                 break;
             case 'categories':
                 $apiUrl .= '/categories';

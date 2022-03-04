@@ -18,7 +18,6 @@
 namespace Taxjar\SalesTax\Api\Data\Tax;
 
 /**
- * Nexus interface.
  * @api
  */
 interface NexusInterface extends \Magento\Framework\Api\ExtensibleDataInterface

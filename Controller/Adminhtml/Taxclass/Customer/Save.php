@@ -46,7 +46,7 @@ class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
                 $this->messageManager->addErrorMessage(__('We can\'t save this customer tax class right now.'));
             }
 
-            $this->_objectManager->get('Magento\Backend\Model\Session')->setClassData($postData);
+            $this->_objectManager->get(\Magento\Backend\Model\Session::class)->setClassData($postData);
             return $resultRedirect->setUrl($this->_redirect->getRedirectUrl($this->getUrl('*')));
         }
         return $resultRedirect->setPath('taxjar/taxclass_save');

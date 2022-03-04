@@ -54,7 +54,7 @@ class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
                 $this->messageManager->addErrorMessage(__('We can\'t save this nexus address right now.'));
             }
 
-            $this->_objectManager->get('Magento\Backend\Model\Session')->setNexusData($postData);
+            $this->_objectManager->get(\Magento\Backend\Model\Session::class)->setNexusData($postData);
             return $resultRedirect->setUrl($this->_redirect->getRedirectUrl($this->getUrl('*')));
         }
         return $resultRedirect->setPath('taxjar/nexus');

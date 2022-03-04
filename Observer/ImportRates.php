@@ -288,7 +288,7 @@ class ImportRates implements ObserverInterface
 
         if ($rateCount) {
             foreach ($rates as $rate) {
-                $codes[] = self::getRateCode($rate);
+                $codes[] = $this->getRateCode($rate);
             }
         }
 
@@ -377,7 +377,7 @@ class ImportRates implements ObserverInterface
             ->validateShippingClass();
     }
 
-    private static function getRateCode($rateData): string
+    private function getRateCode($rateData): string
     {
         return sprintf(
             '%s-%s-%s',

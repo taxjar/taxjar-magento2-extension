@@ -85,9 +85,18 @@ class CreateRatesConsumerTest extends UnitTestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->entityManager = $this->createMock(EntityManager::class);
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
-        $this->rateFactory = $this->getMockBuilder(RateFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
-        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
-        $this->configCollection = $this->getMockBuilder(CollectionFactory::class)->disableOriginalConstructor()->setMethods(['create'])->getMock();
+        $this->rateFactory = $this->getMockBuilder(RateFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->configCollection = $this->getMockBuilder(CollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
     }
 
     public function testValidatePayloadReturnsSelfWithValidPayload()

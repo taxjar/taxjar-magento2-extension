@@ -30,7 +30,7 @@ class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
         $addressId = (int)$this->getRequest()->getParam('address');
         $this->coreRegistry->register('nexus_address_id', $addressId);
         /** @var \Magento\Backend\Model\Session $backendSession */
-        $backendSession = $this->_objectManager->get('Magento\Backend\Model\Session');
+        $backendSession = $this->_objectManager->get(\Magento\Backend\Model\Session::class);
 
         if ($addressId) {
             try {

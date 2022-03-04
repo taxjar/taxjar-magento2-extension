@@ -87,7 +87,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
      * @param string|null $method
      * @throws LocalizedException
      */
-    public function push(bool $forceFlag = false, string $method = null) {
+    public function push(bool $forceFlag = false, string $method = null)
+    {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
         $orderSyncedAt = $this->originalOrder->getData('tj_salestax_sync_date');
 
@@ -99,7 +100,10 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             if ($forceFlag) {
                 $this->logger->log('Forced update of Order #' . $this->request['transaction_id'], 'api');
             } else {
-                $this->logger->log('Order #' . $this->request['transaction_id'] . ' not updated since last sync', 'skip');
+                $this->logger->log(
+                    'Order #' . $this->request['transaction_id'] . ' not updated since last sync',
+                    'skip'
+                );
                 return;
             }
         }

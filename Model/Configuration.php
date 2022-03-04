@@ -103,7 +103,7 @@ class Configuration
     {
         return preg_replace('/\s+/', '', $this->scopeConfig->getValue(
             $this->isSandboxEnabled() ? self::TAXJAR_SANDBOX_APIKEY : self::TAXJAR_APIKEY,
-            is_null($storeId) ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORE,
+            ($storeId === null) ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORE,
             $storeId
         ));
     }

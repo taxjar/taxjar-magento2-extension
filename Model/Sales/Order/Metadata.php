@@ -45,31 +45,6 @@ class Metadata extends AbstractModel implements MetadataInterface
 
     protected $_eventPrefix = 'taxjar_salestax_order_metadata';
 
-    /**
-     * Metadata constructor.
-     *
-     * @param Context               $context
-     * @param Registry              $registry
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null       $resourceCollection
-     * @param array                 $data
-     */
-    public function __construct(
-        Context $context,
-        Registry $registry,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = []
-    ) {
-        parent::__construct(
-            $context,
-            $registry,
-            $resource,
-            $resourceCollection,
-            $data
-        );
-    }
-
     protected function _construct()
     {
         $this->_init(MetadataResource::class);
