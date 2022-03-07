@@ -19,6 +19,8 @@ class AddExtensionAttributesPatch implements DataPatchInterface
 
     public const TJ_LAST_SYNC_CODE = 'tj_last_sync';
 
+    private const EAV_ATTRIBUTE_GROUP_GENERAL = 'General';
+
     /**
      * @var ModuleDataSetupInterface
      */
@@ -81,6 +83,10 @@ class AddExtensionAttributesPatch implements DataPatchInterface
         return [];
     }
 
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
+     */
     protected function createTjExemptionTypeAttribute($eavSetup)
     {
         $tjExemptionTypeAttribute = $eavSetup->getAttribute(
@@ -93,7 +99,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 self::TJ_EXEMPTION_TYPE_CODE,
                 [
-                    'group' => 'General',
+                    'group' => self::EAV_ATTRIBUTE_GROUP_GENERAL,
                     'type' => 'varchar',
                     'label' => 'TaxJar Exemption Type',
                     'input' => 'select',
@@ -120,7 +126,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface
             $eavSetup->addAttributeToSet(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
-                null,
+                self::EAV_ATTRIBUTE_GROUP_GENERAL,
                 self::TJ_EXEMPTION_TYPE_CODE
             );
 
@@ -134,6 +140,10 @@ class AddExtensionAttributesPatch implements DataPatchInterface
         }
     }
 
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
+     */
     protected function createTjRegionsAttribute($eavSetup)
     {
         $tjRegionsAttribute = $eavSetup->getAttribute(
@@ -146,7 +156,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 self::TJ_REGIONS_CODE,
                 [
-                    'group' => 'General',
+                    'group' => self::EAV_ATTRIBUTE_GROUP_GENERAL,
                     'type' => 'text',
                     'label' => 'TaxJar Exempt Regions',
                     'input' => 'multiselect',
@@ -173,7 +183,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface
             $eavSetup->addAttributeToSet(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
-                null,
+                self::EAV_ATTRIBUTE_GROUP_GENERAL,
                 self::TJ_REGIONS_CODE
             );
 
@@ -187,6 +197,10 @@ class AddExtensionAttributesPatch implements DataPatchInterface
         }
     }
 
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
+     */
     protected function createTjLastSyncAttribute($eavSetup)
     {
         $tjLastSync = $this->eavConfig->getAttribute(
@@ -199,7 +213,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 self::TJ_LAST_SYNC_CODE,
                 [
-                    'group' => 'General',
+                    'group' => self::EAV_ATTRIBUTE_GROUP_GENERAL,
                     'type' => 'datetime',
                     'label' => 'TaxJar Last Sync Date',
                     'input' => 'date',
@@ -224,7 +238,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface
             $eavSetup->addAttributeToSet(
                 CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
                 CustomerMetadataInterface::ATTRIBUTE_SET_ID_CUSTOMER,
-                null,
+                self::EAV_ATTRIBUTE_GROUP_GENERAL,
                 self::TJ_LAST_SYNC_CODE
             );
 
