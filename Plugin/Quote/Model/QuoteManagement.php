@@ -62,6 +62,7 @@ class QuoteManagement
      * @param OrderInterface $order
      * @return OrderInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterSubmit(
         QuoteManagementEntity $subject,

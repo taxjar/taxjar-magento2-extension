@@ -23,7 +23,6 @@ use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
-use Taxjar\SalesTax\Api\Data\Tax\NexusInterface;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
