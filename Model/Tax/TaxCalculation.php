@@ -224,14 +224,10 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
      * Set applied taxes for tax summary based on SmartCalcs response breakdown
      *
      * @param QuoteDetailsItemInterface $item
-     * @param \Magento\Framework\App\ScopeInterface $scope
-     * @return \Magento\Tax\Api\Data\AppliedTaxInterface
-     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @return array
      */
-    protected function getAppliedTaxes(
-        QuoteDetailsItemInterface $item,
-        $scope
-    ) {
+    protected function getAppliedTaxes(QuoteDetailsItemInterface $item)
+    {
         $extensionAttributes = $item->getExtensionAttributes();
         $jurisdictionTaxRates = $extensionAttributes ? $extensionAttributes->getJurisdictionTaxRates() : [];
         $appliedTaxes = [];
@@ -245,9 +241,9 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 continue;
             }
 
-            // @codingStandardsIgnoreStart
-            $jurisdictionTitle = (in_array($jurisdiction, ['gst', 'pst', 'qst'])) ? strtoupper($jurisdiction) : ucfirst($jurisdiction) . ' Tax';
-            // @codingStandardsIgnoreEnd
+            $jurisdictionTitle = in_array($jurisdiction, ['gst', 'pst', 'qst'])
+                ? strtoupper($jurisdiction)
+                : ucfirst($jurisdiction) . ' Tax';
 
             // Display "Special District Tax" instead of "Special Tax"
             if ($jurisdiction == 'special') {

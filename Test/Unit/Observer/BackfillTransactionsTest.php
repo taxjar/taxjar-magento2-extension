@@ -459,7 +459,7 @@ class BackfillTransactionsTest extends UnitTestCase
     /**
      * @dataProvider syncTransactionDataProvider
      */
-    public function testSyncTransactionMethod($orders, $count, $force)
+    public function testSyncTransactionMethod($orders, $count)
     {
         $this->bulkManagementMock->expects($this->once())->method('scheduleBulk')->willReturn(true);
 
@@ -476,23 +476,19 @@ class BackfillTransactionsTest extends UnitTestCase
         return [
             'single_operation_without_force' => [
                 'orders' => array_map([$this, 'getOrderStub'], range(1, 100)),
-                'count' => 1,
-                'force' => false,
+                'count' => 1
             ],
             'single_operation_with_force' => [
                 'orders' => array_map([$this, 'getOrderStub'], range(1, 100)),
-                'count' => 1,
-                'force' => true,
+                'count' => 1
             ],
             'multiple_operations_without_force' => [
                 'orders' => array_map([$this, 'getOrderStub'], range(1, 500)),
-                'count' => 5,
-                'force' => false,
+                'count' => 5
             ],
             'multiple_operations_with_force' => [
                 'orders' => array_map([$this, 'getOrderStub'], range(1, 500)),
-                'count' => 5,
-                'force' => true,
+                'count' => 5
             ],
         ];
     }

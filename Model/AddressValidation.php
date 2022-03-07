@@ -319,7 +319,7 @@ class AddressValidation implements AddressValidationInterface
         $changes = $new;
         $changesMade = false;
 
-        foreach ($original as $k => $v) {
+        foreach (array_keys($original) as $k) {
             if (isset($new[$k]) && $original[$k] !== $new[$k]) {
                 $changesMade = true;
                 if (is_array($original[$k])) {

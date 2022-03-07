@@ -70,8 +70,8 @@ class SyncProductCategoriesCommand extends Command
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     *
-     * @return string
+     * @return void
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function execute(
         InputInterface $input,

@@ -42,9 +42,9 @@ class AfterFiles
     /**
      * @param Aggregated $subject
      * @param array $result
-     * @param Theme $theme
+     * @param Theme|null $theme
      * @return mixed
-     * @throws LocalizedException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetFiles(
         Aggregated $subject,

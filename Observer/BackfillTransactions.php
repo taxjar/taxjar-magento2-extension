@@ -236,9 +236,15 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      */
     public function syncTransactions(array $orders): void
     {
-        $orderIds = array_map([$this, 'getEntityId'], $orders);
+        $orderIds = array_map(function ($order) {
+            return $this->getEntityId($order);
+        }, $orders);
+
         $chunkedOrderIds = array_chunk($orderIds, self::BATCH_SIZE);
-        $operations = array_map([$this, 'makeOperation'], $chunkedOrderIds);
+
+        $operations = array_map(function ($orderIdChunk) {
+            return $this->makeOperation($orderIdChunk);
+        }, $chunkedOrderIds);
 
         if (!empty($operations)) {
             $result = $this->bulkManagement->scheduleBulk(
@@ -265,7 +271,9 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         $orders = $this->orderRepository->getList($criteria)->getItems();
 
         if (!$this->getInput('force')) {
-            $orders = array_filter($orders, [$this, 'isOrderSyncable']);
+            $orders = array_filter($orders, function ($order) {
+                return $this->isOrderSyncable($order);
+            });
         }
 
         return $orders;
@@ -286,7 +294,9 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         // If the store id is empty but the website id is defined, load stores that match the website id
         if ($websiteId && $storeId === null) {
             $stores = $this->storeManager->getStores();
-            $storeId = array_filter($stores, [$this, 'compareStoreWebsiteId']);
+            $storeId = array_filter($stores, function ($store) {
+                return $this->compareStoreWebsiteId($store);
+            });
         }
 
         // If the store id is defined, build a filter based on it

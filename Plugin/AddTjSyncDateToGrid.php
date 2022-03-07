@@ -44,6 +44,7 @@ class AddTjSyncDateToGrid
      * @param CollectionFactory $subject
      * @param $collection
      * @return \Magento\Framework\Data\Collection
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetReport(
         CollectionFactory $subject,

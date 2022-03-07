@@ -99,7 +99,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
 
         // Erase config values with the "websites" scope
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
-        foreach ($this->storeManager->getWebsites() as $websiteId => $website) {
+        foreach (array_keys($this->storeManager->getWebsites()) as $websiteId) {
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, $scope, $websiteId);
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, $scope, $websiteId);
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, $scope, $websiteId);
@@ -109,7 +109,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
 
         // Erase config values with the "stores" scope
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
-        foreach ($this->storeManager->getStores() as $storeId => $store) {
+        foreach (array_keys($this->storeManager->getStores()) as $storeId) {
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, $scope, $storeId);
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, $scope, $storeId);
             $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, $scope, $storeId);
