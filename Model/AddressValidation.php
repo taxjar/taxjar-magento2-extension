@@ -386,7 +386,7 @@ class AddressValidation implements AddressValidationInterface
         $pattern = "/[\s]+/";
 
         // Explode $old and $new into arrays based on whitespace
-        $simplediff = $this->simplediff(preg_split($pattern, $old), preg_split($pattern, $new));
+        $simplediff = $this->simplediff(preg_split($pattern, (string) $old), preg_split($pattern, (string) $new));
 
         // Wrap each difference in a span for highlighting
         foreach ($simplediff as $diff) {
