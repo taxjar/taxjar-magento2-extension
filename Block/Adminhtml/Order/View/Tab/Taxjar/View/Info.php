@@ -71,7 +71,7 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
      */
     public function canShowTab()
     {
-        return $this->tjHelper->isEnabled();
+        return $this->tjHelper->isEnabled() || $this->tjHelper->isTransactionSyncEnabled();
     }
 
     /**
@@ -79,6 +79,6 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
      */
     public function isHidden()
     {
-        return !$this->tjHelper->isEnabled();
+        return !$this->tjHelper->isEnabled() && !$this->tjHelper->isTransactionSyncEnabled();
     }
 }
