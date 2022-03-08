@@ -101,11 +101,13 @@ class Configuration
      */
     public function getApiKey(?int $storeId = null): string
     {
-        return preg_replace('/\s+/', '', $this->scopeConfig->getValue(
+        $apiKey = (string) $this->scopeConfig->getValue(
             $this->isSandboxEnabled() ? self::TAXJAR_SANDBOX_APIKEY : self::TAXJAR_APIKEY,
             is_null($storeId) ? ScopeConfigInterface::SCOPE_TYPE_DEFAULT : ScopeInterface::SCOPE_STORE,
             $storeId
-        ));
+        );
+
+        return preg_replace('/\s+/', '', $apiKey);
     }
 
     /**

@@ -183,7 +183,7 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         $exception = new InputException();
         // @codingStandardsIgnoreEnd
 
-        if (!\Zend_Validate::is(trim($nexus->getCountryId()), 'NotEmpty')) {
+        if (!\Zend_Validate::is(trim((string) $nexus->getCountryId()), 'NotEmpty')) {
             $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
         }
 

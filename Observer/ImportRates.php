@@ -612,7 +612,7 @@ class ImportRates implements ObserverInterface
     private function zipCodeIsValid(): bool
     {
         if ($this->backupRateOriginAddress->isScopeCountryCodeUS()) {
-            return $this->zipCode && preg_match("/^\d{5}(-?\d{4})?$/", $this->zipCode);
+            return $this->zipCode && preg_match("/^\d{5}(-?\d{4})?$/", (string) $this->zipCode);
         }
 
         return (bool) $this->zipCode;

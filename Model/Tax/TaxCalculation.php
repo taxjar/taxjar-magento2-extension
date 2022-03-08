@@ -245,9 +245,9 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
                 continue;
             }
 
-            // @codingStandardsIgnoreStart
-            $jurisdictionTitle = (in_array($jurisdiction, ['gst', 'pst', 'qst'])) ? strtoupper($jurisdiction) : ucfirst($jurisdiction) . ' Tax';
-            // @codingStandardsIgnoreEnd
+            $jurisdictionTitle = in_array($jurisdiction, ['gst', 'pst', 'qst'])
+                ? strtoupper((string) $jurisdiction)
+                : ucfirst((string) $jurisdiction) . ' Tax';
 
             // Display "Special District Tax" instead of "Special Tax"
             if ($jurisdiction == 'special') {

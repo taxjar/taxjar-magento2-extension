@@ -88,7 +88,7 @@ class BackupRateOriginAddress
      */
     private function getShippingZipCodeFromScope()
     {
-        return trim($this->scopeConfig->getValue('shipping/origin/postcode'));
+        return trim((string) $this->scopeConfig->getValue('shipping/origin/postcode'));
     }
 
     /**

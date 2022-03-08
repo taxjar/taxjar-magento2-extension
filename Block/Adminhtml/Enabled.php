@@ -101,7 +101,7 @@ class Enabled extends PopupField
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $this->apiEmail = trim($this->scopeConfig->getValue(TaxjarConfig::TAXJAR_EMAIL));
+        $this->apiEmail = trim((string) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_EMAIL));
 
         if (!$this->apiKey) {
             $element->setDisabled('disabled');
