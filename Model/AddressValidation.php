@@ -186,21 +186,21 @@ class AddressValidation implements AddressValidationInterface
         $street = [];
 
         if (isset($addr['street0']) || array_key_exists('street0', $addr)) {
-            if (!is_null($addr['street0'])) {
+            if ($addr['street0'] !== null) {
                 $street[] = $addr['street0'];
             }
             unset($addr['street0']);
         }
 
         if (isset($addr['street1']) || array_key_exists('street1', $addr)) {
-            if (!is_null($addr['street1'])) {
+            if ($addr['street1'] !== null) {
                 $street[] = $addr['street1'];
             }
             unset($addr['street1']);
         }
 
         if (isset($addr['street2']) || array_key_exists('street1', $addr)) {
-            if (!is_null($addr['street2'])) {
+            if ($addr['street2'] !== null) {
                 $street[] = $addr['street2'];
             }
             unset($addr['street2']);
@@ -209,7 +209,7 @@ class AddressValidation implements AddressValidationInterface
         $addr['street'] = implode(", ", $street);
 
         if (isset($addr['postcode']) || array_key_exists('postcode', $addr)) {
-            if (!is_null($addr['postcode'])) {
+            if ($addr['postcode'] !== null) {
                 $addr['zip'] = $addr['postcode'];
             }
             unset($addr['postcode']);
@@ -269,7 +269,10 @@ class AddressValidation implements AddressValidationInterface
             $errorMessage = json_decode($e->getMessage());
             $response = false;
 
-            $this->logger->log($errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail, 'error');
+            $this->logger->log(
+                $errorMessage->status . ' ' . $errorMessage->error . ' - ' . $errorMessage->detail,
+                'error'
+            );
         }
 
         return $response;
@@ -342,7 +345,7 @@ class AddressValidation implements AddressValidationInterface
      * @param array $new
      * @return array
      */
-    function simplediff($old, $new)
+    public function simplediff($old, $new)
     {
         $matrix = [];
         $maxlen = 0;
@@ -380,7 +383,7 @@ class AddressValidation implements AddressValidationInterface
      * @param string $new
      * @return string
      */
-    function htmlDiff($old, $new)
+    public function htmlDiff($old, $new)
     {
         $ret = '';
         $pattern = "/[\s]+/";

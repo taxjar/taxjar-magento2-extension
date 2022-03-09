@@ -130,7 +130,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
             return $this;
         }
 
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ENABLED,
+        $isEnabled = $this->scopeConfig->getValue(
+            TaxjarConfig::TAXJAR_ENABLED,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $quote->getStoreId()
         );
@@ -356,7 +357,11 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
                 $children = $item->getChildren();
 
                 if (is_array($children) && isset($children[0])) {
-                    $product = $this->productRepository->getById($children[0]->getProductId(), false, $item->getStoreId());
+                    $product = $this->productRepository->getById(
+                        $children[0]->getProductId(),
+                        false,
+                        $item->getStoreId()
+                    );
                 }
             }
 

@@ -63,7 +63,8 @@ class ItemRepository
                 $ptc = $product->getTjPtc() ?: TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE;
                 $item->setTjPtc($ptc);
             } catch (NoSuchEntityException $e) {
-                $msg = 'Product #' . $item->getProductId() . ' does not exist.  Order #' . $item->getOrderId() . ' possibly missing PTCs on OrderItems.';
+                $msg = 'Product #' . $item->getProductId() . ' does not exist.  ';
+                $msg .= 'Order #' . $item->getOrderId() . ' possibly missing PTCs on OrderItems.';
                 $this->logger->log($msg, 'error');
             }
         }

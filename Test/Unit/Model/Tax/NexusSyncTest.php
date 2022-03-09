@@ -118,10 +118,22 @@ class NexusSyncTest extends UnitTestCase
         $clientMock->expects(static::once())
             ->method('postResource')
             ->with('nexus', $dataMock, [
-                '400' => __('Your nexus address contains invalid data. Please verify the address in order to sync with TaxJar.'),
-                '409' => __('A nexus address already exists for this state/region. TaxJar currently supports one address per region.'),
-                '422' => __('Your nexus address is missing one or more required fields. Please verify the address in order to sync with TaxJar.'),
-                '500' => __('Something went wrong while syncing your address with TaxJar. Please verify the address and contact support@taxjar.com if the problem persists.')
+                '400' => __(
+                    'Your nexus address contains invalid data. ' .
+                    'Please verify the address in order to sync with TaxJar.'
+                ),
+                '409' => __(
+                    'A nexus address already exists for this state/region. ' .
+                    'TaxJar currently supports one address per region.'
+                ),
+                '422' => __(
+                    'Your nexus address is missing one or more required fields. ' .
+                    'Please verify the address in order to sync with TaxJar.'
+                ),
+                '500' => __(
+                    'Something went wrong while syncing your address with TaxJar. ' .
+                    'Please verify the address and contact support@taxjar.com if the problem persists.'
+                )
             ])
             ->willReturn(['id' => 101]);
 
@@ -155,10 +167,22 @@ class NexusSyncTest extends UnitTestCase
         $clientMock->expects(static::once())
             ->method('putResource')
             ->with('nexus', 'test_id', $dataMock, [
-                '400' => __('Your nexus address contains invalid data. Please verify the address in order to sync with TaxJar.'),
-                '409' => __('A nexus address already exists for this state/region. TaxJar currently supports one address per region.'),
-                '422' => __('Your nexus address is missing one or more required fields. Please verify the address in order to sync with TaxJar.'),
-                '500' => __('Something went wrong while syncing your address with TaxJar. Please verify the address and contact support@taxjar.com if the problem persists.')
+                '400' => __(
+                    'Your nexus address contains invalid data. ' .
+                    'Please verify the address in order to sync with TaxJar.'
+                ),
+                '409' => __(
+                    'A nexus address already exists for this state/region. ' .
+                    'TaxJar currently supports one address per region.'
+                ),
+                '422' => __(
+                    'Your nexus address is missing one or more required fields. ' .
+                    'Please verify the address in order to sync with TaxJar.'
+                ),
+                '500' => __(
+                    'Something went wrong while syncing your address with TaxJar. ' .
+                    'Please verify the address and contact support@taxjar.com if the problem persists.'
+                )
             ]);
 
         $this->clientFactoryMock->expects(static::once())->method('create')->willReturn($clientMock);
@@ -185,7 +209,10 @@ class NexusSyncTest extends UnitTestCase
             ->method('deleteResource')
             ->with('nexus', 'test_id', [
                 '409' => __('A nexus address with this ID could not be found in TaxJar.'),
-                '500' => __('Something went wrong while deleting your address in TaxJar. Please contact support@taxjar.com if the problem persists.')
+                '500' => __(
+                    'Something went wrong while deleting your address in TaxJar. ' .
+                    'Please contact support@taxjar.com if the problem persists.'
+                )
             ])
             ->willReturn(null);
 

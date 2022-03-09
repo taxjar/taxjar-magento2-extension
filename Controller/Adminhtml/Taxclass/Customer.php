@@ -20,21 +20,6 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass;
 abstract class Customer extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass
 {
     /**
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassService
-     * @param \Magento\Tax\Api\Data\TaxClassInterfaceFactory $taxClassDataObjectFactory
-     */
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassService,
-        \Magento\Tax\Api\Data\TaxClassInterfaceFactory $taxClassDataObjectFactory
-    ) {
-        parent::__construct($context, $coreRegistry, $taxClassService, $taxClassDataObjectFactory);
-    }
-
-    /**
      * Initialize action
      *
      * @return \Magento\Backend\Model\View\Result\Page

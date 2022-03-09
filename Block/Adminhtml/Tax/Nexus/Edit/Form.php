@@ -240,7 +240,10 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'required' => false,
                 'value' => isset($formValues['store_id']) ? $formValues['store_id'] : '',
                 'values' => $this->getStoreGroups(),
-                'note' => __('Calculate sales tax for this nexus address in a specific Magento store. Set to "All Store Views" to use this nexus address globally.')
+                'note' => __(
+                    'Calculate sales tax for this nexus address in a specific Magento store. ' .
+                    'Set to "All Store Views" to use this nexus address globally.'
+                )
             ]
         );
 

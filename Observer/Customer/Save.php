@@ -17,6 +17,7 @@
 
 namespace Taxjar\SalesTax\Observer\Customer;
 
+use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
 
@@ -28,9 +29,10 @@ class Save extends Customer
      */
     public function execute(Observer $observer)
     {
+        /** @var CustomerInterface $customer */
         $customer = $observer->getCustomer();
 
-        if (is_null($customer) || !$customer->getId()) {
+        if ($customer === null || !$customer->getId()) {
             return;
         }
 
@@ -44,7 +46,7 @@ class Save extends Customer
                 $customerAddress = $this->addressRepository->getById($shippingAddressId);
             }
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            // noop
+            $this->logger->log($e->getMessage());
         }
 
         // Null values are used to delete old address data
@@ -68,9 +70,9 @@ class Save extends Customer
                 'street' => implode(", ", $customerAddress->getStreet())
             ]);
 
-            if (get_class($customerAddress) == 'Magento\Customer\Model\Address') {
+            if (get_class($customerAddress) == \Magento\Customer\Model\Address::class) {
                 $data['state'] = $customerAddress->getRegionCode();
-            } elseif (get_class($customerAddress) == 'Magento\Customer\Model\Data\Address') {
+            } elseif (get_class($customerAddress) == \Magento\Customer\Model\Data\Address::class) {
                 $data['state'] = $customerAddress->getRegion()->getRegionCode();
             }
         }

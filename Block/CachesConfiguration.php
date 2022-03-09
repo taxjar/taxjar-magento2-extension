@@ -41,6 +41,4 @@ trait CachesConfiguration
 
         return false;
     }
-
-
 }

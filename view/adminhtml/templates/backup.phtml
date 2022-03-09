@@ -16,6 +16,9 @@
  */
 
 /** @var \Taxjar\SalesTax\Block\Adminhtml\Backup $block */
+
+$syncRatesUrl = $block->escapeXssInUrl($block->getStoreUrl('taxjar/config/syncRates'));
+$systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax']);
 ?>
 
 <p class='note'>
@@ -25,18 +28,13 @@
     </span>
 </p>
 
-<?php if ($block->isEnabled()) { ?>
+<?php if ($block->isEnabled()): ?>
     <p class="success-msg" style="background: none !important; padding-left: 1rem; font-weight: 700;">
-        <small>
-            <?php echo $block->getActualRateCount() ?>
-            of
-            <?php echo $block->getExpectedRateCount() ?>
-            expected rates loaded.
-        </small>
+        <small><?= $block->escapeHtml($block->getRatesLoadedText()) ?></small>
     </p>
 
     <p class="success-msg" style="background: none !important; padding-left: 1rem;">
-        <small>Last synced on <?php echo $block->getLastSyncedDate() ?>.</small>
+        <small><?= $block->escapeHtml($block->getLastSyncedDateText()) ?></small>
     </p>
 
     <p style="margin-top: 1rem">
@@ -47,23 +45,18 @@
 
     <script>
         function syncBackupRates() {
-            new Ajax.Request(
-                '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/syncRates')) ?>',
-                {
-                    method: 'get',
-                    onCreate: function(request) {
-                        varienLoaderHandler.handler.onCreate({
-                            options: { loaderArea: true }
-                        });
-                    },
-                    onComplete: function(data) {
-                        varienLoaderHandler.handler.onComplete();
-                        window.location = '<?php echo $block->escapeUrl(
-                            $block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax'])
-                        )?>';
-                    }
+            new Ajax.Request('<?= $block->escapeUrl($syncRatesUrl) ?>', {
+                method: 'get',
+                onCreate: function(request) {
+                    varienLoaderHandler.handler.onCreate({
+                        options: { loaderArea: true }
+                    });
+                },
+                onComplete: function(data) {
+                    varienLoaderHandler.handler.onComplete();
+                    window.location = '<?= $block->escapeUrl($systemTaxConfigUrl) ?>';
                 }
-            );
+            });
         }
     </script>
-<?php } ?>
+<?php endif; ?>

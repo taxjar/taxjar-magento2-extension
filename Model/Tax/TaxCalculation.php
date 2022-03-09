@@ -168,7 +168,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $this->dataObjectHelper->populateWithArray(
             $taxDetailsDataObject,
             $taxDetailsData,
-            '\Magento\Tax\Api\Data\TaxDetailsInterface'
+            \Magento\Tax\Api\Data\TaxDetailsInterface::class
         );
         $taxDetailsDataObject->setItems($processedItems);
         return $taxDetailsDataObject;

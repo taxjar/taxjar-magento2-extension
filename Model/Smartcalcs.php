@@ -20,7 +20,6 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
-use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
@@ -215,7 +214,8 @@ class Smartcalcs
                     );
                     $metadata = [
                         MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_ERROR,
-                        MetadataInterface::TAX_CALCULATION_MESSAGE => $errorResponse->error . ' - ' . $errorResponse->detail,
+                        MetadataInterface::TAX_CALCULATION_MESSAGE =>
+                            $errorResponse->error . ' - ' . $errorResponse->detail,
                     ];
                 }
             } catch (\Zend_Http_Client_Exception $e) {
@@ -498,7 +498,8 @@ class Smartcalcs
                     if ($extensionAttributes->getProductType() == \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE) {
                         $parentQuantities[$id] = $quantity;
 
-                        if ($extensionAttributes->getPriceType() == \Magento\Bundle\Model\Product\Price::PRICE_TYPE_DYNAMIC) {
+                        if ($extensionAttributes->getPriceType() ==
+                            \Magento\Bundle\Model\Product\Price::PRICE_TYPE_DYNAMIC) {
                             continue;
                         }
                     }
@@ -524,20 +525,22 @@ class Smartcalcs
                         $taxCode = $taxClass->getTjSalestaxCode();
                     }
 
-                    if ($this->productMetadata->getEdition() == 'Enterprise' || $this->productMetadata->getEdition() == 'B2B') {
-                        if ($extensionAttributes->getProductType() == \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD) {
-                            $giftTaxClassId = $this->scopeConfig->getValue('tax/classes/wrapping_tax_class',
-                                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                                $quote->getStoreId()
-                            );
+                    if (in_array($this->productMetadata->getEdition(), ['Enterprise', 'B2B']) &&
+                        $extensionAttributes->getProductType() ==
+                        \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD
+                    ) {
+                        $giftTaxClassId = $this->scopeConfig->getValue(
+                            'tax/classes/wrapping_tax_class',
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                            $quote->getStoreId()
+                        );
 
-                            if ($giftTaxClassId) {
-                                $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
-                                $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
-                                $taxCode = $giftTaxClassCode;
-                            } else {
-                                $taxCode = TaxjarConfig::TAXJAR_GIFT_CARD_TAX_CODE;
-                            }
+                        $taxCode = TaxjarConfig::TAXJAR_GIFT_CARD_TAX_CODE;
+
+                        if ($giftTaxClassId) {
+                            $giftTaxClass = $this->taxClassRepository->get($giftTaxClassId);
+                            $giftTaxClassCode = $giftTaxClass->getTjSalestaxCode();
+                            $taxCode = $giftTaxClassCode;
                         }
                     }
 
