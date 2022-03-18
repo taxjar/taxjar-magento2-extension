@@ -268,6 +268,7 @@ class ImportRates implements ObserverInterface
 
     /**
      * @throws LocalizedException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function execute(Observer $observer)
     {

@@ -51,6 +51,7 @@ class ItemRepository
      *
      * @param \Magento\Sales\Model\Order\ItemRepository $subject
      * @param \Magento\Sales\Api\Data\OrderItemInterface $item
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeSave(
         \Magento\Sales\Model\Order\ItemRepository $subject,

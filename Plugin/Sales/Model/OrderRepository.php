@@ -48,6 +48,7 @@ class OrderRepository
      * @param OrderRepositoryInterface $subject
      * @param OrderInterface $order
      * @return OrderInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGet(OrderRepositoryInterface $subject, OrderInterface $order): OrderInterface
     {
@@ -58,6 +59,7 @@ class OrderRepository
      * @param OrderRepositoryInterface $subject
      * @param OrderSearchResultInterface $searchResult
      * @return OrderSearchResultInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetList(
         OrderRepositoryInterface   $subject,
