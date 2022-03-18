@@ -86,7 +86,7 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     /**
      * Get status text for sales orders
      *
-     * @param string $state
+     * @param string|null $state
      * @return \Magento\Framework\Phrase
      */
     public function getOrderStateText($state)
@@ -95,13 +95,17 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
             return __('This order has not been synced to TaxJar.');
         }
 
-        return __('Current order state of %1 cannot be synced to TaxJar.', $this->insertPre($state));
+        if ($state && is_string($state)) {
+            return __('Current order state of %1 cannot be synced to TaxJar.', $this->insertPre($state));
+        }
+
+        return __('Unable to determine order state. Cannot sync order to TaxJar.');
     }
 
     /**
      * Get actionable text for sales orders
      *
-     * @param string $state
+     * @param string|null $state
      * @return \Magento\Framework\Phrase
      */
     public function getOrderActionableText($state)
