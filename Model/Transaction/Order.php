@@ -22,8 +22,6 @@ use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\AbstractModel;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class Order extends \Taxjar\SalesTax\Model\Transaction
 {
@@ -108,7 +106,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             }
         }
 
-        $httpMethod = $method ?: ($this->isSynced($orderSyncedAt) ? Request::METHOD_PUT : Request::METHOD_POST);
+        $httpMethod = $method ?: ($this->isSynced($orderSyncedAt) ? 'PUT' : 'POST');
 
         try {
             $this->logger->log(
@@ -150,9 +148,9 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     protected function makeRequest(string $method): array
     {
         switch ($method) {
-            case Request::METHOD_POST:
+            case 'POST':
                 return $this->client->postResource('orders', $this->request);
-            case Request::METHOD_PUT:
+            case 'PUT':
                 return $this->client->putResource('orders', $this->request['transaction_id'], $this->request);
             default:
                 throw new LocalizedException(
@@ -169,12 +167,12 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
      */
     protected function handleError($error, string $method, bool $forceFlag): void
     {
-        if ($method == Request::METHOD_POST && $error->status == Response::HTTP_UNPROCESSABLE_ENTITY) {
-            $retry = Request::METHOD_PUT;
+        if ($method == 'POST' && $error->status == 422) {
+            $retry = 'PUT';
         }
 
-        if ($method == Request::METHOD_PUT && $error->status == Response::HTTP_NOT_FOUND) {
-            $retry = Request::METHOD_POST;
+        if ($method == 'PUT' && $error->status == 404) {
+            $retry = 'POST';
         }
 
         if (isset($retry)) {

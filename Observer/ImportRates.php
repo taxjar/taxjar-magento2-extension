@@ -38,7 +38,6 @@ use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Tax\Model\Calculation\RateRepository;
 use Magento\Tax\Model\Config as MagentoTaxConfig;
-use Symfony\Component\HttpFoundation\Response;
 use Taxjar\SalesTax\Api\Client\ClientInterface;
 use Taxjar\SalesTax\Model\BackupRateOriginAddress;
 use Taxjar\SalesTax\Model\Client;
@@ -126,7 +125,7 @@ class ImportRates implements ObserverInterface
     private $userContext;
 
     /**
-     * @var ClientInterface
+     * @var ClientInterface|Client
      */
     public $client;
 
@@ -563,7 +562,7 @@ class ImportRates implements ObserverInterface
     private function getRates(): array
     {
         $rates = $this->client->getResource('rates', [
-            Response::HTTP_FORBIDDEN => __(
+            '403' => __(
                 'Your last backup rate sync from TaxJar was too recent. ' .
                 'Please wait at least 5 minutes and try again.'
             )
