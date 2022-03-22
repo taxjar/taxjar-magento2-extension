@@ -125,7 +125,7 @@ function (
                 originalAddress.country_id = addrs[id].address.countryId;
                 originalAddress.postcode = addrs[id].address.postcode;
 
-                if (originalAddress.telephone === null || originalAddress.telephone == '') {
+                if (originalAddress.telephone == null || originalAddress.telephone === '') {
                     originalAddress.telephone = addrs[id].address.telephone ?? quote.shippingAddress().telephone;
                 }
 
