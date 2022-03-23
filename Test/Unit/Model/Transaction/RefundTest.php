@@ -7,8 +7,6 @@ namespace Taxjar\SalesTax\Test\Unit\Model\Transaction;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\Transaction\Refund;
 use Taxjar\SalesTax\Model\Transaction\Refund as TaxjarRefund;
@@ -195,28 +193,28 @@ class RefundTest extends UnitTestCase
     {
         return [
             'post_already_exists_error' => [
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-                Request::METHOD_POST,
-                false,
-                Request::METHOD_PUT,
+                'status' => 422,
+                'method' => 'POST',
+                'force' => false,
+                'expected' => 'PUT',
             ],
             'put_does_not_exist_error' => [
-                Response::HTTP_NOT_FOUND,
-                Request::METHOD_PUT,
-                false,
-                Request::METHOD_POST,
+                'status' => 404,
+                'method' => 'PUT',
+                'force' => false,
+                'expected' => 'POST',
             ],
             'force_post_already_exists_error' => [
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-                Request::METHOD_POST,
-                true,
-                Request::METHOD_PUT,
+                'status' => 422,
+                'method' => 'POST',
+                'force' => true,
+                'expected' => 'PUT',
             ],
             'force_put_does_not_exist_error' => [
-                Response::HTTP_NOT_FOUND,
-                Request::METHOD_PUT,
-                true,
-                Request::METHOD_POST,
+                'status' => 404,
+                'method' => 'PUT',
+                'force' => true,
+                'expected' => 'POST',
             ],
         ];
     }
