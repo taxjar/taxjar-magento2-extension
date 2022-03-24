@@ -6,6 +6,9 @@ namespace Taxjar\SalesTax\Test\Unit;
 
 use Taxjar\SalesTax\Test\BaseTestCase;
 
+/**
+ * @SurpressWarnings(PHPMD.NumberOfChildren)
+ */
 abstract class UnitTestCase extends BaseTestCase
 {
     //
