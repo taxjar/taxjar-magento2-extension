@@ -69,13 +69,13 @@ class Upgrade extends \Magento\Backend\App\AbstractAction
     /**
      * Connect to TaxJar
      *
-     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect
+     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute()
     {
         $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, 1, 'default', 0);
         $this->reinitableConfig->reinit();
         $this->messageManager->addSuccessMessage(__('Transaction sync is now enabled.'));
-        $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
+        return $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
     }
 }

@@ -65,6 +65,8 @@ class AddExtensionAttributesPatch implements DataPatchInterface
         $this->createTjLastSyncAttribute($eavSetup);
 
         $this->moduleDataSetup->getConnection()->endSetup();
+
+        return $this;
     }
 
     /**

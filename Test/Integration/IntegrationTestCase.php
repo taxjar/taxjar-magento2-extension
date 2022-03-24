@@ -9,7 +9,7 @@ use Magento\InventoryReservationsApi\Model\CleanupReservationsInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Taxjar\SalesTax\Test\BaseTestCase;
 
-class IntegrationTestCase extends BaseTestCase
+abstract class IntegrationTestCase extends BaseTestCase
 {
     /**
      * @var ObjectManagerInterface

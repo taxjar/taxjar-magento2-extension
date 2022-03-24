@@ -77,6 +77,8 @@ class UpdateTaxjarStatesPatch implements DataPatchInterface
         }
 
         $this->moduleDataSetup->getConnection()->endSetup();
+
+        return $this;
     }
 
     /**

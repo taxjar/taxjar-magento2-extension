@@ -85,7 +85,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     /**
      * Disconnect from TaxJar
      *
-     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect
+     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute()
     {
@@ -123,7 +123,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
 
         $this->messageManager->addSuccessMessage(__('Your TaxJar account has been disconnected.'));
 
-        $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
+        return $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
     }
 
     /**
@@ -135,9 +135,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     {
         $nexusAddresses = $this->nexusFactory->create()->getCollection();
         foreach ($nexusAddresses as $nexusAddress) {
-            // @codingStandardsIgnoreStart
             $nexusAddress->delete();
-            // @codingStandardsIgnoreEnd
         }
     }
 

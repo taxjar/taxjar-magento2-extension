@@ -23,7 +23,7 @@ class SyncedTest extends UnitTestCase
             ->setMethods(['getTjSalestaxSyncDate'])
             ->getMockForAbstractClass();
         $orderMock->expects(static::once())->method('getTjSalestaxSyncDate');
-        $sut = $this->objectManager->getObject(Synced::class);
+        $sut = $this->createMock(Synced::class);
         $sut->getSyncedAtDate($orderMock);
     }
 }

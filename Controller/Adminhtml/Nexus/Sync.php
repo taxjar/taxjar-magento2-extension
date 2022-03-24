@@ -20,7 +20,7 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Nexus;
 class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
 {
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute()
     {
@@ -32,6 +32,6 @@ class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
             $this->messageManager->addErrorMessage($e->getMessage());
         }
 
-        $this->_redirect('*/*/');
+        return $this->_redirect('*/*/');
     }
 }
