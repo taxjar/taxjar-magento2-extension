@@ -15,14 +15,15 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard;
 use Magento\TestFramework\ObjectManager;
 
 $objectManager = ObjectManager::getInstance();
 
+$giftcardClass = '\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard';
+
 $productData = [
     [
-        'type_id' => Giftcard::TYPE_GIFTCARD,
+        'type_id' => $giftcardClass::TYPE_GIFTCARD,
         'name' => 'Giftcard',
         'sku' => 'giftcard',
         'price' => 50.0,

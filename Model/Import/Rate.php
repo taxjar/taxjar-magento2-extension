@@ -49,6 +49,11 @@ class Rate
     protected $rateFactory;
 
     /**
+     * @var \Magento\Tax\Model\CalculationFactory
+     */
+    protected $_calculationFactory;
+
+    /**
      * @var \Magento\Tax\Api\TaxRateRepositoryInterface
      */
     protected $rateService;

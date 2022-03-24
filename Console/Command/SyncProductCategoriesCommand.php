@@ -18,6 +18,8 @@
 namespace Taxjar\SalesTax\Console\Command;
 
 use Magento\Framework\App\State;
+use Magento\Framework\Console\Cli;
+use Magento\Framework\Event\Observer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -80,14 +82,14 @@ class SyncProductCategoriesCommand extends Command
         try {
             $this->state->setAreaCode('adminhtml');
             $this->logger->console($output);
-
-            $this->importCategories->execute(new \Magento\Framework\Event\Observer);
+            $this->importCategories->execute(new Observer);
             $output->writeln(PHP_EOL . 'Successfully synced product tax categories.');
-
         } catch (\Exception $e) {
             $output->writeln(
                 PHP_EOL . '<error>Failed to sync product tax categories: ' . $e->getMessage() . '</error>'
             );
+            return Cli::RETURN_FAILURE;
         }
+        return Cli::RETURN_SUCCESS;
     }
 }

@@ -85,7 +85,7 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $this->appliedTaxDataObjectFactory = $appliedTaxDataObjectFactory;
         $this->appliedTaxRateDataObjectFactory = $appliedTaxRateDataObjectFactory;
 
-        return parent::__construct(
+        parent::__construct(
             $calculation,
             $calculatorFactory,
             $config,

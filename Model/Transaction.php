@@ -304,22 +304,24 @@ class Transaction
     /**
      * @param OrderInterface $order
      * @return string
+     * @throws LocalizedException
      */
     protected function getProvider($order): string
     {
         $provider = 'api';
+        $m2eOrderClass = '\Ess\M2ePro\Model\Order';
 
-        try {
-            if (class_exists('\Ess\M2ePro\Model\Order')) {
-                $m2eOrder = $this->objectManager->create('\Ess\M2ePro\Model\Order');
+        if (class_exists($m2eOrderClass)) {
+            try {
+                $m2eOrder = $this->objectManager->create($m2eOrderClass);
                 $m2eOrder = $m2eOrder->load($order->getId(), 'magento_order_id');
 
                 if (in_array($m2eOrder->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
                     $provider = $m2eOrder->getComponentMode();
                 }
+            } catch (\Exception $e) {
+                $this->logger->log('M2e order does not exist or component mode can\'t be loaded');
             }
-        } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
-            $this->logger->log('M2e order does not exist or component mode can\'t be loaded');
         }
 
         return $provider;

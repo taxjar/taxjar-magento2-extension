@@ -27,8 +27,21 @@ class ImportRatesTest extends IntegrationTestCase
 
         Bootstrap::getObjectManager()->configure([
             'preferences' => [
-                Client::class => new class() extends Client implements ClientInterface {
+                Client::class => new class implements ClientInterface {
+                    /**
+                     * @var string
+                     */
                     public $mockResponse;
+
+                    /**
+                     * @var string
+                     */
+                    public $apiKey;
+
+                    /**
+                     * @var bool
+                     */
+                    public $showResponseErrors;
 
                     /**
                      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -76,6 +89,16 @@ class ImportRatesTest extends IntegrationTestCase
                         $this->mockResponse = $value;
 
                         return $this;
+                    }
+
+                    public function setApiKey($key)
+                    {
+                        $this->apiKey = $key;
+                    }
+
+                    public function showResponseErrors($toggle)
+                    {
+                        $this->showResponseErrors = $toggle;
                     }
                 }
             ]

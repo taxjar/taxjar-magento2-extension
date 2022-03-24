@@ -372,7 +372,7 @@ class Smartcalcs
      * Get a specific line item breakdown from a SmartCalcs API response
      *
      * @param int $id
-     * @return array
+     * @return array|void
      */
     public function getResponseLineItem($id)
     {
@@ -393,7 +393,7 @@ class Smartcalcs
     /**
      * Get the shipping breakdown from a SmartCalcs API response
      *
-     * @return array
+     * @return array|void
      */
     public function getResponseShipping()
     {
@@ -525,9 +525,11 @@ class Smartcalcs
                         $taxCode = $taxClass->getTjSalestaxCode();
                     }
 
-                    if (in_array($this->productMetadata->getEdition(), ['Enterprise', 'B2B']) &&
-                        $extensionAttributes->getProductType() ==
-                        \Magento\GiftCard\Model\Catalog\Product\Type\Giftcard::TYPE_GIFTCARD
+                    $giftcardClass = '\Magento\GiftCard\Model\Catalog\Product\Type\Giftcard';
+
+                    if (class_exists($giftcardClass) &&
+                        in_array($this->productMetadata->getEdition(), ['Enterprise', 'B2B']) &&
+                        $extensionAttributes->getProductType() == $giftcardClass::TYPE_GIFTCARD
                     ) {
                         $giftTaxClassId = $this->scopeConfig->getValue(
                             'tax/classes/wrapping_tax_class',

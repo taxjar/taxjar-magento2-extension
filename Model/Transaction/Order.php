@@ -42,6 +42,11 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     protected $request;
 
     /**
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
      * Build an order transaction
      *
      * @param OrderInterface $order

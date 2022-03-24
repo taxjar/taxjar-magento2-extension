@@ -37,9 +37,7 @@ class Backup extends Field
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::backup.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\Config\CacheInterface
@@ -85,6 +83,16 @@ class Backup extends Field
      * @var TaxjarConfig
      */
     protected $taxjarConfig;
+
+    /**
+     * @var string
+     */
+    protected $_regionCode;
+
+    /**
+     * @var string
+     */
+    protected $apiKey;
 
     /**
      * @param CacheInterface $cache

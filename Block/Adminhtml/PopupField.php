@@ -25,6 +25,19 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 class PopupField extends Field
 {
     /**
+     * @var \Magento\Framework\App\RequestInterface
+     */
+    protected $request;
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+    /**
+     * @var UrlInterface
+     */
+    protected $backendUrl;
+
+    /**
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param array $data

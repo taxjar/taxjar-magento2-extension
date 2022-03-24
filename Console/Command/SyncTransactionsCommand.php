@@ -3,6 +3,7 @@
 namespace Taxjar\SalesTax\Console\Command;
 
 use Magento\Framework\App\State;
+use Magento\Framework\Console\Cli;
 use Magento\Framework\Event\Manager;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\Observer;
@@ -75,7 +76,8 @@ class SyncTransactionsCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return void
+     * @return string
+     * @throws \Throwable
      */
     protected function execute(
         InputInterface $input,
@@ -91,6 +93,8 @@ class SyncTransactionsCommand extends Command
             ]));
         } catch (\Exception $e) {
             $output->writeln(PHP_EOL . '<error>Failed to sync transactions: ' . $e->getMessage() . '</error>');
+            return Cli::RETURN_FAILURE;
         }
+        return Cli::RETURN_SUCCESS;
     }
 }

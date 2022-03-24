@@ -176,20 +176,18 @@ class Client implements ClientInterface
      *
      * @param \Zend_Http_Client $client
      * @param array $errors
-     * @return array
+     * @return string
      * @throws LocalizedException
      */
     private function _getRequest($client, $errors = [])
     {
         try {
             $response = $client->request();
-
-            if ($response->isSuccessful()) {
-                $json = $response->getBody();
-                return json_decode($json, true);
-            } else {
+            if (!$response->isSuccessful()) {
                 $this->_handleError($errors, $response);
             }
+            $json = $response->getBody();
+            return json_decode($json, true);
         } catch (\Zend_Http_Client_Exception $e) {
             throw new LocalizedException(__('Could not connect to TaxJar.'));
         }

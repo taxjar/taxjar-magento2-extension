@@ -29,9 +29,7 @@ class Debug extends Field
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::debug.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
@@ -96,7 +94,7 @@ class Debug extends Field
     /**
      * Get list of backup rate states
      *
-     * @return string
+     * @return string|void
      */
     public function getBackupStates()
     {

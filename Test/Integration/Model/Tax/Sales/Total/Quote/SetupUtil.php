@@ -200,6 +200,11 @@ class SetupUtil
     ];
 
     /**
+     * @var array
+     */
+    protected $customerTaxClassesMetadata;
+
+    /**
      * List of tax rules
      *
      * @var array
