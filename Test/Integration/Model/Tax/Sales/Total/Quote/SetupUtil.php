@@ -15,13 +15,38 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-// @codingStandardsIgnoreStart
-
 namespace Taxjar\SalesTax\Test\Integration\Model\Tax\Sales\Total\Quote;
 
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
+use Magento\Catalog\Setup\CategorySetup;
+use Magento\Config\Model\ResourceModel\Config as MagentoConfig;
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\GroupInterfaceFactory;
+use Magento\Customer\Api\GroupManagementInterface;
+use Magento\Customer\Api\GroupRepositoryInterface;
+use Magento\Customer\Model\Address;
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\GroupManagement;
+use Magento\Directory\Model\Currency;
+use Magento\Eav\Model\Config as EavConfig;
+use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
+use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
+use Magento\Framework\DataObject;
+use Magento\Tax\Model\Calculation\Rule as CalculationRule;
+use Magento\SalesRule\Model\Rule as SalesRule;
+use Magento\Tax\Model\Calculation\Rate;
+use Magento\Tax\Model\ClassModel;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Calculation;
+use Taxjar\SalesTax\Model\Tax\Nexus;
 
 class SetupUtil
 {
@@ -229,8 +254,8 @@ class SetupUtil
     protected $defaultShoppingCartPriceRule = [
         'name' => 'Shopping Cart Rule',
         'is_active' => 1,
-        'customer_group_ids' => [\Magento\Customer\Model\GroupManagement::CUST_GROUP_ALL],
-        'coupon_type' => \Magento\SalesRule\Model\Rule::COUPON_TYPE_NO_COUPON,
+        'customer_group_ids' => [GroupManagement::CUST_GROUP_ALL],
+        'coupon_type' => SalesRule::COUPON_TYPE_NO_COUPON,
         'simple_action' => 'by_percent',
         'discount_amount' => 40,
         'discount_step' => 0,
@@ -248,12 +273,12 @@ class SetupUtil
     public $objectManager;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var CustomerRepositoryInterface
      */
     private $customerRepository;
 
     /**
-     * @var \Magento\Customer\Api\AccountManagementInterface
+     * @var AccountManagementInterface
      */
     private $accountManagement;
 
@@ -263,8 +288,8 @@ class SetupUtil
     public function __construct($objectManager)
     {
         $this->objectManager = $objectManager;
-        $this->customerRepository = $this->objectManager->create(\Magento\Customer\Api\CustomerRepositoryInterface::class);
-        $this->accountManagement = $this->objectManager->create(\Magento\Customer\Api\AccountManagementInterface::class);
+        $this->customerRepository = $this->objectManager->create(CustomerRepositoryInterface::class);
+        $this->accountManagement = $this->objectManager->create(AccountManagementInterface::class);
     }
 
     /**
@@ -275,9 +300,9 @@ class SetupUtil
     protected function createCustomerTaxClasses()
     {
         foreach (array_keys($this->customerTaxClasses) as $className) {
-            $taxClass = $this->objectManager->create(\Magento\Tax\Model\ClassModel::class)
+            $taxClass = $this->objectManager->create(ClassModel::class)
                 ->setClassName($className)
-                ->setClassType(\Magento\Tax\Model\ClassModel::TAX_CLASS_TYPE_CUSTOMER);
+                ->setClassType(ClassModel::TAX_CLASS_TYPE_CUSTOMER);
             if (isset($this->customerTaxClassesMetadata[$className])) {
                 foreach ($this->customerTaxClassesMetadata[$className] as $attr => $val) {
                     $taxClass->setData($attr, $val);
@@ -298,9 +323,9 @@ class SetupUtil
     protected function createProductTaxClasses()
     {
         foreach (array_keys($this->productTaxClasses) as $className) {
-            $taxClass = $this->objectManager->create(\Magento\Tax\Model\ClassModel::class)
+            $taxClass = $this->objectManager->create(ClassModel::class)
                 ->setClassName($className)
-                ->setClassType(\Magento\Tax\Model\ClassModel::TAX_CLASS_TYPE_PRODUCT);
+                ->setClassType(ClassModel::TAX_CLASS_TYPE_PRODUCT);
             if (isset($this->productTaxClassesMetadata[$className])) {
                 foreach ($this->productTaxClassesMetadata[$className] as $attr => $val) {
                     $taxClass->setData($attr, $val);
@@ -321,8 +346,8 @@ class SetupUtil
      */
     protected function setConfig($configData)
     {
-        /** @var \Magento\Config\Model\ResourceModel\Config $config */
-        $config = $this->objectManager->get(\Magento\Config\Model\ResourceModel\Config::class);
+        /** @var MagentoConfig $config */
+        $config = $this->objectManager->get(MagentoConfig::class);
         foreach ($configData as $path => $value) {
             if ($path == Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS) {
                 $value = $this->productTaxClasses[$value];
@@ -335,8 +360,8 @@ class SetupUtil
             );
         }
 
-        /** @var \Magento\Framework\App\Config\ReinitableConfigInterface $config */
-        $config = $this->objectManager->get(\Magento\Framework\App\Config\ReinitableConfigInterface::class);
+        /** @var ReinitableConfigInterface $config */
+        $config = $this->objectManager->get(ReinitableConfigInterface::class);
         $config->reinit();
 
         return $this;
@@ -356,7 +381,7 @@ class SetupUtil
             if (isset($taxRateOverrides[$taxRateCode])) {
                 $this->taxRates[$taxRateCode]['data']['rate'] = $taxRateOverrides[$taxRateCode];
             }
-            $this->taxRates[$taxRateCode]['id'] = $this->objectManager->create(\Magento\Tax\Model\Calculation\Rate::class)
+            $this->taxRates[$taxRateCode]['id'] = $this->objectManager->create(Rate::class)
                 ->setData($this->taxRates[$taxRateCode]['data'])
                 ->save()
                 ->getId();
@@ -437,8 +462,8 @@ class SetupUtil
      */
     public function getDefaultCustomerTaxClassId()
     {
-        /** @var  \Magento\Customer\Api\GroupManagementInterface $groupManagement */
-        $groupManagement = $this->objectManager->get(\Magento\Customer\Api\GroupManagementInterface::class);
+        /** @var  GroupManagementInterface $groupManagement */
+        $groupManagement = $this->objectManager->get(GroupManagementInterface::class);
         $defaultGroup = $groupManagement->getDefaultGroup();
         return $defaultGroup->getTaxClassId();
     }
@@ -485,14 +510,14 @@ class SetupUtil
                 'tax_rate_ids' => [$this->taxRates[self::TAX_RATE_SHIPPING]['id']],
             ];
             $this->taxRules[$shippingTaxRuleData['code']] = $this->objectManager
-                ->create(\Magento\Tax\Model\Calculation\Rule::class)
+                ->create(CalculationRule::class)
                 ->setData($shippingTaxRuleData)
                 ->save()
                 ->getId();
 
             //Create a default tax rule
             $this->taxRules[$taxRuleDefaultData['code']] = $this->objectManager
-                ->create(\Magento\Tax\Model\Calculation\Rule::class)
+                ->create(CalculationRule::class)
                 ->setData($taxRuleDefaultData)
                 ->save()
                 ->getId();
@@ -502,7 +527,7 @@ class SetupUtil
                 $taxRuleOverrideData = $this->processTaxRuleOverrides($taxRuleOverrideData, $taxRateIds);
                 $mergedTaxRuleData = array_merge($taxRuleDefaultData, $taxRuleOverrideData);
                 $this->taxRules[$mergedTaxRuleData['code']] = $this->objectManager
-                    ->create(\Magento\Tax\Model\Calculation\Rule::class)
+                    ->create(CalculationRule::class)
                     ->setData($mergedTaxRuleData)
                     ->save()
                     ->getId();
@@ -568,12 +593,12 @@ class SetupUtil
      * @param float $price
      * @param int $taxClassId
      * @param array $attributes
-     * @return \Magento\Catalog\Model\Product
+     * @return Product
      */
     public function createSimpleProduct($sku, $price, $taxClassId, $attributes = [])
     {
-        /** @var \Magento\Catalog\Model\Product $product */
-        $product = $this->objectManager->create(\Magento\Catalog\Model\Product::class);
+        /** @var Product $product */
+        $product = $this->objectManager->create(Product::class);
         $product->isObjectNew(true);
         $product->setTypeId('simple')
             ->setAttributeSetId(4)
@@ -592,8 +617,8 @@ class SetupUtil
             )->setMetaTitle('meta title')
             ->setMetaKeyword('meta keyword')
             ->setMetaDescription('meta description')
-            ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
-            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
+            ->setVisibility(Visibility::VISIBILITY_BOTH)
+            ->setStatus(Status::STATUS_ENABLED);
 
         foreach ($attributes as $attributeKey => $attribute) {
             $product->setData($attributeKey, $attribute);
@@ -631,15 +656,15 @@ class SetupUtil
             $associatedProductIds[] = $this->createSimpleProduct($optionSku, $price, $taxClassId, $optionAttribute)->getId();
         }
 
-        /** @var $product \Magento\Catalog\Model\Product */
-        $product = $this->objectManager->create(\Magento\Catalog\Model\Product::class);
+        /** @var $product Product */
+        $product = $this->objectManager->create(Product::class);
         $product->setTypeId(self::PRODUCT_TYPE_CONFIGURABLE)
             ->setAttributeSetId($attributeSetId)
             ->setName('Configurable Product')
             ->setSku($sku)
             ->setWebsiteIds([1])
-            ->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH)
-            ->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
+            ->setVisibility(Visibility::VISIBILITY_BOTH)
+            ->setStatus(Status::STATUS_ENABLED)
             ->setStockData(
                 [
                     'use_config_manage_stock' => 1,
@@ -667,22 +692,21 @@ class SetupUtil
 
     protected function createConfigurableProductAttribute($attributeCode, $options)
     {
-        $eavConfig = $this->objectManager->get(\Magento\Eav\Model\Config::class);
+        $eavConfig = $this->objectManager->get(EavConfig::class);
         $attribute = $eavConfig->getAttribute('catalog_product', 'test_configurable');
-        if ($attribute instanceof \Magento\Eav\Model\Entity\Attribute\AbstractAttribute
+        if ($attribute instanceof AbstractAttribute
             && $attribute->getId()
         ) {
             $attribute->delete();
         }
         $eavConfig->clear();
         /* Create attribute */
-        /** @var $installer \Magento\Catalog\Setup\CategorySetup */
-        $installer = $this->objectManager->create(\Magento\Catalog\Setup\CategorySetup::class);
+        /** @var $installer CategorySetup */
+        $installer = $this->objectManager->create(CategorySetup::class);
 
-        /** @var $attribute \Magento\Catalog\Model\ResourceModel\Eav\Attribute */
-        $attribute = $this->objectManager->create(
-            \Magento\Catalog\Model\ResourceModel\Eav\Attribute::class
-        );
+        /** @var $attribute Attribute */
+        $attribute = $this->objectManager->create(Attribute::class);
+
         $attribute->setData(
             [
                 'attribute_code' => $attributeCode,
@@ -713,8 +737,8 @@ class SetupUtil
         /* Assign attribute to attribute set */
         $installer->addAttributeToGroup('catalog_product', 'Default', 'General', $attribute->getId());
 
-        /** @var \Magento\Eav\Model\Config $eavConfig */
-        $eavConfig = $this->objectManager->get(\Magento\Eav\Model\Config::class);
+        /** @var EavConfig $eavConfig */
+        $eavConfig = $this->objectManager->get(EavConfig::class);
         $eavConfig->clear();
 
         $this->configurableProductAttributes[$attributeCode] = $attribute;
@@ -732,7 +756,7 @@ class SetupUtil
 
         $superAttributes[$attribute->getId()] = $options[0]->getValue();
 
-        $requestInfo = new \Magento\Framework\DataObject([
+        $requestInfo = new DataObject([
             'qty' => $qty,
             'super_attribute' => $superAttributes
         ]);
@@ -748,9 +772,9 @@ class SetupUtil
      */
     protected function createCustomerGroup($customerTaxClassId)
     {
-        /** @var \Magento\Customer\Api\GroupRepositoryInterface $groupRepository */
-        $groupRepository = $this->objectManager->create(\Magento\Customer\Api\GroupRepositoryInterface::class);
-        $customerGroupFactory = $this->objectManager->create(\Magento\Customer\Api\Data\GroupInterfaceFactory::class);
+        /** @var GroupRepositoryInterface $groupRepository */
+        $groupRepository = $this->objectManager->create(GroupRepositoryInterface::class);
+        $customerGroupFactory = $this->objectManager->create(GroupInterfaceFactory::class);
         $customerGroup = $customerGroupFactory->create()
             ->setCode('custom_group')
             ->setTaxClassId($customerTaxClassId);
@@ -766,8 +790,8 @@ class SetupUtil
     protected function createCustomer()
     {
         $customerGroupId = $this->createCustomerGroup($this->customerTaxClasses[self::CUSTOMER_TAX_CLASS_1]);
-        /** @var \Magento\Customer\Model\Customer $customer */
-        $customer = $this->objectManager->create(\Magento\Customer\Model\Customer::class);
+        /** @var Customer $customer */
+        $customer = $this->objectManager->create(Customer::class);
         $customer->isObjectNew(true);
         $customer->setWebsiteId(1)
             ->setEntityTypeId(1)
@@ -789,7 +813,7 @@ class SetupUtil
      *
      * @param array $addressOverride
      * @param int $customerId
-     * @return \Magento\Customer\Model\Address
+     * @return Address
      */
     protected function createCustomerAddress($addressOverride, $customerId)
     {
@@ -808,8 +832,8 @@ class SetupUtil
         ];
         $addressData = array_merge($defaultAddressData, $addressOverride);
 
-        /** @var \Magento\Customer\Model\Address $customerAddress */
-        $customerAddress = $this->objectManager->create(\Magento\Customer\Model\Address::class);
+        /** @var Address $customerAddress */
+        $customerAddress = $this->objectManager->create(Address::class);
         $customerAddress->setData($addressData)
             ->setCustomerId($customerId)
             ->save();
@@ -825,8 +849,8 @@ class SetupUtil
      */
     protected function createCartRule($ruleDataOverride)
     {
-        /** @var \Magento\SalesRule\Model\Rule $salesRule */
-        $salesRule = $this->objectManager->create(\Magento\SalesRule\Model\Rule::class);
+        /** @var Rule $salesRule */
+        $salesRule = $this->objectManager->create(SalesRule::class);
         $ruleData = array_merge($this->defaultShoppingCartPriceRule, $ruleDataOverride);
         $salesRule->setData($ruleData);
         $salesRule->save();
@@ -839,33 +863,33 @@ class SetupUtil
      *
      * @param array $quoteData
      * @param \Magento\Customer\Api\Data\CustomerInterface $customer
-     * @return \Magento\Quote\Model\Quote
+     * @return Quote
      */
     protected function createQuote($quoteData, $customer)
     {
-        /** @var \Magento\Customer\Api\AddressRepositoryInterface $addressService */
-        $addressService = $this->objectManager->create(\Magento\Customer\Api\AddressRepositoryInterface::class);
+        /** @var AddressRepositoryInterface $addressService */
+        $addressService = $this->objectManager->create(AddressRepositoryInterface::class);
 
         /** @var array $shippingAddressOverride */
         $shippingAddressOverride = empty($quoteData['shipping_address']) ? [] : $quoteData['shipping_address'];
-        /** @var  \Magento\Customer\Model\Address $shippingAddress */
+        /** @var  Address $shippingAddress */
         $shippingAddress = $this->createCustomerAddress($shippingAddressOverride, $customer->getId());
 
-        /** @var \Magento\Quote\Model\Quote\Address $quoteShippingAddress */
-        $quoteShippingAddress = $this->objectManager->create(\Magento\Quote\Model\Quote\Address::class);
+        /** @var QuoteAddress $quoteShippingAddress */
+        $quoteShippingAddress = $this->objectManager->create(QuoteAddress::class);
         $quoteShippingAddress->importCustomerAddressData($addressService->getById($shippingAddress->getId()));
 
         /** @var array $billingAddressOverride */
         $billingAddressOverride = empty($quoteData['billing_address']) ? [] : $quoteData['billing_address'];
-        /** @var  \Magento\Customer\Model\Address $billingAddress */
+        /** @var  Address $billingAddress */
         $billingAddress = $this->createCustomerAddress($billingAddressOverride, $customer->getId());
 
-        /** @var \Magento\Quote\Model\Quote\Address $quoteBillingAddress */
-        $quoteBillingAddress = $this->objectManager->create(\Magento\Quote\Model\Quote\Address::class);
+        /** @var QuoteAddress $quoteBillingAddress */
+        $quoteBillingAddress = $this->objectManager->create(QuoteAddress::class);
         $quoteBillingAddress->importCustomerAddressData($addressService->getById($billingAddress->getId()));
 
-        /** @var \Magento\Quote\Model\Quote $quote */
-        $quote = $this->objectManager->create(\Magento\Quote\Model\Quote::class);
+        /** @var Quote $quote */
+        $quote = $this->objectManager->create(Quote::class);
         $quote->setStoreId(1)
             ->setIsActive(true)
             ->setIsMultiShipping(false)
@@ -879,7 +903,7 @@ class SetupUtil
     /**
      * Add products to quote
      *
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param Quote $quote
      * @param array $itemsData
      * @return $this
      */
@@ -913,7 +937,7 @@ class SetupUtil
      * Create a quote based on given data
      *
      * @param array $quoteData
-     * @return \Magento\Quote\Model\Quote
+     * @return Quote
      */
     public function setupQuote($quoteData)
     {
@@ -959,7 +983,7 @@ class SetupUtil
         $addresses = empty($overrides[self::NEXUS_OVERRIDES]) ? $this->nexusAddresses : $overrides[self::NEXUS_OVERRIDES];
 
         foreach ($addresses as $address) {
-            $nexusModel = $this->objectManager->create('Taxjar\SalesTax\Model\Tax\Nexus')
+            $nexusModel = $this->objectManager->create(Nexus::class)
                 ->setApiId(0)
                 ->setStreet($address['street'])
                 ->setCity($address['city'])
@@ -982,13 +1006,13 @@ class SetupUtil
     /**
      * Add currency with conversion rate to quote
      *
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param Quote $quote
      * @param array $currencyData
      * @return $this
      */
     protected function addCurrencyToQuote($quote, $currencyData)
     {
-        $currency = $this->objectManager->get(\Magento\Directory\Model\Currency::class);
+        $currency = $this->objectManager->get(Currency::class);
         $baseCurrencyCode = $currencyData['base_code'];
         $activeCurrencyCode = $currencyData['active_code'];
         $conversionRate = $currencyData['conversion_rate'];
