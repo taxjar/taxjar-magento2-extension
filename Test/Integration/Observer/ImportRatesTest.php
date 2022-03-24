@@ -6,12 +6,13 @@ namespace Taxjar\SalesTax\Test\Integration\Observer;
 
 use Magento\AsynchronousOperations\Model\ResourceModel\Bulk\CollectionFactory as BulkCollectionFactory;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\TestFramework\Helper\Bootstrap;
+use Taxjar\SalesTax\Api\Client\ClientInterface;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Observer\ImportRates;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
-use Taxjar\SalesTax\Test\Integration\Test\Stubs\ClientStub;
 
 class ImportRatesTest extends IntegrationTestCase
 {
@@ -26,7 +27,57 @@ class ImportRatesTest extends IntegrationTestCase
 
         Bootstrap::getObjectManager()->configure([
             'preferences' => [
-                Client::class => ClientStub::class,
+                Client::class => new class() extends Client implements ClientInterface {
+                    public $mockResponse;
+
+                    /**
+                     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+                     */
+                    public function getResource($resource, $errors = [])
+                    {
+                        return $this->getMockResponse();
+                    }
+
+                    /**
+                     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+                     */
+                    public function postResource($resource, $data, $errors = [])
+                    {
+                        return $this->getMockResponse();
+                    }
+
+                    /**
+                     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+                     */
+                    public function putResource($resource, $resourceId, $data, $errors = [])
+                    {
+                        return $this->getMockResponse();
+                    }
+
+                    /**
+                     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+                     */
+                    public function deleteResource($resource, $resourceId, $errors = [])
+                    {
+                        return $this->getMockResponse();
+                    }
+
+                    private function getMockResponse()
+                    {
+                        if (! $this->mockResponse) {
+                            throw new LocalizedException(__('No mock response was set!'));
+                        }
+
+                        return $this->mockResponse;
+                    }
+
+                    public function setMockResponse($value)
+                    {
+                        $this->mockResponse = $value;
+
+                        return $this;
+                    }
+                }
             ]
         ]);
 
