@@ -525,7 +525,7 @@ class SetupUtil
             foreach ($overrides[self::TAX_RULE_OVERRIDES] as $taxRuleOverrideData) {
                 //convert code to id for productTaxClass, customerTaxClass and taxRate
                 $taxRuleOverrideData = $this->processTaxRuleOverrides($taxRuleOverrideData, $taxRateIds);
-                $mergedTaxRuleData = array_merge($taxRuleDefaultData, $taxRuleOverrideData);
+                $mergedTaxRuleData = $taxRuleDefaultData + $taxRuleOverrideData;
                 $this->taxRules[$mergedTaxRuleData['code']] = $this->objectManager
                     ->create(CalculationRule::class)
                     ->setData($mergedTaxRuleData)
@@ -653,7 +653,9 @@ class SetupUtil
                 'value_index' => $option->getValue(),
             ];
 
-            $associatedProductIds[] = $this->createSimpleProduct($optionSku, $price, $taxClassId, $optionAttribute)->getId();
+            $associatedProductIds[] = $this
+                ->createSimpleProduct($optionSku, $price, $taxClassId, $optionAttribute)
+                ->getId();
         }
 
         /** @var $product Product */
@@ -980,7 +982,11 @@ class SetupUtil
      */
     protected function createNexusAddresses($overrides)
     {
-        $addresses = empty($overrides[self::NEXUS_OVERRIDES]) ? $this->nexusAddresses : $overrides[self::NEXUS_OVERRIDES];
+        $addresses = $overrides[self::NEXUS_OVERRIDES];
+
+        if (empty($addresses)) {
+            $addresses = $this->nexusAddresses;
+        }
 
         foreach ($addresses as $address) {
             $nexusModel = $this->objectManager->create(Nexus::class)
