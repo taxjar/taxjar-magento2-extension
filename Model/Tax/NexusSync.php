@@ -22,7 +22,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\CountryFactory;
 use Magento\Directory\Model\RegionFactory;
 use Taxjar\SalesTax\Model\ClientFactory;
-use Taxjar\SalesTax\Model\Tax\NexusFactory;
 
 class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
 {
@@ -161,9 +160,9 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
         $nexusJson = $client->getResource('nexus');
 
         if ($nexusJson['addresses']) {
-            $addresses = $nexusJson['addresses'];
+            $this->nexusFactory->create()->getCollection()->each('delete');
 
-            foreach ($addresses as $address) {
+            foreach ($nexusJson['addresses'] as $address) {
                 if (!isset($address['country']) || empty($address['country'])) {
                     continue;
                 }
@@ -176,34 +175,18 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
                 $countryCode = $this->parseCountryCode($address['country']);
                 $addressRegion = $this->regionFactory->create()->loadByCode($address['state'], $countryCode);
                 $addressCountry = $this->countryFactory->create()->loadByCode($countryCode);
-                $addressCollection = $this->nexusFactory->create()->getCollection();
 
-                // Find existing address by region if US, otherwise country
-                // @codingStandardsIgnoreStart
-                if ($countryCode == 'US') {
-                    $existingAddress = $addressCollection->addRegionFilter($addressRegion->getId())->getFirstItem();
-                } else {
-                    $existingAddress = $addressCollection->addCountryFilter($addressCountry->getId())->getFirstItem();
-                }
-
-                $data = [
-                    'api_id'     => $address['id'],
-                    'street'     => $address['street'],
-                    'city'       => $address['city'],
-                    'postcode'   => $address['zip']
-                ];
-
-                if (!$existingAddress->getId()) {
-                    $data = array_merge($data, [
-                        'country_id'  => $addressCountry->getId(),
-                        'region'      => $addressRegion->getName(),
-                        'region_id'   => $addressRegion->getId(),
-                        'region_code' => $addressRegion->getCode()
-                    ]);
-                }
-
-                $nexusAddress = $existingAddress->getId() ? $existingAddress : $this->nexusFactory->create();
-                $nexusAddress->setData($data);
+                $nexusAddress = $this->nexusFactory->create();
+                $nexusAddress->setData([
+                    'api_id'      => $address['id'],
+                    'street'      => $address['street'],
+                    'city'        => $address['city'],
+                    'postcode'    => $address['zip'],
+                    'country_id'  => $addressCountry->getId(),
+                    'region'      => $addressRegion->getName(),
+                    'region_id'   => $addressRegion->getId(),
+                    'region_code' => $addressRegion->getCode()
+                ]);
                 $nexusAddress->save();
             }
         }
