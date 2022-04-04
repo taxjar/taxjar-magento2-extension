@@ -160,7 +160,9 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
         $nexusJson = $client->getResource('nexus');
 
         if ($nexusJson['addresses']) {
-            $this->nexusFactory->create()->getCollection()->each('delete');
+            $this->nexusFactory->create()->getCollection()
+                ->addFieldToFilter('api_id', ['neq' => 'NULL'])
+                ->each('delete');
 
             foreach ($nexusJson['addresses'] as $address) {
                 if (!isset($address['country']) || empty($address['country'])) {
@@ -192,6 +194,12 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
         }
     }
 
+    /**
+     * Maps non-standard TaxJar ISO-2 country code to universal ISO-2 country code if necessary.
+     *
+     * @param string $countryCode
+     * @return string
+     */
     private function parseCountryCode($countryCode)
     {
         return static::COUNTRY_CODE_MAP[$countryCode] ?? $countryCode;
