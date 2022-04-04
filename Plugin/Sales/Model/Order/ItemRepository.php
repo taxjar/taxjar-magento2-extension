@@ -18,7 +18,9 @@
 namespace Taxjar\SalesTax\Plugin\Sales\Model\Order;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Model\Product;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
 
@@ -30,19 +32,27 @@ class ItemRepository
     protected $productRepository;
 
     /**
+     * @var TaxClassRepositoryInterface
+     */
+    protected $taxClassRepository;
+
+    /**
      * @var Logger
      */
     protected $logger;
 
     /**
      * @param ProductRepositoryInterface $productRepository
+     * @param TaxClassRepositoryInterface $taxClassRepository
      * @param Logger $logger
      */
     public function __construct(
         ProductRepositoryInterface $productRepository,
+        TaxClassRepositoryInterface $taxClassRepository,
         Logger $logger
     ) {
         $this->productRepository = $productRepository;
+        $this->taxClassRepository = $taxClassRepository;
         $this->logger = $logger;
     }
 
@@ -59,9 +69,10 @@ class ItemRepository
         // Only set the product tax code when first creating the OrderItem
         if ($item->getItemId() === null) {
             try {
+                /** @var Product $product */
                 $product = $this->productRepository->getById($item->getProductId());
-                $ptc = $product->getTjPtc() ?: TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE;
-                $item->setTjPtc($ptc);
+                $productTaxCode = $this->getProductTaxCode($product);
+                $item->setTjPtc($productTaxCode);
             } catch (NoSuchEntityException $e) {
                 $msg = 'Product #' . $item->getProductId() . ' does not exist.  ';
                 $msg .= 'Order #' . $item->getOrderId() . ' possibly missing PTCs on OrderItems.';
@@ -70,5 +81,28 @@ class ItemRepository
         }
 
         return null;
+    }
+
+    /**
+     * Retrieve the appropriate TaxJar PTC for a given product.
+     *
+     * @param Product $product
+     * @return mixed|string
+     * @throws NoSuchEntityException
+     */
+    protected function getProductTaxCode($product)
+    {
+        if ($product->getTjPtc()) {
+            return $product->getTjPtc();
+        }
+
+        if ($product->getTaxClassId()) {
+            $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
+            if ($taxClass && $taxClass->getTjSalestaxCode()) {
+                return $taxClass->getTjSalestaxCode();
+            }
+        }
+
+        return TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE;
     }
 }
