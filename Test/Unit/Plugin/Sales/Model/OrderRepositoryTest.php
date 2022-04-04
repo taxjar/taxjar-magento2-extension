@@ -66,10 +66,6 @@ class OrderRepositoryTest extends UnitTestCase
         $searchResultMock->expects(static::once())
             ->method('getItems')
             ->willReturn([$orderMock]);
-        $searchResultMock->expects(static::once())
-            ->method('setItems')
-            ->with([$orderMock])
-            ->willReturnSelf();
 
         $this->orderMetadataHelperMock->expects(static::once())
             ->method('setOrderExtensionAttributeData')
