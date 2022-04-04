@@ -42,6 +42,19 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     protected $request;
 
     /**
+     * Set request value
+     *
+     * @param array $value
+     * @return $this
+     */
+    public function setRequest($value)
+    {
+        $this->request = $value;
+
+        return $this;
+    }
+
+    /**
      * Build an order transaction
      *
      * @param OrderInterface $order
@@ -69,13 +82,15 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             'sales_tax' => $salesTax
         ];
 
-        $this->request = array_merge(
+        $requestBody = array_merge(
             $newOrder,
             $this->buildFromAddress($order),
             $this->buildToAddress($order),
             $this->buildLineItems($order, $order->getAllItems()),
             $this->buildCustomerExemption($order)
         );
+
+        $this->setRequest($requestBody);
 
         return $this->request;
     }
