@@ -40,6 +40,19 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     protected $request;
 
     /**
+     * Set request value
+     *
+     * @param array $value
+     * @return $this
+     */
+    public function setRequest($value)
+    {
+        $this->request = $value;
+
+        return $this;
+    }
+
+    /**
      * Build a refund transaction
      *
      * @param OrderInterface $order
@@ -72,7 +85,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             'sales_tax' => $salesTax
         ];
 
-        $this->request = array_merge(
+        $requestBody = array_merge(
             $refund,
             $this->buildFromAddress($order),
             $this->buildToAddress($order),
@@ -80,22 +93,22 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $this->buildCustomerExemption($order)
         );
 
-        if (isset($this->request['line_items'])) {
+        if (isset($requestBody['line_items'])) {
             $adjustmentFee = $creditmemo->getAdjustmentNegative();
             $adjustmentRefund = $creditmemo->getAdjustmentPositive();
 
             // Discounts on credit memos act as fees and shouldn't be included in $itemDiscounts
-            foreach ($this->request['line_items'] as $k => $lineItem) {
+            foreach ($requestBody['line_items'] as $k => $lineItem) {
                 if ($subtotal != 0) {
                     $lineItemSubtotal = $lineItem['unit_price'] * $lineItem['quantity'];
-                    $this->request['line_items'][$k]['discount'] += ($adjustmentFee * ($lineItemSubtotal / $subtotal));
+                    $requestBody['line_items'][$k]['discount'] += ($adjustmentFee * ($lineItemSubtotal / $subtotal));
                 }
 
                 $itemDiscounts += $lineItem['discount'];
             }
 
             if ($adjustmentRefund > 0) {
-                $this->request['line_items'][] = [
+                $requestBody['line_items'][] = [
                     'id' => 'adjustment-refund',
                     'quantity' => 1,
                     'product_identifier' => 'adjustment-refund',
@@ -109,8 +122,10 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
 
         if ((abs($discount) - $itemDiscounts) > 0) {
             $shippingDiscount = abs($discount) - $itemDiscounts;
-            $this->request['shipping'] = $shipping - $shippingDiscount;
+            $requestBody['shipping'] = $shipping - $shippingDiscount;
         }
+
+        $this->setRequest($requestBody);
 
         return $this->request;
     }
