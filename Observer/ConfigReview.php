@@ -114,22 +114,23 @@ class ConfigReview implements ObserverInterface
 
     /**
      * @return void
-     * @SuppressWarnings(Generic.Files.LineLength.TooLong)
      */
     private function _reviewNexusAddresses()
     {
         $nexusAddresses = $this->nexusFactory->create()->getCollection();
 
         if (!$nexusAddresses->getSize()) {
-            // @codingStandardsIgnoreStart
-            $this->messageManager->addErrorMessage(__('You have no nexus addresses loaded in Magento. Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'));
-            // @codingStandardsIgnoreEnd
+            $this->messageManager->addErrorMessage(
+                __(
+                    'You have no nexus addresses loaded in Magento. ' .
+                    'Go to Stores > Nexus Addresses to sync from your TaxJar account or add a new address.'
+                )
+            );
         }
     }
 
     /**
      * @return void
-     * @SuppressWarnings(Generic.Files.LineLength.TooLong)
      */
     private function _reviewSandboxMode()
     {

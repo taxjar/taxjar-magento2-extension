@@ -120,9 +120,12 @@ abstract class Nexus extends \Magento\Backend\App\Action
         $nexusMissingPostcode = $nexus->getCollection()->addFieldToFilter('postcode', ['null' => true]);
 
         if ($nexusMissingPostcode->getSize()) {
-            // @codingStandardsIgnoreStart
-            return $this->messageManager->addNoticeMessage(__('One or more of your nexus addresses are missing a zip/post code. Please provide accurate data for each nexus address.'));
-            // @codingStandardsIgnoreEnd
+            return $this->messageManager->addNoticeMessage(
+                __(
+                    'One or more of your nexus addresses are missing a zip/post code. ' .
+                    'Please provide accurate data for each nexus address.'
+                )
+            );
         }
     }
 

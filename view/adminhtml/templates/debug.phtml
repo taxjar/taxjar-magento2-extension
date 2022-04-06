@@ -15,10 +15,13 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-// @codingStandardsIgnoreFile
+/** @var \Taxjar\SalesTax\Block\Adminhtml\Debug $block */
 
 ?>
-<p class='note'><span>If enabled, does not alter your tax rates or database and instead prints debug messages for use with TaxJar support.</span></p>
+<p class='note'>
+    <span>If enabled, does not alter your tax rates or database and instead prints debug messages for use
+        with TaxJar support.</span>
+</p>
 
 <?php if ($block->isEnabled()) { ?>
     <br/>
@@ -30,5 +33,9 @@
         <li><strong>Backup States:</strong> <?php echo $block->escapeHtml($block->getBackupStates()) ?></li>
         <li><strong>Backup Last Updated:</strong> <?php echo $block->escapeHtml($block->getBackupUpdate()) ?></li>
     </ul>
-    <p><small><strong>Include the above information when emailing TaxJar support at support@taxjar.com.</strong><small></p>
+    <p>
+        <small>
+            <strong>Include the above information when emailing TaxJar support at support@taxjar.com.</strong>
+        </small>
+    </p>
 <?php } ?>
