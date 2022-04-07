@@ -444,6 +444,8 @@ class Smartcalcs
                     return true;
                 }
             }
+        } elseif (!isset($postCodes[$countryId])) {
+            return true;
         }
 
         return false;
