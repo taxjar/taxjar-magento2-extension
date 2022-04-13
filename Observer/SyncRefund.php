@@ -84,7 +84,9 @@ class SyncRefund implements ObserverInterface
         $eventName = $observer->getEvent()->getName();
         $orderTransaction = $this->orderFactory->create();
 
-        if ($orderTransaction->isSyncable($order)) {
+        if ($this->helper->isTransactionSyncEnabled($order->getStoreId()) &&
+            $orderTransaction->isSyncable($order)
+        ) {
             if (!$this->registry->registry('taxjar_sync_' . $eventName)) {
                 $this->registry->register('taxjar_sync_' . $eventName, true);
             } else {
