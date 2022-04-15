@@ -29,9 +29,7 @@ class TransactionSync extends PopupField
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::transaction_sync.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Backend\Model\UrlInterface
@@ -51,6 +49,7 @@ class TransactionSync extends PopupField
     /**
      * @param Context $context
      * @param UrlInterface $backendUrl
+     * @param TaxjarHelper $helper
      * @param array $data
      */
     public function __construct(
@@ -126,5 +125,19 @@ class TransactionSync extends PopupField
         $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
 
         return $popupUrl;
+    }
+
+    /**
+     * Get modal body form block element
+     *
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getTransactionSyncFormHtml()
+    {
+        return $this->getLayout()
+            ->createBlock(\Taxjar\SalesTax\Block\Adminhtml\TransactionSync\Form::class)
+            ->setTemplate('Taxjar_SalesTax::transaction_sync/form.phtml')
+            ->toHtml();
     }
 }

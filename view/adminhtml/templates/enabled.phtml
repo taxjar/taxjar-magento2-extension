@@ -18,8 +18,10 @@
 /** @var \Magento\Framework\Escaper $escaper */
 ?>
 <p class='note'>
-    <span>Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates
-        can be used as a fallback.</span>
+    <span>
+        Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates
+        can be used as a fallback.
+    </span>
 </p>
 <br/>
 
@@ -71,13 +73,8 @@
     <p>
         <button type='button'
                 class='scalable delete'
-                onclick='
-                    if (window.confirm(
-                        "Are you sure you want to disconnect from TaxJar? " +
-                        "This will remove all TaxJar rates from your Magento store. " +
-                        "If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com."
-                    )) window.location="<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/config/disconnect'))?>"
-                '>
+                onclick='if (window.confirm("<?= $escaper->escapeHtml($block->getDisconnectMessage()) ?>"))
+                    window.location="<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/config/disconnect'))?>"'>
             <span>Disconnect TaxJar</span>
         </button>
         <button type='button'

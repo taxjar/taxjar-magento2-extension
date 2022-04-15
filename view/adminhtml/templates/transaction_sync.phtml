@@ -110,10 +110,7 @@
     </script>
 
     <div id="transaction-sync-modal" style="display: none">
-        <?= $block->getLayout()
-                ->createBlock(\Taxjar\SalesTax\Block\Adminhtml\TransactionSync\Form::class)
-                ->setTemplate('Taxjar_SalesTax::transaction_sync/form.phtml')
-                ->toHtml(); ?>
+        <?= $block->getTransactionSyncFormHtml(); ?>
         <div class="admin__fieldset">
             <div class="admin__field">
                 <label class="label admin__field-label">Output Log</label>
