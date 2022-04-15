@@ -15,10 +15,10 @@ use Taxjar\SalesTax\Observer\BackfillTransactions;
 
 class SyncTransactionsCommand extends Command
 {
-    const FROM_ARGUMENT = '<from>';
-    const TO_ARGUMENT = '<to>';
-    const OPTION_FORCE = 'force';
-    const OPTION_FORCE_SHORT = 'f';
+    protected const FROM_ARGUMENT = '<from>';
+    protected const TO_ARGUMENT = '<to>';
+    protected const OPTION_FORCE = 'force';
+    protected const OPTION_FORCE_SHORT = 'f';
 
     /**
      * @var \Magento\Framework\App\State

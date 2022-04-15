@@ -31,12 +31,13 @@ use Taxjar\SalesTax\Model\Sales\Order\Metadata;
  */
 class Calculation extends AbstractOrder
 {
-    const CALCULATION_SUCCESS = 'Tax was calculated in realtime through the TaxJar API.';
+    protected const CALCULATION_SUCCESS = 'Tax was calculated in realtime through the TaxJar API.';
 
-    const CALCULATION_ERROR = 'TaxJar did not or was unable to perform a tax calculation on this order.';
+    protected const CALCULATION_ERROR = 'TaxJar did not or was unable to perform a tax calculation on this order.';
 
-    const CALCULATION_NULL = 'No TaxJar calculation data is present on the order. This may indicate that TaxJar was
-        not enabled when this order was placed or tax was calculated using a prior version of the TaxJar extension.';
+    protected const CALCULATION_NULL = 'No TaxJar calculation data is present on the order.This may indicate that
+        TaxJar was not enabled when this order was placed or tax was calculated using a prior version of the TaxJar
+        extension.';
 
     /**
      * Template

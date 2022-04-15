@@ -25,10 +25,10 @@ use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResource
  */
 interface MetadataInterface
 {
-    const ID = 'entity_id';
-    const ORDER_ID = 'order_id';
-    const TAX_CALCULATION_STATUS = 'tax_calculation_status';
-    const TAX_CALCULATION_MESSAGE = 'tax_calculation_message';
+    public const ID = 'entity_id';
+    public const ORDER_ID = 'order_id';
+    public const TAX_CALCULATION_STATUS = 'tax_calculation_status';
+    public const TAX_CALCULATION_MESSAGE = 'tax_calculation_message';
 
     /**
      * Get metadata entry's id

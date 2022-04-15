@@ -40,23 +40,23 @@ class SetupUtil
         //@TODO: add config for cross border trade
     ];
 
-    const TAX_RATE_TX = 'tax_rate_tx';
-    const TAX_RATE_AUSTIN = 'tax_rate_austin';
-    const TAX_RATE_SEATTLE = 'tax_rate_seattle';
-    const TAX_RATE_INDIA = 'tax_rate_india';
-    const TAX_RATE_SHIPPING = 'tax_rate_shipping';
-    const TAX_STORE_RATE = 'tax_store_rate';
-    const REGION_CA = '12';
-    const REGION_CO = '13';
-    const REGION_FL = '18';
-    const REGION_MO = '36';
-    const REGION_NY = '43';
-    const REGION_TX = '57';
-    const REGION_WA = '62';
-    const COUNTRY_US = 'US';
-    const COUNTRY_IN = 'IN';
-    const AUSTIN_POST_CODE = '79729';
-    const SEATTLE_POST_CODE = '98101';
+    public const TAX_RATE_TX = 'tax_rate_tx';
+    public const TAX_RATE_AUSTIN = 'tax_rate_austin';
+    public const TAX_RATE_SEATTLE = 'tax_rate_seattle';
+    public const TAX_RATE_INDIA = 'tax_rate_india';
+    public const TAX_RATE_SHIPPING = 'tax_rate_shipping';
+    public const TAX_STORE_RATE = 'tax_store_rate';
+    public const REGION_CA = '12';
+    public const REGION_CO = '13';
+    public const REGION_FL = '18';
+    public const REGION_MO = '36';
+    public const REGION_NY = '43';
+    public const REGION_TX = '57';
+    public const REGION_WA = '62';
+    public const COUNTRY_US = 'US';
+    public const COUNTRY_IN = 'IN';
+    public const AUSTIN_POST_CODE = '79729';
+    public const SEATTLE_POST_CODE = '98101';
 
     /**
      * Tax rates
@@ -125,14 +125,14 @@ class SetupUtil
         ],
     ];
 
-    const PRODUCT_TYPE_BUNDLE = \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE;
-    const PRODUCT_TYPE_CONFIGURABLE = \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE;
-    const PRODUCT_TYPE_SIMPLE = \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE;
+    public const PRODUCT_TYPE_BUNDLE = \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE;
+    public const PRODUCT_TYPE_CONFIGURABLE = \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE;
+    public const PRODUCT_TYPE_SIMPLE = \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE;
 
-    const PRODUCT_DEFAULT_TAX_CLASS = 'product_default_tax_class';
-    const PRODUCT_CLOTHING_TAX_CLASS = 'product_clothing_tax_class';
-    const PRODUCT_GROCERY_TAX_CLASS = 'product_grocery_tax_class';
-    const SHIPPING_TAX_CLASS = 'shipping_tax_class';
+    public const PRODUCT_DEFAULT_TAX_CLASS = 'product_default_tax_class';
+    public const PRODUCT_CLOTHING_TAX_CLASS = 'product_clothing_tax_class';
+    public const PRODUCT_GROCERY_TAX_CLASS = 'product_grocery_tax_class';
+    public const SHIPPING_TAX_CLASS = 'shipping_tax_class';
 
     /**
      * List of product tax class that will be created
@@ -160,8 +160,8 @@ class SetupUtil
         ]
     ];
 
-    const CUSTOMER_TAX_CLASS_1 = 'customer_tax_class_1';
-    const CUSTOMER_PASSWORD = 'password';
+    public const CUSTOMER_TAX_CLASS_1 = 'customer_tax_class_1';
+    public const CUSTOMER_PASSWORD = 'password';
 
     /**
      * List of customer tax class to be created
@@ -179,10 +179,10 @@ class SetupUtil
      */
     protected $taxRules = [];
 
-    const CONFIG_OVERRIDES = 'config_overrides';
-    const TAX_RATE_OVERRIDES = 'tax_rate_overrides';
-    const TAX_RULE_OVERRIDES = 'tax_rule_overrides';
-    const NEXUS_OVERRIDES = 'nexus_overrides';
+    public const CONFIG_OVERRIDES = 'config_overrides';
+    public const TAX_RATE_OVERRIDES = 'tax_rate_overrides';
+    public const TAX_RULE_OVERRIDES = 'tax_rule_overrides';
+    public const NEXUS_OVERRIDES = 'nexus_overrides';
 
     /**
      * Nexus address defaults

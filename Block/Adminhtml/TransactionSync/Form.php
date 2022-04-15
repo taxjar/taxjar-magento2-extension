@@ -25,7 +25,7 @@ namespace Taxjar\SalesTax\Block\Adminhtml\TransactionSync;
  */
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
-    const FORM_ELEMENT_ID = 'transaction-sync-form';
+    public const FORM_ELEMENT_ID = 'transaction-sync-form';
 
     /**
      * @var null

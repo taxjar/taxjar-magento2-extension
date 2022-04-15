@@ -25,7 +25,7 @@ use Taxjar\SalesTax\Model\Tax\NexusFactory;
 
 class Disconnect extends \Magento\Backend\App\AbstractAction
 {
-    const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
      * @var \Magento\Config\Model\ResourceModel\Config

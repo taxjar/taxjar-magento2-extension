@@ -34,7 +34,7 @@ use Taxjar\SalesTax\Model\Logger;
 
 class Connect extends AbstractAction
 {
-    const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
      * @var ManagerInterface

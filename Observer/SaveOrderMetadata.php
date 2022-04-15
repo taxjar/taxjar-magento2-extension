@@ -33,7 +33,7 @@ use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
  */
 class SaveOrderMetadata implements ObserverInterface
 {
-    const ORDER_METADATA = 'taxjar_salestax_order_metadata';
+    public const ORDER_METADATA = 'taxjar_salestax_order_metadata';
 
     /**
      * @var CheckoutSession
