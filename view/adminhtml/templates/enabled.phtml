@@ -15,6 +15,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 /** @var \Taxjar\SalesTax\Block\Adminhtml\Enabled $block */
+/** @var \Magento\Framework\Escaper $escaper */
 ?>
 <p class='note'>
     <span>Sales tax calculations at checkout for improved accuracy and product exemptions. Magento's zip-based rates
@@ -27,36 +28,44 @@
     <div class='messages'>
         <div class='message message-success success'>
             <span style='font-size: 1.2em'>
-                <?php echo $block->escapeHtml($block->getApiEmail()) ?>
+                <?= $escaper->escapeHtml($block->getApiEmail()) ?>
             </span>
         </div>
     </div>
 
     <p><b>Getting Started</b></p>
     <p>
-        <a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/nexus/index')) ?>'>Nexus Addresses</a>
+        <a href='<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/nexus/index')) ?>'>Nexus Addresses</a>
         <br/>
-        <span style='font-size: 0.9em'>Before enabling TaxJar for calculations, set up your nexus addresses so TaxJar knows where
-            to collect sales tax.</span>
+        <span style='font-size: 0.9em'>
+            Before enabling TaxJar for calculations, set up your nexus addresses so TaxJar knows where to collect
+            sales tax.
+        </span>
     </p>
     <p>
-        <a href='<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/taxclass_product')) ?>'>
+        <a href='<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/taxclass_product')) ?>'>
             Product Exemptions
         </a>
         <br/>
-        <span style='font-size: 0.9em'>If some of your products are tax exempt, assign a TaxJar product tax code to new or existing
-            product tax classes.</span>
+        <span style='font-size: 0.9em'>
+            If some of your products are tax exempt, assign a TaxJar product tax code to new or existing product
+            tax classes.
+        </span>
     </p>
     <p>
-        <a href='<?php echo $block->escapeUrl($block->getStoreUrl('customer/index')) ?>'>Customer Exemptions</a>
+        <a href='<?= $escaper->escapeUrl($block->getStoreUrl('customer/index')) ?>'>Customer Exemptions</a>
         <br/>
-        <span style='font-size: 0.9em'>If some of your customers are tax exempt, assign a TaxJar exemption type to each customer
-            individually or multiple customers at once.</span>
+        <span style='font-size: 0.9em'>
+            If some of your customers are tax exempt, assign a TaxJar exemption type to each customer individually or
+            multiple customers at once.
+        </span>
     </p>
     <p>
         <a href='http://www.taxjar.com/contact/' target='_blank'>Help & Support</a>
         <br/>
-        <span style='font-size: 0.9em'>Need help setting up TaxJar? Get in touch with our Magento sales tax experts.</span>
+        <span style='font-size: 0.9em'>
+            Need help setting up TaxJar? Get in touch with our Magento sales tax experts.
+        </span>
     </p>
     <br/>
     <p>
@@ -67,9 +76,7 @@
                         "Are you sure you want to disconnect from TaxJar? " +
                         "This will remove all TaxJar rates from your Magento store. " +
                         "If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com."
-                    )) window.location="<?php
-                        echo $block->escapeUrl($block->getStoreUrl('taxjar/config/disconnect'))
-                    ?>"
+                    )) window.location="<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/config/disconnect'))?>"
                 '>
             <span>Disconnect TaxJar</span>
         </button>
@@ -86,7 +93,7 @@
                 class='scalable primary'
                 onclick='
                     openPopup(
-                        "<?php echo $block->escapeUrl($block->getPopupUrl()) ?>",
+                        "<?= $escaper->escapeUrl($block->getPopupUrl()) ?>",
                         "Connect to TaxJar",
                         400,
                         500
@@ -106,7 +113,7 @@
             'taxjarPopup'
         ], function(popup) {
             window.addEventListener('message', function(e) {
-                if (e.origin !== '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>')
+                if (e.origin !== '<?= $escaper->escapeUrl($block->getAuthUrl()) ?>')
                     return;
 
                 try {
@@ -114,10 +121,10 @@
                     if (data.api_token && data.email) {
                         window.popup.postMessage(
                             'Data received',
-                            '<?php echo $block->escapeUrl($block->getAuthUrl()) ?>'
+                            '<?= $escaper->escapeUrl($block->getAuthUrl()) ?>'
                         );
                         window.location = encodeURI(
-                            '<?php echo $block->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>' +
+                            '<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>' +
                             '?api_key=' + data.api_token +
                             '&api_email=' + data.email
                         );
