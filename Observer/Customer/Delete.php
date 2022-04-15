@@ -23,6 +23,8 @@ use Magento\Framework\Exception\LocalizedException;
 class Delete extends Customer
 {
     /**
+     * Delete customer in TaxJar
+     *
      * @param Observer $observer
      * @throws LocalizedException
      */

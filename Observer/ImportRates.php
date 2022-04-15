@@ -210,6 +210,7 @@ class ImportRates implements ObserverInterface
 
     /**
      * Retrieve date string in required format for config update
+     *
      * @return string
      */
     private function getDate(): string
@@ -218,6 +219,8 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Set store configured customer tax classes
+     *
      * @param string $value A comma-delimited string of customer tax classes
      * @return self
      */
@@ -231,6 +234,8 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Set store configured product tax classes
+     *
      * @param string $value A comma-delimited string of product tax classes
      * @return self
      */
@@ -244,6 +249,8 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Set store default shipping class
+     *
      * @param string $value Magento store's configured shipping tax class
      * @return self
      */
@@ -255,6 +262,8 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Set store default zip code
+     *
      * @param string $value The Magento store's shipping zip code
      * @return self
      */
@@ -266,6 +275,9 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Execute backup sales tax rate import
+     *
+     * @param Observer $observer
      * @throws LocalizedException
      */
     public function execute(Observer $observer)
@@ -317,6 +329,9 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Create or update sales tax rate entities
+     *
+     * @param array $rates
      * @throws LocalizedException
      */
     protected function upsertRates(array $rates)
@@ -331,8 +346,10 @@ class ImportRates implements ObserverInterface
     }
 
     /**
-     * @throws LocalizedException
-     * @throws \Exception
+     * Delete existing sales tax rates
+     *
+     * @param array $codes
+     * @throws LocalizedException|\Exception
      */
     protected function purgeRates(array $codes)
     {
@@ -353,6 +370,9 @@ class ImportRates implements ObserverInterface
         }
     }
 
+    /**
+     * Set rate import configuration
+     */
     private function setConfiguration(): void
     {
         $zipCode = $this->backupRateOriginAddress->getShippingZipCode();
@@ -367,6 +387,8 @@ class ImportRates implements ObserverInterface
     }
 
     /**
+     * Validate configuration for rate import
+     *
      * @throws LocalizedException
      */
     private function validateConfiguration(): void
@@ -376,6 +398,12 @@ class ImportRates implements ObserverInterface
             ->validateShippingClass();
     }
 
+    /**
+     * Parse rate code from data
+     *
+     * @param $rateData
+     * @return string
+     */
     private function getRateCode($rateData): string
     {
         return sprintf(
@@ -506,8 +534,9 @@ class ImportRates implements ObserverInterface
     }
 
     /**
-     * Schedule bulk operation(s) to asynchronously create `tax_calculation_rates` entries and relate rates to new
-     * TaxJar `tax_calculation_rules` entry by way of `tax_calculations` entries.
+     * Schedule bulk operation(s) to asynchronously create `tax_calculation_rates` entries.
+     *
+     * Relate rates to new TaxJar `tax_calculation_rules` entry by way of `tax_calculations` entries.
      *
      * @param array $rates List of rates to create
      * @return ImportRates

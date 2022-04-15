@@ -41,6 +41,7 @@ class ValidateAddressButton extends Field
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
      * @param ScopeConfigInterface $scopeConfig
+     * @param ProductMetadataInterface $productMetadata
      * @param array $components
      * @param array $data
      */
@@ -58,6 +59,8 @@ class ValidateAddressButton extends Field
     }
 
     /**
+     * Check for address validation disabled conditions
+     *
      * @throws LocalizedException
      */
     public function prepare()

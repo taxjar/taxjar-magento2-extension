@@ -84,6 +84,8 @@ class AddExtensionAttributesPatch implements DataPatchInterface
     }
 
     /**
+     * Create customer tax exemption attributes
+     *
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
      * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
      */
@@ -141,6 +143,8 @@ class AddExtensionAttributesPatch implements DataPatchInterface
     }
 
     /**
+     * Create region exemption attributes
+     *
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
      * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
      */
@@ -198,6 +202,8 @@ class AddExtensionAttributesPatch implements DataPatchInterface
     }
 
     /**
+     * Create customer sync date attributes
+     *
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
      * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
      */

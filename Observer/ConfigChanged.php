@@ -57,20 +57,22 @@ class ConfigChanged implements ObserverInterface
     }
 
     /**
+     * Validate TaxJar configuration
+     *
      * @param Observer $observer
      * @return $this
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    // @codingStandardsIgnoreStart
     public function execute(Observer $observer)
     {
-        // @codingStandardsIgnoreEnd
         $this->_updateSmartcalcs();
         $this->_updateBackupRates();
         return $this;
     }
 
     /**
+     * Import categories and data on config change
+     *
      * @return void
      */
     private function _updateSmartcalcs()
@@ -85,6 +87,8 @@ class ConfigChanged implements ObserverInterface
     }
 
     /**
+     * Import backup rates on config change
+     *
      * @return void
      */
     private function _updateBackupRates()
@@ -106,6 +110,11 @@ class ConfigChanged implements ObserverInterface
         }
     }
 
+    /**
+     * Validate backup rates configuration changed
+     *
+     * @return bool
+     */
     private function backupRatesEnabledChanged(): bool
     {
         $current = (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
@@ -114,6 +123,11 @@ class ConfigChanged implements ObserverInterface
         return $previous != $current;
     }
 
+    /**
+     * Validate product tax class configuration changed
+     *
+     * @return bool
+     */
     private function productTaxClassesChanged(): bool
     {
         $current = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES);
@@ -122,6 +136,11 @@ class ConfigChanged implements ObserverInterface
         return $current != $previous;
     }
 
+    /**
+     * Validate customer tax class configuration changed
+     *
+     * @return bool
+     */
     private function customerTaxClassesChanged(): bool
     {
         $current = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES);

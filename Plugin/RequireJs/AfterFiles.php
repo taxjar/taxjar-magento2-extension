@@ -40,6 +40,8 @@ class AfterFiles
     }
 
     /**
+     * Remove frontend RequireJs dependencies if address validation is disabled
+     *
      * @param Aggregated $subject
      * @param array $result
      * @param Theme $theme

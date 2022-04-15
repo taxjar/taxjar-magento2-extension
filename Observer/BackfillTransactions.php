@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Observer;
 
+use Magento\Framework\Event\ObserverInterface;
+
 class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
 {
     public const BATCH_SIZE = 100;
@@ -124,6 +126,9 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Execute transaction backfill
+     *
+     * @param ObserverInterface|\Magento\Framework\Event\Observer $observer
      * @throws \Magento\Framework\Exception\LocalizedException|\Exception|\Throwable
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
@@ -151,6 +156,11 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         }
     }
 
+    /**
+     * Get backfill date range
+     *
+     * @return array|string[]
+     */
     public function getDateRange(): array
     {
         if (empty($this->dateRange)) {
@@ -160,6 +170,12 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
         return $this->dateRange;
     }
 
+    /**
+     * Set backfill date range
+     *
+     * @return $this
+     * @throws \Exception
+     */
     public function setDateRange(): BackfillTransactions
     {
         $from = $this->getInput('from_date') ?? 'now';
@@ -180,6 +196,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Handle successful transaction backfill
+     *
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function success(int $count = 0): void
@@ -194,6 +212,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Handle failed transaction backfill
+     *
      * @param \Magento\Framework\Exception\LocalizedException|\Exception|\Throwable $e
      * @throws \Magento\Framework\Exception\LocalizedException|\Exception|\Throwable
      */
@@ -212,7 +232,7 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
      * necessary to manually override the `playback` value after writing to the log file in order to prevent
      * displaying unnecessary JSON configuration details in the web UI.
      *
-     * @param $message
+     * @param string $message
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -230,6 +250,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Sync specified orders
+     *
      * @param array|\Magento\Sales\Api\Data\OrderInterface[] $orders
      * @return void
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -257,6 +279,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Get orders to sync based on criteria
+     *
      * @param \Magento\Framework\Api\SearchCriteriaInterface $criteria
      * @return array
      */
@@ -272,6 +296,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Get order search criteria from date range
+     *
      * @param string $from
      * @param string $to
      * @return \Magento\Framework\Api\SearchCriteriaInterface|\Magento\Framework\Api\SearchCriteria
@@ -304,6 +330,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Make bulk operation
+     *
      * @param $body
      * @return  \Magento\AsynchronousOperations\Api\Data\OperationInterface
      */
@@ -329,6 +357,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Validate store
+     *
      * @param \Magento\Store\Api\Data\StoreInterface $store
      * @return bool
      */
@@ -339,6 +369,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Validate order is syncable
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return bool
      */
@@ -348,6 +380,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Get model entity ID
+     *
      * @param \Magento\Sales\Model\AbstractModel $object
      * @return int|null
      */
@@ -357,6 +391,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Get transaction backfill configuration
+     *
      * @return array
      */
     private function getConfiguration(): array
@@ -371,6 +407,8 @@ class BackfillTransactions implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
+     * Parse transaction backfill input values
+     *
      * @param string $key
      * @return array|mixed
      */

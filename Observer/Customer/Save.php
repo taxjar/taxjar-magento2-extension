@@ -24,6 +24,8 @@ use Magento\Framework\Exception\LocalizedException;
 class Save extends Customer
 {
     /**
+     * Update TaxJar customer data
+     *
      * @param Observer $observer
      * @throws LocalizedException
      */

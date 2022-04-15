@@ -90,6 +90,8 @@ class ConfigReview implements ObserverInterface
     }
 
     /**
+     * Validate TaxJar configuration
+     *
      * @param  Observer $observer
      * @return $this
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -111,6 +113,8 @@ class ConfigReview implements ObserverInterface
     }
 
     /**
+     * Validate nexus addresses present
+     *
      * @return void
      */
     private function _reviewNexusAddresses()
@@ -128,6 +132,8 @@ class ConfigReview implements ObserverInterface
     }
 
     /**
+     * Check if sandbox mode is enabled
+     *
      * @return void
      */
     private function _reviewSandboxMode()

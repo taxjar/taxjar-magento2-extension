@@ -13,9 +13,24 @@ use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
 class ConfigChangedTest extends UnitTestCase
 {
+    /**
+     * @var Observer|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $observer;
+
+    /**
+     * @var CacheInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $mockCache;
+
+    /**
+     * @var ManagerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $mockEventManager;
+
+    /**
+     * @var ScopeConfigInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $mockScopeConfig;
 
     protected function setUp(): void
