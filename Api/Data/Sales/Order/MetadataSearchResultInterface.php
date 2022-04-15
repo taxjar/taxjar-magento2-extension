@@ -25,11 +25,15 @@ use Magento\Framework\Api\SearchResultsInterface;
 interface MetadataSearchResultInterface extends SearchResultsInterface
 {
     /**
+     * Get search result items
+     *
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface[]
      */
     public function getItems();
 
     /**
+     * Set search result items
+     *
      * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface[] $items
      * @return void
      */

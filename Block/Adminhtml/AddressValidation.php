@@ -33,9 +33,7 @@ class AddressValidation extends Field
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::address_validation.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var ScopeConfigInterface
@@ -43,7 +41,6 @@ class AddressValidation extends Field
     protected $scopeConfig;
 
     /**
-     * @param \Magento\Framework\App\CacheInterface $cache
      * @param Context $context
      * @param array $data
      */

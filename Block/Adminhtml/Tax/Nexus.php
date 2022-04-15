@@ -23,6 +23,8 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Tax;
 class Nexus extends \Magento\Backend\Block\Widget\Grid\Container
 {
     /**
+     * Internal nexus constructor
+     *
      * @return void
      */
     protected function _construct()

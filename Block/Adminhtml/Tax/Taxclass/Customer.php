@@ -23,6 +23,8 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass;
 class Customer extends \Magento\Backend\Block\Widget\Grid\Container
 {
     /**
+     * Internal customer constructor
+     *
      * @return void
      */
     protected function _construct()

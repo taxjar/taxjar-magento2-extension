@@ -23,6 +23,8 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass;
 class Product extends \Magento\Backend\Block\Widget\Grid\Container
 {
     /**
+     * Internal product constructor
+     *
      * @return void
      */
     protected function _construct()

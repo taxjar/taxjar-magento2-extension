@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Block;
 
+use Magento\Framework\Config\CacheInterface;
+
 /**
  * Trait encapsulating the ability of a Block Adminhtml element to "cache" the values
  * that it displays on configured cache.
@@ -11,12 +13,14 @@ namespace Taxjar\SalesTax\Block;
 trait CachesConfiguration
 {
     /**
-     * @var
+     * @var CacheInterface
      */
     protected $configCache;
 
     /**
-     * @param $cache
+     * Set cache instance
+     *
+     * @param CacheInterface $cache
      * @return $this
      */
     protected function onCache($cache): self
@@ -27,10 +31,12 @@ trait CachesConfiguration
     }
 
     /**
-     * @param $data
-     * @param $identifier
+     * Cache configuration value on cache instance
+     *
+     * @param mixed $data
+     * @param string $identifier
      * @param array $tags
-     * @param null $lifeTime
+     * @param mixed $lifeTime
      * @return bool
      */
     protected function cacheValue($data, $identifier, array $tags = [], $lifeTime = null): bool

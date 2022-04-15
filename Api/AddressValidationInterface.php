@@ -20,8 +20,9 @@ namespace Taxjar\SalesTax\Api;
 interface AddressValidationInterface
 {
     /**
-     * @api
+     * Validate address data
      *
+     * @api
      * @param string $street0
      * @param string $street1
      * @param string $city

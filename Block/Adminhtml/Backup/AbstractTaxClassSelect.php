@@ -22,6 +22,11 @@ abstract class AbstractTaxClassSelect extends Multiselect
      */
     protected $cache;
 
+    /**
+     * @param CacheInterface $cache
+     * @param Context $context
+     * @param array $data
+     */
     public function __construct(
         CacheInterface $cache,
         Context $context,
