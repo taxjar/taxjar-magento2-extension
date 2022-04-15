@@ -22,7 +22,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class BackupRateOriginAddress
 {
-
     /**
      * @var \Magento\Framework\App\Config\ScopeConfigInterface
      */
@@ -33,8 +32,19 @@ class BackupRateOriginAddress
      */
     protected $regionFactory;
 
+    /**
+     * @var string
+     */
     private $scopeRegionCode;
+
+    /**
+     * @var string
+     */
     private $scopeCountryCode;
+
+    /**
+     * @var string
+     */
     private $scopeZipCode;
 
     /**
@@ -107,6 +117,7 @@ class BackupRateOriginAddress
 
     /**
      * Get shipping country code to use for backup rates requests
+     *
      * @return string
      */
     public function getShippingCountryCode()

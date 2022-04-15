@@ -79,8 +79,10 @@ class Rule
     }
 
     /**
-     * @param $ruleModel
-     * @param $rates
+     * Store sales tax calculation
+     *
+     * @param RuleModel $ruleModel
+     * @param array $rates
      */
     public function saveCalculationData($ruleModel, $rates)
     {

@@ -31,12 +31,15 @@ class Category implements \Magento\Framework\Option\ArrayInterface
      */
     protected $helper;
 
-    /** @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection  */
+    /**
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection
+     */
     protected $categories;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Helper\Data $helper
+     * @param \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection $categories
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -49,6 +52,8 @@ class Category implements \Magento\Framework\Option\ArrayInterface
     }
 
     /**
+     * Return options as an array
+     *
      * @return array
      */
     public function toOptionArray()

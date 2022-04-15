@@ -42,6 +42,8 @@ class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     ];
 
     /**
+     * Nexus constructor
+     *
      * @return void
      */
     public function _construct()

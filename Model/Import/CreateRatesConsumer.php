@@ -45,6 +45,16 @@ class CreateRatesConsumer extends AbstractRatesConsumer
      */
     private $configCollection;
 
+    /**
+     * @param SerializerInterface $serializer
+     * @param ScopeConfigInterface $scopeConfig
+     * @param LoggerInterface $logger
+     * @param EntityManager $entityManager
+     * @param TaxjarConfig $taxjarConfig
+     * @param RateFactory $rateFactory
+     * @param RuleFactory $ruleFactory
+     * @param CollectionFactory $configCollection
+     */
     public function __construct(
         SerializerInterface $serializer,
         ScopeConfigInterface $scopeConfig,
@@ -69,6 +79,8 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
+     * Set customer tax classes for backup rates
+     *
      * @param string[] $values List of configured customer tax class names
      * @return $this
      */
@@ -80,6 +92,8 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
+     * Set product tax classes for backup rates
+     *
      * @param string[] $values List of configured product tax class names
      * @return $this
      */
@@ -91,6 +105,8 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
+     * Set shipping tax class for backup rates
+     *
      * @param string $value Configured shipping tax class name
      * @return $this
      */
@@ -102,6 +118,8 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
+     * Set backup rates tax class data
+     *
      * @return $this
      */
     protected function setMemberData(): self
@@ -113,7 +131,9 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
-     * @throws LocalizedException | Exception
+     * Create backup sales tax rates
+     *
+     * @throws LocalizedException|Exception
      */
     protected function handle(): self
     {
@@ -251,10 +271,9 @@ class CreateRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
-     * Deletes existing calculation entries that are no longer related to a configured
-     * product or customer tax class.
+     * Deletes existing calculation entries that are no longer related to a configured product or customer tax class.
      *
-     * @param $ruleModel
+     * @param RuleModel $ruleModel
      */
     private function purgeStaleCalculations($ruleModel): void
     {

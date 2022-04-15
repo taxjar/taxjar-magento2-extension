@@ -42,6 +42,11 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     protected $request;
 
     /**
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
      * Set request value
      *
      * @param array $value
@@ -96,6 +101,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     }
 
     /**
+     * Send transaction to TaxJar via API client
+     *
      * @param bool $forceFlag
      * @param string|null $method
      * @throws LocalizedException
@@ -156,6 +163,8 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     }
 
     /**
+     * Create API request from request body
+     *
      * @param string $method
      * @return array
      * @throws LocalizedException
@@ -175,7 +184,9 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     }
 
     /**
-     * @param $error
+     * Conditionally retry request or handle HTTP error response
+     *
+     * @param object $error
      * @param string $method
      * @param bool $forceFlag
      * @throws LocalizedException
@@ -212,16 +223,34 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
             && $this->countryIsSyncable($order);
     }
 
+    /**
+     * Order has a syncable status
+     *
+     * @param OrderInterface $order
+     * @return bool
+     */
     protected function stateIsSyncable(OrderInterface $order): bool
     {
         return in_array($order->getState(), self::SYNCABLE_STATES);
     }
 
+    /**
+     * Order has a compatible currency
+     *
+     * @param OrderInterface $order
+     * @return bool
+     */
     protected function currencyIsSyncable(OrderInterface $order): bool
     {
         return in_array($order->getOrderCurrencyCode(), self::SYNCABLE_CURRENCIES);
     }
 
+    /**
+     * Order address has compatible country
+     *
+     * @param OrderInterface $order
+     * @return bool
+     */
     protected function countryIsSyncable(OrderInterface $order): bool
     {
         $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();

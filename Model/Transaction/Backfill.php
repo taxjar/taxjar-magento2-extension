@@ -86,6 +86,7 @@ class Backfill
      * @param Logger $logger
      * @param SerializerInterface $serializer
      * @param EntityManager $entityManager
+     * @param \Taxjar\SalesTax\Helper\Data $tjSalesTaxData
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -108,6 +109,8 @@ class Backfill
     }
 
     /**
+     * Process transaction backfill bulk operation
+     *
      * @param OperationInterface $operation
      * @return void
      * @throws LocalizedException
@@ -144,7 +147,9 @@ class Backfill
     }
 
     /**
-     * @param $operation
+     * Deserialize operation data
+     *
+     * @param OperationInterface $operation
      * @return array
      * @throws LocalizedException
      */
@@ -166,7 +171,9 @@ class Backfill
     }
 
     /**
-     * @param $operation
+     * Handle successful transaction backfill operation
+     *
+     * @param OperationInterface $operation
      * @throws \Exception
      */
     private function success($operation)
@@ -179,6 +186,8 @@ class Backfill
     }
 
     /**
+     * Handle failed transaction backfill operation
+     *
      * @param OperationInterface $operation
      * @param int $code
      * @param string $message

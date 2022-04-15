@@ -20,6 +20,7 @@ namespace Taxjar\SalesTax\Model;
 use Magento\Bundle\Model\Product\Price;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order\Item;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -302,6 +303,8 @@ class Transaction
     }
 
     /**
+     * Get order provider
+     *
      * @param OrderInterface $order
      * @return string
      */
@@ -374,7 +377,7 @@ class Transaction
     /**
      * Get the PTC, either assigned directly to the product or from the tax class
      *
-     * @param $item
+     * @param Item $item
      * @param OrderInterface $order
      * @return string
      * @throws LocalizedException

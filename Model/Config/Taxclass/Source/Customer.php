@@ -56,6 +56,8 @@ class Customer implements \Magento\Framework\Option\ArrayInterface
     }
 
     /**
+     * Return options as an array
+     *
      * @return array
      */
     public function toOptionArray()

@@ -213,6 +213,6 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
      */
     private function parseCountryCode($countryCode)
     {
-        return static::COUNTRY_CODE_MAP[$countryCode] ?? $countryCode;
+        return self::COUNTRY_CODE_MAP[$countryCode] ?? $countryCode;
     }
 }

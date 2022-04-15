@@ -19,6 +19,9 @@ namespace Taxjar\SalesTax\Model\Tax;
 
 class Category extends \Magento\Framework\Model\AbstractModel
 {
+    /**
+     * Category model constructor
+     */
     protected function _construct()
     {
         $this->_init(\Taxjar\SalesTax\Model\ResourceModel\Tax\Category::class);

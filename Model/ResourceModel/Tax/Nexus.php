@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Model\ResourceModel\Tax;
 class Nexus extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
+     * Nexus resource model constructor
+     *
      * @return void
      */
     public function _construct()

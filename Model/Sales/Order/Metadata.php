@@ -41,17 +41,26 @@ class Metadata extends AbstractModel implements MetadataInterface
 
     public const CACHE_TAG = 'taxjar_salestax_order_metadata';
 
+    /**
+     * @var string
+     */
     protected $_cacheTag = 'taxjar_salestax_order_metadata';
 
+    /**
+     * @var string
+     */
     protected $_eventPrefix = 'taxjar_salestax_order_metadata';
 
+    /**
+     * Internal Order metadata constructor
+     */
     protected function _construct()
     {
         $this->_init(MetadataResource::class);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getId()
     {
@@ -59,7 +68,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getOrderId()
     {
@@ -67,7 +76,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setOrderId($orderId): self
     {
@@ -77,7 +86,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getTaxCalculationStatus()
     {
@@ -85,7 +94,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setTaxCalculationStatus($taxCalculationStatus)
     {
@@ -95,7 +104,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getTaxCalculationMessage()
     {
@@ -103,7 +112,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setTaxCalculationMessage($taxCalculationMessage)
     {

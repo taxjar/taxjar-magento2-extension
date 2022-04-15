@@ -67,7 +67,7 @@ class AddressValidation implements AddressValidationInterface
      * @param ScopeConfigInterface $scopeConfig
      * @param RegionFactory $regionFactory
      * @param CountryFactory $countryFactory
-     * @param CacheInterface
+     * @param CacheInterface $cache
      */
     public function __construct(
         ClientFactory $clientFactory,
@@ -338,8 +338,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Paul's Simple Diff Algorithm v 0.1
-     * https://github.com/paulgb/simplediff
+     * Paul's Simple Diff Algorithm v 0.1 `https://github.com/paulgb/simplediff`
      *
      * @param array $old
      * @param array $new
@@ -376,8 +375,7 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
-     * Wrap differences between two strings in html
-     * https://github.com/paulgb/simplediff
+     * Wrap differences between two strings in html `https://github.com/paulgb/simplediff`
      *
      * @param string $old
      * @param string $new
@@ -405,6 +403,8 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
+     * Get region by ID value
+     *
      * @param int $regionId
      * @return Region
      */
@@ -417,6 +417,8 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
+     * Get region by region code value
+     *
      * @param int $regionCode
      * @param int $countryId
      * @return Region
@@ -430,6 +432,8 @@ class AddressValidation implements AddressValidationInterface
     }
 
     /**
+     * Get country by ID value
+     *
      * @param int $countryId
      * @return Country
      */

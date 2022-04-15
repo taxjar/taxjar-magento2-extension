@@ -19,8 +19,14 @@ namespace Taxjar\SalesTax\Model\Attribute\Source;
 
 class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
+    /**
+     * @var \Magento\Directory\Model\Config\Source\Allregion
+     */
     private $allRegion;
 
+    /**
+     * @param \Magento\Directory\Model\Config\Source\Allregion $allRegion
+     */
     public function __construct(\Magento\Directory\Model\Config\Source\Allregion $allRegion)
     {
         $this->allRegion = $allRegion;
@@ -28,6 +34,7 @@ class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 
     /**
      * Return options as an array
+     *
      * @return array
      */
     public function toOptionArray()
@@ -44,7 +51,8 @@ class Regions extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
     }
 
     /**
-     * Get all options
+     * Get empty array
+     *
      * @return array
      */
     public function getAllOptions()
