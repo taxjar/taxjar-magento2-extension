@@ -503,7 +503,7 @@ class SetupUtil
             foreach ($overrides[self::TAX_RULE_OVERRIDES] as $taxRuleOverrideData) {
                 //convert code to id for productTaxClass, customerTaxClass and taxRate
                 $taxRuleOverrideData = $this->processTaxRuleOverrides($taxRuleOverrideData, $taxRateIds);
-                $mergedTaxRuleData = array_merge($taxRuleDefaultData, $taxRuleOverrideData);
+                $mergedTaxRuleData = $taxRuleDefaultData + $taxRuleOverrideData;
                 $this->taxRules[$mergedTaxRuleData['code']] = $this->objectManager
                     ->create(\Magento\Tax\Model\Calculation\Rule::class)
                     ->setData($mergedTaxRuleData)
