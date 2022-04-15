@@ -52,6 +52,8 @@ class OrderMetadata extends AbstractHelper
     }
 
     /**
+     * Get TaxJar metadata for order
+     *
      * @param OrderInterface $order
      * @return \Taxjar\SalesTax\Model\Sales\Order\Metadata|false
      */
@@ -68,6 +70,8 @@ class OrderMetadata extends AbstractHelper
     }
 
     /**
+     * Set TaxJar metadata for order
+     *
      * @param OrderInterface $order
      * @return OrderInterface
      */

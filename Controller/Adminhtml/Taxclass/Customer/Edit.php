@@ -23,7 +23,9 @@ use Magento\Framework\Controller\ResultFactory;
 class Edit extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
 {
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * Edit customer tax class resource
+     *
+     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect
      */
     public function execute()
     {

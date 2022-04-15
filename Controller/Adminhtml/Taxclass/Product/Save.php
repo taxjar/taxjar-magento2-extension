@@ -22,7 +22,9 @@ use Magento\Framework\Controller\ResultFactory;
 class Save extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
 {
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * Save product tax class resource
+     *
+     * @return \Magento\Backend\Model\View\Result\Redirect
      */
     public function execute()
     {

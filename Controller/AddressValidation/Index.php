@@ -46,6 +46,8 @@ class Index extends Action
     }
 
     /**
+     * Create index page
+     *
      * @return ResponseInterface|ResultInterface|Page
      */
     public function execute()

@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product;
 class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
 {
     /**
+     * Sync product tax class resources
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

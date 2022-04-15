@@ -22,7 +22,9 @@ use Magento\Framework\Controller\ResultFactory;
 class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
 {
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * Delete nexus resource
+     *
+     * @return \Magento\Backend\Model\View\Result\Redirect
      */
     public function execute()
     {
@@ -30,10 +32,6 @@ class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $addressId = (int)$this->getRequest()->getParam('address');
         try {
-            $nexus = $this->nexusSyncFactory->create()->load($addressId);
-            // if ($nexus->getCountryId() == 'US') {
-            //     $nexus->syncDelete();
-            // }
             $this->nexusService->deleteById($addressId);
             $this->messageManager->addSuccessMessage(__('The nexus address has been deleted.'));
             return $resultRedirect->setPath('taxjar/*/');
