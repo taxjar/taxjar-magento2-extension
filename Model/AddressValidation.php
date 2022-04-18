@@ -26,6 +26,8 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 use Taxjar\SalesTax\Api\AddressValidationInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
@@ -62,12 +64,18 @@ class AddressValidation implements AddressValidationInterface
     protected $cache;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private $_storeManager;
+
+    /**
      * @param ClientFactory $clientFactory
      * @param Logger $logger
      * @param ScopeConfigInterface $scopeConfig
      * @param RegionFactory $regionFactory
      * @param CountryFactory $countryFactory
-     * @param CacheInterface
+     * @param CacheInterface $cache
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         ClientFactory $clientFactory,
@@ -75,7 +83,8 @@ class AddressValidation implements AddressValidationInterface
         ScopeConfigInterface $scopeConfig,
         RegionFactory $regionFactory,
         CountryFactory $countryFactory,
-        CacheInterface $cache
+        CacheInterface $cache,
+        StoreManagerInterface $storeManager
     ) {
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_ADDRVALIDATION_LOG);
         $this->client = $clientFactory->create();
@@ -84,6 +93,7 @@ class AddressValidation implements AddressValidationInterface
         $this->regionFactory = $regionFactory;
         $this->countryFactory = $countryFactory;
         $this->cache = $cache;
+        $this->_storeManager = $storeManager;
     }
 
     /**
@@ -95,6 +105,7 @@ class AddressValidation implements AddressValidationInterface
      * @param string $region
      * @param string $country
      * @param string $postcode
+     * @param string $storeCode
      * @return array|mixed
      * @throws LocalizedException
      */
@@ -104,10 +115,13 @@ class AddressValidation implements AddressValidationInterface
         $city = null,
         $region = null,
         $country = null,
-        $postcode = null
+        $postcode = null,
+        $storeCode = null
     ) {
+        $storeId = $this->getStoreIdByCode($storeCode);
+
         // Ensure address validation is enabled
-        if (!$this->canValidateAddress()) {
+        if (!$this->canValidateAddress($storeId)) {
             return [];
         }
 
@@ -159,14 +173,35 @@ class AddressValidation implements AddressValidationInterface
     /**
      * Return if address validation is currently enabled
      *
-     * @return bool|mixed
+     * @return bool
      */
-    protected function canValidateAddress()
+    protected function canValidateAddress($scopeId = 0)
     {
-        $storeScope = ScopeInterface::SCOPE_STORE;
-        $validateAddress = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION, $storeScope);
+        return (bool) $this->scopeConfig->getValue(
+            TaxjarConfig::TAXJAR_ADDRESS_VALIDATION,
+            ScopeInterface::SCOPE_STORE,
+            $scopeId
+        );
+    }
 
-        return (bool) $validateAddress;
+    /**
+     * Returns current store id or default.
+     *
+     * @param string $storeCode
+     * @return int
+     */
+    protected function getStoreIdByCode($storeCode = null)
+    {
+        if ($storeCode) {
+            $storesByCode = $this->_storeManager->getStores(false, true);
+            if (isset($storesByCode[$storeCode])) {
+                /** @var Store $store */
+                $store = $storesByCode[$storeCode];
+                return $store->getId();
+            }
+        }
+
+        return 0;
     }
 
     /**

@@ -68,17 +68,18 @@ function (
             this.subscribeToSuggestedAddesses();
             this.subscribeToSuggestedAddressRadio();
 
-            quote.shippingAddress.subscribe(function (address) {
+            quote.shippingAddress.subscribe(function () {
                 var quote_address = quote.shippingAddress();
-                var address = {
+                var store_code = quote.getStoreCode();
+
+                avCore.getSuggestedAddresses({
                     country_id: quote_address.countryId,
                     region_id: quote_address.regionId,
                     postcode: quote_address.postcode,
                     city: quote_address.city,
-                    street: quote_address.street
-                };
-
-                avCore.getSuggestedAddresses(address);
+                    street: quote_address.street,
+                    store_code: store_code
+                });
             });
 
             quote.shippingMethod.subscribe(function () {
