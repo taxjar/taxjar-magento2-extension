@@ -14,16 +14,25 @@
  * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-
-// @codingStandardsIgnoreFile
-
-?>
-<p class='note'><span>Sync orders and refunds with TaxJar for automated sales tax reporting and filing. Complete and closed transactions sync automatically on update.</span></p><br/>
-
-<?php
 /** @var \Taxjar\SalesTax\Block\Adminhtml\TransactionSync $block */
-if ($block->isEnabled()) { ?>
-    <p><button type="button" class="scalable" onclick="openTransactionSyncModal()"><span>Sync Transactions</span></button></p>
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<p class='note'>
+    <span>
+        Sync orders and refunds with TaxJar for automated sales tax reporting and filing.
+        Complete and closed transactions sync automatically on update.
+    </span>
+</p>
+<br/>
+
+<?php if ($block->isEnabled()): ?>
+    <p>
+        <button type="button"
+                class="scalable"
+                onclick="openTransactionSyncModal()">
+            <span>Sync Transactions</span>
+        </button>
+    </p>
     <script>
         require([
             'jquery',
@@ -73,14 +82,14 @@ if ($block->isEnabled()) { ?>
                 $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
 
                 $.ajax({
-                    url: '<?= $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
+                    url: '<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
                     method: 'GET',
                     data: {
                         from_date: fromDate,
                         to_date: toDate,
                         force: force,
-                        store: '<?= $this->getRequest()->getParam('store') ?>',
-                        website: '<?= $this->getRequest()->getParam('website') ?>',
+                        store: '<?= $escaper->escapeHtmlAttr($block->getRequest()->getParam('store')) ?>',
+                        website: '<?= $escaper->escapeHtmlAttr($block->getRequest()->getParam('website')) ?>',
                     }
                 }).done(function(data) {
                     if (data.result) {
@@ -101,22 +110,33 @@ if ($block->isEnabled()) { ?>
     </script>
 
     <div id="transaction-sync-modal" style="display: none">
-        <?php
-            echo $block->getLayout()
-                       ->createBlock('Taxjar\SalesTax\Block\Adminhtml\TransactionSync\Form')
-                       ->setTemplate('Taxjar_SalesTax::transaction_sync/form.phtml')
-                       ->toHtml();
-        ?>
+        <?= $block->getTransactionSyncFormHtml(); ?>
         <div class="admin__fieldset">
             <div class="admin__field">
                 <label class="label admin__field-label">Output Log</label>
                 <div class="admin__field-control" style="width: 70%;">
-                    <div id="transaction-sync-log" style="overflow: auto; max-height: 500px; margin-bottom: 1em; padding: 0 1em; border: 1px solid #e3e3e3; background: #f8f8f8">
-                        <pre style="overflow: visible">Awaiting sync! Click "Sync to TaxJar" to start syncing transactions.</pre>
+                    <div id="transaction-sync-log"
+                         style="
+                            overflow: auto;
+                            max-height: 500px;
+                            margin-bottom: 1em;
+                            padding: 0 1em;
+                            border: 1px solid #e3e3e3;
+                            background: #f8f8f8
+                        ">
+                        <pre style="overflow: visible">
+                            Awaiting sync! Click "Sync to TaxJar" to start syncing transactions.
+                        </pre>
                     </div>
-                    <p><button type="button" class="copy-button scalable" data-clipboard-target="#transaction-sync-log"><span>Copy Output</span></button></p>
+                    <p>
+                        <button type="button"
+                                class="copy-button scalable"
+                                data-clipboard-target="#transaction-sync-log">
+                            <span>Copy Output</span>
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-<?php } ?>
+<?php endif; ?>

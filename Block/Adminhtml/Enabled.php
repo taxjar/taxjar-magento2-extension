@@ -31,9 +31,7 @@ class Enabled extends PopupField
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::enabled.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Backend\Model\UrlInterface
@@ -149,5 +147,17 @@ class Enabled extends PopupField
         $popupUrl = $this->getAuthUrl() . '/smartcalcs/connect/magento/?store=' . urlencode($this->getStoreOrigin());
         $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
         return $popupUrl;
+    }
+
+    /**
+     * Get disconnect confirmation message.
+     *
+     * @return string
+     */
+    public function getDisconnectMessage()
+    {
+        return "Are you sure you want to disconnect from TaxJar? " .
+            "This will remove all TaxJar rates from your Magento store. " .
+            "If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com.";
     }
 }

@@ -15,8 +15,6 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-// @codingStandardsIgnoreStart
-
 namespace Taxjar\SalesTax\Test\Integration\Model\Tax\Sales\Total\Quote;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -263,8 +261,12 @@ class SetupUtil
     public function __construct($objectManager)
     {
         $this->objectManager = $objectManager;
-        $this->customerRepository = $this->objectManager->create(\Magento\Customer\Api\CustomerRepositoryInterface::class);
-        $this->accountManagement = $this->objectManager->create(\Magento\Customer\Api\AccountManagementInterface::class);
+        $this->customerRepository = $this->objectManager->create(
+            \Magento\Customer\Api\CustomerRepositoryInterface::class
+        );
+        $this->accountManagement = $this->objectManager->create(
+            \Magento\Customer\Api\AccountManagementInterface::class
+        );
     }
 
     /**
@@ -356,7 +358,8 @@ class SetupUtil
             if (isset($taxRateOverrides[$taxRateCode])) {
                 $this->taxRates[$taxRateCode]['data']['rate'] = $taxRateOverrides[$taxRateCode];
             }
-            $this->taxRates[$taxRateCode]['id'] = $this->objectManager->create(\Magento\Tax\Model\Calculation\Rate::class)
+            $this->taxRates[$taxRateCode]['id'] = $this->objectManager
+                ->create(\Magento\Tax\Model\Calculation\Rate::class)
                 ->setData($this->taxRates[$taxRateCode]['data'])
                 ->save()
                 ->getId();
@@ -500,7 +503,7 @@ class SetupUtil
             foreach ($overrides[self::TAX_RULE_OVERRIDES] as $taxRuleOverrideData) {
                 //convert code to id for productTaxClass, customerTaxClass and taxRate
                 $taxRuleOverrideData = $this->processTaxRuleOverrides($taxRuleOverrideData, $taxRateIds);
-                $mergedTaxRuleData = array_merge($taxRuleDefaultData, $taxRuleOverrideData);
+                $mergedTaxRuleData = $taxRuleDefaultData + $taxRuleOverrideData;
                 $this->taxRules[$mergedTaxRuleData['code']] = $this->objectManager
                     ->create(\Magento\Tax\Model\Calculation\Rule::class)
                     ->setData($mergedTaxRuleData)
@@ -628,7 +631,9 @@ class SetupUtil
                 'value_index' => $option->getValue(),
             ];
 
-            $associatedProductIds[] = $this->createSimpleProduct($optionSku, $price, $taxClassId, $optionAttribute)->getId();
+            $associatedProductIds[] = $this
+                ->createSimpleProduct($optionSku, $price, $taxClassId, $optionAttribute)
+                ->getId();
         }
 
         /** @var $product \Magento\Catalog\Model\Product */
@@ -956,7 +961,9 @@ class SetupUtil
      */
     protected function createNexusAddresses($overrides)
     {
-        $addresses = empty($overrides[self::NEXUS_OVERRIDES]) ? $this->nexusAddresses : $overrides[self::NEXUS_OVERRIDES];
+        $addresses = empty($overrides[self::NEXUS_OVERRIDES])
+            ? $this->nexusAddresses
+            : $overrides[self::NEXUS_OVERRIDES];
 
         foreach ($addresses as $address) {
             $nexusModel = $this->objectManager->create('Taxjar\SalesTax\Model\Tax\Nexus')

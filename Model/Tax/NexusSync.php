@@ -111,14 +111,24 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
             'country' => $this->getCountryId()
         ];
 
-        // @codingStandardsIgnoreStart
         $responseErrors = [
-            '400' => __('Your nexus address contains invalid data. Please verify the address in order to sync with TaxJar.'),
-            '409' => __('A nexus address already exists for this state/region. TaxJar currently supports one address per region.'),
-            '422' => __('Your nexus address is missing one or more required fields. Please verify the address in order to sync with TaxJar.'),
-            '500' => __('Something went wrong while syncing your address with TaxJar. Please verify the address and contact support@taxjar.com if the problem persists.')
+            '400' => __(
+                'Your nexus address contains invalid data.
+                Please verify the address in order to sync with TaxJar.'
+            ),
+            '409' => __(
+                'A nexus address already exists for this state/region.
+                TaxJar currently supports one address per region.'
+            ),
+            '422' => __(
+                'Your nexus address is missing one or more required fields.
+                Please verify the address in order to sync with TaxJar.'
+            ),
+            '500' => __(
+                'Something went wrong while syncing your address with TaxJar.
+                Please verify the address and contact support@taxjar.com if the problem persists.'
+            )
         ];
-        // @codingStandardsIgnoreEnd
 
         if ($this->getId()) {
             $client->putResource('nexus', $this->getApiId(), $data, $responseErrors);
@@ -137,12 +147,13 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
     {
         $client = $this->clientFactory->create();
 
-        // @codingStandardsIgnoreStart
         $responseErrors = [
             '409' => __('A nexus address with this ID could not be found in TaxJar.'),
-            '500' => __('Something went wrong while deleting your address in TaxJar. Please contact support@taxjar.com if the problem persists.')
+            '500' => __(
+                'Something went wrong while deleting your address in TaxJar.
+                Please contact support@taxjar.com if the problem persists.'
+            )
         ];
-        // @codingStandardsIgnoreEnd
 
         if ($this->getId()) {
             $client->deleteResource('nexus', $this->getApiId(), $responseErrors);

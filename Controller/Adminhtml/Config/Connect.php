@@ -110,9 +110,9 @@ class Connect extends AbstractAction
             $this->messageManager->addSuccessMessage(__('TaxJar account for %1 is now connected.', $apiEmail));
             $this->eventManager->dispatch('taxjar_salestax_import_categories');
         } else {
-            // @codingStandardsIgnoreStart
-            $this->messageManager->addErrorMessage(__('Could not connect your TaxJar account. Please make sure you have a valid API token and try again.'));
-            // @codingStandardsIgnoreEnd
+            $this->messageManager->addErrorMessage(
+                __('Could not connect your TaxJar account. Please make sure you have a valid API token and try again.')
+            );
         }
 
         $this->_redirect('adminhtml/system_config/edit', ['section' => 'tax']);
