@@ -35,6 +35,8 @@ class View
     }
 
     /**
+     * Render transaction sync button
+     *
      * @param \Magento\Sales\Block\Adminhtml\Order\View $subject
      */
     public function beforeSetLayout(\Magento\Sales\Block\Adminhtml\Order\View $subject)
@@ -49,6 +51,8 @@ class View
     }
 
     /**
+     *  Validate sales order can be synced
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return bool
      */

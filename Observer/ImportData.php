@@ -79,6 +79,7 @@ class ImportData implements ObserverInterface
      * @param ConfigurationFactory $configFactory
      * @param ReinitableConfigInterface $reinitableConfig
      * @param TaxjarConfig $taxjarConfig
+     * @param BackupRateOriginAddress $backupRateOriginAddress
      */
     public function __construct(
         Config $resourceConfig,
@@ -98,6 +99,8 @@ class ImportData implements ObserverInterface
     }
 
     /**
+     * Initialize config settings
+     *
      * @param  Observer $observer
      * @return $this
      * @throws LocalizedException

@@ -58,7 +58,7 @@ abstract class Customer implements ObserverInterface
      * @param \Magento\Customer\Api\AddressRepositoryInterface $addressRepository
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \\Magento\Framework\Stdlib\DateTime\DateTime $date
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $date
      * @param \Taxjar\SalesTax\Model\Logger $logger
      * @param \Magento\Directory\Model\RegionFactory $regionFactory
      */
@@ -80,6 +80,8 @@ abstract class Customer implements ObserverInterface
     }
 
     /**
+     * POST customer resource to TaxJar
+     *
      * @param string $lastSync
      * @param array $data
      * @return array|null
@@ -142,6 +144,8 @@ abstract class Customer implements ObserverInterface
     }
 
     /**
+     * Get customer regions
+     *
      * @param string $regions
      * @return array
      */

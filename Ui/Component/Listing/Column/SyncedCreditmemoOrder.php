@@ -68,6 +68,8 @@ class SyncedCreditmemoOrder extends Column
     }
 
     /**
+     * Prepare data source sync date
+     *
      * @param array $dataSource
      * @return array
      */

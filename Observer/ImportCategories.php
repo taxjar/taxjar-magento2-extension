@@ -102,16 +102,16 @@ class ImportCategories implements ObserverInterface
     }
 
     /**
+     * Execute category import
+     *
      * @param  Observer $observer
      * @return $this
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    // @codingStandardsIgnoreStart
     public function execute(Observer $observer)
     {
         $this->apiKey = $this->taxjarConfig->getApiKey();
 
-        // @codingStandardsIgnoreEnd
         if ($this->apiKey) {
             $this->client = $this->clientFactory->create();
             $this->_importCategories();

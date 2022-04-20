@@ -45,6 +45,8 @@ class OrderRepository
     }
 
     /**
+     * Set extension data for sales order resource
+     *
      * @param OrderRepositoryInterface $subject
      * @param OrderInterface $order
      * @return OrderInterface
@@ -55,6 +57,8 @@ class OrderRepository
     }
 
     /**
+     * Set extension data for sales order resource list
+     *
      * @param OrderRepositoryInterface $subject
      * @param OrderSearchResultInterface $searchResult
      * @return OrderSearchResultInterface

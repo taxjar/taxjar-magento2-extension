@@ -30,6 +30,7 @@ class ImportTaxCategoriesPatch implements DataPatchInterface
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
      * @param Config $resourceConfig
+     * @param ScopeConfigInterface $scopeConfig
      * @param ManagerInterface $eventManager
      */
     public function __construct(

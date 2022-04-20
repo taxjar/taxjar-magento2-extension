@@ -66,6 +66,7 @@ class SyncTransaction implements ObserverInterface
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
      * @param Registry $registry
+     * @param TaxjarHelper $helper
      */
     public function __construct(
         ManagerInterface $messageManager,
@@ -84,6 +85,8 @@ class SyncTransaction implements ObserverInterface
     }
 
     /**
+     * Sync order and related credit memos
+     *
      * @param Observer $observer
      * @return void
      */

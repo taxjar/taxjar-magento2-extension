@@ -25,6 +25,9 @@ use Magento\TestFramework\ObjectManager;
 
 class ConfigTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @var string
+     */
     private $moduleName = 'Taxjar_SalesTax';
 
     public function testModuleIsRegistered()

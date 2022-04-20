@@ -59,7 +59,7 @@ class SetupUtil
     public const SEATTLE_POST_CODE = '98101';
 
     /**
-     * Tax rates
+     * Tax rates data
      *
      * @var array
      */
@@ -236,10 +236,13 @@ class SetupUtil
         'website_ids' => [1],
     ];
 
+    /**
+     * @var mixed
+     */
     protected $configurableProductAttributes;
 
     /**
-     * Object manager
+     * Object manager instance
      *
      * @var \Magento\Framework\ObjectManagerInterface
      */

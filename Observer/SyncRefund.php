@@ -56,6 +56,7 @@ class SyncRefund implements ObserverInterface
      * @param ManagerInterface $messageManager
      * @param OrderFactory $orderFactory
      * @param RefundFactory $refundFactory
+     * @param TaxjarHelper $helper
      * @param Registry $registry
      */
     public function __construct(
@@ -73,6 +74,8 @@ class SyncRefund implements ObserverInterface
     }
 
     /**
+     * Sync credit memo
+     *
      * @param Observer $observer
      * @return $this
      */

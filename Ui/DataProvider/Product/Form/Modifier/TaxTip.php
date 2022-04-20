@@ -22,6 +22,8 @@ use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\AbstractModifier;
 class TaxTip extends AbstractModifier
 {
     /**
+     * Add tooltip description to page
+     *
      * @param array $meta
      * @return array
      */
@@ -40,6 +42,8 @@ class TaxTip extends AbstractModifier
     }
 
     /**
+     * Returns data
+     *
      * @param array $data
      * @return array
      */
