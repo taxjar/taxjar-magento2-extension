@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Nexus;
 class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
 {
     /**
+     * Sync nexus resources from TaxJar
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

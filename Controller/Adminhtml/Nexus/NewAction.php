@@ -22,6 +22,8 @@ use Magento\Framework\Controller\ResultFactory;
 class NewAction extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
 {
     /**
+     * Create new nexus resource
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Nexus;
 class Index extends \Taxjar\SalesTax\Controller\Adminhtml\Nexus
 {
     /**
+     * List nexus resources
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

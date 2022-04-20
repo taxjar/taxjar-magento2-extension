@@ -22,6 +22,8 @@ use Magento\Framework\Controller\ResultFactory;
 class NewAction extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
 {
     /**
+     * Create product tax class resource
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

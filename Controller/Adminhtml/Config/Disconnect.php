@@ -52,8 +52,8 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     protected $storeManager;
 
-    /** @var
-     * \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection
+    /**
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection
      */
     protected $categories;
 
@@ -135,9 +135,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     {
         $nexusAddresses = $this->nexusFactory->create()->getCollection();
         foreach ($nexusAddresses as $nexusAddress) {
-            // @codingStandardsIgnoreStart
             $nexusAddress->delete();
-            // @codingStandardsIgnoreEnd
         }
     }
 

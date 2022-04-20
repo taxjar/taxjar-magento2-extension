@@ -44,11 +44,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $priceCurrency;
 
     /**
+     * Taxjar data helper constructor
+     *
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Framework\App\Request\Http $request
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
+     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -65,6 +67,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->priceCurrency = $priceCurrency;
     }
 
+    /**
+     * TaxJar tax calculation enabled
+     *
+     * @param string $scope
+     * @param mixed|null $scopeCode
+     * @return bool
+     */
     public function isEnabled(
         $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
         $scopeCode = null
@@ -126,6 +135,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Get order taxable address
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return \Magento\Sales\Api\Data\OrderAddressInterface|null
      */
@@ -138,6 +149,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Order can sync to TaxJar
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return bool
      */
@@ -150,6 +163,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Validate order for TaxJar transaction sync
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return array
      */
@@ -165,6 +180,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Validate order state
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return bool
      */
@@ -174,6 +191,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Validate order currency
+     *
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return bool
      */
@@ -183,7 +202,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * Validate order country
+     *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $address
      * @return bool
      */
     public function isSyncableOrderCountry(\Magento\Sales\Api\Data\OrderAddressInterface $address): bool

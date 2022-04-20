@@ -22,6 +22,8 @@ use Magento\Framework\Controller\ResultFactory;
 class Delete extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
 {
     /**
+     * Delete customer tax class resource
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()

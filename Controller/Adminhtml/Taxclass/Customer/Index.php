@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer;
 class Index extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Customer
 {
     /**
+     * View customer tax class resources
+     *
      * @return \Magento\Backend\Model\View\Result\Page
      */
     public function execute()
