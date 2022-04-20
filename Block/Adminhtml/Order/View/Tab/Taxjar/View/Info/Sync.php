@@ -30,8 +30,6 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     ];
 
     /**
-     * Template
-     *
      * @var string
      */
     protected $_template = 'Taxjar_SalesTax::order/view/tab/taxjar/info/sync.phtml';
@@ -65,6 +63,8 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     }
 
     /**
+     * Validate transaction sync is enabled
+     *
      * @return bool
      */
     public function featureEnabled()
@@ -121,6 +121,8 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     }
 
     /**
+     * Get user-friendly disabled text
+     *
      * @return \Magento\Framework\Phrase
      */
     public function getFeatureDisabledText()
@@ -132,11 +134,24 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
         );
     }
 
+    /**
+     * Wrap content in `<pre>` element
+     *
+     * @param string $htmlContent
+     * @return string
+     */
     protected function insertPre(string $htmlContent)
     {
         return $this->insertTag('pre', $htmlContent);
     }
 
+    /**
+     * Wrap content in specified HTML tag
+     *
+     * @param string $tagName
+     * @param string $htmlContent
+     * @return string
+     */
     private function insertTag(string $tagName, string $htmlContent)
     {
         return "<$tagName>$htmlContent</$tagName>";

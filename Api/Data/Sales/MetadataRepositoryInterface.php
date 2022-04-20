@@ -23,6 +23,8 @@ namespace Taxjar\SalesTax\Api\Data\Sales;
 interface MetadataRepositoryInterface
 {
     /**
+     * Get metadata resource
+     *
      * @param int $id
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -30,6 +32,8 @@ interface MetadataRepositoryInterface
     public function getById($id);
 
     /**
+     * Persist metadata resource
+     *
      * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
@@ -37,6 +41,8 @@ interface MetadataRepositoryInterface
     public function save(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity);
 
     /**
+     * Delete metadata resource
+     *
      * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity
      * @return bool true on success
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
@@ -44,6 +50,8 @@ interface MetadataRepositoryInterface
     public function delete(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity);
 
     /**
+     * Get all metadata resources
+     *
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface
      * @throws \Magento\Framework\Exception\LocalizedException

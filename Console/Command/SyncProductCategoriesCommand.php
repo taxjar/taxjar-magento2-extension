@@ -68,6 +68,8 @@ class SyncProductCategoriesCommand extends Command
     }
 
     /**
+     * Queue tax category import
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
      *

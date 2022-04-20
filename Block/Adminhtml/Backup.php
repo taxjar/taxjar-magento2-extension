@@ -37,9 +37,7 @@ class Backup extends Field
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::backup.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\Config\CacheInterface
@@ -85,6 +83,16 @@ class Backup extends Field
      * @var TaxjarConfig
      */
     protected $taxjarConfig;
+
+    /**
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
+     * @var string
+     */
+    protected $_regionCode;
 
     /**
      * @param CacheInterface $cache
@@ -165,11 +173,21 @@ class Backup extends Field
         return (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
     }
 
+    /**
+     * Get rate import progress text
+     *
+     * @return Phrase
+     */
     public function getRatesLoadedText(): Phrase
     {
         return __('%1 of %2 expected rates loaded.', $this->getActualRateCount(), $this->getExpectedRateCount());
     }
 
+    /**
+     * Get count of TaxJar rates in database
+     *
+     * @return int
+     */
     public function getActualRateCount(): int
     {
         $rateModel = $this->rateFactory->create();
@@ -178,11 +196,21 @@ class Backup extends Field
         return count($rates) ?? 0;
     }
 
+    /**
+     * Get expected rate count from config
+     *
+     * @return int
+     */
     public function getExpectedRateCount(): int
     {
         return $this->taxjarConfig->getBackupRateCount();
     }
 
+    /**
+     * Get last synced date
+     *
+     * @return Phrase
+     */
     public function getLastSyncedDateText(): Phrase
     {
         return __('Last synced on %1', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE) ?? 'N/A');

@@ -38,6 +38,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     protected $_template = 'transaction_sync/form.phtml';
 
     /**
+     * Internal form constructor
+     *
      * @return void
      */
     protected function _construct()
@@ -47,6 +49,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     }
 
     /**
+     * Build transaction sync form
+     *
      * @return $this
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)

@@ -72,9 +72,10 @@ class SyncTransactionsCommand extends Command
     }
 
     /**
+     * Queue transaction sync
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
-     *
      * @return void
      */
     protected function execute(

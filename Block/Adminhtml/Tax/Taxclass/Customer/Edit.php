@@ -23,8 +23,6 @@ namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Customer;
 class Edit extends \Magento\Backend\Block\Widget\Form\Container
 {
     /**
-     * Core registry
-     *
      * @var \Magento\Framework\Registry
      */
     protected $_coreRegistry = null;

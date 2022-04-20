@@ -61,6 +61,13 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     protected $storeManager;
 
     /**
+     * Directory helper instance
+     *
+     * @var \Magento\Directory\Helper\Data
+     */
+    protected $directoryHelper;
+
+    /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Data\FormFactory $formFactory
@@ -68,6 +75,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
      * @param \Magento\Directory\Model\Config\Source\Country $country
      * @param \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory
      * @param \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexusRepository
+     * @param \Magento\Directory\Helper\Data $directoryHelper
      * @param array $data
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -79,6 +87,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         \Magento\Directory\Model\Config\Source\Country $country,
         \Magento\Tax\Block\Adminhtml\Rate\Title\FieldsetFactory $fieldsetFactory,
         \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexusRepository,
+        \Magento\Directory\Helper\Data $directoryHelper,
         array $data = []
     ) {
         $this->formKey = $context->getFormKey();
@@ -88,6 +97,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
         $this->regionFactory = $regionFactory;
         $this->fieldsetFactory = $fieldsetFactory;
         $this->nexusRepository = $nexusRepository;
+        $this->directoryHelper = $directoryHelper;
         parent::__construct($context, $registry, $formFactory, $data);
     }
 
@@ -106,6 +116,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     }
 
     /**
+     * Build nexus edit form
+     *
      * @return $this
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -255,7 +267,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     }
 
     /**
-     * Extract nexus data in a format which is
+     * Extract nexus data
      *
      * @param \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface $nexus
      * @return array

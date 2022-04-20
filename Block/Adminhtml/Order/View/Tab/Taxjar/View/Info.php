@@ -24,8 +24,6 @@ use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\Block\Widget\Tab\TabInterface
 {
     /**
-     * Template
-     *
      * @var string
      */
     protected $_template = 'Taxjar_SalesTax::order/view/tab/taxjar/info.phtml';
@@ -51,6 +49,8 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     }
 
     /**
+     * Return Sales Order view tab label
+     *
      * @return \Magento\Framework\Phrase|string
      */
     public function getTabLabel()
@@ -59,6 +59,8 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     }
 
     /**
+     * Return Sales Order view tab title
+     *
      * @return \Magento\Framework\Phrase|string
      */
     public function getTabTitle()
@@ -67,6 +69,8 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     }
 
     /**
+     * Validate tab should be present
+     *
      * @return bool
      */
     public function canShowTab()
@@ -75,6 +79,8 @@ class Info extends \Magento\Backend\Block\Template implements \Magento\Backend\B
     }
 
     /**
+     * Validate tab should be visible
+     *
      * @return bool
      */
     public function isHidden()
