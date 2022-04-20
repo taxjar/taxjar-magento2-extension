@@ -25,7 +25,7 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Upgrade extends \Magento\Backend\App\AbstractAction
 {
-    const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
      * @var \Magento\Framework\Event\ManagerInterface

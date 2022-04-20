@@ -35,11 +35,11 @@ use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResource
  */
 class Metadata extends AbstractModel implements MetadataInterface
 {
-    const TAX_CALCULATION_STATUS_SUCCESS = 'success';
+    public const TAX_CALCULATION_STATUS_SUCCESS = 'success';
 
-    const TAX_CALCULATION_STATUS_ERROR = 'error';
+    public const TAX_CALCULATION_STATUS_ERROR = 'error';
 
-    const CACHE_TAG = 'taxjar_salestax_order_metadata';
+    public const CACHE_TAG = 'taxjar_salestax_order_metadata';
 
     protected $_cacheTag = 'taxjar_salestax_order_metadata';
 

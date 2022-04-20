@@ -20,24 +20,23 @@ namespace Taxjar\SalesTax\Model\Tax;
 class Nexus extends \Magento\Framework\Model\AbstractExtensibleModel implements
     \Taxjar\SalesTax\Api\Data\Tax\NexusInterface
 {
-    /**#@+
+    /**
      * Constants defined for keys of array, makes typos less likely
      */
-    const KEY_ID          = 'id';
-    const KEY_API_ID      = 'api_id';
-    const KEY_STREET      = 'street';
-    const KEY_CITY        = 'city';
-    const KEY_COUNTRY_ID  = 'country_id';
-    const KEY_REGION      = 'region';
-    const KEY_REGION_ID   = 'region_id';
-    const KEY_REGION_CODE = 'region_code';
-    const KEY_POSTCODE    = 'postcode';
-    const KEY_STORE_ID    = 'store_id';
-    const KEY_CREATED_AT  = 'created_at';
-    const KEY_UPDATED_AT  = 'updated_at';
-    /**#@-*/
+    public const KEY_ID          = 'id';
+    public const KEY_API_ID      = 'api_id';
+    public const KEY_STREET      = 'street';
+    public const KEY_CITY        = 'city';
+    public const KEY_COUNTRY_ID  = 'country_id';
+    public const KEY_REGION      = 'region';
+    public const KEY_REGION_ID   = 'region_id';
+    public const KEY_REGION_CODE = 'region_code';
+    public const KEY_POSTCODE    = 'postcode';
+    public const KEY_STORE_ID    = 'store_id';
+    public const KEY_CREATED_AT  = 'created_at';
+    public const KEY_UPDATED_AT  = 'updated_at';
 
-    const COUNTRY_CODE_MAP = [
+    protected const COUNTRY_CODE_MAP = [
         'UK' => 'GB',
         'EL' => 'GR',
     ];

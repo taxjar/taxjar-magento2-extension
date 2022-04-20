@@ -21,7 +21,7 @@ use Magento\Backend\App\Action\Context;
 
 class SyncRates extends \Magento\Backend\App\AbstractAction
 {
-    const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
      * @var \Magento\Framework\Event\ManagerInterface
