@@ -27,7 +27,6 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
     private $calculationFactory;
 
     /**
-     * DeleteRatesConsumer constructor.
      * @param SerializerInterface $serializer
      * @param ScopeConfigInterface $scopeConfig
      * @param LoggerInterface $logger
@@ -64,11 +63,12 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
-     * @return self
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
+     * Delete backup sales tax rates
+     *
+     * @return $this
+     * @throws LocalizedException|NoSuchEntityException
      */
-    protected function handle(): self
+    protected function handle()
     {
         return $this->validate()
             ->setMemberData()
@@ -76,9 +76,11 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
     }
 
     /**
-     * @return self
+     * Set rates for deletion
+     *
+     * @return $this
      */
-    protected function setMemberData(): self
+    protected function setMemberData()
     {
         $this->setRates($this->payload['rates']);
 
@@ -88,10 +90,10 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
     /**
      * Throw exception if payload does not adhere to expected format
      *
-     * @return self
+     * @return $this
      * @throws LocalizedException
      */
-    private function validate(): self
+    private function validate()
     {
         if (is_array($this->payload) && array_key_exists('rates', $this->payload)) {
             return $this;
@@ -105,7 +107,7 @@ class DeleteRatesConsumer extends AbstractRatesConsumer
      *
      * @throws NoSuchEntityException
      */
-    private function deleteRates(): self
+    private function deleteRates()
     {
         $calculationModel = $this->calculationFactory->create();
 

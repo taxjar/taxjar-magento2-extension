@@ -59,9 +59,8 @@ class TaxClassProductCollection extends AbstractServiceCollection
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    // @codingStandardsIgnoreStart
     public function loadData($printQuery = false, $logQuery = false)
     {
         // @codingStandardsIgnoreEnd

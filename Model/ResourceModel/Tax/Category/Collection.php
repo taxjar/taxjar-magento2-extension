@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Model\ResourceModel\Tax\Category;
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
+     * Tax category collection constructor
+     *
      * @return void
      */
     protected function _construct()

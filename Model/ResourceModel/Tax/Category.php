@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Model\ResourceModel\Tax;
 class Category extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
+     * Tax category resource model constructor
+     *
      * @return void
      */
     public function _construct()

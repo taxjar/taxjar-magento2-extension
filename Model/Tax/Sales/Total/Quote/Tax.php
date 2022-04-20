@@ -70,7 +70,7 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Taxjar\SalesTax\Model\Smartcalcs $smartCalcs
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
+     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemExtensionFactory $extensionFactory
      * @param \Taxjar\SalesTax\Model\Tax\TaxCalculation $taxCalculation
      * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
@@ -115,6 +115,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     }
 
     /**
+     * Collect tax for quote
+     *
      * @param \Magento\Quote\Model\Quote $quote
      * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
      * @param \Magento\Quote\Model\Quote\Address\Total $total
@@ -379,6 +381,8 @@ class Tax extends \Magento\Tax\Model\Sales\Total\Quote\Tax
     }
 
     /**
+     * Add extension attributes to quote shipping item
+     *
      * @param \Magento\Tax\Api\Data\QuoteDetailsItemInterface $shippingDataObject
      * @return \Magento\Tax\Api\Data\QuoteDetailsItemInterface
      */

@@ -25,12 +25,30 @@ use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResource
 
 class Collection extends AbstractCollection
 {
+    /**
+     * Metadata primary key
+     *
+     * @var string
+     */
     protected $_idFieldName = 'entity_id';
 
+    /**
+     * Metadata event prefix
+     *
+     * @var string
+     */
     protected $_eventPrefix = 'taxjar_salestax_order_metadata_collection';
 
+    /**
+     * Metadata event object
+     *
+     * @var string
+     */
     protected $_eventObject = 'order_metadata_collection';
 
+    /**
+     * Metadata collection constructor
+     */
     protected function _construct()
     {
         $this->_init(Metadata::class, MetadataResourceModel::class);

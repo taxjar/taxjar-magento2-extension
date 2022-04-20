@@ -123,7 +123,7 @@ class Configuration
     /**
      * Sets tax basis in Magento
      *
-     * @param $configJson
+     * @param array $configJson
      * @return void
      */
     public function setTaxBasis($configJson): void
@@ -137,11 +137,21 @@ class Configuration
         $this->_setConfig(MagentoTaxConfig::CONFIG_XML_PATH_BASED_ON, $basis);
     }
 
+    /**
+     * Get stored backup rate count from core config
+     *
+     * @return int
+     */
     public function getBackupRateCount(): int
     {
         return (int) $this->scopeConfig->getValue(self::TAXJAR_BACKUP_RATE_COUNT);
     }
 
+    /**
+     * Set stored backup rate count in core config
+     *
+     * @param string|int $value
+     */
     public function setBackupRateCount($value): void
     {
         $this->_setConfig(self::TAXJAR_BACKUP_RATE_COUNT, $value);

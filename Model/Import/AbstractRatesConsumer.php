@@ -7,6 +7,7 @@ namespace Taxjar\SalesTax\Model\Import;
 use Exception;
 use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\AsynchronousOperations\Model\Operation;
+use Magento\Framework\Bulk\OperationInterface as OperationInterfaceAlias;
 use Magento\Framework\DB\LoggerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
@@ -106,6 +107,8 @@ abstract class AbstractRatesConsumer
     abstract protected function handle();
 
     /**
+     * Set bulk operation
+     *
      * @param Operation $value
      * @return $this
      */
@@ -117,6 +120,9 @@ abstract class AbstractRatesConsumer
     }
 
     /**
+     * Set API response payload
+     *
+     * @param array|null $payload
      * @return $this
      */
     public function setPayload(?array $payload): self
@@ -127,6 +133,8 @@ abstract class AbstractRatesConsumer
     }
 
     /**
+     * Set raw backup sales tax rates value
+     *
      * @param array $values
      * @return $this
      */
@@ -166,12 +174,12 @@ abstract class AbstractRatesConsumer
      * Log and handle operation failures
      *
      * @param Exception $e
-     * @param $message
+     * @param string|mixed $message
      */
     protected function fail(Exception $e, $message)
     {
         $this->logger->critical($e);
-        $this->operation->setStatus(OperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED);
+        $this->operation->setStatus(OperationInterfaceAlias::STATUS_TYPE_NOT_RETRIABLY_FAILED);
         $this->operation->setErrorCode($e->getCode());
         $this->operation->setResultMessage($message);
     }
@@ -181,7 +189,7 @@ abstract class AbstractRatesConsumer
      */
     protected function success()
     {
-        $this->operation->setStatus(OperationInterface::STATUS_TYPE_COMPLETE);
+        $this->operation->setStatus(OperationInterfaceAlias::STATUS_TYPE_COMPLETE);
         $this->operation->setErrorCode(null);
         $this->operation->setResultMessage(null);
     }

@@ -23,6 +23,7 @@ use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Taxjar\SalesTax\Api\Data\Tax\NexusInterface;
 use Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface;
 
@@ -64,9 +65,8 @@ class NexusCollection extends AbstractServiceCollection
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    // @codingStandardsIgnoreStart
     public function loadData($printQuery = false, $logQuery = false)
     {
         // @codingStandardsIgnoreEnd

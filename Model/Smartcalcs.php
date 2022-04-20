@@ -23,7 +23,6 @@ use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
-use Taxjar\SalesTax\Api\Data\Tax\NexusInterface;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
@@ -109,8 +108,6 @@ class Smartcalcs
     private $storeId;
 
     /**
-     * Smartcalcs constructor.
-     *
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param RegionFactory $regionFactory
      * @param NexusFactory $nexusFactory
@@ -246,6 +243,12 @@ class Smartcalcs
         return $this;
     }
 
+    /**
+     * Validate request details
+     *
+     * @param \Magento\Quote\Api\Data\AddressInterface $address
+     * @return bool
+     */
     public function _isValidRequest($address)
     {
         if ($this->taxjarConfig->getApiKey($this->storeId) == null) {
@@ -312,9 +315,11 @@ class Smartcalcs
     }
 
     /**
-     * @param $quote
-     * @param $quoteTaxDetails
-     * @param $address
+     * Build API order body
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote $quote
+     * @param \Magento\Tax\Api\Data\QuoteDetailsInterface|\Magento\Tax\Model\Sales\Quote\QuoteDetails $quoteTaxDetails
+     * @param \Magento\Quote\Api\Data\AddressInterface|\Magento\Quote\Model\Quote\Address $address
      * @return array
      */
     private function _getOrder($quote, $quoteTaxDetails, $address)
@@ -423,8 +428,7 @@ class Smartcalcs
     }
 
     /**
-     * Validate postcode based on country using patterns defined in
-     * app/code/Magento/Directory/etc/zip_codes.xml
+     * Validate postcode based on country using patterns defined in `app/code/Magento/Directory/etc/zip_codes.xml`
      *
      * @param string $postcode
      * @param string $countryId
@@ -610,6 +614,13 @@ class Smartcalcs
         return $this->checkoutSession->unsetData('taxjar_salestax_' . $key);
     }
 
+    /**
+     * Get configuration value for current store scope
+     *
+     * @param string $value
+     * @param mixed $storeId
+     * @return mixed
+     */
     private function _getStoreValue($value, $storeId)
     {
         return $this->scopeConfig->getValue($value, ScopeInterface::SCOPE_STORE, $storeId);

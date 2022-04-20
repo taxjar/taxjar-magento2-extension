@@ -20,6 +20,8 @@ namespace Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus;
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
+     * Nexus collection constructor
+     *
      * @return void
      */
     protected function _construct()

@@ -137,6 +137,8 @@ class Client implements ClientInterface
     }
 
     /**
+     * Toggle display errors
+     *
      * @param bool $toggle
      * @return void
      */

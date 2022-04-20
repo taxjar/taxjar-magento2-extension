@@ -56,6 +56,13 @@ class MetadataRepository implements MetadataRepositoryInterface
      */
     private $collectionProcessor;
 
+    /**
+     * @param MetadataFactory $metadataFactory
+     * @param Metadata $metadataResource
+     * @param MetadataCollectionFactory $metadataCollectionFactory
+     * @param MetadataSearchResultInterfaceFactory $metadataSearchResultInterfaceFactory
+     * @param CollectionProcessorInterface $collectionProcessor
+     */
     public function __construct(
         MetadataFactory $metadataFactory,
         Metadata $metadataResource,
@@ -71,6 +78,8 @@ class MetadataRepository implements MetadataRepositoryInterface
     }
 
     /**
+     * Get order metadata resource by ID
+     *
      * @param int $id
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -86,6 +95,8 @@ class MetadataRepository implements MetadataRepositoryInterface
     }
 
     /**
+     * Persist order metadata resource
+     *
      * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -97,6 +108,8 @@ class MetadataRepository implements MetadataRepositoryInterface
     }
 
     /**
+     * Delete order metadata resource
+     *
      * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata
      * @return bool true on success
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
@@ -115,6 +128,8 @@ class MetadataRepository implements MetadataRepositoryInterface
     }
 
     /**
+     * Get all order metadata based on search criteria
+     *
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface
      * @throws \Magento\Framework\Exception\LocalizedException
