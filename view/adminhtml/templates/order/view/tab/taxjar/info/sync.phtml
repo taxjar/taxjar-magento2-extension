@@ -18,30 +18,21 @@
 /** @var $block \Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Sync */
 
 $order = $block->getOrder();
-$orderState = $order->getState();
-$syncDate = $order->getData('tj_salestax_sync_date');
-if ($syncDate) {
-    $orderAdminDate = $block->formatDate(
-        $block->getOrderSyncedAtDate($syncDate),
-        \IntlDateFormatter::MEDIUM,
-        true
-    );
-}
-$allowedTags = ['br', 'pre'];
+$formattedDate = $block->getFormattedSyncDate($order);
 ?>
 
 <div class="admin__page-section-item">
     <div class="admin__page-section-item-content taxjar-order-sync-information">
     <?php if ($block->featureEnabled()): ?>
-        <?php if (isset($orderAdminDate)): ?>
-            <p><i>Last synced at <?= $block->escapeHtml($orderAdminDate) ?></i></p>
+        <?php if ($formattedDate): ?>
+            <p><i>Last synced at <?= $block->escapeHtml($formattedDate) ?></i></p>
         <?php else: ?>
-            <span><?= $block->escapeHtml($block->getOrderStateText($orderState), $allowedTags) ?></span>
+            <span><?= $block->escapeHtml($block->getOrderStateText($order), ['br', 'pre']) ?></span>
             <br><br>
-            <span><?= $block->escapeHtml($block->getOrderActionableText($orderState), $allowedTags) ?></span>
+            <span><?= $block->escapeHtml($block->getOrderActionableText($order), ['br', 'pre']) ?></span>
         <?php endif; ?>
     <?php else: ?>
-        <span><?= $block->escapeHtml($block->getFeatureDisabledText(), $allowedTags) ?></span>
+        <span><?= $block->escapeHtml($block->getFeatureDisabledText(), ['br', 'pre']) ?></span>
     <?php endif; ?>
     </div>
 </div>

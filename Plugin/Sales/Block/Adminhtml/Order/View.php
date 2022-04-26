@@ -54,7 +54,7 @@ class View
      */
     protected function shouldRender(\Magento\Sales\Api\Data\OrderInterface $order): bool
     {
-        return $this->_tjSalesTaxData->isTransactionSyncEnabled()
+        return $this->_tjSalesTaxData->isTransactionSyncEnabled($order->getStoreId())
             && $this->_tjSalesTaxData->isSyncableOrder($order);
     }
 }

@@ -19,6 +19,9 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info;
 
+use IntlDateFormatter;
+use Magento\Sales\Model\Order;
+
 class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
 {
     /**
@@ -86,11 +89,13 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     /**
      * Get status text for sales orders
      *
-     * @param string|null $state
+     * @param Order $order
      * @return \Magento\Framework\Phrase
      */
-    public function getOrderStateText($state)
+    public function getOrderStateText($order)
     {
+        $state = $order->getState();
+
         if (in_array($state, static::SYNCABLE_STATES)) {
             return __('This order has not been synced to TaxJar.');
         }
@@ -105,12 +110,16 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     /**
      * Get actionable text for sales orders
      *
-     * @param string|null $state
+     * @param Order $order
      * @return \Magento\Framework\Phrase
      */
-    public function getOrderActionableText($state)
+    public function getOrderActionableText($order)
     {
-        if (in_array($state, static::SYNCABLE_STATES)) {
+        if (!$this->taxjarHelper->isTransactionSyncEnabled($order->getStoreId())) {
+            return __('Transaction sync is disabled for the current store.');
+        }
+
+        if (in_array($order->getState(), static::SYNCABLE_STATES)) {
             return __('You can manually sync this order.');
         }
 
@@ -118,6 +127,22 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
             'Orders will automatically sync to TaxJar after transitioning to one of the following states: %1.',
             implode(', ', array_map([$this, 'insertPre'], static::SYNCABLE_STATES))
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormattedSyncDate($order)
+    {
+        $syncDate = $order->getData('tj_salestax_sync_date');
+
+        if ($syncDate) {
+            $dateTime = new \DateTime($syncDate);
+            $localizedDate = $this->_localeDate->date($dateTime);
+            return $this->formatDate($localizedDate, IntlDateFormatter::MEDIUM, true);
+        } else {
+            return null;
+        }
     }
 
     /**
