@@ -41,7 +41,8 @@ define([
                     city: self.source.get('shippingAddress.city'),
                     region_id: self.source.get('shippingAddress.region_id'),
                     postcode: self.source.get('shippingAddress.postcode'),
-                    country_id: self.source.get('shippingAddress.country_id')
+                    country_id: self.source.get('shippingAddress.country_id'),
+                    store_code: quote.getStoreCode()
                 });
             });
         },

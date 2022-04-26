@@ -50,6 +50,7 @@ function (ko, $) {
             }
 
             var formattedAddr = self.formatAddress(addr);
+            var scopedAddr = self.formatScopedAddress(addr);
 
             if (self.isSuggestedAddress(addr)) {
                 if (typeof onDone === 'function') {
@@ -61,7 +62,7 @@ function (ko, $) {
             $.ajax({
                 type: 'POST',
                 url: this.getAddressValidationUrl(),
-                data: JSON.stringify($.extend({}, {form_key: window.FORM_KEY}, formattedAddr)),
+                data: JSON.stringify($.extend({}, {form_key: window.FORM_KEY}, scopedAddr)),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 beforeSend: function (xhr) {
@@ -122,6 +123,15 @@ function (ko, $) {
                 'country': address.country_id,
                 'postcode': address.postcode
             };
+        },
+
+        formatScopedAddress: function (address) {
+            var self = this;
+            var addr = self.formatAddress(address);
+            if (address.store_code !== undefined) {
+                addr.store_code = address.store_code;
+            }
+            return addr;
         },
 
         formatSuggestedAddress: function (suggestedAddress) {

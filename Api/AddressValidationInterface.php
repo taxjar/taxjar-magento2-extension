@@ -28,6 +28,7 @@ interface AddressValidationInterface
      * @param string $region
      * @param string $country
      * @param string $postcode
+     * @param string $storeCode
      * @return mixed
      */
     public function validateAddress(
@@ -36,6 +37,7 @@ interface AddressValidationInterface
         $city = null,
         $region = null,
         $country = null,
-        $postcode = null
+        $postcode = null,
+        $storeCode = null
     );
 }
