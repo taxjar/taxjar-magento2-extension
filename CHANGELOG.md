@@ -7,23 +7,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.9.3] - 2022-4-13
+## [1.9.4] - 2022-05-02
+- Fix issue with scoped address validation
+- Fix issue with scoped sales order sync button
+
+## [1.9.3] - 2022-04-13
 - Fix nexus sync address duplication bug
 - Fix sales order item PTC bug for configurable products
 - Fix scoped refund sync observer bug
 - Refactor tax calculation with request setter method
 
-## [1.9.2] - 2022-3-23
+## [1.9.2] - 2022-03-23
 - Refactor queue configuration for AMQP compatibility
 - Fix missing vendor dependency bug
 - Fix admin sales order view bug when missing order state
 - Fix authenticated customer's validated shipping address phone number bug
 
-## [1.9.1] - 2022-3-10
+## [1.9.1] - 2022-03-10
 - PHP 8.1 compatibility
 - Updates for Magento coding standards
 
-## [1.9.0] - 2022-2-28
+## [1.9.0] - 2022-02-28
 - Adds additional logging visibility in Sales Order UI
 - Fix Nexus region import bug for TaxJar's non-standard ISO codes
 - Fix transaction backfill CLI command's date input bug
@@ -276,7 +280,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Initial release of our Magento 2 extension.** Sales tax calculations at checkout with backup zip-based rates powered by TaxJar. Supports product exemptions, shipping taxability, sourcing logic, and international calculations in more than 30 countries.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
-[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.3..HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.4..HEAD
+[1.9.4]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.0...v1.9.1
