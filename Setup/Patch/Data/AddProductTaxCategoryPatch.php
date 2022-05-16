@@ -3,14 +3,14 @@
 namespace Taxjar\SalesTax\Setup\Patch\Data;
 
 use Magento\Catalog\Model\Product;
-use Magento\Config\Model\ResourceModel\Config;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Taxjar\SalesTax\Model\Attribute\Source\Category;
 
-class AddProductTaxCategoryPatch implements DataPatchInterface
+class AddProductTaxCategoryPatch implements DataPatchInterface, PatchRevertableInterface
 {
     public const TJ_PTC_CODE = 'tj_ptc';
 
@@ -97,5 +97,29 @@ class AddProductTaxCategoryPatch implements DataPatchInterface
     public function getAliases()
     {
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function revert()
+    {
+        $this->moduleDataSetup->getConnection()->startSetup();
+
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $tjPtcAttribute = $eavSetup->getAttribute(
+            Product::ENTITY,
+            self::TJ_PTC_CODE
+        );
+
+        if ($tjPtcAttribute) {
+            $eavSetup->removeAttribute(
+                Product::ENTITY,
+                self::TJ_PTC_CODE
+            );
+        }
+
+        $this->moduleDataSetup->getConnection()->endSetup();
     }
 }
