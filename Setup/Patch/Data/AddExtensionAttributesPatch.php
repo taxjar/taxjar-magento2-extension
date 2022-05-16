@@ -8,10 +8,11 @@ use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Taxjar\SalesTax\Model\Attribute\Source\CustomerExemptionType;
 use Taxjar\SalesTax\Model\Attribute\Source\Regions;
 
-class AddExtensionAttributesPatch implements DataPatchInterface
+class AddExtensionAttributesPatch implements DataPatchInterface, PatchRevertableInterface
 {
     public const TJ_EXEMPTION_TYPE_CODE = 'tj_exemption_type';
 
@@ -84,15 +85,42 @@ class AddExtensionAttributesPatch implements DataPatchInterface
     }
 
     /**
+     * @inheirtDoc
+     */
+    public function revert()
+    {
+        $this->moduleDataSetup->getConnection()->startSetup();
+
+        $eavSetup = $this->eavSetupFactory->create([
+            'setup' => $this->moduleDataSetup
+        ]);
+
+        $this->deleteTjExemptionTypeAttribute($eavSetup);
+        $this->deleteTjRegionsAttribute($eavSetup);
+        $this->deleteTjLastSyncAttribute($eavSetup);
+
+        $this->moduleDataSetup->getConnection()->endSetup();
+    }
+
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @return mixed
+     */
+    protected function getTjExemptionTypeAttribute($eavSetup)
+    {
+        return $eavSetup->getAttribute(
+            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            self::TJ_EXEMPTION_TYPE_CODE
+        );
+    }
+
+    /**
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
      * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
      */
     protected function createTjExemptionTypeAttribute($eavSetup)
     {
-        $tjExemptionTypeAttribute = $eavSetup->getAttribute(
-            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
-            self::TJ_EXEMPTION_TYPE_CODE
-        );
+        $tjExemptionTypeAttribute = $this->getTjExemptionTypeAttribute($eavSetup);
 
         if (!$tjExemptionTypeAttribute) {
             $eavSetup->addAttribute(
@@ -142,14 +170,38 @@ class AddExtensionAttributesPatch implements DataPatchInterface
 
     /**
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     */
+    protected function deleteTjExemptionTypeAttribute($eavSetup)
+    {
+        $tjExemptionTypeAttribute = $this->getTjExemptionTypeAttribute($eavSetup);
+
+        if ($tjExemptionTypeAttribute) {
+            $eavSetup->removeAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_EXEMPTION_TYPE_CODE
+            );
+        }
+    }
+
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @return mixed
+     */
+    protected function getTjRegionsAttribute($eavSetup)
+    {
+        return $eavSetup->getAttribute(
+            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            self::TJ_REGIONS_CODE
+        );
+    }
+
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
      * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
      */
     protected function createTjRegionsAttribute($eavSetup)
     {
-        $tjRegionsAttribute = $eavSetup->getAttribute(
-            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
-            self::TJ_REGIONS_CODE
-        );
+        $tjRegionsAttribute = $this->getTjRegionsAttribute($eavSetup);
 
         if (!$tjRegionsAttribute) {
             $eavSetup->addAttribute(
@@ -199,14 +251,38 @@ class AddExtensionAttributesPatch implements DataPatchInterface
 
     /**
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     */
+    protected function deleteTjRegionsAttribute($eavSetup)
+    {
+        $tjRegionsAttribute = $this->getTjRegionsAttribute($eavSetup);
+
+        if ($tjRegionsAttribute) {
+            $eavSetup->removeAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_REGIONS_CODE
+            );
+        }
+    }
+
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     * @return mixed
+     */
+    protected function getTjLastSyncAttribute($eavSetup)
+    {
+        return $eavSetup->getAttribute(
+            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+            self::TJ_LAST_SYNC_CODE
+        );
+    }
+
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
      * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
      */
     protected function createTjLastSyncAttribute($eavSetup)
     {
-        $tjLastSync = $this->eavConfig->getAttribute(
-            CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
-            self::TJ_LAST_SYNC_CODE
-        );
+        $tjLastSync = $this->getTjLastSyncAttribute($eavSetup);
 
         if (!$tjLastSync) {
             $eavSetup->addAttribute(
@@ -249,6 +325,21 @@ class AddExtensionAttributesPatch implements DataPatchInterface
 
             $lastSyncCodeId->setData('used_in_forms', ['adminhtml_customer',]);
             $lastSyncCodeId->getResource()->save($lastSyncCodeId); // phpcs:ignore
+        }
+    }
+
+    /**
+     * @param \Magento\Eav\Setup\EavSetup $eavSetup
+     */
+    protected function deleteTjLastSyncAttribute($eavSetup)
+    {
+        $tjLastSync = $this->getTjLastSyncAttribute($eavSetup);
+
+        if ($tjLastSync) {
+            $eavSetup->removeAttribute(
+                CustomerMetadataInterface::ENTITY_TYPE_CUSTOMER,
+                self::TJ_LAST_SYNC_CODE
+            );
         }
     }
 }
