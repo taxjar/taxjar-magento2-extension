@@ -75,22 +75,25 @@ class SaveOrderMetadata implements ObserverInterface
     public function execute(Observer $observer)
     {
         $encodedMetadata = $this->checkoutSession->getData(self::ORDER_METADATA);
-        $metadata = json_decode($encodedMetadata, true);
 
-        /** @var OrderInterface $order */
-        $order = $observer->getOrder();
-        $extensionAttributes = $order->getExtensionAttributes() ?? $this->extensionFactory->create();
+        if ($encodedMetadata) {
+            $metadata = json_decode($encodedMetadata, true);
 
-        if (isset($metadata[MetadataInterface::TAX_CALCULATION_STATUS])) {
-            $extensionAttributes->setTjTaxCalculationStatus($metadata[MetadataInterface::TAX_CALCULATION_STATUS]);
+            /** @var OrderInterface $order */
+            $order = $observer->getOrder();
+            $extensionAttributes = $order->getExtensionAttributes() ?? $this->extensionFactory->create();
+
+            if (isset($metadata[MetadataInterface::TAX_CALCULATION_STATUS])) {
+                $extensionAttributes->setTjTaxCalculationStatus($metadata[MetadataInterface::TAX_CALCULATION_STATUS]);
+            }
+
+            if (isset($metadata[MetadataInterface::TAX_CALCULATION_MESSAGE])) {
+                $extensionAttributes->setTjTaxCalculationMessage($metadata[MetadataInterface::TAX_CALCULATION_MESSAGE]);
+            }
+
+            $order->setExtensionAttributes($extensionAttributes);
+
+            $this->orderRepository->save($order);
         }
-
-        if (isset($metadata[MetadataInterface::TAX_CALCULATION_MESSAGE])) {
-            $extensionAttributes->setTjTaxCalculationMessage($metadata[MetadataInterface::TAX_CALCULATION_MESSAGE]);
-        }
-
-        $order->setExtensionAttributes($extensionAttributes);
-
-        $this->orderRepository->save($order);
     }
 }
