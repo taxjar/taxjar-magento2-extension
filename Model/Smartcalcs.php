@@ -432,21 +432,14 @@ class Smartcalcs
      */
     private function _validatePostcode($postcode, $countryId)
     {
+        $matches = [];
         $postCodes = $this->postCodesConfig->getPostCodes();
-
         if (isset($postCodes[$countryId]) && is_array($postCodes[$countryId])) {
-            $patterns = $postCodes[$countryId];
-
-            foreach ($patterns as $pattern) {
-                preg_match('/' . $pattern['pattern'] . '/', (string) $postcode, $matches);
-
-                if (count($matches)) {
-                    return true;
-                }
+            foreach ($postCodes[$countryId] as $pattern) {
+                preg_match('/' . $pattern['pattern'] . '/', trim((string) $postcode), $matches);
             }
         }
-
-        return false;
+        return (bool) count($matches);
     }
 
     /**
