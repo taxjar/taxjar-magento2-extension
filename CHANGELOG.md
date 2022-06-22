@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Fix issue with exempt regions in customer CSV import
 
 ## [1.9.6] - 2022-05-27
 - Fix issue with missing order metadata
