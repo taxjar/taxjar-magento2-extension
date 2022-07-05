@@ -17,7 +17,7 @@
 
 namespace Taxjar\SalesTax\Plugin\Quote\Model;
 
-use Magento\Quote\Model\QuoteManagement as QuoteManagementEntity;
+use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\Data\OrderExtensionInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Api\Data\Sales\MetadataRepositoryInterface;
@@ -58,13 +58,13 @@ class QuoteManagement
     /**
      * Parse order extension data and persist metadata entity
      *
-     * @param QuoteManagementEntity $subject
+     * @param CartManagementInterface $subject
      * @param OrderInterface $order
      * @return OrderInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function afterSubmit(
-        QuoteManagementEntity $subject,
+        CartManagementInterface $subject,
         OrderInterface $order
     ): OrderInterface {
         /** @var OrderExtensionInterface $extensionAttributes */
