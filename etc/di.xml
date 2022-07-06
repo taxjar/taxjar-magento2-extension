@@ -52,9 +52,6 @@
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="taxjar_order_repository" type="Taxjar\SalesTax\Plugin\Sales\Model\OrderRepository" />
     </type>
-    <type name="Magento\Quote\Model\QuoteManagement">
-        <plugin name="taxjar_quote_management_after_submit" type="Taxjar\SalesTax\Plugin\Quote\Model\QuoteManagement" />
-    </type>
     <type name="Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand">
         <arguments>
             <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>
