@@ -10,7 +10,6 @@
 <!-- If you are unsure whether the issue is directly related to our extension, please reach out to support@taxjar.com for assistance. -->
 
 ### Steps to Reproduce
-
 1. [First Step]
 2. [Second Step]
 3. [and so on...]
@@ -26,10 +25,10 @@
 - [ ] Magento 2.4
 - [ ] Magento 2.3
 <!-- What edition(s) of Magento did this issue happen on? -->
-- [ ] Magento Open Source (CE)
-- [ ] Magento Commerce (EE)
-- [ ] Magento B2B
-- [ ] Magento Cloud
+- [ ] Magento Open Source (fka Magento 2 Community Edition)
+- [ ] Adobe Commerce (fka Magento 2 Enterprise Edition)
 <!-- What version of PHP did this issue happen on? -->
+- [ ] PHP 8.2
+- [ ] PHP 8.1
 - [ ] PHP 7.4
 - [ ] PHP 7.3

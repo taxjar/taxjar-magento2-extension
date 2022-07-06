@@ -22,9 +22,10 @@
 - [ ] Magento 2.4
 - [ ] Magento 2.3
 <!-- What edition(s) of Magento did you test this change on? -->
-- [ ] Magento Open Source (CE)
-- [ ] Magento Commerce (EE)
-- [ ] Magento B2B
-- [ ] Magento Cloud
+- [ ] Magento Open Source (formerly Magento 2 Community Edition)
+- [ ] Adobe Commerce (formerly Magento 2 Enterprise Edition)
 <!-- What version of PHP did you test this change on? -->
-- [ ] PHP 7.x
+- [ ] PHP 8.2
+- [ ] PHP 8.1
+- [ ] PHP 7.4
+- [ ] PHP 7.3
