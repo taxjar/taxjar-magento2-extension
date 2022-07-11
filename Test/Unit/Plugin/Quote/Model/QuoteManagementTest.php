@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Plugin\Quote\Model;
 
-use Magento\Quote\Model\QuoteManagement as QuoteManagementEntity;
+use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\Data\OrderExtensionInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Api\Data\Sales\MetadataRepositoryInterface;
@@ -58,7 +58,7 @@ class QuoteManagementTest extends UnitTestCase
 
     public function testAfterSubmit()
     {
-        $subjectMock = $this->getMockBuilder(QuoteManagementEntity::class)
+        $subjectMock = $this->getMockBuilder(CartManagementInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
