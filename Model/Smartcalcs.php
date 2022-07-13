@@ -437,6 +437,9 @@ class Smartcalcs
         if (isset($postCodes[$countryId]) && is_array($postCodes[$countryId])) {
             foreach ($postCodes[$countryId] as $pattern) {
                 preg_match('/' . $pattern['pattern'] . '/', trim((string) $postcode), $matches);
+                if (count($matches)) {
+                    return true;
+                }
             }
         }
         return (bool) count($matches);
