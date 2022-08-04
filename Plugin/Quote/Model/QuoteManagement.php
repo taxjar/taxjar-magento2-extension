@@ -60,7 +60,7 @@ class QuoteManagement
      *
      * @param CartManagementInterface $subject
      * @param OrderInterface|null $order
-     * @return OrderInterface
+     * @return OrderInterface|null
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function afterSubmit(
