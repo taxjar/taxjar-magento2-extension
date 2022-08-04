@@ -59,27 +59,29 @@ class QuoteManagement
      * Parse order extension data and persist metadata entity
      *
      * @param CartManagementInterface $subject
-     * @param OrderInterface $order
+     * @param OrderInterface|null $order
      * @return OrderInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
     public function afterSubmit(
         CartManagementInterface $subject,
-        OrderInterface $order
+        ?OrderInterface $order
     ): OrderInterface {
-        /** @var OrderExtensionInterface $extensionAttributes */
-        $extensionAttributes = $order->getExtensionAttributes();
-        if ($extensionAttributes) {
-            if ($extensionAttributes->getTjTaxCalculationStatus()) {
-                $this->metadata->setOrderId($order->getEntityId());
-                $this->metadata->setTaxCalculationStatus($extensionAttributes->getTjTaxCalculationStatus());
-            }
-            if ($extensionAttributes->getTjTaxCalculationMessage()) {
-                $this->metadata->setOrderId($order->getEntityId());
-                $this->metadata->setTaxCalculationMessage($extensionAttributes->getTjTaxCalculationMessage());
-            }
-            if ($this->metadata->getOrderId() !== null) {
-                $this->metadataRepository->save($this->metadata);
+        if ($order instanceof OrderInterface) {
+            /** @var OrderExtensionInterface $extensionAttributes */
+            $extensionAttributes = $order->getExtensionAttributes();
+            if ($extensionAttributes) {
+                if ($extensionAttributes->getTjTaxCalculationStatus()) {
+                    $this->metadata->setOrderId($order->getEntityId());
+                    $this->metadata->setTaxCalculationStatus($extensionAttributes->getTjTaxCalculationStatus());
+                }
+                if ($extensionAttributes->getTjTaxCalculationMessage()) {
+                    $this->metadata->setOrderId($order->getEntityId());
+                    $this->metadata->setTaxCalculationMessage($extensionAttributes->getTjTaxCalculationMessage());
+                }
+                if ($this->metadata->getOrderId() !== null) {
+                    $this->metadataRepository->save($this->metadata);
+                }
             }
         }
         return $order;
