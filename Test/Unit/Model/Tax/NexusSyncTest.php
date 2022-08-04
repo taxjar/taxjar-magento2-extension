@@ -263,7 +263,7 @@ class NexusSyncTest extends UnitTestCase
             ->method('loadByCode')
             ->withConsecutive(['TX', 'US'], ['', 'GB'])
             ->willReturnSelf();
-        $regionMock->expects(static::once())->method('getId')->willReturn(99);
+        $regionMock->expects(static::atLeast(2))->method('getId')->willReturn(99);
         $this->regionFactoryMock->expects(static::atLeast(2))->method('create')->willReturn($regionMock);
 
         $countryMock = $this->getMockBuilder(Country::class)->disableOriginalConstructor()->getMock();
@@ -271,26 +271,26 @@ class NexusSyncTest extends UnitTestCase
             ->method('loadByCode')
             ->withConsecutive(['US'], ['GB'])
             ->willReturnSelf();
-        $countryMock->expects(static::once())->method('getId')->willReturn(77);
+        $countryMock->expects(static::atLeast(2))->method('getId')->willReturn(77);
         $this->countryFactoryMock->expects(static::atLeast(2))->method('create')->willReturn($countryMock);
         $this->nexusResourceMock->expects(static::any())->method('getIdFieldName')->willReturn('id');
 
         $nexusResult = $this->getMockBuilder(Nexus::class)->disableOriginalConstructor()->getMock();
         $nexusResult->expects(static::any())->method('getIdFieldName')->willReturn('id');
-        $nexusResult->expects(static::atLeast(2))->method('getId')->willReturn(55);
-        $nexusResult->expects(static::atLeastOnce())->method('setData')->willReturnSelf();
-        $nexusResult->expects(static::atLeastOnce())->method('save')->willReturnSelf();
+        $nexusResult->expects(static::any())->method('getId')->willReturn(55);
+        $nexusResult->expects(static::any())->method('setData')->willReturnSelf();
+        $nexusResult->expects(static::any())->method('save')->willReturnSelf();
 
         $nexusCollectionMock = $this->getMockBuilder(Collection::class)->disableOriginalConstructor()->getMock();
-        $nexusCollectionMock->expects(static::once())->method('addRegionFilter')->willReturnSelf();
-        $nexusCollectionMock->expects(static::once())->method('addCountryFilter')->willReturnSelf();
-        $nexusCollectionMock->expects(static::atLeast(2))->method('getFirstItem')->willReturn($nexusResult);
+        $nexusCollectionMock->expects(static::once())->method('addFieldToFilter')->willReturnSelf();
+        $nexusCollectionMock->expects(static::once())->method('each')->willReturnSelf();
+        $nexusCollectionMock->expects(static::any())->method('getFirstItem')->willReturn($nexusResult);
 
         $nexusMock = $this->getMockBuilder(Nexus::class)->disableOriginalConstructor()->getMock();
         $nexusMock->expects(static::any())->method('getIdFieldName')->willReturn('id');
-        $nexusMock->expects(static::exactly(2))->method('getCollection')->willReturn($nexusCollectionMock);
+        $nexusMock->expects(static::exactly(1))->method('getCollection')->willReturn($nexusCollectionMock);
 
-        $this->nexusFactoryMock->expects(static::exactly(2))->method('create')->willReturn($nexusMock);
+        $this->nexusFactoryMock->expects(static::exactly(3))->method('create')->willReturn($nexusMock);
 
         $this->setExpectations();
         $this->sut->syncCollection();

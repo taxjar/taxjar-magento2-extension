@@ -66,7 +66,7 @@ class QuoteManagement
     public function afterSubmit(
         CartManagementInterface $subject,
         ?OrderInterface $order
-    ): OrderInterface {
+    ): ?OrderInterface {
         if ($order instanceof OrderInterface) {
             /** @var OrderExtensionInterface $extensionAttributes */
             $extensionAttributes = $order->getExtensionAttributes();

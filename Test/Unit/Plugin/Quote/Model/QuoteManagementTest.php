@@ -108,6 +108,19 @@ class QuoteManagementTest extends UnitTestCase
         static::assertSame($orderMock, $this->sut->afterSubmit($subjectMock, $orderMock));
     }
 
+    public function testAfterSubmitHandlesNullOrder()
+    {
+        $subjectMock = $this->getMockBuilder(CartManagementInterface::class)
+                            ->disableOriginalConstructor()
+                            ->getMock();
+
+        $orderMock = null;
+
+        $this->setExpectations();
+
+        static::assertNull($this->sut->afterSubmit($subjectMock, $orderMock));
+    }
+
     protected function setExpectations()
     {
         $this->sut = new QuoteManagement(
