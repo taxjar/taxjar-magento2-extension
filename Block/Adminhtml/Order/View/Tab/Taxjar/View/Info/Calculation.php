@@ -90,11 +90,14 @@ class Calculation extends AbstractOrder
      */
     protected function getStatusText(?string $status): string
     {
-        return match ($status) {
-            Metadata::TAX_CALCULATION_STATUS_SUCCESS => self::CALCULATION_SUCCESS,
-            Metadata::TAX_CALCULATION_STATUS_ERROR => self::CALCULATION_ERROR,
-            default => self::CALCULATION_NULL,
-        };
+        switch ($status) {
+            case Metadata::TAX_CALCULATION_STATUS_SUCCESS:
+                return self::CALCULATION_SUCCESS;
+            case Metadata::TAX_CALCULATION_STATUS_ERROR:
+                return self::CALCULATION_ERROR;
+            default:
+                return self::CALCULATION_NULL;
+        }
     }
 
     /**
