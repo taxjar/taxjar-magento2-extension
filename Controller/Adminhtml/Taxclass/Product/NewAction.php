@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -22,7 +22,9 @@ use Magento\Framework\Controller\ResultFactory;
 class NewAction extends \Taxjar\SalesTax\Controller\Adminhtml\Taxclass\Product
 {
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * Create new product tax class entity.
+     *
+     * @return \Magento\Framework\Controller\Result\Forward
      */
     public function execute()
     {

@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -20,11 +20,9 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Config;
 use Exception;
 use Magento\Backend\App\AbstractAction;
 use Magento\Backend\App\Action\Context;
-use Magento\Backend\Model\View\Result\Page;
-use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Config\Model\ResourceModel\Config;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Taxjar\SalesTax\Model\Client;
@@ -34,7 +32,7 @@ use Taxjar\SalesTax\Model\Logger;
 
 class Connect extends AbstractAction
 {
-    const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
      * @var ManagerInterface
@@ -94,7 +92,8 @@ class Connect extends AbstractAction
     /**
      * Connect to TaxJar
      *
-     * @return Page|Redirect
+     * @return void
+     * @throws LocalizedException
      */
     public function execute()
     {
