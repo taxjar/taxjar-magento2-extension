@@ -22,6 +22,8 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer;
+use Taxjar\SalesTax\Block\Adminhtml\Backup\CustomerTaxClassSelect;
+use Taxjar\SalesTax\Block\Adminhtml\Backup\ProductTaxClassSelect;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class ConfigChanged implements ObserverInterface
@@ -117,7 +119,7 @@ class ConfigChanged implements ObserverInterface
     private function productTaxClassesChanged(): bool
     {
         $current = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES);
-        $previous = $this->cache->load('taxjar_salestax_backup_rates_ptcs') ?? '';
+        $previous = $this->cache->load(ProductTaxClassSelect::CACHE_IDENTIFIER) ?? '';
 
         return $current != $previous;
     }
@@ -125,7 +127,7 @@ class ConfigChanged implements ObserverInterface
     private function customerTaxClassesChanged(): bool
     {
         $current = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES);
-        $previous = $this->cache->load('taxjar_salestax_backup_rates_ctcs') ?? '';
+        $previous = $this->cache->load(CustomerTaxClassSelect::CACHE_IDENTIFIER) ?? '';
 
         return $current != $previous;
     }

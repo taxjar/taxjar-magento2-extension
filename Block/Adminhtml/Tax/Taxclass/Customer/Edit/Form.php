@@ -11,14 +11,13 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
- /**
-  * Customer tax class edit form
-  */
 namespace Taxjar\SalesTax\Block\Adminhtml\Tax\Taxclass\Customer\Edit;
+
+use Taxjar\SalesTax\Model\Configuration;
 
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
@@ -83,7 +82,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     }
 
     /**
-     * @return $this
+     * @inheritDoc
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
@@ -152,7 +152,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                     feature to exempt customer transactions for sales tax reporting and filing.</b>'
                 ),
                 'values' => [
-                    '99999' => 'Yes',
+                    Configuration::TAXJAR_EXEMPT_TAX_CODE => 'Yes',
                     '' => 'No'
                 ],
                 'value' => isset($formValues['tj_salestax_code']) ? $formValues['tj_salestax_code'] : ''

@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -29,19 +29,7 @@ class TransactionSync extends PopupField
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::transaction_sync.phtml';
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * @var \Magento\Backend\Model\UrlInterface
-     */
-    protected $backendUrl;
-
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
 
     /**
      * @var \Taxjar\SalesTax\Helper\Data
@@ -49,18 +37,17 @@ class TransactionSync extends PopupField
     protected $helper;
 
     /**
+     * @param TaxjarHelper $helper
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param array $data
      */
     public function __construct(
+        TaxjarHelper $helper,
         Context $context,
         UrlInterface $backendUrl,
-        TaxjarHelper $helper,
         array $data = []
     ) {
-        $this->scopeConfig = $context->getScopeConfig();
-        $this->backendUrl = $backendUrl;
         $this->helper = $helper;
         parent::__construct($context, $backendUrl, $data);
     }

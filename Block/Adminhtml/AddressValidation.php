@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -26,6 +26,12 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 class AddressValidation extends Field
 {
     /**
+     * Defines the cache identifier for customer tax classes (CTCs)
+     * Used in determining if configuration has changed.
+     */
+    public const CACHE_IDENTIFIER = 'taxjar_salestax_config_address_validation';
+
+    /**
      * @var \Magento\Framework\App\CacheInterface
      */
     protected $cache;
@@ -33,9 +39,7 @@ class AddressValidation extends Field
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::address_validation.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var ScopeConfigInterface
@@ -43,7 +47,6 @@ class AddressValidation extends Field
     protected $scopeConfig;
 
     /**
-     * @param \Magento\Framework\App\CacheInterface $cache
      * @param Context $context
      * @param array $data
      */
@@ -68,21 +71,10 @@ class AddressValidation extends Field
             $element->setDisabled('disabled');
         }
 
-        $this->_cacheElementValue($element);
+        $elementValue = (string) $element->getValue();
+        $this->cache->save($elementValue, self::CACHE_IDENTIFIER);
 
         return parent::_getElementHtml($element) . $this->_toHtml();
-    }
-
-    /**
-     * Cache the element value
-     *
-     * @param AbstractElement $element
-     * @return void
-     */
-    protected function _cacheElementValue(AbstractElement $element)
-    {
-        $elementValue = (string) $element->getValue();
-        $this->cache->save($elementValue, 'taxjar_salestax_config_address_validation');
     }
 
     /**
@@ -92,13 +84,7 @@ class AddressValidation extends Field
      */
     public function isAuthorized()
     {
-        $isAuthorized = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PLUS);
-
-        if ($isAuthorized) {
-            return true;
-        }
-
-        return false;
+        return (bool) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_PLUS);
     }
 
     /**
@@ -108,12 +94,6 @@ class AddressValidation extends Field
      */
     public function isEnabled()
     {
-        $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
-
-        if ($isEnabled) {
-            return true;
-        }
-
-        return false;
+        return (bool) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
     }
 }

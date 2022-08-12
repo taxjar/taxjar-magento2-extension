@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -22,7 +22,6 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Phrase;
@@ -37,9 +36,7 @@ class Backup extends Field
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::backup.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Framework\Config\CacheInterface
@@ -165,11 +162,21 @@ class Backup extends Field
         return (bool) (int) $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_BACKUP);
     }
 
+    /**
+     * Get rate import progress text
+     *
+     * @return Phrase
+     */
     public function getRatesLoadedText(): Phrase
     {
         return __('%1 of %2 expected rates loaded.', $this->getActualRateCount(), $this->getExpectedRateCount());
     }
 
+    /**
+     * Get count of TaxJar rates in database
+     *
+     * @return int
+     */
     public function getActualRateCount(): int
     {
         $rateModel = $this->rateFactory->create();
@@ -178,11 +185,21 @@ class Backup extends Field
         return count($rates) ?? 0;
     }
 
+    /**
+     * Get expected rate count from config
+     *
+     * @return int
+     */
     public function getExpectedRateCount(): int
     {
         return $this->taxjarConfig->getBackupRateCount();
     }
 
+    /**
+     * Get last synced date
+     *
+     * @return Phrase
+     */
     public function getLastSyncedDateText(): Phrase
     {
         return __('Last synced on %1', $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_LAST_UPDATE) ?? 'N/A');

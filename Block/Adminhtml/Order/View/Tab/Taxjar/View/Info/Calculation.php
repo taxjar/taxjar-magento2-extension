@@ -11,11 +11,9 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-
-declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info;
 
@@ -31,16 +29,15 @@ use Taxjar\SalesTax\Model\Sales\Order\Metadata;
  */
 class Calculation extends AbstractOrder
 {
-    const CALCULATION_SUCCESS = 'Tax was calculated in realtime through the TaxJar API.';
+    public const CALCULATION_SUCCESS = 'Tax was calculated in realtime through the TaxJar API.';
 
-    const CALCULATION_ERROR = 'TaxJar did not or was unable to perform a tax calculation on this order.';
+    public const CALCULATION_ERROR = 'TaxJar did not or was unable to perform a tax calculation on this order.';
 
-    const CALCULATION_NULL = 'No TaxJar calculation data is present on the order. This may indicate that TaxJar was
-        not enabled when this order was placed or tax was calculated using a prior version of the TaxJar extension.';
+    public const CALCULATION_NULL = 'No TaxJar calculation data is present on the order. This may indicate that
+        TaxJar was not enabled when this order was placed or tax was calculated using a prior version of the
+        TaxJar extension.';
 
     /**
-     * Template
-     *
      * @var string
      */
     protected $_template = 'Taxjar_SalesTax::order/view/tab/taxjar/info/calculation.phtml';
@@ -51,8 +48,6 @@ class Calculation extends AbstractOrder
     private $extensionFactory;
 
     /**
-     * Calculation constructor.
-     *
      * @param OrderExtensionFactory $extensionFactory
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -95,14 +90,11 @@ class Calculation extends AbstractOrder
      */
     protected function getStatusText(?string $status): string
     {
-        switch ($status) {
-            case Metadata::TAX_CALCULATION_STATUS_SUCCESS:
-                return self::CALCULATION_SUCCESS;
-            case Metadata::TAX_CALCULATION_STATUS_ERROR:
-                return self::CALCULATION_ERROR;
-            default:
-                return self::CALCULATION_NULL;
-        }
+        return match ($status) {
+            Metadata::TAX_CALCULATION_STATUS_SUCCESS => self::CALCULATION_SUCCESS,
+            Metadata::TAX_CALCULATION_STATUS_ERROR => self::CALCULATION_ERROR,
+            default => self::CALCULATION_NULL,
+        };
     }
 
     /**
