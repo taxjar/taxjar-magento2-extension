@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -49,7 +49,7 @@ class Synced extends \Magento\Backend\Block\Widget
     }
 
     /**
-     * Return back last synced at date
+     * Return last synced at date
      *
      * @param \Magento\Sales\Model\Order $transaction
      * @return string

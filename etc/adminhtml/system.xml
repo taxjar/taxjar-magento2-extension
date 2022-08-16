@@ -92,7 +92,7 @@
                     </depends>
                 </field>
                 <field id="connected" translate="label" sortOrder="14" type="hidden" showInDefault="1" showInWebsite="1" showInStore="1">
-                  <frontend_model>Taxjar\SalesTax\Block\Adminhtml\Connected</frontend_model>
+                  <frontend_model>Magento\Config\Block\System\Config\Form\Field</frontend_model>
                   <depends>
                       <field id="debug">1</field>
                   </depends>

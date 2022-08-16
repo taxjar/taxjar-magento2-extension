@@ -11,13 +11,10 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-/**
- * Transaction sync form
- */
 namespace Taxjar\SalesTax\Block\Adminhtml\TransactionSync;
 
 /**
@@ -25,7 +22,7 @@ namespace Taxjar\SalesTax\Block\Adminhtml\TransactionSync;
  */
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
-    const FORM_ELEMENT_ID = 'transaction-sync-form';
+    public const FORM_ELEMENT_ID = 'transaction-sync-form';
 
     /**
      * @var null
@@ -38,6 +35,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     protected $_template = 'transaction_sync/form.phtml';
 
     /**
+     * @inheritDoc
+     *
      * @return void
      */
     protected function _construct()
@@ -47,7 +46,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
     }
 
     /**
-     * @return $this
+     * @inheritDoc
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)

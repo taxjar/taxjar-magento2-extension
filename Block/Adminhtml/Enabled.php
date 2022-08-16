@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -21,19 +21,14 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Taxjar\SalesTax\Block\CachesConfiguration;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Enabled extends PopupField
 {
-    use CachesConfiguration;
-
     /**
      * @var string
      */
-    // @codingStandardsIgnoreStart
     protected $_template = 'Taxjar_SalesTax::enabled.phtml';
-    // @codingStandardsIgnoreEnd
 
     /**
      * @var \Magento\Backend\Model\UrlInterface
@@ -106,11 +101,7 @@ class Enabled extends PopupField
         if (!$this->apiKey) {
             $element->setDisabled('disabled');
         } else {
-            $this->onCache($this->cache)
-                ->cacheValue(
-                    (string) $element->getValue(),
-                    'taxjar_salestax_config_enabled'
-                );
+            $this->cache->save((string) $element->getValue(), 'taxjar_salestax_config_enabled');
         }
 
         return parent::_getElementHtml($element) . $this->_toHtml();
