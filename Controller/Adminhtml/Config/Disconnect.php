@@ -70,7 +70,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
         ReinitableConfigInterface $reinitableConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\CollectionFactory $categoryCollection,
-        \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\CollectionFactory $nexusCollection,
+        \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\CollectionFactory $nexusCollection
     ) {
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
@@ -98,11 +98,11 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     }
 
     /**
-     * List of TaxJar core config values
+     * List of TaxJar core config values to remove on disconnect
      *
      * @return array|string[]
      */
-    public function getConfigurationPaths(): array
+    public function getPurgeableConfigurationPaths(): array
     {
         return [
             TaxjarConfig::TAXJAR_ADDRESS_VALIDATION,
@@ -129,7 +129,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     private function _purgeScopeConfig(string $scope, int $scopeId): void
     {
-        foreach ($this->getConfigurationPaths() as $path) {
+        foreach ($this->getPurgeableConfigurationPaths() as $path) {
             $this->resourceConfig->deleteConfig($path, $scope, $scopeId);
         }
     }
