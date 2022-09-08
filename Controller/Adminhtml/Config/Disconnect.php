@@ -21,7 +21,6 @@ use Magento\Backend\App\Action\Context;
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
-use Taxjar\SalesTax\Model\Tax\NexusFactory;
 
 class Disconnect extends \Magento\Backend\App\AbstractAction
 {
@@ -43,42 +42,42 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     protected $eventManager;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Tax\NexusFactory
-     */
-    protected $nexusFactory;
-
-    /**
      * @var \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     protected $storeManager;
 
     /**
-     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\CollectionFactory
      */
-    protected $categories;
+    protected $categoryCollection;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\CollectionFactory
+     */
+    protected $nexusCollection;
 
     /**
      * @param Context $context
      * @param Config $resourceConfig
      * @param ReinitableConfigInterface $reinitableConfig
-     * @param NexusFactory $nexusFactory
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection $categories
+     * @param \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\CollectionFactory $categoryCollection
+     * @param \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\CollectionFactory $nexusCollection
      */
     public function __construct(
         Context $context,
         Config $resourceConfig,
         ReinitableConfigInterface $reinitableConfig,
-        NexusFactory $nexusFactory,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\Collection $categories
+        \Taxjar\SalesTax\Model\ResourceModel\Tax\Category\CollectionFactory $categoryCollection,
+        \Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\CollectionFactory $nexusCollection
     ) {
         $this->resourceConfig = $resourceConfig;
         $this->reinitableConfig = $reinitableConfig;
         $this->eventManager = $context->getEventManager();
-        $this->nexusFactory = $nexusFactory;
         $this->storeManager = $storeManager;
-        $this->categories = $categories;
+        $this->categoryCollection = $categoryCollection;
+        $this->nexusCollection = $nexusCollection;
         parent::__construct($context);
     }
 
@@ -89,35 +88,7 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
      */
     public function execute()
     {
-        // Erase config values with the "default" scope
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, 'default', 0);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_EMAIL, 'default', 0);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, 'default', 0);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, 'default', 0);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, 'default', 0);
-        $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, 'default', 0);
-
-        // Erase config values with the "websites" scope
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES;
-        foreach ($this->storeManager->getWebsites() as $websiteId => $website) {
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, $scope, $websiteId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, $scope, $websiteId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, $scope, $websiteId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, $scope, $websiteId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $websiteId);
-        }
-
-        // Erase config values with the "stores" scope
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORES;
-        foreach ($this->storeManager->getStores() as $storeId => $store) {
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_APIKEY, $scope, $storeId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_BACKUP, $scope, $storeId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_CONNECTED, $scope, $storeId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_ENABLED, $scope, $storeId);
-            $this->resourceConfig->deleteConfig(TaxjarConfig::TAXJAR_TRANSACTION_SYNC, $scope, $storeId);
-        }
-
-        $this->reinitableConfig->reinit();
+        $this->_purgeConfiguration();
         $this->_purgeNexusAddresses();
         $this->_purgeProductTaxCategories();
 
@@ -127,25 +98,79 @@ class Disconnect extends \Magento\Backend\App\AbstractAction
     }
 
     /**
-     * Purge nexus addresses on disconnect
+     * List of TaxJar core config values to remove on disconnect
+     *
+     * @return array|string[]
+     */
+    public function getPurgeableConfigurationPaths(): array
+    {
+        return [
+            TaxjarConfig::TAXJAR_ADDRESS_VALIDATION,
+            TaxjarConfig::TAXJAR_APIKEY,
+            TaxjarConfig::TAXJAR_BACKUP,
+            TaxjarConfig::TAXJAR_BACKUP_RATE_COUNT,
+            TaxjarConfig::TAXJAR_CONNECTED,
+            TaxjarConfig::TAXJAR_DEBUG,
+            TaxjarConfig::TAXJAR_EMAIL,
+            TaxjarConfig::TAXJAR_ENABLED,
+            TaxjarConfig::TAXJAR_SANDBOX_APIKEY,
+            TaxjarConfig::TAXJAR_SANDBOX_ENABLED,
+            TaxjarConfig::TAXJAR_TRANSACTION_SYNC,
+        ];
+    }
+
+    /**
+     * Deletes TaxJar core config values for the input scope
+     *
+     * @param string $scope
+     * @param int $scopeId
      *
      * @return void
      */
-    private function _purgeNexusAddresses()
+    private function _purgeScopeConfig(string $scope, int $scopeId): void
     {
-        $nexusAddresses = $this->nexusFactory->create()->getCollection();
-        foreach ($nexusAddresses as $nexusAddress) {
-            // @codingStandardsIgnoreStart
-            $nexusAddress->delete();
-            // @codingStandardsIgnoreEnd
+        foreach ($this->getPurgeableConfigurationPaths() as $path) {
+            $this->resourceConfig->deleteConfig($path, $scope, $scopeId);
         }
     }
 
     /**
-     * Purge product tax categories on disconnect
+     * Purge core configuration values on disconnect and re-init config.
+     *
+     * @return void
      */
-    private function _purgeProductTaxCategories()
+    private function _purgeConfiguration(): void
     {
-        $this->categories->walk('delete');
+        $this->_purgeScopeConfig('default', 0);
+
+        foreach ($this->storeManager->getWebsites() as $websiteId => $website) {
+            $this->_purgeScopeConfig(\Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES, $websiteId);
+        }
+
+        foreach ($this->storeManager->getStores() as $storeId => $store) {
+            $this->_purgeScopeConfig(\Magento\Store\Model\ScopeInterface::SCOPE_STORES, $storeId);
+        }
+
+        $this->reinitableConfig->reinit();
+    }
+
+    /**
+     * Purge nexus addresses on disconnect
+     *
+     * @return void
+     */
+    private function _purgeNexusAddresses(): void
+    {
+        $this->nexusCollection->create()->walk('delete');
+    }
+
+    /**
+     * Purge product tax categories on disconnect
+     *
+     * @return void
+     */
+    private function _purgeProductTaxCategories(): void
+    {
+        $this->categoryCollection->create()->walk('delete');
     }
 }
