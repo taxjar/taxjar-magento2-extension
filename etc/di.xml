@@ -80,11 +80,6 @@
             </argument>
         </arguments>
     </type>
-    <type name="Taxjar\SalesTax\Model\ResourceModel\Transaction\Backfill\Consumer">
-        <arguments>
-            <argument name="logger" xsi:type="object">TjTransactionLogger</argument>
-        </arguments>
-    </type>
     <type name="Taxjar\SalesTax\Model\ResourceModel\Transaction\Sync\Consumer">
         <arguments>
             <argument name="logger" xsi:type="object">TjTransactionLogger</argument>

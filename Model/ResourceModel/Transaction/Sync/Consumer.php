@@ -24,7 +24,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use Magento\Sales\Model\OrderRepository;
 use Taxjar\SalesTax\Api\Data\TransactionManagementInterface;
 use Taxjar\SalesTax\Model\Logger;
 
@@ -41,9 +41,9 @@ class Consumer
     private OperationManagementInterface $_operationManagement;
 
     /**
-     * @var CollectionFactory
+     * @var OrderRepository
      */
-    private CollectionFactory $_orderCollection;
+    private OrderRepository $_orderRepository;
 
     /**
      * @var SerializerInterface
@@ -56,42 +56,22 @@ class Consumer
     private \Taxjar\SalesTax\Api\Data\TransactionManagementInterface $_transactionService;
 
     /**
-     * @var array
-     */
-    private array $orderIds;
-
-    /**
-     * @var string|null
-     */
-    private ?string $startDate;
-
-    /**
-     * @var string|null
-     */
-    private ?string $endDate;
-
-    /**
-     * @var bool
-     */
-    private bool $forceSync;
-
-    /**
      * @param Logger $logger
      * @param OperationManagementInterface $operationManagement
-     * @param CollectionFactory $orderCollection
+     * @param OrderRepository $orderRepository
      * @param SerializerInterface $serializer
      * @param TransactionManagementInterface $transactionService
      */
     public function __construct(
         Logger $logger,
         OperationManagementInterface $operationManagement,
-        CollectionFactory $orderCollection,
+        OrderRepository $orderRepository,
         SerializerInterface $serializer,
         TransactionManagementInterface $transactionService
     ) {
         $this->_logger = $logger;
         $this->_operationManagement = $operationManagement;
-        $this->_orderCollection = $orderCollection;
+        $this->_orderRepository = $orderRepository;
         $this->_serializer = $serializer;
         $this->_transactionService = $transactionService;
     }
@@ -113,13 +93,13 @@ class Consumer
         $unserializedData = $this->_serializer->unserialize($serializedData);
 
         try {
-            $this->_parseOperationData($operation);
-            $orderCollection = $this->_orderCollection->create();
-            $orderCollection->addFieldToFilter('entity_id', ['in' => $unserializedData['order_ids']]);
-            $orderCollection->walk([$this, '_sync'], [
-                $orderCollection->getSelect(),
-                $unserializedData['force_sync'] ?: false
-            ]);
+            if (empty($unserializedData['entity_id'])) {
+                throw new LocalizedException(
+                    __('Invalid operation data in TaxJar transaction backfill.')
+                );
+            }
+            $order = $this->_orderRepository->get($unserializedData['entity_id']);
+            $this->_sync($order, $unserializedData['force_sync'] ?: false);
         } catch (Exception $e) {
             $this->_logger->log($e->getMessage());
             $status = OperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED;
@@ -139,49 +119,18 @@ class Consumer
     }
 
     /**
-     * @param OperationInterface $operation
-     *
-     * @throws LocalizedException
-     */
-    private function _parseOperationData(OperationInterface $operation): void
-    {
-        $serializedData = $operation->getSerializedData();
-        $unserializedData = $this->_serializer->unserialize($serializedData);
-
-        $this->_validateOperationData($unserializedData);
-
-        $this->orderIds = $unserializedData['order_ids'];
-        $this->startDate = $unserializedData['start_date'] ?: null;
-        $this->endDate = $unserializedData['end_date'] ?: null;
-        $this->forceSync = $unserializedData['force_sync'] ?: null;
-    }
-
-    /**
-     * @param array $unserializedData
-     *
-     * @throws LocalizedException
-     */
-    private function _validateOperationData(array $unserializedData)
-    {
-        if (empty($unserializedData['order_ids'])) {
-            throw new LocalizedException(
-                __('Transaction ')
-            );
-        }
-    }
-
-    /**
-     * Sync order and related creditmemos.
+     * Sync order and related creditmemo(s).
      *
      * @param CreditmemoInterface|OrderInterface $transaction
+     * @param bool $forceSync
      *
      * @throws LocalizedException
      */
-    private function _sync(CreditmemoInterface|OrderInterface $transaction): void
+    private function _sync(CreditmemoInterface|OrderInterface $transaction, bool $forceSync = false): void
     {
-        if ($this->_transactionService->sync($transaction, $this->forceSync)) {
+        if ($this->_transactionService->sync($transaction, $forceSync)) {
             foreach ($transaction->getCreditmemosCollection() as $creditmemo) {
-                $this->_transactionService->sync($creditmemo, $this->forceSync);
+                $this->_transactionService->sync($creditmemo, $forceSync);
             }
         }
     }
