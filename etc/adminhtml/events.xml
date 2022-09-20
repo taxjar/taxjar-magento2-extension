@@ -24,10 +24,14 @@
         <observer name="taxjar_salestax_config_review" instance="Taxjar\SalesTax\Observer\ConfigReview"/>
     </event>
     <event name="taxjar_salestax_backfill_transactions">
-        <observer name="taxjar_salestax_backfill_transactions" instance="Taxjar\SalesTax\Observer\BackfillTransactions"/>
+        <observer name="taxjar_salestax_transaction_backfill" instance="Taxjar\SalesTax\Observer\TransactionBackfillObserver"/>
     </event>
-    <event name="taxjar_salestax_sync_transaction">
-        <observer name="taxjar_salestax_sync_transaction" instance="Taxjar\SalesTax\Observer\SyncTransaction"/>
+    <event name="taxjar_salestax_transaction_sync">
+        <observer name="taxjar_salestax_transaction_sync" instance="Taxjar\SalesTax\Observer\TransactionSyncObserver"/>
+    </event>
+    <event name="taxjar_salestax_transaction_sync_after">
+        <observer name="taxjar_salestax_transaction_sync_after" instance="Taxjar\SalesTax\Observer\TransactionSyncAfterObserver"/>
+        <observer name="taxjar_salestax_transaction_sync_date" instance="Taxjar\SalesTax\Observer\TransactionSyncDateObserver"/>
     </event>
     <event name="taxjar_salestax_import_data">
         <observer name="taxjar_salestax_import_data" instance="Taxjar\SalesTax\Observer\ImportData"/>

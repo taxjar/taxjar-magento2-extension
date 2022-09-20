@@ -17,53 +17,99 @@
 
 namespace Taxjar\SalesTax\Controller\Adminhtml\Transaction;
 
-class Sync extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Taxjar\SalesTax\Api\Data\TransactionManagementInterface;
+
+class Sync extends \Magento\Backend\App\Action
 {
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * Authorization level of a basic admin session
+     *
+     * @see _isAllowed()
      */
-    private $request;
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Taxjar\SalesTax\Model\Logger $logger
-     * @param \Magento\Framework\App\RequestInterface $request
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
+    private \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory;
+
+    /**
+     * @var \Taxjar\SalesTax\Api\Data\TransactionManagementInterface
+     */
+    private \Taxjar\SalesTax\Api\Data\TransactionManagementInterface $transactionService;
+
+    /**
+     * @param Context $context
+     * @param OrderRepositoryInterface $orderRepository
+     * @param JsonFactory $resultJsonFactory
+     * @param TransactionManagementInterface $transactionService
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
-        \Taxjar\SalesTax\Model\Logger $logger,
-        \Magento\Framework\App\RequestInterface $request
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        TransactionManagementInterface $transactionService
     ) {
-        parent::__construct($context, $logger);
-
-        $this->request = $request;
+        parent::__construct($context);
+        $this->orderRepository = $orderRepository;
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->transactionService = $transactionService;
     }
 
     /**
-     * Sync transactions
+     * Sync transaction.
      *
      * @return \Magento\Framework\Controller\Result\Json
      */
     public function execute()
     {
-        $responseContent = [
-            'success' => false,
-            'error_message' => '',
-        ];
+        $responseContent = ['success' => false, 'error_message' => ''];
 
         try {
-            $this->eventManager->dispatch('taxjar_salestax_sync_transaction', [
-                'order_id' => $this->request->getParam('order_id'),
-                'force' => true,
-            ]);
-            $responseContent['success'] = true;
+            $orderId = $this->getRequest()->getParam('order_id');
+            $order = $this->orderRepository->get($orderId);
+            $responseContent['success'] = $this->_syncOrderAndCreditmemos($order);
         } catch (\Exception $e) {
             $responseContent['error_message'] = $e->getMessage();
         }
 
-        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
-        $resultJson = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_JSON);
-        $resultJson->setData(['data' => $responseContent]);
-        return $resultJson;
+        $resultJson = $this->resultJsonFactory->create();
+        return $resultJson->setData(['data' => $responseContent]);
+    }
+
+    /**
+     * Sync order and any related credit memos to TaxJar.
+     *
+     * @param OrderInterface $order
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function _syncOrderAndCreditmemos(OrderInterface $order): bool
+    {
+        if ($this->transactionService->sync($order, true)) {
+            $creditmemos = $order->getCreditmemosCollection();
+            if ($creditmemos->getTotalCount() > 0) {
+                $results = [];
+                /** @var Order\Creditmemo $creditmemo */
+                foreach ($creditmemos->getItems() as $creditmemo) {
+                    $results[] = $this->transactionService->sync($creditmemo, true);
+                }
+                return array_sum($results) === count($results);
+            }
+            return true;
+        }
+        return false;
     }
 }

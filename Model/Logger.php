@@ -77,19 +77,29 @@ class Logger
      * @param \Magento\Framework\Filesystem\DriverInterface $fileDriver
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Taxjar\SalesTax\Model\Configuration $taxjarConfig
+     * @param string|null $filename
+     * @param bool $isForced
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Magento\Framework\Filesystem\DriverInterface $fileDriver,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Taxjar\SalesTax\Model\Configuration $taxjarConfig
+        \Taxjar\SalesTax\Model\Configuration $taxjarConfig,
+        string $filename = null,
+        bool $isForced = false
     ) {
         $this->directoryList = $directoryList;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->fileDriver = $fileDriver;
         $this->taxjarConfig = $taxjarConfig;
+
+        if ($filename !== null) {
+            $this->setFilename($filename);
+        }
+
+        $this->force($isForced);
     }
 
     /**

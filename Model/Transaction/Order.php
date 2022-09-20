@@ -11,220 +11,247 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
-use DateTime;
-use Exception;
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\AbstractModel;
+use Taxjar\SalesTax\Api\Data\TransactionInterface;
+use Taxjar\SalesTax\Helper\Data;
+use Taxjar\SalesTax\Model\Logger;
+use Taxjar\SalesTax\Model\Transaction;
+use Taxjar\SalesTax\Model\Transaction\Order\LineItemFactory;
 
-class Order extends \Taxjar\SalesTax\Model\Transaction
+class Order extends Transaction implements TransactionInterface
 {
-    protected const SYNCABLE_STATES = ['complete', 'closed'];
-
-    protected const SYNCABLE_CURRENCIES = ['USD'];
-
-    protected const SYNCABLE_COUNTRIES = ['US'];
-
     /**
-     * @var OrderInterface|AbstractModel
+     * @var LineItemFactory
      */
-    protected $originalOrder;
+    private LineItemFactory $_lineItem;
 
     /**
-     * @var array
+     * @var \Taxjar\SalesTax\Helper\Data
      */
-    protected $request;
+    private \Taxjar\SalesTax\Helper\Data $_helper;
 
     /**
-     * Set request value
+     * @var array|Transaction\Order\LineItem[]
+     */
+    private array $lineItems;
+
+    /**
+     * Order transaction constructor.
      *
-     * @param array $value
-     * @return $this
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RegionFactory $regionFactory
+     * @param Logger $logger
+     * @param OrderInterface $transaction
+     * @param LineItemFactory $lineItem
+     * @param Data $helper
      */
-    public function setRequest($value)
-    {
-        $this->request = $value;
-
-        return $this;
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        RegionFactory $regionFactory,
+        Logger $logger,
+        $transaction,
+        \Taxjar\SalesTax\Model\Transaction\Order\LineItemFactory $lineItem,
+        \Taxjar\SalesTax\Helper\Data $helper
+    ) {
+        $this->_lineItem = $lineItem;
+        $this->_helper = $helper;
+        parent::__construct($scopeConfig, $regionFactory, $logger, $transaction);
     }
 
     /**
-     * Build an order transaction
-     *
-     * @param OrderInterface $order
-     * @return array
-     * @throws Exception
+     * @inheritDoc
      */
-    public function build(OrderInterface $order): array
+    public function getResourceName(): string
     {
-        $createdAt = new DateTime($order->getCreatedAt());
-        $subtotal = (float) $order->getSubtotalInvoiced();
-        $shipping = (float) $order->getShippingInvoiced();
-        $discount = (float) $order->getDiscountInvoiced();
-        $shippingDiscount = (float) $order->getShippingDiscountAmount();
-        $salesTax = (float) $order->getTaxInvoiced();
+        return 'orders';
+    }
 
-        $this->originalOrder = $order;
+    /**
+     * @inheritDoc
+     */
+    public function getResourceId(): ?string
+    {
+        return $this->_transaction->getIncrementId();
+    }
 
-        $newOrder = [
+    /**
+     * Return order items as LineItem array.
+     *
+     * @return Transaction\Order\LineItem[]
+     */
+    public function getLineItems(): array
+    {
+        if (empty($this->lineItems)) {
+            foreach ($this->_transaction->getItems() as $item) {
+                $this->lineItems[] = $this->_lineItem->create(['item' => $item]);
+            }
+        }
+
+        return $this->lineItems;
+    }
+
+    /**
+     * Return API request body array.
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getRequestBody(): array
+    {
+        return array_merge(
+            $this->getTransactionDetails(),
+            $this->getAddressFrom(),
+            $this->getAddressTo(),
+            $this->getLineItemData(),
+            $this->getCustomerExemption()
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function canSync(): bool
+    {
+        $storeId = $this->_transaction->getStoreId();
+        $address = $this->_getOrderAddress();
+
+        return (
+            $this->_transaction->getEntityId() !== null &&
+            $this->_helper->isTransactionSyncEnabled($storeId) &&
+            $this->_helper->isSyncableOrderState($this->_transaction) &&
+            $this->_helper->isSyncableOrderCurrency($this->_transaction) &&
+            $this->_helper->isSyncableOrderCountry($address)
+        );
+    }
+
+    /**
+     * Determine if order should sync based upon timestamp values.
+     *
+     * @param bool $force Optional flag forces transactions to sync ignoring last updated date.
+     *
+     * @return bool
+     */
+    public function shouldSync(bool $force = false): bool
+    {
+        $updatedAt = $this->_transaction->getUpdatedAt();
+        $syncedAt = $this->_transaction->getData(self::FIELD_SYNC_DATE);
+        return $force || ! ($syncedAt !== null) || $updatedAt > $syncedAt;
+    }
+
+    /**
+     * Return API transaction details.
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function getTransactionDetails(): array
+    {
+        $subtotal = (float) $this->_transaction->getSubtotalInvoiced();
+        $shipping = (float) $this->_transaction->getShippingInvoiced();
+        $discount = (float) $this->_transaction->getDiscountInvoiced();
+        $shippingDiscount = (float) $this->_transaction->getShippingDiscountAmount();
+        $salesTax = (float) $this->_transaction->getTaxInvoiced();
+
+        return [
             'plugin' => 'magento',
-            'provider' => $this->getProvider($order),
-            'transaction_id' => $order->getIncrementId(),
-            'transaction_date' => $createdAt->format(DateTime::ISO8601),
+            'provider' => $this->getProvider(),
+            'transaction_id' => $this->_transaction->getIncrementId(),
+            'transaction_date' => $this->_transaction->getCreatedAt(),
             'amount' => $subtotal + $shipping - abs($discount),
             'shipping' => $shipping - abs($shippingDiscount),
             'sales_tax' => $salesTax
         ];
-
-        $requestBody = array_merge(
-            $newOrder,
-            $this->buildFromAddress($order),
-            $this->buildToAddress($order),
-            $this->buildLineItems($order, $order->getAllItems()),
-            $this->buildCustomerExemption($order)
-        );
-
-        $this->setRequest($requestBody);
-
-        return $this->request;
     }
 
     /**
-     * @param bool $forceFlag
-     * @param string|null $method
-     * @throws LocalizedException
-     */
-    public function push(bool $forceFlag = false, string $method = null)
-    {
-        $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
-        $orderSyncedAt = $this->originalOrder->getData('tj_salestax_sync_date');
-
-        if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
-            $this->client->setApiKey($this->apiKey);
-        }
-
-        if ($orderUpdatedAt <= $orderSyncedAt) {
-            if ($forceFlag) {
-                $this->logger->log('Forced update of Order #' . $this->request['transaction_id'], 'api');
-            } else {
-                $this->logger->log(
-                    'Order #' . $this->request['transaction_id'] . ' not updated since last sync',
-                    'skip'
-                );
-                return;
-            }
-        }
-
-        $httpMethod = $method ?: ($this->isSynced($orderSyncedAt) ? 'PUT' : 'POST');
-
-        try {
-            $this->logger->log(
-                sprintf(
-                    'Pushing order #%s: %s',
-                    $this->request['transaction_id'],
-                    json_encode($this->request)
-                ),
-                $httpMethod
-            );
-
-            $response = $this->makeRequest($httpMethod);
-
-            $this->logger->log(
-                sprintf(
-                    'Order #%s saved to TaxJar: %s',
-                    $this->request['transaction_id'],
-                    json_encode($response)
-                ),
-                'api'
-            );
-
-            $this->originalOrder->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
-            $this->originalOrder->getResource()->saveAttribute($this->originalOrder, 'tj_salestax_sync_date');
-        } catch (LocalizedException $e) {
-            $this->logger->log('Error: ' . $e->getMessage(), 'error');
-            $error = json_decode($e->getMessage());
-            if ($error && !$method) {
-                $this->handleError($error, $httpMethod, $forceFlag);
-            }
-        }
-    }
-
-    /**
-     * @param string $method
-     * @return array
-     * @throws LocalizedException
-     */
-    protected function makeRequest(string $method): array
-    {
-        switch ($method) {
-            case 'POST':
-                return $this->client->postResource('orders', $this->request);
-            case 'PUT':
-                return $this->client->putResource('orders', $this->request['transaction_id'], $this->request);
-            default:
-                throw new LocalizedException(
-                    __('Unhandled HTTP method "%s" in TaxJar order transaction sync.', $method)
-                );
-        }
-    }
-
-    /**
-     * @param $error
-     * @param string $method
-     * @param bool $forceFlag
-     * @throws LocalizedException
-     */
-    protected function handleError($error, string $method, bool $forceFlag): void
-    {
-        if ($method == 'POST' && $error->status == 422) {
-            $retry = 'PUT';
-        }
-
-        if ($method == 'PUT' && $error->status == 404) {
-            $retry = 'POST';
-        }
-
-        if (isset($retry)) {
-            $this->logger->log(
-                sprintf('Attempting to retry saving order #%s', $this->request['transaction_id']),
-                'retry'
-            );
-            $this->push($forceFlag, $retry);
-        }
-    }
-
-    /**
-     * Determines if an order can be synced
+     * Return API request body's representation of transaction line items.
      *
-     * @param OrderInterface $order
-     * @return bool
+     * @return array
+     * @throws NoSuchEntityException
      */
-    public function isSyncable(OrderInterface $order): bool
+    protected function getLineItemData(): array
     {
-        return $this->stateIsSyncable($order)
-            && $this->currencyIsSyncable($order)
-            && $this->countryIsSyncable($order);
+        $lineItemData = [];
+
+        foreach ($this->getLineItems() as $lineItem) {
+            if (!$lineItem->isSyncable()) {
+                continue;
+            }
+
+            $item = $lineItem->getItem();
+            $unitSubtotal = $item->getPrice() * $item->getQtyInvoiced();
+
+            $aggregateDiscount = $this->_getAggregateDiscount($item->getItemId());
+            $discount = $aggregateDiscount > 0 ? $aggregateDiscount : $item->getDiscountInvoiced();
+
+            if ($discount > $unitSubtotal) {
+                $discount = $unitSubtotal;
+            }
+
+            $aggregateTax = $this->_getAggregateTax($item->getItemId());
+            $tax = $aggregateTax > 0 ? $aggregateTax : $item->getTaxInvoiced();
+
+            $lineItemData[] = [
+                'id'                 => $item->getItemId(),
+                'quantity'           => (float) $item->getQtyInvoiced(),
+                'product_identifier' => $item->getSku(),
+                'description'        => $item->getName(),
+                'unit_price'         => (float) $item->getPrice(),
+                'discount'           => (float) $discount,
+                'sales_tax'          => (float) $tax,
+                'product_tax_code'   => $lineItem->getProductTaxCode(),
+            ];
+        }
+
+        return ['line_items' => $lineItemData];
     }
 
-    protected function stateIsSyncable(OrderInterface $order): bool
+    /**
+     * Aggregates discount amounts across grouped items.
+     *
+     * @param int $parentItemId
+     *
+     * @return float|int|null
+     */
+    private function _getAggregateDiscount(int $parentItemId): float|int|null
     {
-        return in_array($order->getState(), self::SYNCABLE_STATES);
+        $discount = 0;
+
+        foreach ($this->getLineItems() as $lineItem) {
+            if ($parentItemId && $parentItemId === $lineItem->getItem()->getParentItemId()) {
+                $discount += $lineItem->getItem()->getDiscountAmount();
+            }
+        }
+
+        return $discount;
     }
 
-    protected function currencyIsSyncable(OrderInterface $order): bool
+    /**
+     * Aggregates tax amounts across grouped items.
+     *
+     * @param int $parentItemId
+     *
+     * @return float|null
+     */
+    private function _getAggregateTax(int $parentItemId): ?float
     {
-        return in_array($order->getOrderCurrencyCode(), self::SYNCABLE_CURRENCIES);
-    }
+        $tax = 0;
 
-    protected function countryIsSyncable(OrderInterface $order): bool
-    {
-        $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
-        return in_array($address->getCountryId(), self::SYNCABLE_COUNTRIES);
+        foreach ($this->getLineItems() as $lineItem) {
+            if ($parentItemId && $parentItemId === $lineItem->getItem()->getParentItemId()) {
+                $tax += $lineItem->getItem()->getTaxAmount();
+            }
+        }
+
+        return (float) $tax;
     }
 }

@@ -24,6 +24,6 @@
         <handler name="taxjar.backup_rates.create" type="Taxjar\SalesTax\Model\Import\CreateRatesConsumer" method="process" />
     </topic>
     <topic name="taxjar.transactions.sync" request="Magento\AsynchronousOperations\Api\Data\OperationInterface">
-        <handler name="taxjar.transactions.sync" type="Taxjar\SalesTax\Model\Transaction\Backfill" method="process" />
+        <handler name="taxjar.transactions.sync" type="Taxjar\SalesTax\Model\ResourceModel\Transaction\Sync\Consumer" method="process" />
     </topic>
 </config>

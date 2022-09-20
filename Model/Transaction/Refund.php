@@ -11,223 +11,241 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order\Creditmemo;
+use Taxjar\SalesTax\Api\Data\TransactionInterface;
+use Taxjar\SalesTax\Model\Logger;
+use Taxjar\SalesTax\Model\Transaction;
+use Taxjar\SalesTax\Model\Transaction\Refund\LineItem;
+use Taxjar\SalesTax\Model\Transaction\Refund\LineItemFactory;
 
-class Refund extends \Taxjar\SalesTax\Model\Transaction
+class Refund extends Transaction implements TransactionInterface
 {
     /**
-     * @var OrderInterface|\Magento\Sales\Model\Order
+     * @var OrderFactory
      */
-    protected $originalOrder;
+    private OrderFactory $_orderTransaction;
 
     /**
-     * @var CreditmemoInterface|Creditmemo
+     * @var CreditmemoInterface
      */
-    protected $originalRefund;
+    protected $_transaction;
 
     /**
-     * @var array
+     * @var LineItemFactory
      */
-    protected $request;
+    private $lineitem;
 
     /**
-     * Set request value
-     *
-     * @param array $value
-     * @return $this
+     * @var array|LineItem[]
      */
-    public function setRequest($value)
-    {
-        $this->request = $value;
+    private array $lineItems;
 
-        return $this;
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RegionFactory $regionFactory
+     * @param Logger $logger
+     * @param CreditmemoInterface $transaction
+     * @param LineItemFactory $lineItem
+     * @param OrderFactory $orderTransaction
+     */
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        RegionFactory $regionFactory,
+        Logger $logger,
+        CreditmemoInterface $transaction,
+        LineItemFactory $lineItem,
+        OrderFactory $orderTransaction
+    ) {
+        $this->lineitem = $lineItem;
+        $this->_orderTransaction = $orderTransaction;
+        parent::__construct($scopeConfig, $regionFactory, $logger, $transaction);
     }
 
     /**
-     * Build a refund transaction
+     * @inheritDoc
+     */
+    public function getResourceName(): string
+    {
+        return 'refunds';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getResourceId(): ?string
+    {
+        return $this->_transaction->getIncrementId() . '-refund';
+    }
+
+    /**
+     * Return creditmemo items as LineItem array.
      *
-     * @param OrderInterface $order
-     * @param CreditmemoInterface $creditmemo
+     * @return \Taxjar\SalesTax\Model\Transaction\Refund\LineItem[]
+     */
+    public function getLineItems(): array
+    {
+        if (empty($this->lineItems)) {
+            foreach ($this->_transaction->getItems() as $item) {
+                $this->lineItems[] = $this->lineitem->create(['item' => $item]);
+            }
+        }
+
+        return $this->lineItems;
+    }
+
+    /**
+     * Return API request body array.
+     *
      * @return array
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function build(
-        OrderInterface $order,
-        CreditmemoInterface $creditmemo
-    ): array {
-        $subtotal = (float) $creditmemo->getSubtotal();
-        $shipping = (float) $creditmemo->getShippingAmount();
-        $discount = (float) $creditmemo->getDiscountAmount();
-        $salesTax = (float) $creditmemo->getTaxAmount();
-        $adjustment = (float) $creditmemo->getAdjustment();
-        $itemDiscounts = 0;
-
-        $this->originalOrder = $order;
-        $this->originalRefund = $creditmemo;
-
-        $refund = [
-            'plugin' => 'magento',
-            'provider' => $this->getProvider($order),
-            'transaction_id' => $creditmemo->getIncrementId() . '-refund',
-            'transaction_reference_id' => $order->getIncrementId(),
-            'transaction_date' => $creditmemo->getCreatedAt(),
-            'amount' => $subtotal + $shipping - abs($discount) + $adjustment,
-            'shipping' => $shipping,
-            'sales_tax' => $salesTax
-        ];
-
-        $requestBody = array_merge(
-            $refund,
-            $this->buildFromAddress($order),
-            $this->buildToAddress($order),
-            $this->buildLineItems($order, $creditmemo->getAllItems(), 'refund'),
-            $this->buildCustomerExemption($order)
+    public function getRequestBody(): array
+    {
+        return array_merge(
+            $this->getTransactionDetails(),
+            $this->getAddressFrom(),
+            $this->getAddressTo(),
+            $this->getLineItemData(),
+            $this->getCustomerExemption()
         );
-
-        if (isset($requestBody['line_items'])) {
-            $adjustmentFee = $creditmemo->getAdjustmentNegative();
-            $adjustmentRefund = $creditmemo->getAdjustmentPositive();
-
-            // Discounts on credit memos act as fees and shouldn't be included in $itemDiscounts
-            foreach ($requestBody['line_items'] as $k => $lineItem) {
-                if ($subtotal != 0) {
-                    $lineItemSubtotal = $lineItem['unit_price'] * $lineItem['quantity'];
-                    $requestBody['line_items'][$k]['discount'] += ($adjustmentFee * ($lineItemSubtotal / $subtotal));
-                }
-
-                $itemDiscounts += $lineItem['discount'];
-            }
-
-            if ($adjustmentRefund > 0) {
-                $requestBody['line_items'][] = [
-                    'id' => 'adjustment-refund',
-                    'quantity' => 1,
-                    'product_identifier' => 'adjustment-refund',
-                    'description' => 'Adjustment Refund',
-                    'unit_price' => $adjustmentRefund,
-                    'discount' => 0,
-                    'sales_tax' => 0
-                ];
-            }
-        }
-
-        if ((abs($discount) - $itemDiscounts) > 0) {
-            $shippingDiscount = abs($discount) - $itemDiscounts;
-            $requestBody['shipping'] = $shipping - $shippingDiscount;
-        }
-
-        $this->setRequest($requestBody);
-
-        return $this->request;
     }
 
     /**
-     * Sends the current member's $request property via client.
+     * Return API transaction details.
      *
-     * @param bool $forceFlag Ignore last updated and synced dates
-     * @param string|null $method Optionally specify HTTP method
-     * @throws LocalizedException
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function push(bool $forceFlag = false, string $method = null)
+    protected function getTransactionDetails(): array
     {
-        $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
-        $refundSyncedAt = $this->originalRefund->getData('tj_salestax_sync_date');
+        $amount = $this->_transaction->getSubtotal() +
+                  $this->_transaction->getShippingAmount() -
+                  abs($this->_transaction->getDiscountAmount()) +
+                  $this->_transaction->getAdjustment();
 
-        if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
-            $this->client->setApiKey($this->apiKey);
-        }
-
-        if ($refundUpdatedAt <= $refundSyncedAt) {
-            if ($forceFlag) {
-                $this->logger->log('Forced update of Refund #' . $this->request['transaction_id'], 'api');
-            } else {
-                $this->logger->log('Refund #' . $this->request['transaction_id']
-                    . ' for order #' . $this->request['transaction_reference_id']
-                    . ' not updated since last sync', 'skip');
-                return;
-            }
-        }
-
-        $httpMethod = $method ?: ($this->isSynced($refundSyncedAt) ? 'PUT' : 'POST');
-
-        try {
-            $this->logger->log('Pushing refund / credit memo #' . $this->request['transaction_id']
-                . ' for order #' . $this->request['transaction_reference_id']
-                . ': ' . json_encode($this->request), $method);
-
-            $response = $this->makeRequest($httpMethod);
-
-            $this->logger->log(
-                sprintf('Refund #%s saved: %s', $this->request['transaction_id'], json_encode($response)),
-                'api'
-            );
-
-            $this->originalRefund->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
-            $this->originalRefund->getResource()->saveAttribute($this->originalRefund, 'tj_salestax_sync_date');
-        } catch (\Exception $e) {
-            $this->logger->log('Error: ' . $e->getMessage(), 'error');
-            $error = json_decode($e->getMessage());
-            if ($error && !$method) {
-                $this->handleError($error, $httpMethod, $forceFlag);
-            }
-        }
+        return [
+            'plugin' => 'magento',
+            'provider' => $this->getProvider(),
+            'transaction_id' => $this->_transaction->getIncrementId() . '-refund',
+            'transaction_reference_id' => $this->_transaction->getOrder()->getEntityId(),
+            'transaction_date' => $this->_transaction->getCreatedAt(),
+            'amount' => $amount,
+            'shipping' => $this->_transaction->getShippingAmount(),
+            'sales_tax' => $this->_transaction->getTaxAmount()
+        ];
     }
 
     /**
-     * Uses TaxJar Client class to call API
+     * Get creditmemo line item data.
      *
-     * @param string $method HTTP method to use for request
-     * @return array Client response data array
-     * @throws LocalizedException
+     * @return array
+     * @throws NoSuchEntityException
      */
-    protected function makeRequest(string $method): array
+    protected function getLineItemData(): array
     {
-        switch ($method) {
-            case 'POST':
-                return $this->client->postResource('refunds', $this->request);
-            case 'PUT':
-                return $this->client->putResource('refunds', $this->request['transaction_id'], $this->request);
-            default:
-                throw new LocalizedException(
-                    __('Unhandled HTTP method "%s" in TaxJar refund transaction sync.', $method)
-                );
+        $lineItemData = [];
+
+        foreach ($this->getLineItems() as $lineItem) {
+            if (!$lineItem->isSyncable()) {
+                continue;
+            }
+
+            $item = $lineItem->getItem();
+            $unitSubtotal = $item->getPrice() * $item->getQty();
+            $discount = (float) $this->_getAggregateDiscount($item->getItemId()) ?: $item->getDiscountAmount();
+            $discount = (float) (($discount > $unitSubtotal) ? $unitSubtotal : $discount);
+            $salesTax = (float) $this->_getAggregateTax($item->getItemId()) ?: $item->getTaxAmount();
+            $productTaxCode = $lineItem->getProductTaxCode();
+
+            $lineItemData[] = [
+                'id'                 => $item->getOrderItemId(),
+                'quantity'           => $item->getQty(),
+                'product_identifier' => $item->getSku(),
+                'description'        => $item->getName(),
+                'unit_price'         => $item->getPrice(),
+                'discount'           => $discount,
+                'sales_tax'          => $salesTax,
+                'product_tax_code'   => $productTaxCode
+            ];
         }
+
+        return ['line_items' => $lineItemData];
     }
 
     /**
-     * Handles case where error occurs when POSTing a resource that already
-     * exists or PUTing a resource that has not been created yet.
-     *
-     * @param object $error `jsonDecode()`ed response error message object
-     * @param string $method HTTP method used in request
-     * @param bool $forceFlag Request ignores last updated and synced dates
-     * @throws LocalizedException
+     * @inheritDoc
      */
-    protected function handleError($error, string $method, bool $forceFlag): void
+    public function canSync(): bool
     {
-        if ($method == 'POST' && $error->status == 422) {
-            $retry = 'PUT';
+        $transaction = $this->_getOrderTransaction();
+        return $transaction->canSync();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function shouldSync(bool $force = false): bool
+    {
+        return $this->_getOrderTransaction()->shouldSync($force);
+    }
+
+    /**
+     * Retrieves the related Magento Sales Order and inits a Transaction class around it.
+     *
+     * @return Order|null
+     */
+    private function _getOrderTransaction(): ?Order
+    {
+        $order = $this->_transaction->getOrder();
+        return $this->_orderTransaction->create(['transaction' => $order]);
+    }
+
+    /**
+     * Aggregates discount amounts across grouped items.
+     *
+     * @param int|null $parentItemId
+     *
+     * @return float|null
+     */
+    private function _getAggregateDiscount(?int $parentItemId): ?float
+    {
+        $discount = 0;
+
+        foreach ($this->getLineItems() as $lineItem) {
+            if ($parentItemId && $parentItemId === $lineItem->getItem()->getParentItemId()) {
+                $discount += $lineItem->getItem()->getOrderItem()->getDiscountRefunded();
+            }
         }
 
-        if ($method == 'PUT' && $error->status == 404) {
-            $retry = 'POST';
+        return (float) $discount;
+    }
+
+    /**
+     * Aggregates tax amounts across grouped items.
+     *
+     * @param int|null $parentItemId
+     *
+     * @return float|null
+     */
+    private function _getAggregateTax(?int $parentItemId): ?float
+    {
+        $tax = 0;
+
+        foreach ($this->getLineItems() as $lineItem) {
+            if ($parentItemId && $parentItemId === $lineItem->getItem()->getParentItemId()) {
+                $tax += $lineItem->getItem()->getOrderItem()->getTaxRefunded();
+            }
         }
 
-        if (isset($retry)) {
-            $this->logger->log(
-                sprintf('Attempting to retry saving refund / credit memo #%s', $this->request['transaction_id']),
-                'retry'
-            );
-            $this->push($forceFlag, $retry);
-        }
+        return (float) $tax;
     }
 }

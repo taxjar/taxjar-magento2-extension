@@ -19,24 +19,35 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Transaction;
 
 use Magento\Framework\Controller\ResultFactory;
 
-class Backfill extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
+class Backfill extends \Magento\Backend\App\Action
 {
     /**
-     * Sync transactions
+     * Authorization level of a basic admin session
+     *
+     * @see _isAllowed()
+     */
+    public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
+
+    /**
+     * Dispatch transaction backfill event.
      *
      * @return \Magento\Framework\Controller\Result\Json
      */
     public function execute()
     {
         try {
-            $this->logger->record();
-
-            $this->eventManager->dispatch('taxjar_salestax_backfill_transactions');
+            $this->_eventManager->dispatch('taxjar_salestax_backfill_transactions', [
+                'start_date' => $this->_request->getParam('start_date'),
+                'end_date' => $this->_request->getParam('end_date'),
+                'force_sync' => $this->_request->getParam('force_sync'),
+                'store_id' => $this->_request->getParam('store_id'),
+                'website_id' => $this->_request->getParam('website_id')
+            ]);
 
             $responseContent = [
                 'success' => true,
                 'error_message' => '',
-                'result' => $this->logger->playback(),
+                'result' => __('Successfully scheduled TaxJar transaction backfill.'),
             ];
         } catch (\Exception $e) {
             $responseContent = [
@@ -47,7 +58,6 @@ class Backfill extends \Taxjar\SalesTax\Controller\Adminhtml\Transaction
 
         /** @var \Magento\Framework\Controller\Result\Json $resultJson */
         $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-        $resultJson->setData($responseContent);
-        return $resultJson;
+        return $resultJson->setData($responseContent);
     }
 }

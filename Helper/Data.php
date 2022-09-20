@@ -9,16 +9,17 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc.
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc.
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Helper;
 
+use Magento\Store\Model\ScopeInterface;
+use Taxjar\SalesTax\Model\Configuration;
+
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    protected const SYNCABLE_STATES = ['complete', 'closed'];
-
     protected const SYNCABLE_CURRENCIES = ['USD'];
 
     protected const SYNCABLE_COUNTRIES = ['US'];
@@ -44,18 +45,27 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $priceCurrency;
 
     /**
+     * @var array
+     */
+    private array $_syncableOrderStates;
+
+    /**
+     * Data constructor.
+     *
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Framework\App\Request\Http $request
      * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
+     * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
+     * @param array $syncableOrderStates
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
+        \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
+        array $syncableOrderStates = []
     ) {
         parent::__construct($context);
 
@@ -63,17 +73,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->productMetadata = $productMetadata;
         $this->storeManager = $storeManager;
         $this->priceCurrency = $priceCurrency;
+        $this->_syncableOrderStates = $syncableOrderStates;
     }
 
-    public function isEnabled(
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-        $scopeCode = null
-    ): bool {
-        return (bool) $this->scopeConfig->getValue(
-            \Taxjar\SalesTax\Model\Configuration::TAXJAR_ENABLED,
-            $scope,
-            $scopeCode
-        );
+    /**
+     * @param $scope
+     * @param $scopeCode
+     *
+     * @return bool
+     */
+    public function isEnabled($scope = ScopeInterface::SCOPE_STORE, $scopeCode = null): bool
+    {
+        return (bool) $this->scopeConfig->getValue(Configuration::TAXJAR_ENABLED, $scope, $scopeCode);
     }
 
     /**
@@ -83,16 +94,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param string $scope
      * @return bool
      */
-    public function isTransactionSyncEnabled(
-        $scopeCode = 0,
-        $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-    ) {
+    public function isTransactionSyncEnabled($scopeCode = 0, $scope = ScopeInterface::SCOPE_STORE): bool
+    {
         $scopeCode = $scopeCode ?: (int) $this->request->getParam($scope, 0);
-        return (bool)$this->scopeConfig->getValue(
-            \Taxjar\SalesTax\Model\Configuration::TAXJAR_TRANSACTION_SYNC,
-            $scope,
-            $scopeCode
-        );
+        return (bool) $this->scopeConfig->getValue(Configuration::TAXJAR_TRANSACTION_SYNC, $scope, $scopeCode);
     }
 
     /**
@@ -110,7 +115,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $openSSL = defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : '';
         $magento = 'Magento ' . $this->productMetadata->getEdition() . ' ' . $this->productMetadata->getVersion();
         $precision = 'Precision ' .  \Magento\Framework\Pricing\PriceCurrencyInterface::DEFAULT_PRECISION;
-        $taxjar = 'Taxjar_SalesTax/' . \Taxjar\SalesTax\Model\Configuration::TAXJAR_VERSION;
+        $taxjar = 'Taxjar_SalesTax/' . Configuration::TAXJAR_VERSION;
 
         return "TaxJar/Magento ($os; $php; $curl; $openSSL; $precision; $magento) $taxjar";
     }
@@ -165,12 +170,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Returns an array of syncable order states as defined in di.xml and injected in constructor.
+     *
+     * @return array
+     */
+    public function getSyncableOrderStates(): array
+    {
+        return $this->_syncableOrderStates;
+    }
+
+    /**
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      * @return bool
      */
     public function isSyncableOrderState(\Magento\Sales\Api\Data\OrderInterface $order): bool
     {
-        return in_array($order->getState(), self::SYNCABLE_STATES);
+        return in_array($order->getState(), array_values($this->getSyncableOrderStates()));
     }
 
     /**

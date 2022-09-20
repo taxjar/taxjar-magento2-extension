@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -70,7 +70,9 @@ class Client implements ClientInterface
      *
      * @param string $resource
      * @param array $errors
+     *
      * @return array
+     * @throws LocalizedException
      */
     public function getResource($resource, $errors = [])
     {
@@ -84,7 +86,9 @@ class Client implements ClientInterface
      * @param string $resource
      * @param array $data
      * @param array $errors
+     *
      * @return array
+     * @throws LocalizedException
      */
     public function postResource($resource, $data, $errors = [])
     {
@@ -100,7 +104,9 @@ class Client implements ClientInterface
      * @param int $resourceId
      * @param array $data
      * @param array $errors
+     *
      * @return array
+     * @throws LocalizedException
      */
     public function putResource($resource, $resourceId, $data, $errors = [])
     {
@@ -116,7 +122,9 @@ class Client implements ClientInterface
      * @param string $resource
      * @param int $resourceId
      * @param array $errors
+     *
      * @return array
+     * @throws LocalizedException
      */
     public function deleteResource($resource, $resourceId, $errors = [])
     {
@@ -129,6 +137,7 @@ class Client implements ClientInterface
      * Set API token for client requests
      *
      * @param string $key
+     *
      * @return void
      */
     public function setApiKey($key)
@@ -260,7 +269,7 @@ class Client implements ClientInterface
         }
 
         if (isset($errors[$statusCode])) {
-            throw new LocalizedException($errors[$statusCode]);
+            throw new LocalizedException($errors[$statusCode], null, $statusCode);
         }
 
         throw new LocalizedException($errors['default']);

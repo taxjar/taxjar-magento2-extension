@@ -11,426 +11,260 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Model;
 
-use Magento\Bundle\Model\Product\Price;
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
+use Magento\Shipping\Model\Config;
+use Taxjar\SalesTax\Api\Data\TransactionInterface;
 
-class Transaction
+abstract class Transaction implements TransactionInterface
 {
-    /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
+    public const FIELD_SYNC_DATE = 'tj_salestax_sync_date';
 
     /**
-     * @var \Taxjar\SalesTax\Model\Logger
+     * @var ScopeConfigInterface
      */
-    protected $logger;
+    private ScopeConfigInterface $_scopeConfig;
 
     /**
-     * @var \Magento\Directory\Model\RegionFactory
+     * @var RegionFactory
      */
-    protected $regionFactory;
+    private RegionFactory $_regionFactory;
 
     /**
-     * @var \Taxjar\SalesTax\Model\ClientFactory
+     * @var Logger
      */
-    protected $clientFactory;
+    private Logger $_logger;
 
     /**
-     * @var \Magento\Catalog\Model\ProductRepository
+     * @var CreditmemoInterface|OrderInterface
      */
-    protected $productRepository;
+    protected $_transaction;
 
     /**
-     * @var \Magento\Tax\Api\TaxClassRepositoryInterface
+     * @var \Magento\Sales\Api\Data\OrderAddressInterface|null
      */
-    protected $taxClassRepository;
+    protected $_transactionAddress;
 
     /**
-     * @var \Taxjar\SalesTax\Model\Client
-     */
-    protected $client;
-
-    /**
-     * @var \Magento\Framework\ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
-     * @var \Taxjar\SalesTax\Helper\Data
-     */
-    protected $helper;
-
-    /**
-     * @var TaxjarConfig
-     */
-    protected $taxjarConfig;
-
-    /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
-     * @param \Magento\Catalog\Model\ProductRepository $productRepository
-     * @param \Magento\Directory\Model\RegionFactory $regionFactory
-     * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository
-     * @param \Taxjar\SalesTax\Model\Logger $logger
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param TaxjarHelper $helper
-     * @param TaxjarConfig $taxjarConfig
+     * Transaction constructor.
+     *
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RegionFactory $regionFactory
+     * @param Logger $logger
+     * @param mixed $transaction
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Taxjar\SalesTax\Model\ClientFactory $clientFactory,
-        \Magento\Catalog\Model\ProductRepository $productRepository,
-        \Magento\Directory\Model\RegionFactory $regionFactory,
-        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
-        \Taxjar\SalesTax\Model\Logger $logger,
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        TaxjarHelper $helper,
-        TaxjarConfig $taxjarConfig
+        ScopeConfigInterface $scopeConfig,
+        RegionFactory $regionFactory,
+        Logger $logger,
+        $transaction
     ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->clientFactory = $clientFactory;
-        $this->productRepository = $productRepository;
-        $this->regionFactory = $regionFactory;
-        $this->taxClassRepository = $taxClassRepository;
-        $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_TRANSACTIONS_LOG);
-        $this->objectManager = $objectManager;
-        $this->helper = $helper;
-        $this->taxjarConfig = $taxjarConfig;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_regionFactory = $regionFactory;
+        $this->_logger = $logger;
+        $this->_transaction = $transaction;
+    }
 
-        $this->client = $this->clientFactory->create();
-        $this->client->showResponseErrors(true);
+    /**
+     * @inheritDoc
+     */
+    abstract public function canSync(): bool;
+
+    /**
+     * @inheritDoc
+     */
+    abstract public function shouldSync(bool $force = false): bool;
+
+    /**
+     * @inheritDoc
+     */
+    abstract public function getRequestBody(): array;
+
+    /**
+     * Return API request body's representation of transaction line items.
+     *
+     * @return array
+     */
+    abstract protected function getLineItemData(): array;
+
+    /**
+     * @inheritDoc
+     */
+    public function getResourceId(): ?string
+    {
+        return $this->_transaction->getEntityId();
     }
 
     /**
      * Check if a transaction is synced
      *
-     * @param string|null $syncDate
      * @return bool
      */
-    protected function isSynced(?string $syncDate): bool
+    public function hasSynced(): bool
     {
+        $syncDate = $this->_transaction->getData(self::FIELD_SYNC_DATE);
         return ! (empty($syncDate) || $syncDate == '0000-00-00 00:00:00');
     }
 
     /**
-     * Build `from` address for SmartCalcs request
+     * Get API provider string.
      *
-     * @param OrderInterface $order
-     * @return array
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function buildFromAddress(OrderInterface $order): array
+    protected function getProvider(): string
     {
-        $fromCountry = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_COUNTRY_ID,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-        $fromPostcode = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_POSTCODE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-        $region = $this->regionFactory->create();
-        $regionId = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_REGION_ID,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-        $region->load($regionId);
-        $fromState = $region->getCode();
-        $fromCity = $this->scopeConfig->getValue(
-            \Magento\Shipping\Model\Config::XML_PATH_ORIGIN_CITY,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-        $fromStreet = $this->scopeConfig->getValue(
-            'shipping/origin/street_line1',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-
-        return [
-            'from_country' => $fromCountry,
-            'from_zip' => $fromPostcode,
-            'from_state' => $fromState,
-            'from_city' => $fromCity,
-            'from_street' => $fromStreet
-        ];
+        return $this->getExternalProvider() ?: 'api';
     }
 
     /**
-     * Build `to` address for SmartCalcs request
+     * Get API provider for externally imported transactions.
      *
-     * @param OrderInterface $order
-     * @return array
+     * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function buildToAddress(OrderInterface $order): array
+    protected function getExternalProvider()
     {
-        $address = $order->getIsVirtual() ? $order->getBillingAddress() : $order->getShippingAddress();
-
-        $toAddress = [
-            'to_country' => $address->getCountryId(),
-            'to_zip' => $address->getPostcode(),
-            'to_state' => $address->getRegionCode(),
-            'to_city' => $address->getCity(),
-            'to_street' => $address->getStreetLine(1)
-        ];
-
-        return $toAddress;
-    }
-
-    /**
-     * Build line items for SmartCalcs request
-     *
-     * @param OrderInterface $order
-     * @param array $items
-     * @param string $type
-     * @return array
-     * @throws LocalizedException
-     */
-    protected function buildLineItems($order, $items, $type = 'order'): array
-    {
-        $lineItems = [];
-        $parentDiscounts = $this->getParentAmounts('discount', $items, $type);
-        $parentTaxes = $this->getParentAmounts('tax', $items, $type);
-
-        foreach ($items as $item) {
-            $itemType = $item->getProductType();
-
-            if ($itemType === null &&
-                method_exists($item, 'getOrderItem') &&
-                $orderItem = $item->getOrderItem()
-            ) {
-                $creditMemoItem = $item;
-                $item = $orderItem;
-                $itemType = $item->getProductType();
-            }
-
-            $parentItem = $item->getParentItem();
-            $unitPrice = (float) $item->getPrice();
-            $quantity = (int) $item->getQtyInvoiced();
-
-            if ($type == 'refund' && isset($creditMemoItem)) {
-                $quantity = (int) $creditMemoItem->getQty();
-
-                if ($quantity === 0) {
-                    continue;
+        try {
+            if (class_exists('\Ess\M2ePro\Model\Order')) {
+                $m2eOrder = ObjectManager::getInstance()->create('\Ess\M2ePro\Model\Order');
+                $m2eOrder = $m2eOrder->load($this->_transaction->getId(), 'magento_order_id');
+                if (in_array($m2eOrder->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
+                    return $m2eOrder->getComponentMode();
                 }
             }
-
-            if (($itemType == 'simple' || $itemType == 'virtual') && $item->getParentItemId()) {
-                if (!empty($parentItem) && $parentItem->getProductType() == 'bundle') {
-                    if ($parentItem->getProduct()->getPriceType() == Price::PRICE_TYPE_FIXED) {
-                        continue;  // Skip children of fixed price bundles
-                    }
-                } else {
-                    continue;  // Skip children of configurable products
-                }
-            }
-
-            if ($itemType == 'bundle' && $item->getProduct()->getPriceType() != Price::PRICE_TYPE_FIXED) {
-                continue;  // Skip dynamic bundle parent item
-            }
-
-            if (method_exists($item, 'getOrderItem') && $orderItem = $item->getOrderItem()) {
-                if ($orderItem->getParentItemId()) {
-                    continue;
-                }
-            }
-
-            $itemId = $item->getOrderItemId() ? $item->getOrderItemId() : $item->getItemId();
-            $discount = (float) $item->getDiscountInvoiced();
-            $tax = (float) $item->getTaxInvoiced();
-
-            if ($type == 'refund' && isset($creditMemoItem)) {
-                $discount = (float) $creditMemoItem->getDiscountAmount();
-                $tax = (float) $creditMemoItem->getTaxAmount();
-            }
-
-            if (isset($parentDiscounts[$itemId])) {
-                $discount = $parentDiscounts[$itemId] ?: $discount;
-            }
-
-            if ($discount > ($unitPrice * $quantity)) {
-                $discount = ($unitPrice * $quantity);
-            }
-
-            if (isset($parentTaxes[$itemId])) {
-                $tax = $parentTaxes[$itemId] ?: $tax;
-            }
-
-            $lineItem = [
-                'id' => $itemId,
-                'quantity' => $quantity,
-                'product_identifier' => $item->getSku(),
-                'description' => $item->getName(),
-                'unit_price' => $unitPrice,
-                'discount' => $discount,
-                'sales_tax' => $tax,
-                'product_tax_code' => $this->getProductTaxCode($item, $order)
-            ];
-
-            $lineItems['line_items'][] = $lineItem;
+        } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
+            $this->_logger->log('M2e order does not exist or component mode can\'t be loaded');
         }
 
-        return $lineItems;
+        return null;
     }
 
     /**
-     * Add customer_id to transaction
+     * Return origin address from store configuration.
      *
-     * @param OrderInterface $order
      * @return array
      */
-    protected function buildCustomerExemption($order): array
+    protected function getAddressFrom(): array
     {
-        if ($order->getCustomerId()) {
-            return ['customer_id' => $order->getCustomerId()];
+        $fromAddress = [
+            'from_country' => Config::XML_PATH_ORIGIN_COUNTRY_ID,
+            'from_zip' => Config::XML_PATH_ORIGIN_POSTCODE,
+            'from_state' => Config::XML_PATH_ORIGIN_REGION_ID,
+            'from_city' => Config::XML_PATH_ORIGIN_CITY,
+            'from_street' => 'shipping/origin/street_line1'
+        ];
+
+        foreach ($fromAddress as $key => $path) {
+            $value = $this->_getStoreValue($path, $this->_transaction->getStoreId());
+
+            if ($key === 'from_state') {
+                $value = $this->_regionFactory->create()->load($value)->getCode();
+            }
+
+            $fromAddress[$key] = $value;
+        }
+
+        return $fromAddress;
+    }
+
+    /**
+     * Return origin address from store configuration.
+     *
+     * @return array
+     */
+    protected function getAddressTo(): array
+    {
+        if ($this->_getOrderAddress() !== null) {
+            return [
+                'to_country' => $this->_getOrderAddress()->getCountryId(),
+                'to_zip' => $this->_getOrderAddress()->getPostcode(),
+                'to_state' => $this->_getOrderAddress()->getRegionCode(),
+                'to_city' => $this->_getOrderAddress()->getCity(),
+                'to_street' => $this->_getOrderAddress()->getStreetLine(1)
+            ];
         }
 
         return [];
     }
 
     /**
-     * @param OrderInterface $order
-     * @return string
-     */
-    protected function getProvider($order): string
-    {
-        $provider = 'api';
-
-        try {
-            if (class_exists('\Ess\M2ePro\Model\Order')) {
-                $m2eOrder = $this->objectManager->create('\Ess\M2ePro\Model\Order');
-                $m2eOrder = $m2eOrder->load($order->getId(), 'magento_order_id');
-
-                if (in_array($m2eOrder->getComponentMode(), ['amazon', 'ebay', 'walmart'])) {
-                    $provider = $m2eOrder->getComponentMode();
-                }
-            }
-        } catch (\Ess\M2ePro\Model\Exception\Logic $e) {
-            $this->logger->log('M2e order does not exist or component mode can\'t be loaded');
-        }
-
-        return $provider;
-    }
-
-    /**
-     * Get parent amounts (discounts, tax, etc) for configurable / bundle products
+     * Get optional customer exemption address from transaction object.
      *
-     * @param string $attr
-     * @param array $items
-     * @param string $type
      * @return array
      */
-    protected function getParentAmounts($attr, $items, $type = 'order'): array
+    protected function getCustomerExemption(): array
     {
-        $parentAmounts = [];
+        $customerId = $this->_getOrder()->getCustomerId();
 
-        foreach ($items as $item) {
-            $parentItemId = null;
-
-            if ($item->getParentItemId()) {
-                $parentItemId = $item->getParentItemId();
-            }
-
-            if (method_exists($item, 'getOrderItem') && $orderItem = $item->getOrderItem()) {
-                $parentItemId = $orderItem->getParentItemId();
-            }
-
-            if (isset($parentItemId)) {
-                switch ($attr) {
-                    case 'discount':
-                        $amount = (float) (
-                            ($type == 'order') ? $item->getDiscountAmount() : $item->getDiscountRefunded()
-                        );
-                        break;
-                    case 'tax':
-                        $amount = (float) (($type == 'order') ? $item->getTaxAmount() : $item->getTaxRefunded());
-                        break;
-                }
-
-                if (isset($parentAmounts[$parentItemId])) {
-                    $parentAmounts[$parentItemId] += $amount;
-                } else {
-                    $parentAmounts[$parentItemId] = $amount;
-                }
-            }
+        if ($customerId !== null) {
+            return ['customer_id' => $customerId];
         }
 
-        return $parentAmounts;
+        return [];
     }
 
     /**
-     * Get the PTC, either assigned directly to the product or from the tax class
+     * Get destination address from transaction object.
      *
-     * @param $item
-     * @param OrderInterface $order
-     * @return string
-     * @throws LocalizedException
+     * @return \Magento\Sales\Api\Data\OrderAddressInterface|null
      */
-    protected function getProductTaxCode($item, $order)
+    protected function _getOrderAddress():  ?\Magento\Sales\Api\Data\OrderAddressInterface
     {
-        // Check for a PTC saved to the Item
-        // For configurable products, load the PTC of the child
-        if ($item->getHasChildren() && $item->getProductType() == 'configurable') {
-            $children = $item->getChildrenItems();
-
-            if (!empty($children) && is_array($children)) {
-                $child = reset($children);
-                return $child->getTjPtc() != TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $child->getTjPtc() : '';
-            }
+        if ($this->_transactionAddress !== null) {
+            return $this->_transactionAddress;
         }
 
-        if ($item->getTjPtc()) {
-            // Return the PTC, or an empty string if the TAXABLE_TAX_CODE is present
-            return $item->getTjPtc() != TaxjarConfig::TAXJAR_TAXABLE_TAX_CODE ? $item->getTjPtc() : '';
+        $this->_transactionAddress = $this->_getOrder()->getIsVirtual()
+            ? $this->_getOrder()->getBillingAddress()
+            : $this->_getOrder()->getShippingAddress();
+
+        return $this->_transactionAddress;
+    }
+
+    /**
+     * Return the Magento Sales Order related to the API transaction.
+     *
+     * @return OrderInterface|null
+     */
+    private function _getOrder(): ?\Magento\Sales\Api\Data\OrderInterface
+    {
+        if ($this->_transaction instanceof CreditmemoInterface) {
+            return $this->_transaction->getOrder();
+        } elseif ($this->_transaction instanceof OrderInterface) {
+            return $this->_transaction;
+        } else {
+            return null;
         }
+    }
 
-        // If no PTC is saved on the Item, attempt to load it from the product or tax class
-        try {
-            $product = $this->productRepository->getById($item->getProductId(), false, $order->getStoreId());
+    /**
+     * Retrieve a store-scoped core config value.
+     *
+     * @param string $path
+     * @param int|string|null $storeId
+     *
+     * @return mixed
+     */
+    protected function _getStoreValue(string $path, $storeId = null)
+    {
+        return $this->_scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+    }
 
-            // Check for a PTC assigned directly to the product; otherwise fall back to tax classes
-            if ($product->getTjPtc()) {
-                return $product->getTjPtc();
-            }
-
-            // Load the tax class from the product.  For configurable products, check the child first
-            if ($item->getProductType() == 'configurable') {
-                $children = $item->getChildrenItems();
-            }
-
-            if (!empty($children) && is_array($children)) {
-                $child = reset($children);
-
-                if ($child->getProduct()->getTaxClassId()) {
-                    $taxClass = $this->taxClassRepository->get($child->getProduct()->getTaxClassId());
-                }
-            } elseif ($product->getTaxClassId()) {
-                $taxClass = $this->taxClassRepository->get($product->getTaxClassId());
-            }
-
-            if (!empty($taxClass) && $taxClass->getTjSalestaxCode()) {
-                return $taxClass->getTjSalestaxCode();
-            }
-
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            $msg = 'Product #' . $item->getProductId() . ' does not exist.  ';
-            $msg .= 'Order #' . $order->getIncrementId() . ' possibly missing product tax codes.';
-            $this->logger->log($msg, 'error');
-        }
-
-        return '';
+    /**
+     * @inheritDoc
+     */
+    public function setLastSyncDate($datetime): void
+    {
+        $this->_transaction->setData('tj_salestax_sync_date', $datetime);
     }
 }

@@ -18,6 +18,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager:etc/config.xsd">
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="Taxjar\SalesTax\Model\Tax\Sales\Total\Quote\Tax" />
+    <preference for="Taxjar\SalesTax\Api\Data\TransactionManagementInterface" type="Taxjar\SalesTax\Model\Service\TransactionService" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
     <preference for="Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface" type="Taxjar\SalesTax\Model\Tax\Nexus\Repository" />
@@ -64,7 +65,6 @@
             <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>
             <argument name="eventManager" xsi:type="object">Magento\Framework\Event\Manager\Proxy</argument>
             <argument name="logger" xsi:type="object">Taxjar\SalesTax\Model\Logger\Proxy</argument>
-            <argument name="backfillTransactions" xsi:type="object">Taxjar\SalesTax\Observer\BackfillTransactions\Proxy</argument>
         </arguments>
     </type>
     <type name="Taxjar\SalesTax\Model\Logger">
@@ -72,4 +72,38 @@
             <argument name="fileDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
     </type>
+    <type name="Taxjar\SalesTax\Helper\Data">
+        <arguments>
+            <argument name="syncableOrderStates" xsi:type="array">
+                <item name="completed" xsi:type="string">complete</item>
+                <item name="closed" xsi:type="string">closed</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Taxjar\SalesTax\Model\ResourceModel\Transaction\Backfill\Consumer">
+        <arguments>
+            <argument name="logger" xsi:type="object">TjTransactionLogger</argument>
+        </arguments>
+    </type>
+    <type name="Taxjar\SalesTax\Model\ResourceModel\Transaction\Sync\Consumer">
+        <arguments>
+            <argument name="logger" xsi:type="object">TjTransactionLogger</argument>
+        </arguments>
+    </type>
+    <type name="Taxjar\SalesTax\Model\Transaction\Order">
+        <arguments>
+            <argument name="logger" xsi:type="object">TjTransactionLogger</argument>
+        </arguments>
+    </type>
+    <type name="Taxjar\SalesTax\Model\Transaction\Refund">
+        <arguments>
+            <argument name="logger" xsi:type="object">TjTransactionLogger</argument>
+        </arguments>
+    </type>
+    <virtualType name="TjTransactionLogger" type="Taxjar\SalesTax\Model\Logger">
+        <arguments>
+            <argument name="filename" xsi:type="string">transactions.log</argument>
+            <argument name="isForced" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
 </config>

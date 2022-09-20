@@ -24,6 +24,6 @@
         <queue name="taxjar.backup_rates.create" consumer="taxjar.backup_rates.create" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="Taxjar\SalesTax\Model\Import\CreateRatesConsumer::process"/>
     </broker>
     <broker topic="taxjar.transactions.sync" exchange="magento-db" type="db">
-        <queue name="taxjar.transactions.sync" consumer="taxjar.transactions.sync" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="Taxjar\SalesTax\Model\Transaction\Backfill::process"/>
+        <queue name="taxjar.transactions.sync" consumer="taxjar.transactions.sync" consumerInstance="Magento\Framework\MessageQueue\Consumer" handler="Taxjar\SalesTax\Model\ResourceModel\Transaction\Sync\Consumer::process"/>
     </broker>
 </config>

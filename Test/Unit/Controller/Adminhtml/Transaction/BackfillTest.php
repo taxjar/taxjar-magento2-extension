@@ -7,72 +7,56 @@ namespace Taxjar\SalesTax\Test\Unit\Controller\Adminhtml\Transaction;
 class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
-     * @var \Magento\Backend\App\Action\Context|mixed|\PHPUnit\Framework\MockObject\MockObject
+     * @var \Taxjar\SalesTax\Controller\Adminhtml\Transaction\Backfill
      */
-    protected $contextMock;
-    /**
-     * @var mixed|\PHPUnit\Framework\MockObject\MockObject|\Taxjar\SalesTax\Model\Logger
-     */
-    protected $loggerMock;
-    /**
-     * @var \Magento\Framework\App\RequestInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $requestMock;
-    /**
-     * @var \Magento\Framework\Event\ManagerInterface|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $eventManagerMock;
-    /**
-     * @var \Magento\Framework\Controller\ResultFactory|mixed|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $resultFactoryMock;
-    /**
-     * @var \Taxjar\SalesTax\Controller\Adminhtml\Transaction\Sync
-     */
-    protected $sut;
+    private \Taxjar\SalesTax\Controller\Adminhtml\Transaction\Backfill $sut;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->contextMock = $this->getMockBuilder(\Magento\Backend\App\Action\Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->loggerMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Logger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->eventManagerMock = $this->getMockBuilder(\Magento\Framework\Event\ManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-        $this->resultFactoryMock = $this->getMockBuilder(\Magento\Framework\Controller\ResultFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->contextMock = $this->createMock(\Magento\Backend\App\Action\Context::class);
+        $this->eventManagerMock = $this->createMock(\Magento\Framework\Event\ManagerInterface::class);
+        $this->resultFactoryMock = $this->createMock(\Magento\Framework\Controller\ResultFactory::class);
+        $this->requestMock = $this->createMock(\Magento\Framework\App\RequestInterface::class);
 
         $this->setExpectations();
     }
 
     public function testExecuteMethodResultOnSuccess()
     {
-        $this->eventManagerMock->expects(static::atLeastOnce())
+        $this->requestMock->expects(static::any())->method('getParam')->willReturnMap([
+            ['start_date', null, '2022-08-01'],
+            ['end_date', null, '2022-08-31'],
+            ['force_sync', null, true],
+            ['store_id', null, null],
+            ['website_id', null, null]
+        ]);
+
+        $this->eventManagerMock->expects(static::once())
             ->method('dispatch')
-            ->with('taxjar_salestax_backfill_transactions');
+            ->with('taxjar_salestax_backfill_transactions', [
+                'start_date' => '2022-08-01',
+                'end_date' => '2022-08-31',
+                'force_sync' => true,
+                'store_id' => null,
+                'website_id' => null
+            ]);
+
         $resultMock = $this->createMock(\Magento\Framework\Controller\Result\Json::class);
+
         $resultMock->expects(static::once())
             ->method('setData')
             ->with([
                 'success' => true,
                 'error_message' => '',
-                'result' => ['test-playback']
+                'result' => __('Successfully scheduled TaxJar transaction backfill.'),
             ])
             ->willReturnSelf();
-        $this->loggerMock->expects(static::atLeastOnce())
-            ->method('record')
-            ->willReturnSelf();
-        $this->loggerMock->expects(static::atLeastOnce())
-            ->method('playback')
-            ->willReturn(['test-playback']);
+
         $this->resultFactoryMock->expects(static::atLeastOnce())
             ->method('create')
+            ->with('json')
             ->willReturn($resultMock);
 
         $this->setExpectations();
@@ -86,6 +70,7 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
             ->method('dispatch')
             ->with('taxjar_salestax_backfill_transactions')
             ->willThrowException(new \Exception('test'));
+
         $resultMock = $this->createMock(\Magento\Framework\Controller\Result\Json::class);
         $resultMock->expects(static::once())
             ->method('setData')
@@ -94,6 +79,12 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
                 'error_message' => 'test',
             ])
             ->willReturnSelf();
+
+        $this->resultFactoryMock->expects(static::atLeastOnce())
+            ->method('create')
+            ->with('json')
+            ->willReturn($resultMock);
+
         $this->resultFactoryMock->expects(static::atLeastOnce())
             ->method('create')
             ->willReturn($resultMock);
@@ -103,18 +94,20 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         static::assertEquals($resultMock, $this->sut->execute());
     }
 
-    protected function setExpectations()
+    public function setExpectations()
     {
-        $this->contextMock->expects(static::atLeastOnce())
+        $this->contextMock->expects(static::any())
             ->method('getEventManager')
             ->willReturn($this->eventManagerMock);
-        $this->contextMock->expects(static::atLeastOnce())
+
+        $this->contextMock->expects(static::any())
             ->method('getResultFactory')
             ->willReturn($this->resultFactoryMock);
 
-        $this->sut = new \Taxjar\SalesTax\Controller\Adminhtml\Transaction\Backfill(
-            $this->contextMock,
-            $this->loggerMock
-        );
+        $this->contextMock->expects(static::any())
+            ->method('getRequest')
+            ->willReturn($this->requestMock);
+
+        $this->sut = new \Taxjar\SalesTax\Controller\Adminhtml\Transaction\Backfill($this->contextMock);
     }
 }
