@@ -17,16 +17,11 @@
 
 namespace Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info;
 
+use IntlDateFormatter;
+use Magento\Sales\Api\Data\OrderInterface;
+
 class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
 {
-    /**
-     * Statuses of orders that may be synced to TaxJar
-     */
-    protected const SYNCABLE_STATES = [
-        \Magento\Sales\Model\Order::STATE_COMPLETE,
-        \Magento\Sales\Model\Order::STATE_CLOSED
-    ];
-
     /**
      * @var string
      */
@@ -71,17 +66,6 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     }
 
     /**
-     * Get order synced at date
-     *
-     * @param int $syncedAt
-     * @return \DateTime
-     */
-    public function getOrderSyncedAtDate($syncedAt)
-    {
-        return $this->_localeDate->date(new \DateTime($syncedAt));
-    }
-
-    /**
      * Get status text for sales orders
      *
      * @param mixed $order
@@ -91,7 +75,7 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     {
         $state = $order->getState();
 
-        if (in_array($state, static::SYNCABLE_STATES)) {
+        if (in_array($state, $this->taxjarHelper->getSyncableOrderStates())) {
             return __('This order has not been synced to TaxJar.');
         }
 
@@ -114,14 +98,35 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
             return __('Transaction sync is disabled for the current store.');
         }
 
-        if (in_array($order->getState(), static::SYNCABLE_STATES)) {
+        if (in_array($order->getState(), $this->taxjarHelper->getSyncableOrderStates())) {
             return __('You can manually sync this order.');
         }
 
         return __(
             'Orders will automatically sync to TaxJar after transitioning to one of the following states: %1.',
-            implode(', ', array_map([$this, 'insertPre'], static::SYNCABLE_STATES))
+            implode(', ', array_map([$this, 'insertPre'], $this->taxjarHelper->getSyncableOrderStates()))
         );
+    }
+
+    /**
+     * Return formatted sync date.
+     *
+     * @param OrderInterface $order
+     *
+     * @return string|null
+     * @throws \Exception
+     */
+    public function getFormattedSyncDate($order)
+    {
+        $syncDate = $order->getData('tj_salestax_sync_date');
+
+        if ($syncDate) {
+            $dateTime = new \DateTime($syncDate);
+            $localizedDate = $this->_localeDate->date($dateTime);
+            return $this->formatDate($localizedDate, IntlDateFormatter::MEDIUM, true);
+        } else {
+            return null;
+        }
     }
 
     /**

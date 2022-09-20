@@ -76,11 +76,11 @@ if ($block->isEnabled()) { ?>
                     url: '<?= $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
                     method: 'GET',
                     data: {
-                        from_date: fromDate,
-                        to_date: toDate,
-                        force: force,
-                        store: '<?= $this->getRequest()->getParam('store') ?>',
-                        website: '<?= $this->getRequest()->getParam('website') ?>',
+                        start_date: fromDate,
+                        end_date: toDate,
+                        force_sync: force,
+                        store_id: '<?= $this->getRequest()->getParam('store') ?>',
+                        website_id: '<?= $this->getRequest()->getParam('website') ?>',
                     }
                 }).done(function(data) {
                     if (data.result) {
