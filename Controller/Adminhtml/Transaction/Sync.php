@@ -19,6 +19,7 @@ namespace Taxjar\SalesTax\Controller\Adminhtml\Transaction;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -40,31 +41,15 @@ class Sync extends \Magento\Backend\App\Action
     private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    private \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory;
-
-    /**
-     * @var \Taxjar\SalesTax\Api\Data\TransactionManagementInterface
-     */
-    private \Taxjar\SalesTax\Api\Data\TransactionManagementInterface $transactionService;
-
-    /**
      * @param Context $context
      * @param OrderRepositoryInterface $orderRepository
-     * @param JsonFactory $resultJsonFactory
-     * @param TransactionManagementInterface $transactionService
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        TransactionManagementInterface $transactionService
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
         $this->orderRepository = $orderRepository;
-        $this->resultJsonFactory = $resultJsonFactory;
-        $this->transactionService = $transactionService;
     }
 
     /**
@@ -90,7 +75,8 @@ class Sync extends \Magento\Backend\App\Action
             $responseContent['error_message'] = $e->getMessage();
         }
 
-        $resultJson = $this->resultJsonFactory->create();
+        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         return $resultJson->setData(['data' => $responseContent]);
     }
 }
