@@ -79,37 +79,18 @@ class Sync extends \Magento\Backend\App\Action
         try {
             $orderId = $this->getRequest()->getParam('order_id');
             $order = $this->orderRepository->get($orderId);
-            $responseContent['success'] = $this->_syncOrderAndCreditmemos($order);
+
+            $this->_eventManager->dispatch('taxjar_salestax_transaction_sync', [
+                'transaction' => $order,
+                'force_sync' => true,
+            ]);
+
+            $responseContent['success'] = true;
         } catch (\Exception $e) {
             $responseContent['error_message'] = $e->getMessage();
         }
 
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData(['data' => $responseContent]);
-    }
-
-    /**
-     * Sync order and any related credit memos to TaxJar.
-     *
-     * @param OrderInterface $order
-     *
-     * @return bool
-     * @throws LocalizedException
-     */
-    private function _syncOrderAndCreditmemos(OrderInterface $order): bool
-    {
-        if ($this->transactionService->sync($order, true)) {
-            $creditmemos = $order->getCreditmemosCollection();
-            if ($creditmemos->getTotalCount() > 0) {
-                $results = [];
-                /** @var Order\Creditmemo $creditmemo */
-                foreach ($creditmemos->getItems() as $creditmemo) {
-                    $results[] = $this->transactionService->sync($creditmemo, true);
-                }
-                return array_sum($results) === count($results);
-            }
-            return true;
-        }
-        return false;
     }
 }

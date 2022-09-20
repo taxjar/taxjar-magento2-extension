@@ -52,7 +52,10 @@ class TransactionSyncAfterObserver implements ObserverInterface
 
         if ($transaction instanceof OrderInterface && $success === true) {
             $collection = $transaction->getCreditmemosCollection();
-            $collection->walk([$this, 'dispatch'], [$forceSync]);
+            $collection->walk([$this, 'dispatch'], [
+                $collection->getSelect(),
+                $forceSync,
+            ]);
         }
     }
 
