@@ -176,7 +176,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getSyncableOrderStates(): array
     {
-        return $this->_syncableOrderStates;
+        return array_values($this->_syncableOrderStates);
     }
 
     /**
@@ -185,7 +185,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function isSyncableOrderState(\Magento\Sales\Api\Data\OrderInterface $order): bool
     {
-        return in_array($order->getState(), array_values($this->getSyncableOrderStates()));
+        return in_array($order->getState(), $this->getSyncableOrderStates());
     }
 
     /**
