@@ -79,7 +79,7 @@ class TransactionSyncDateObserver implements ObserverInterface
             /** @var CreditmemoInterface|OrderInterface|AbstractModel $transaction */
             $transaction = $observer->getEvent()->getTransaction();
             $this->_getResource($transaction)->saveAttribute($transaction, Transaction::FIELD_SYNC_DATE);
-        } catch (\Exception $e) {
+        } catch (\Exception|\Error $e) {
             $this->_logger->log($e->getMessage(), 'error');
         }
     }
@@ -91,7 +91,7 @@ class TransactionSyncDateObserver implements ObserverInterface
      *
      * @return CreditmemoResource|OrderResource
      */
-    public function _getResource(CreditmemoInterface|OrderInterface $transaction): CreditmemoResource|OrderResource
+    private function _getResource(CreditmemoInterface|OrderInterface $transaction): CreditmemoResource|OrderResource
     {
         return ($transaction instanceof CreditmemoInterface) ? $this->_creditmemoResource : $this->_orderResource;
     }
