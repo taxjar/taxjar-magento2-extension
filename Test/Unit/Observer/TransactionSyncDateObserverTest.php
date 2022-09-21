@@ -72,6 +72,8 @@ class TransactionSyncDateObserverTest extends UnitTestCase
             ->with($orderMock, Transaction::FIELD_SYNC_DATE)
             ->willReturnSelf();
 
+        $this->creditmemoResourceMock->expects(static::never())->method('saveAttribute');
+
         $this->setExpectations();
 
         $this->sut->execute($observerMock);
@@ -86,6 +88,8 @@ class TransactionSyncDateObserverTest extends UnitTestCase
 
         $observerMock = $this->createMock(Observer::class);
         $observerMock->expects(static::once())->method('getEvent')->willReturn($eventMock);
+
+        $this->orderResourceMock->expects(static::never())->method('saveAttribute');
 
         $this->creditmemoResourceMock->expects(static::once())
             ->method('saveAttribute')

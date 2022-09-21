@@ -55,34 +55,22 @@ class TransactionSyncAfterObserver implements ObserverInterface
         $success = $observer->getEvent()->getSuccess();
 
         if ($transaction instanceof OrderInterface && $success === true) {
-            $this->_syncCreditmemos($transaction, $forceSync);
+            $transaction->getCreditmemosCollection()->walk([$this, 'dispatch'], [$forceSync]);
         }
     }
 
     /**
      * Dispatch transaction sync event.
      *
-     * @param CreditmemoInterface|OrderInterface $transaction
+     * @param CreditmemoInterface $transaction
      * @param bool $forceSync
      * @return void
      */
-    public function dispatch(CreditmemoInterface|OrderInterface $transaction, bool $forceSync): void
+    public function dispatch(CreditmemoInterface $transaction, bool $forceSync): void
     {
         $this->eventManager->dispatch('taxjar_salestax_transaction_sync', [
             'transaction' => $transaction,
             'force_sync' => $forceSync,
         ]);
-    }
-
-    /**
-     * Dispatch sync event for each Creditmemo related to Sales Order transaction.
-     *
-     * @param OrderInterface $transaction
-     * @param bool $forceSync
-     * @return void
-     */
-    private function _syncCreditmemos(OrderInterface $transaction, bool $forceSync): void
-    {
-        $transaction->getCreditmemosCollection()->walk([$this, 'dispatch'], [$forceSync]);
     }
 }
