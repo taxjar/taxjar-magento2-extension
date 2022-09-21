@@ -25,6 +25,9 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Model\Service\TransactionService;
 
+/**
+ * Transaction Sync observer is the primary observer class responsible for handling TaxJar sync-related events.
+ */
 class TransactionSyncObserver implements ObserverInterface
 {
     /**
@@ -66,7 +69,7 @@ class TransactionSyncObserver implements ObserverInterface
             }
 
             if ($this->transactionService->sync($transaction, $forceSync)) {
-                $message = __('Successfully saved %1 to TaxJar.', $this->_getType($transaction));
+                $message = __('Successfully synced %1 to TaxJar.', $this->_getType($transaction));
                 $this->messageManager->addSuccessMessage($message);
             } else {
                 $message = __(

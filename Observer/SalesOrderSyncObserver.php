@@ -23,6 +23,9 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order;
 use Taxjar\SalesTax\Helper\Data;
 
+/**
+ * Dispatches transaction sync event on Sales Order update.
+ */
 class SalesOrderSyncObserver implements ObserverInterface
 {
     /**

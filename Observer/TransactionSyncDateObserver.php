@@ -28,6 +28,11 @@ use Magento\Sales\Model\ResourceModel\Order\Creditmemo as CreditmemoResource;
 use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\Transaction;
 
+/**
+ * Transaction sync date observer is responsible for updating TaxJar's sync date timestamp attribute for Magento Sales
+ * Order and Creditmemo objects. For legacy reasons, this attribute is stored directly on the corresponding entity's
+ * main table rather than an extension attribute on an additional module-specific table.
+ */
 class TransactionSyncDateObserver implements ObserverInterface
 {
     /**

@@ -30,6 +30,9 @@ use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\Transaction\OrderFactory;
 use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 
+/**
+ * Transaction service provides module's ability to sync Sales Orders or Creditmemos to TaxJar.
+ */
 class TransactionService implements TransactionManagementInterface
 {
     /**
@@ -228,7 +231,7 @@ class TransactionService implements TransactionManagementInterface
      * @param bool $hasPrevSynced
      *
      * @return array
-     * @throws LocalizedException
+     * @throws LocalizedException Client API methods are not annotated with @throws, but LocalizedException may occur
      */
     private function _clientRequest(array $args, bool $hasPrevSynced): array
     {

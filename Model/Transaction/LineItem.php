@@ -28,6 +28,9 @@ use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
+/**
+ * Abstract class LineItem encapsulates logic relevant to line items for TaxJar API orders and refunds.
+ */
 abstract class LineItem
 {
     public const PRODUCT_TAX_CODE_TAXABLE = '';

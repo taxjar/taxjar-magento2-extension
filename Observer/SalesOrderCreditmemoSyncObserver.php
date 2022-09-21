@@ -23,6 +23,9 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order\Creditmemo;
 use Taxjar\SalesTax\Helper\Data;
 
+/**
+ * Dispatches transaction sync event on Creditmemo update.
+ */
 class SalesOrderCreditmemoSyncObserver implements ObserverInterface
 {
     /**

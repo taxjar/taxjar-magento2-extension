@@ -21,6 +21,9 @@ use Magento\Bundle\Model\Product\Price;
 use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Model\Order\Item;
 
+/**
+ * Encapsulates logic relevant to parsing Order Item entities into TaxJar API order request line items.
+ */
 class LineItem extends \Taxjar\SalesTax\Model\Transaction\LineItem
 {
     /**

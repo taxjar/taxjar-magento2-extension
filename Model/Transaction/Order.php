@@ -27,6 +27,9 @@ use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Model\Transaction;
 use Taxjar\SalesTax\Model\Transaction\Order\LineItemFactory;
 
+/**
+ * Encapsulates logic relevant to syncing Sales Order entities to TaxJar.
+ */
 class Order extends Transaction implements TransactionInterface
 {
     /**

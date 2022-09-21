@@ -27,6 +27,9 @@ use Taxjar\SalesTax\Model\Transaction;
 use Taxjar\SalesTax\Model\Transaction\Refund\LineItem;
 use Taxjar\SalesTax\Model\Transaction\Refund\LineItemFactory;
 
+/**
+ * Encapsulates logic relevant to syncing Creditmemo entities to TaxJar.
+ */
 class Refund extends Transaction implements TransactionInterface
 {
     /**

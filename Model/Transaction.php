@@ -25,6 +25,9 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Shipping\Model\Config;
 use Taxjar\SalesTax\Api\Data\TransactionInterface;
 
+/**
+ * Abstract class Transaction encapsulates logic relevant to TaxJar API orders and refunds.
+ */
 abstract class Transaction implements TransactionInterface
 {
     public const FIELD_SYNC_DATE = 'tj_salestax_sync_date';

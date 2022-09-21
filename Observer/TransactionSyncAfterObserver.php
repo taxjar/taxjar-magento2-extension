@@ -23,6 +23,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 
+/**
+ * Transaction sync after observer handles post-transaction-sync actions. For Sales Orders, this means dispatching a
+ * transaction sync event for each related creditmemo object.
+ */
 class TransactionSyncAfterObserver implements ObserverInterface
 {
     /**
@@ -51,11 +55,7 @@ class TransactionSyncAfterObserver implements ObserverInterface
         $success = $observer->getEvent()->getSuccess();
 
         if ($transaction instanceof OrderInterface && $success === true) {
-            $collection = $transaction->getCreditmemosCollection();
-            $collection->walk([$this, 'dispatch'], [
-                $collection->getSelect(),
-                $forceSync,
-            ]);
+            $this->_syncCreditmemos($transaction, $forceSync);
         }
     }
 
@@ -66,11 +66,23 @@ class TransactionSyncAfterObserver implements ObserverInterface
      * @param bool $forceSync
      * @return void
      */
-    public function dispatch(CreditmemoInterface|OrderInterface $transaction, $forceSync): void
+    public function dispatch(CreditmemoInterface|OrderInterface $transaction, bool $forceSync): void
     {
         $this->eventManager->dispatch('taxjar_salestax_transaction_sync', [
             'transaction' => $transaction,
             'force_sync' => $forceSync,
         ]);
+    }
+
+    /**
+     * Dispatch sync event for each Creditmemo related to Sales Order transaction.
+     *
+     * @param OrderInterface $transaction
+     * @param bool $forceSync
+     * @return void
+     */
+    private function _syncCreditmemos(OrderInterface $transaction, bool $forceSync): void
+    {
+        $transaction->getCreditmemosCollection()->walk([$this, 'dispatch'], [$forceSync]);
     }
 }

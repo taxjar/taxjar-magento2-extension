@@ -33,6 +33,10 @@ use Magento\Store\Model\StoreManagerInterface;
 use Taxjar\SalesTax\Helper\Data;
 use Taxjar\SalesTax\Model\Logger;
 
+/**
+ * Transaction backfill consumer is responsible for parsing transaction backfill event data into bulk operations which
+ * can be handled asynchronously in the queue.
+ */
 class TransactionBackfillObserver implements ObserverInterface
 {
     /**

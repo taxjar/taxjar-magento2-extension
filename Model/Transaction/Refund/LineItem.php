@@ -22,6 +22,9 @@ use Magento\Sales\Model\Order\Creditmemo\Item;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Taxjar\SalesTax\Model\Transaction\Order\LineItemFactory;
 
+/**
+ * Encapsulates logic relevant to parsing Creditmemo Item entities into TaxJar API refund request line items.
+ */
 class LineItem extends \Taxjar\SalesTax\Model\Transaction\LineItem
 {
     /**

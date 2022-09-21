@@ -22,7 +22,6 @@ use Magento\AsynchronousOperations\Api\Data\OperationInterface;
 use Magento\Framework\Bulk\OperationManagementInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
-use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\OrderRepository;
 use Taxjar\SalesTax\Api\Data\TransactionManagementInterface;
@@ -53,27 +52,27 @@ class Consumer
     /**
      * @var \Taxjar\SalesTax\Api\Data\TransactionManagementInterface
      */
-    private \Taxjar\SalesTax\Api\Data\TransactionManagementInterface $_transactionService;
+    private \Taxjar\SalesTax\Api\Data\TransactionManagementInterface $transactionManagement;
 
     /**
      * @param Logger $logger
      * @param OperationManagementInterface $operationManagement
      * @param OrderRepository $orderRepository
      * @param SerializerInterface $serializer
-     * @param TransactionManagementInterface $transactionService
+     * @param TransactionManagementInterface $transactionManagement
      */
     public function __construct(
         Logger $logger,
         OperationManagementInterface $operationManagement,
         OrderRepository $orderRepository,
         SerializerInterface $serializer,
-        TransactionManagementInterface $transactionService
+        TransactionManagementInterface $transactionManagement
     ) {
         $this->_logger = $logger;
         $this->_operationManagement = $operationManagement;
         $this->_orderRepository = $orderRepository;
         $this->_serializer = $serializer;
-        $this->_transactionService = $transactionService;
+        $this->transactionManagement = $transactionManagement;
     }
 
     /**
@@ -99,7 +98,7 @@ class Consumer
                 );
             }
             $order = $this->_orderRepository->get($unserializedData['entity_id']);
-            $this->_sync($order, $unserializedData['force_sync'] ?: false);
+            $this->sync($order, $unserializedData['force_sync'] ?: false);
         } catch (Exception $e) {
             $this->_logger->log($e->getMessage());
             $status = OperationInterface::STATUS_TYPE_NOT_RETRIABLY_FAILED;
@@ -121,16 +120,24 @@ class Consumer
     /**
      * Sync order and related creditmemo(s).
      *
-     * @param CreditmemoInterface|OrderInterface $transaction
+     * @param OrderInterface $transaction
      * @param bool $forceSync
      *
      * @throws LocalizedException
      */
-    private function _sync(CreditmemoInterface|OrderInterface $transaction, bool $forceSync = false): void
+    public function sync(OrderInterface $transaction, bool $forceSync = false): void
     {
-        if ($this->_transactionService->sync($transaction, $forceSync)) {
+        if ($this->transactionManagement->sync($transaction, $forceSync)) {
+            $synced = [];
+
             foreach ($transaction->getCreditmemosCollection() as $creditmemo) {
-                $this->_transactionService->sync($creditmemo, $forceSync);
+                $synced[] = $this->transactionManagement->sync($creditmemo, $forceSync);
+            }
+
+            if (in_array(false, $synced)) {
+                throw new LocalizedException(
+                    __('One or more credit memos could not be synced to TaxJar. See logs for additional details.')
+                );
             }
         }
     }
