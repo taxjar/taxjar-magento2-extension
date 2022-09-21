@@ -23,7 +23,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Taxjar\SalesTax\Model\Service\TransactionService;
+use Taxjar\SalesTax\Model\Service\TransactionManagement;
 
 /**
  * Transaction Sync observer is the primary observer class responsible for handling TaxJar sync-related events.
@@ -36,20 +36,20 @@ class TransactionSyncObserver implements ObserverInterface
     private ManagerInterface $messageManager;
 
     /**
-     * @var TransactionService
+     * @var TransactionManagement
      */
-    private TransactionService $transactionService;
+    private TransactionManagement $transactionManagement;
 
     /**
      * @param ManagerInterface $messageManager
-     * @param TransactionService $transactionService
+     * @param TransactionManagement $transactionManagement
      */
     public function __construct(
         ManagerInterface $messageManager,
-        TransactionService $transactionService
+        TransactionManagement $transactionManagement
     ) {
         $this->messageManager = $messageManager;
-        $this->transactionService = $transactionService;
+        $this->transactionManagement = $transactionManagement;
     }
 
     /**
@@ -68,7 +68,7 @@ class TransactionSyncObserver implements ObserverInterface
                 return;
             }
 
-            if ($this->transactionService->sync($transaction, $forceSync)) {
+            if ($this->transactionManagement->sync($transaction, $forceSync)) {
                 $message = __('Successfully synced %1 to TaxJar.', $this->_getType($transaction));
                 $this->messageManager->addSuccessMessage($message);
             } else {

@@ -33,7 +33,7 @@ use Taxjar\SalesTax\Model\Transaction\RefundFactory;
 /**
  * Transaction service provides module's ability to sync Sales Orders or Creditmemos to TaxJar.
  */
-class TransactionService implements TransactionManagementInterface
+class TransactionManagement implements TransactionManagementInterface
 {
     /**
      * @var \Magento\Framework\Event\ManagerInterface

@@ -18,7 +18,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager:etc/config.xsd">
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="Taxjar\SalesTax\Model\Tax\Sales\Total\Quote\Tax" />
-    <preference for="Taxjar\SalesTax\Api\Data\TransactionManagementInterface" type="Taxjar\SalesTax\Model\Service\TransactionService" />
+    <preference for="Taxjar\SalesTax\Api\Data\TransactionManagementInterface" type="Taxjar\SalesTax\Model\Service\TransactionManagement" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
     <preference for="Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface" type="Taxjar\SalesTax\Model\Tax\Nexus\Repository" />
