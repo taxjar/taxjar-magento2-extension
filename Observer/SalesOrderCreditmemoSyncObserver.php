@@ -61,7 +61,8 @@ class SalesOrderCreditmemoSyncObserver implements ObserverInterface
     {
         /** @var Creditmemo $creditmemo */
         $creditmemo = $observer->getEvent()->getCreditmemo();
-        if ($creditmemo->getId() &&
+        if ($creditmemo &&
+            $creditmemo->getId() &&
             in_array($creditmemo->getOrder()->getState(), $this->helper->getSyncableOrderStates())
         ) {
             $this->eventManager->dispatch('taxjar_salestax_transaction_sync', [

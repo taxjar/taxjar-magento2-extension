@@ -61,7 +61,7 @@ class SalesOrderSyncObserver implements ObserverInterface
     {
         /** @var Order $order */
         $order = $observer->getEvent()->getOrder();
-        if ($order->getId() && in_array($order->getState(), $this->helper->getSyncableOrderStates())) {
+        if ($order && $order->getId() && in_array($order->getState(), $this->helper->getSyncableOrderStates())) {
             $this->eventManager->dispatch('taxjar_salestax_transaction_sync', [
                 'transaction' => $order,
                 'force_sync' => false,
