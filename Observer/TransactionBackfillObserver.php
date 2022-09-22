@@ -154,10 +154,7 @@ class TransactionBackfillObserver implements ObserverInterface
                 $message = __('No un-synced orders were found!');
                 $label = 'skip';
             }
-        } catch (\Exception $e) {
-            $message = __('Failed to schedule transaction sync: %1', $e->getMessage());
-            $label = 'error';
-        } catch (\Error $e) {
+        } catch (\Exception|\Error $e) {
             $message = __('Failed to schedule transaction sync: %1', $e->getMessage());
             $label = 'error';
         } finally {

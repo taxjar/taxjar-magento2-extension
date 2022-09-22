@@ -18,13 +18,8 @@
 namespace Taxjar\SalesTax\Controller\Adminhtml\Transaction;
 
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order;
-use Taxjar\SalesTax\Api\Data\TransactionManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterfaceFactory;
 
 class Sync extends \Magento\Backend\App\Action
 {
@@ -36,17 +31,17 @@ class Sync extends \Magento\Backend\App\Action
     public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var \Magento\Sales\Api\OrderRepositoryInterfaceFactory
      */
-    private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository;
+    private \Magento\Sales\Api\OrderRepositoryInterfaceFactory $orderRepository;
 
     /**
      * @param Context $context
-     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderRepositoryInterfaceFactory $orderRepository
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+        \Magento\Sales\Api\OrderRepositoryInterfaceFactory $orderRepository
     ) {
         parent::__construct($context);
         $this->orderRepository = $orderRepository;
@@ -63,7 +58,7 @@ class Sync extends \Magento\Backend\App\Action
 
         try {
             $orderId = $this->getRequest()->getParam('order_id');
-            $order = $this->orderRepository->get($orderId);
+            $order = $this->orderRepository->create()->get($orderId);
 
             $this->_eventManager->dispatch('taxjar_salestax_transaction_sync', [
                 'transaction' => $order,

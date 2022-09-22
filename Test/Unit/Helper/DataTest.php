@@ -34,6 +34,11 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
      */
     protected $sut;
 
+    protected array $syncableOrderStates = [
+        'complete',
+        'closed',
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -161,12 +166,8 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
      */
     public function testIsSyncableOrderStateMethod($state, $expect)
     {
-        $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $orderMock->expects(static::once())
-            ->method('getState')
-            ->willReturn($state);
+        $orderMock = $this->createMock(\Magento\Sales\Model\Order::class);
+        $orderMock->expects(static::once())->method('getState')->willReturn($state);
 
         static::assertEquals($expect, $this->sut->isSyncableOrderState($orderMock));
     }
@@ -246,7 +247,8 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
             $this->requestMock,
             $this->productMetadataMock,
             $this->storeManagerMock,
-            $this->priceCurrencyMock
+            $this->priceCurrencyMock,
+            $this->syncableOrderStates
         );
     }
 }
