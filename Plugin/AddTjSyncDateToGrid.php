@@ -11,66 +11,106 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2020 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
 namespace Taxjar\SalesTax\Plugin;
 
-use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory;
-use Magento\Sales\Model\ResourceModel\Order\Grid\Collection as OrderGridCollection;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Grid\Collection as CreditmemoGridCollection;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Order\Grid\Collection as OrderCreditmemoGridCollection;
+use Magento\Sales\Model\ResourceModel\Order\Grid\Collection as OrderGridCollection;
+use Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface as CreditmemoMetadataInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface as OrderMetadataInterface;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata as CreditmemoMetadataResource;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as OrderMetadataResource;
 
 class AddTjSyncDateToGrid
 {
     /**
-     * @var ResourceConnection
+     * Join TaxJar sync date to sales grid collections.
+     *
+     * @param $subject
+     * @param bool $printQuery
+     * @param bool $logQuery
+     * @return array
+     * @throws LocalizedException
      */
-    protected $resource;
+    public function beforeLoad($subject, bool $printQuery = false, bool $logQuery = false): array
+    {
+        if (!$subject->isLoaded()) {
+            $table = $this->_getTable($subject);
+            $foreignKey = $this->_getForeignKey($table);
+            $column = $this->_getColumn($table);
 
-    /**
-     * @param ResourceConnection $resource
-     */
-    public function __construct(
-        ResourceConnection $resource
-    ) {
-        $this->resource = $resource;
+            if ($foreignKey !== null && $column !== null) {
+                $primaryKey = $subject->getResource()->getIdFieldName();
+                $tableName = $subject->getResource()->getTable($table);
+
+                $subject->getSelect()->joinLeft(
+                    $tableName,
+                    $tableName . '.' . $foreignKey . ' = main_table.' . $primaryKey,
+                    $tableName . '.' . $column
+                );
+            }
+        }
+
+        return [$printQuery, $logQuery];
     }
 
     /**
-     * Join tj_salestax_sync_date in the order and creditmemo admin grids
+     * Get TaxJar table name based on collection resource type.
      *
-     * @param CollectionFactory $subject
-     * @param $collection
-     * @return \Magento\Framework\Data\Collection
+     * @param \Magento\Framework\Data\Collection $subject
+     * @return string|null
      */
-    public function afterGetReport(
-        CollectionFactory $subject,
-        $collection
-    ) {
-        if ($collection instanceof OrderGridCollection) {
-            $collection->getSelect()->joinLeft(
-                ['orders' => $this->resource->getTableName('sales_order')],
-                'main_table.entity_id = orders.entity_id',
-                'tj_salestax_sync_date'
-            );
+    private function _getTable($subject): ?string
+    {
+        if ($subject instanceof OrderGridCollection) {
+            return OrderMetadataResource::TABLE;
+        } elseif ($subject instanceof CreditmemoGridCollection) {
+            return CreditmemoMetadataResource::TABLE;
+        } elseif ($subject instanceof OrderCreditmemoGridCollection) {
+            return CreditmemoMetadataResource::TABLE;
+        } else {
+            return null;
         }
+    }
 
-        if ($collection instanceof CreditmemoGridCollection) {
-            $collection->getSelect()->joinLeft(
-                ['creditmemos' => $this->resource->getTableName('sales_creditmemo')],
-                'main_table.entity_id = creditmemos.entity_id',
-                'tj_salestax_sync_date'
-            );
-            $collection->addFilterToMap('created_at', 'main_table.created_at');
-            $collection->addFilterToMap('base_grand_total', 'main_table.base_grand_total');
-            $collection->addFilterToMap('increment_id', 'main_table.increment_id');
-            $collection->addFilterToMap('state', 'main_table.state');
-            $collection->addFilterToMap('store_id', 'main_table.store_id');
-            $collection->addFilterToMap('entity_id', 'main_table.entity_id');
+    /**
+     * Determine foreign key column to join on based on TaxJar table.
+     *
+     * @param string|null $table
+     * @return string|null
+     */
+    private function _getForeignKey(?string $table): ?string
+    {
+        switch ($table) {
+            case $table === OrderMetadataResource::TABLE:
+                return OrderMetadataInterface::ORDER_ID;
+            case $table === CreditmemoMetadataResource::TABLE:
+                return CreditmemoMetadataInterface::CREDITMEMO_ID;
+            default:
+                return null;
         }
+    }
 
-        return $collection;
+    /**
+     * Determine column to return from join based on TaxJar table.
+     *
+     * @param string|null $table
+     * @return string|null
+     */
+    private function _getColumn(?string $table): ?string
+    {
+        switch ($table) {
+            case $table === OrderMetadataResource::TABLE:
+                return OrderMetadataInterface::SYNCED_AT;
+            case $table === CreditmemoMetadataResource::TABLE:
+                return CreditmemoMetadataInterface::SYNCED_AT;
+            default:
+                return null;
+        }
     }
 }

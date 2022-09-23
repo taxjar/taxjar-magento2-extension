@@ -17,10 +17,22 @@
 
 namespace Taxjar\SalesTax\Model\Transaction;
 
+use Magento\Catalog\Model\ProductRepository;
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataRepositoryInterface;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
+use Taxjar\SalesTax\Model\ClientFactory;
+use Taxjar\SalesTax\Model\Configuration;
+use Taxjar\SalesTax\Model\Logger;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory;
+use Taxjar\SalesTax\Model\Sales\Order\Creditmemo\Metadata;
 
 class Refund extends \Taxjar\SalesTax\Model\Transaction
 {
@@ -38,6 +50,57 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
      * @var array
      */
     protected $request;
+
+    /**
+     * @var MetadataRepositoryInterface
+     */
+    private MetadataRepositoryInterface $metadataRepository;
+
+    /**
+     * @var CollectionFactory
+     */
+    private CollectionFactory $collectionFactory;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param ClientFactory $clientFactory
+     * @param ProductRepository $productRepository
+     * @param RegionFactory $regionFactory
+     * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param Logger $logger
+     * @param ObjectManagerInterface $objectManager
+     * @param TaxjarHelper $helper
+     * @param Configuration $taxjarConfig
+     * @param MetadataRepositoryInterface $metadataRepository
+     * @param CollectionFactory $collectionFactory
+     */
+    public function __construct(
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        ClientFactory $clientFactory,
+        \Magento\Catalog\Model\ProductRepository $productRepository,
+        \Magento\Directory\Model\RegionFactory $regionFactory,
+        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
+        Logger $logger,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        TaxjarHelper $helper,
+        Configuration $taxjarConfig,
+        MetadataRepositoryInterface $metadataRepository,
+        \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory $collectionFactory
+    ) {
+        $this->metadataRepository = $metadataRepository;
+        $this->collectionFactory = $collectionFactory;
+        parent::__construct(
+            $scopeConfig,
+            $clientFactory,
+            $productRepository,
+            $regionFactory,
+            $taxClassRepository,
+            $logger,
+            $objectManager,
+            $helper,
+            $taxjarConfig
+        );
+    }
 
     /**
      * Set request value
@@ -140,7 +203,9 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     public function push(bool $forceFlag = false, string $method = null)
     {
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
-        $refundSyncedAt = $this->originalRefund->getData('tj_salestax_sync_date');
+        $refundSyncedAt = $this->originalRefund->getExtensionAttributes()
+            ? $this->originalRefund->getExtensionAttributes()->getTjSyncedAt()
+            : $this->originalRefund->getData('tj_salestax_sync_date');
 
         if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
             $this->client->setApiKey($this->apiKey);
@@ -171,8 +236,29 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                 'api'
             );
 
-            $this->originalRefund->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
-            $this->originalRefund->getResource()->saveAttribute($this->originalRefund, 'tj_salestax_sync_date');
+//            $this->originalRefund->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
+//            $this->originalRefund->getResource()->saveAttribute($this->originalRefund, 'tj_salestax_sync_date');
+
+            $syncDate = gmdate('Y-m-d H:i:s');
+
+            /** @var Metadata $metadata */
+            $metadata = $this->collectionFactory->create()
+                ->addFieldToFilter('creditmemo_id', $this->originalRefund->getId())
+                ->getFirstItem();
+
+            $metadata->setSyncedAt($syncDate);
+
+            if (! $metadata->getId()) {
+                $metadata->setCreditmemoId($this->originalRefund->getId());
+            }
+
+            $this->metadataRepository->save($metadata);
+
+            $extensionAttributes = $this->originalRefund->getExtensionAttributes();
+            $extensionAttributes->setTjSyncedAt($syncDate);
+
+            $this->originalRefund->setExtensionAttributes($extensionAttributes);
+            
         } catch (\Exception $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());

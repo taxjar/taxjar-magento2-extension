@@ -19,9 +19,22 @@ namespace Taxjar\SalesTax\Model\Transaction;
 
 use DateTime;
 use Exception;
+use Magento\Catalog\Model\ProductRepository;
+use Magento\Directory\Model\RegionFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\AbstractModel;
+use Magento\Tax\Api\TaxClassRepositoryInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataRepositoryInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface;
+use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
+use Taxjar\SalesTax\Model\ClientFactory;
+use Taxjar\SalesTax\Model\Configuration;
+use Taxjar\SalesTax\Model\Logger;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory;
+use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 
 class Order extends \Taxjar\SalesTax\Model\Transaction
 {
@@ -40,6 +53,62 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
      * @var array
      */
     protected $request;
+
+    /**
+     * @var MetadataRepositoryInterface
+     */
+    private MetadataRepositoryInterface $metadataRepository;
+
+    /**
+     * @var MetadataSearchResultInterface
+     */
+    private MetadataSearchResultInterface $metadataSearchResult;
+
+    /**
+     * @var \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory
+     */
+    private \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory $collectionFactory;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param ClientFactory $clientFactory
+     * @param ProductRepository $productRepository
+     * @param RegionFactory $regionFactory
+     * @param TaxClassRepositoryInterface $taxClassRepository
+     * @param Logger $logger
+     * @param ObjectManagerInterface $objectManager
+     * @param TaxjarHelper $helper
+     * @param Configuration $taxjarConfig
+     * @param MetadataRepositoryInterface $metadataRepository
+     * @param CollectionFactory $collectionFactory
+     */
+    public function __construct(
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        ClientFactory $clientFactory,
+        \Magento\Catalog\Model\ProductRepository $productRepository,
+        \Magento\Directory\Model\RegionFactory $regionFactory,
+        \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepository,
+        Logger $logger,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        TaxjarHelper $helper,
+        Configuration $taxjarConfig,
+        MetadataRepositoryInterface $metadataRepository,
+        \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory $collectionFactory
+    ) {
+        $this->metadataRepository = $metadataRepository;
+        $this->collectionFactory = $collectionFactory;
+        parent::__construct(
+            $scopeConfig,
+            $clientFactory,
+            $productRepository,
+            $regionFactory,
+            $taxClassRepository,
+            $logger,
+            $objectManager,
+            $helper,
+            $taxjarConfig
+        );
+    }
 
     /**
      * Set request value
@@ -103,7 +172,9 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     public function push(bool $forceFlag = false, string $method = null)
     {
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
-        $orderSyncedAt = $this->originalOrder->getData('tj_salestax_sync_date');
+        $orderSyncedAt = ($this->originalOrder->getExtensionAttributes() !== null)
+            ? $this->originalOrder->getExtensionAttributes()->getTjSyncedAt()
+            : $this->originalOrder->getData('tj_salestax_sync_date');
 
         if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
             $this->client->setApiKey($this->apiKey);
@@ -144,8 +215,25 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
                 'api'
             );
 
-            $this->originalOrder->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
-            $this->originalOrder->getResource()->saveAttribute($this->originalOrder, 'tj_salestax_sync_date');
+            $syncDate = gmdate('Y-m-d H:i:s');
+
+            /** @var Metadata $metadata */
+            $metadata = $this->collectionFactory->create()
+                ->addFieldToFilter('order_id', $this->originalOrder->getId())
+                ->getFirstItem();
+
+            $metadata->setSyncedAt($syncDate);
+
+            if (! $metadata->getId()) {
+                $metadata->setOrderId($this->originalOrder->getId());
+            }
+
+            $this->metadataRepository->save($metadata);
+
+            $extensionAttributes = $this->originalOrder->getExtensionAttributes();
+            $extensionAttributes->setTjSyncedAt($syncDate);
+
+            $this->originalOrder->setExtensionAttributes($extensionAttributes);
         } catch (LocalizedException $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());

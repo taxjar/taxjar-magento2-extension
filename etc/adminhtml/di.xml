@@ -10,9 +10,9 @@
             </argument>
         </arguments>
     </virtualType>
-    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-        <plugin name="taxjar_salestax_additional_columns" type="Taxjar\SalesTax\Plugin\AddTjSyncDateToGrid" />
-    </type>
+<!--    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">-->
+<!--        <plugin name="taxjar_salestax_additional_columns" type="Taxjar\SalesTax\Plugin\AddTjSyncDateToGrid" />-->
+<!--    </type>-->
     <type name="Magento\Framework\View\Element\Message\MessageConfigurationsPool">
         <arguments>
             <argument name="configurationsMap" xsi:type="array">

@@ -55,6 +55,20 @@
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="taxjar_order_repository" type="Taxjar\SalesTax\Plugin\Sales\Model\OrderRepository" />
     </type>
+    <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
+        <plugin name="taxjar_creditmemo_repository" type="Taxjar\SalesTax\Plugin\Sales\Model\Order\CreditmemoRepository" />
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order\Grid\Collection">
+        <plugin name="taxjarSalesOrderGrid" type="Taxjar\SalesTax\Plugin\AddTjSyncDateToGrid" />
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Grid\Collection">
+        <plugin name="taxjarSalesOrderCreditmemoGrid" type="Taxjar\SalesTax\Plugin\AddTjSyncDateToGrid" />
+    </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Creditmemo\Order\Grid\Collection">
+        <plugin name="taxjarSalesOrderCreditmemoOrderGrid" type="Taxjar\SalesTax\Plugin\AddTjSyncDateToGrid" />
+    </type>
+
     <type name="Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand">
         <arguments>
             <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>

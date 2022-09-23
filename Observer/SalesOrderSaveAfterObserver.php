@@ -15,18 +15,21 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Block\Adminhtml\Order\View;
+namespace Taxjar\SalesTax\Observer;
 
-class Synced extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Model\Order;
+
+class SalesOrderSaveAfterObserver implements ObserverInterface
 {
-    /**
-     * Return last synced at date
-     *
-     * @param \Magento\Sales\Model\Order $order
-     * @return string
-     */
-    public function getSyncedAtDate($order)
+    public function execute(Observer $observer)
     {
-        return $order->getExtensionAttributes()?->getTjSyncedAt();
+        /** @var Order $order */
+        $order = $observer->getEvent()->getOrder();
+
+        if (! $order->getId()) {
+            return;
+        }
     }
 }

@@ -18,14 +18,16 @@
 /** @var $block \Taxjar\SalesTax\Block\Adminhtml\Order\View\Tab\Taxjar\View\Info\Sync */
 
 $order = $block->getOrder();
-$formattedDate = $block->getFormattedSyncDate($order);
+
+$syncedAt = $order->getExtensionAttributes()->getTjSyncedAt();
+$formattedDate = $block->getOrderSyncedAtDate($syncedAt);
 ?>
 
 <div class="admin__page-section-item">
     <div class="admin__page-section-item-content taxjar-order-sync-information">
     <?php if ($block->featureEnabled()): ?>
-        <?php if ($formattedDate): ?>
-            <p><i>Last synced at <?= $block->escapeHtml($formattedDate) ?></i></p>
+        <?php if ($syncedAt): ?>
+            <p><i>Last synced at <?= $block->escapeHtml($syncedAt) ?></i></p>
         <?php else: ?>
             <span><?= $block->escapeHtml($block->getOrderStateText($order), ['br', 'pre']) ?></span>
             <br><br>

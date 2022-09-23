@@ -52,10 +52,10 @@ class Synced extends \Magento\Backend\Block\Widget
      * Return last synced at date
      *
      * @param \Magento\Sales\Model\Order $transaction
-     * @return string
+     * @return string|null
      */
     public function getSyncedAtDate($transaction)
     {
-        return $transaction->getTjSalestaxSyncDate();
+        return $transaction->getExtensionAttributes()?->getTjSyncedAt();
     }
 }

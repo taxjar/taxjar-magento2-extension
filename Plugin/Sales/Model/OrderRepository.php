@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2020 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -20,7 +20,9 @@ namespace Taxjar\SalesTax\Plugin\Sales\Model;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderSearchResultInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Taxjar\SalesTax\Helper\OrderMetadata as OrderMetadataHelper;
+use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\Collection;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory;
 
 /**
  * Class OrderRepository
@@ -30,18 +32,18 @@ use Taxjar\SalesTax\Helper\OrderMetadata as OrderMetadataHelper;
 class OrderRepository
 {
     /**
-     * @var OrderMetadataHelper
+     * @var CollectionFactory
      */
-    private $helper;
+    private $collection;
 
     /**
      * Get constructor.
      *
-     * @param OrderMetadataHelper $helper
+     * @param CollectionFactory $collection
      */
-    public function __construct(OrderMetadataHelper $helper)
+    public function __construct(CollectionFactory $collection)
     {
-        $this->helper = $helper;
+        $this->collection = $collection;
     }
 
     /**
@@ -51,7 +53,7 @@ class OrderRepository
      */
     public function afterGet(OrderRepositoryInterface $subject, OrderInterface $order): OrderInterface
     {
-        return $this->helper->setOrderExtensionAttributeData($order);
+        return $this->_setExtensionAttributeData($order);
     }
 
     /**
@@ -64,8 +66,34 @@ class OrderRepository
         OrderSearchResultInterface $searchResult
     ): OrderSearchResultInterface {
         foreach ($searchResult->getItems() as &$order) {
-            $this->helper->setOrderExtensionAttributeData($order);
+            $this->_setExtensionAttributeData($order);
         }
         return $searchResult;
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return OrderInterface
+     */
+    private function _setExtensionAttributeData(OrderInterface $order): OrderInterface
+    {
+        $metadata = $this->_getMetadata($order);
+        $extensionAttributes = $order->getExtensionAttributes();
+        $extensionAttributes->setTjSyncedAt($metadata->getSyncedAt());
+        return $order->setExtensionAttributes($extensionAttributes);
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return MetadataInterface|false
+     */
+    private function _getMetadata(OrderInterface $order): MetadataInterface|bool
+    {
+        /** @var Collection|MetadataInterface[] $collection */
+        $collection = $this->collection->create();
+        $collection->addFieldToFilter(MetadataInterface::ORDER_ID, $order->getEntityId());
+        $collection->setPageSize(1);
+        $collection->setCurPage(1);
+        return $collection->getFirstItem();
     }
 }

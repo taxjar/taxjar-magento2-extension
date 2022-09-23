@@ -73,12 +73,12 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     /**
      * Get order synced at date
      *
-     * @param int $syncedAt
+     * @param string $syncedAt
      * @return \DateTime
      */
     public function getOrderSyncedAtDate($syncedAt)
     {
-        return $this->_localeDate->date(new \DateTime($syncedAt));
+        return $this->_localeDate->date($syncedAt);
     }
 
     /**
