@@ -63,7 +63,8 @@
             "entity_id": true,
             "order_id": true,
             "tax_calculation_status": true,
-            "tax_calculation_message": true
+            "tax_calculation_message": true,
+            "synced_at": true
         },
         "index": {
             "TJ_SALES_ORDER_METADATA_ORDER_ID": true
@@ -71,6 +72,20 @@
         "constraint": {
             "PRIMARY": true,
             "TJ_SALES_ORDER_METADATA_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    },
+    "tj_sales_creditmemo_metadata": {
+        "column": {
+            "entity_id": true,
+            "creditmemo_id": true,
+            "synced_at": true
+        },
+        "index": {
+            "TJ_SALES_CREDITMEMO_METADATA_CREDITMEMO_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "TJ_SALES_CREDITMEMO_METADATA_CREDITMEMO_ID_SALES_CREDITMEMO_ENTITY_ID": true
         }
     }
 }

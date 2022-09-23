@@ -34,5 +34,9 @@
     <extension_attributes for="Magento\Sales\Api\Data\OrderInterface">
         <attribute code="tj_tax_calculation_status" type="string" />
         <attribute code="tj_tax_calculation_message" type="string" />
+        <attribute code="tj_synced_at" type="string" />
+    </extension_attributes>
+    <extension_attributes for="Magento\Sales\Api\Data\CreditmemoInterface">
+        <attribute code="tj_synced_at" type="string" />
     </extension_attributes>
 </config>

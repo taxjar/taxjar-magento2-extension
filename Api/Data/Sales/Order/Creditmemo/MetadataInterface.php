@@ -15,10 +15,10 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Api\Data\Sales\Order;
+namespace Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo;
 
 use Exception;
-use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata as MetadataResourceModel;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata as MetadataResourceModel;
 
 /**
  * @api
@@ -27,11 +27,7 @@ interface MetadataInterface
 {
     const ID = 'entity_id';
 
-    const ORDER_ID = 'order_id';
-
-    const TAX_CALCULATION_STATUS = 'tax_calculation_status';
-
-    const TAX_CALCULATION_MESSAGE = 'tax_calculation_message';
+    const CREDITMEMO_ID = 'creditmemo_id';
 
     const SYNCED_AT = 'synced_at';
 
@@ -43,52 +39,20 @@ interface MetadataInterface
     public function getId();
 
     /**
-     * Get order id
+     * Get creditmemo id
      *
      * @return integer
      */
-    public function getOrderId();
+    public function getCreditmemoId();
 
     /**
-     * Set order id
+     * Set creditmemo id
      *
-     * @param integer $orderId
+     * @param integer $creditmemoId
      *
      * @return $this
      */
-    public function setOrderId($orderId);
-
-    /**
-     * Get tax calculation status
-     *
-     * @return mixed
-     */
-    public function getTaxCalculationStatus();
-
-    /**
-     * Set tax calculation status
-     *
-     * @param string $taxCalculationStatus
-     *
-     * @return $this
-     */
-    public function setTaxCalculationStatus($taxCalculationStatus);
-
-    /**
-     * Get tax calculation message
-     *
-     * @return mixed
-     */
-    public function getTaxCalculationMessage();
-
-    /**
-     * Set tax calculation message
-     *
-     * @param string $taxCalculationMessage
-     *
-     * @return $this
-     */
-    public function setTaxCalculationMessage($taxCalculationMessage);
+    public function setCreditmemoId($creditmemoId);
 
     /**
      * Get synced at date

@@ -15,7 +15,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Api\Data\Sales\Order;
+namespace Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo;
 
 use Magento\Framework\Api\SearchResultsInterface;
 
@@ -25,12 +25,12 @@ use Magento\Framework\Api\SearchResultsInterface;
 interface MetadataSearchResultInterface extends SearchResultsInterface
 {
     /**
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface[]
+     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface[]
      */
     public function getItems();
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface[] $items
+     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface[] $items
      * @return void
      */
     public function setItems(array $items);

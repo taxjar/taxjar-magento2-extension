@@ -56,12 +56,25 @@
     <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Order_id"/>
     <column xsi:type="text" name="tax_calculation_status" nullable="false" comment="Tax_calculation_status"/>
     <column xsi:type="text" name="tax_calculation_message" nullable="false" comment="Tax_calculation_message"/>
+    <column xsi:type="timestamp" name="synced_at" on_update="false" nullable="true" comment="Order_last_synced_at_date"/>
     <constraint xsi:type="primary" referenceId="PRIMARY">
       <column name="entity_id"/>
     </constraint>
     <constraint xsi:type="foreign" referenceId="TJ_SALES_ORDER_METADATA_ORDER_ID_SALES_ORDER_ENTITY_ID" table="tj_sales_order_metadata" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
     <index referenceId="TJ_SALES_ORDER_METADATA_ORDER_ID" indexType="btree">
       <column name="order_id"/>
+    </index>
+  </table>
+  <table name="tj_sales_creditmemo_metadata" resource="default" engine="innodb" comment="TaxJar Sales Credit Memo Metadata">
+    <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity_id"/>
+    <column xsi:type="int" name="creditmemo_id" padding="10" unsigned="true" nullable="false" identity="false" comment="Creditmemo_id"/>
+    <column xsi:type="timestamp" name="synced_at" on_update="false" nullable="true" comment="Creditmemo_last_synced_at_date"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="TJ_SALES_CREDITMEMO_METADATA_CREDITMEMO_ID_SALES_CREDITMEMO_ENTITY_ID" table="tj_sales_creditmemo_metadata" column="creditmemo_id" referenceTable="sales_creditmemo" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <index referenceId="TJ_SALES_CREDITMEMO_METADATA_CREDITMEMO_ID" indexType="btree">
+      <column name="creditmemo_id"/>
     </index>
   </table>
 </schema>

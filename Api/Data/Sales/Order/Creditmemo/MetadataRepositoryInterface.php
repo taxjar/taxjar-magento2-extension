@@ -15,39 +15,37 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Api\Data\Sales;
+namespace Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo;
 
 /**
  * @api
- * @deprecated as of version 1.10.0 with addition of Creditmemo metadata.
- * @see \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataRepositoryInterface
  */
 interface MetadataRepositoryInterface
 {
     /**
      * @param int $id
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
+     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getById($id);
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
+     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface $metadata
+     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function save(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity);
+    public function save(\Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface $metadata);
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity
+     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface $metadata
      * @return bool true on success
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
      */
-    public function delete(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity);
+    public function delete(\Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface $metadata);
 
     /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface
+     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataSearchResultInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);

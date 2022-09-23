@@ -17,18 +17,18 @@
 
 declare(strict_types=1);
 
-namespace Taxjar\SalesTax\Model\Sales\Order;
+namespace Taxjar\SalesTax\Model\Sales\Order\Creditmemo;
 
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
-use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterfaceFactory;
-use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataRepositoryInterface;
-use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata;
-use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\Collection;
-use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory as MetadataCollectionFactory;
+use Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface;
+use Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataSearchResultInterfaceFactory;
+use Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataRepositoryInterface;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\Collection;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory as MetadataCollectionFactory;
 
 class MetadataRepository implements MetadataRepositoryInterface
 {
@@ -73,7 +73,7 @@ class MetadataRepository implements MetadataRepositoryInterface
 
     /**
      * @param int $id
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
+     * @return MetadataInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getById($id)
@@ -87,8 +87,8 @@ class MetadataRepository implements MetadataRepositoryInterface
     }
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
+     * @param MetadataInterface $metadata
+     * @return MetadataInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function save(MetadataInterface $metadata)
@@ -98,7 +98,7 @@ class MetadataRepository implements MetadataRepositoryInterface
     }
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata
+     * @param MetadataInterface $metadata
      * @return bool true on success
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
      */
@@ -117,7 +117,7 @@ class MetadataRepository implements MetadataRepositoryInterface
 
     /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface
+     * @return \Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataSearchResultInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getList(SearchCriteriaInterface $searchCriteria)

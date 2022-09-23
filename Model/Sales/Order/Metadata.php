@@ -51,7 +51,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getId()
     {
@@ -59,7 +59,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getOrderId()
     {
@@ -67,7 +67,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setOrderId($orderId): self
     {
@@ -77,7 +77,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getTaxCalculationStatus()
     {
@@ -85,7 +85,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setTaxCalculationStatus($taxCalculationStatus)
     {
@@ -95,7 +95,7 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getTaxCalculationMessage()
     {
@@ -103,11 +103,29 @@ class Metadata extends AbstractModel implements MetadataInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setTaxCalculationMessage($taxCalculationMessage)
     {
         $this->setData(self::TAX_CALCULATION_MESSAGE, $taxCalculationMessage);
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSyncedAt()
+    {
+        return $this->getData(self::SYNCED_AT);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSyncedAt($syncedAt): self
+    {
+        $this->setData(self::SYNCED_AT, $syncedAt);
 
         return $this;
     }

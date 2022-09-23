@@ -18,14 +18,17 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager:etc/config.xsd">
     <preference for="Magento\Tax\Model\Sales\Total\Quote\Tax" type="Taxjar\SalesTax\Model\Tax\Sales\Total\Quote\Tax" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface" type="Taxjar\SalesTax\Model\Sales\Order\Metadata" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataRepositoryInterface" type="Taxjar\SalesTax\Model\Sales\Order\MetadataRepository" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface" type="orderMetadataSearchResult"/>
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataInterface" type="Taxjar\SalesTax\Model\Sales\Order\Creditmemo\Metadata" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataRepositoryInterface" type="Taxjar\SalesTax\Model\Sales\Order\Creditmemo\MetadataRepository" />
+    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\Creditmemo\MetadataSearchResultInterface" type="creditmemoMetadataSearchResult"/>
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusSearchResultsInterface" type="Magento\Framework\Api\SearchResults" />
     <preference for="Taxjar\SalesTax\Api\Data\Tax\NexusInterface" type="Taxjar\SalesTax\Model\Tax\Nexus" />
     <preference for="Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface" type="Taxjar\SalesTax\Model\Tax\Nexus\Repository" />
     <preference for="Taxjar\SalesTax\Api\AddressValidationInterface" type="Taxjar\SalesTax\Model\AddressValidation" />
     <preference for="Taxjar\SalesTax\Api\Client\ClientInterface" type="Taxjar\SalesTax\Model\Client" />
-    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface" type="Taxjar\SalesTax\Model\Sales\Order\Metadata" />
-    <preference for="Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface" type="Taxjar\SalesTax\Model\Sales\Order\MetadataSearchResult" />
-    <preference for="Taxjar\SalesTax\Api\Data\Sales\MetadataRepositoryInterface" type="Taxjar\SalesTax\Model\Sales\Order\MetadataRepository" />
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -72,4 +75,6 @@
             <argument name="fileDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
     </type>
+    <virtualType name="orderMetadataSearchResult" type="Magento\Framework\Api\SearchResults" />
+    <virtualType name="creditmemoMetadataSearchResult" type="Magento\Framework\Api\SearchResults" />
 </config>

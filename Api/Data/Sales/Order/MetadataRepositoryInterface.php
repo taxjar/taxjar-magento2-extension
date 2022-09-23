@@ -15,12 +15,10 @@
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
-namespace Taxjar\SalesTax\Api\Data\Sales;
+namespace Taxjar\SalesTax\Api\Data\Sales\Order;
 
 /**
  * @api
- * @deprecated as of version 1.10.0 with addition of Creditmemo metadata.
- * @see \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataRepositoryInterface
  */
 interface MetadataRepositoryInterface
 {
@@ -32,18 +30,18 @@ interface MetadataRepositoryInterface
     public function getById($id);
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity
+     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata
      * @return \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      */
-    public function save(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity);
+    public function save(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata);
 
     /**
-     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity
+     * @param \Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata
      * @return bool true on success
      * @throws \Magento\Framework\Exception\CouldNotDeleteException
      */
-    public function delete(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $entity);
+    public function delete(\Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface $metadata);
 
     /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
