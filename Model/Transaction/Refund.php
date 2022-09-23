@@ -210,7 +210,7 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
         $refundUpdatedAt = $this->originalRefund->getUpdatedAt();
         $refundSyncedAt = $this->originalRefund->getExtensionAttributes()
             ? $this->originalRefund->getExtensionAttributes()->getTjSyncedAt()
-            : $this->originalRefund->getData('tj_salestax_sync_date');
+            : $this->originalRefund->getData('tj_salestax_sync_date'); // legacy value
 
         if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
             $this->client->setApiKey($this->apiKey);

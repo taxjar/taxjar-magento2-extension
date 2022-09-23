@@ -173,7 +173,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         $orderUpdatedAt = $this->originalOrder->getUpdatedAt();
         $orderSyncedAt = ($this->originalOrder->getExtensionAttributes() !== null)
             ? $this->originalOrder->getExtensionAttributes()->getTjSyncedAt()
-            : $this->originalOrder->getData('tj_salestax_sync_date');
+            : $this->originalOrder->getData('tj_salestax_sync_date'); // legacy value
 
         if ($this->apiKey = $this->taxjarConfig->getApiKey($this->originalOrder->getStoreId())) {
             $this->client->setApiKey($this->apiKey);
