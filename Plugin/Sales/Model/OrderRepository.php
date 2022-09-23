@@ -62,7 +62,7 @@ class OrderRepository
      * @return OrderSearchResultInterface
      */
     public function afterGetList(
-        OrderRepositoryInterface   $subject,
+        OrderRepositoryInterface $subject,
         OrderSearchResultInterface $searchResult
     ): OrderSearchResultInterface {
         foreach ($searchResult->getItems() as &$order) {
@@ -87,7 +87,7 @@ class OrderRepository
      * @param OrderInterface $order
      * @return MetadataInterface|false
      */
-    private function _getMetadata(OrderInterface $order): MetadataInterface|bool
+    private function _getMetadata(OrderInterface $order)
     {
         /** @var Collection|MetadataInterface[] $collection */
         $collection = $this->collection->create();

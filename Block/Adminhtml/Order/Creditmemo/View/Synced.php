@@ -56,6 +56,6 @@ class Synced extends \Magento\Backend\Block\Widget
      */
     public function getSyncedAtDate($transaction)
     {
-        return $transaction->getExtensionAttributes()?->getTjSyncedAt();
+        return $transaction->getExtensionAttributes()->getTjSyncedAt();
     }
 }

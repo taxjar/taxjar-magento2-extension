@@ -87,7 +87,7 @@ class CreditmemoRepository
      * @param CreditmemoInterface $creditmemo
      * @return MetadataInterface|false
      */
-    private function _getMetadata(CreditmemoInterface $creditmemo): MetadataInterface|bool
+    private function _getMetadata(CreditmemoInterface $creditmemo)
     {
         /** @var Collection|MetadataInterface[] $collection */
         $collection = $this->collection->create();

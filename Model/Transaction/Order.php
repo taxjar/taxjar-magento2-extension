@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -28,7 +28,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\AbstractModel;
 use Magento\Tax\Api\TaxClassRepositoryInterface;
 use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataRepositoryInterface;
-use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataSearchResultInterface;
 use Taxjar\SalesTax\Helper\Data as TaxjarHelper;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration;
@@ -57,17 +56,17 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
     /**
      * @var MetadataRepositoryInterface
      */
-    private MetadataRepositoryInterface $metadataRepository;
+    private $metadataRepository;
 
     /**
-     * @var MetadataSearchResultInterface
+     * @var CollectionFactory
      */
-    private MetadataSearchResultInterface $metadataSearchResult;
+    private $collectionFactory;
 
     /**
-     * @var \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory
+     * @var string
      */
-    private \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory $collectionFactory;
+    private $apiKey;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -93,7 +92,7 @@ class Order extends \Taxjar\SalesTax\Model\Transaction
         TaxjarHelper $helper,
         Configuration $taxjarConfig,
         MetadataRepositoryInterface $metadataRepository,
-        \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory $collectionFactory
+        CollectionFactory $collectionFactory
     ) {
         $this->metadataRepository = $metadataRepository;
         $this->collectionFactory = $collectionFactory;

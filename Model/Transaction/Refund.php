@@ -11,7 +11,7 @@
  *
  * @category   Taxjar
  * @package    Taxjar_SalesTax
- * @copyright  Copyright (c) 2017 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 
@@ -54,12 +54,17 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     /**
      * @var MetadataRepositoryInterface
      */
-    private MetadataRepositoryInterface $metadataRepository;
+    private $metadataRepository;
 
     /**
      * @var CollectionFactory
      */
-    private CollectionFactory $collectionFactory;
+    private $collectionFactory;
+
+    /**
+     * @var string
+     */
+    private $apiKey;
 
     /**
      * @param ScopeConfigInterface $scopeConfig

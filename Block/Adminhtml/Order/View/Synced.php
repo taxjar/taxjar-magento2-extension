@@ -23,10 +23,10 @@ class Synced extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
      * Return last synced at date
      *
      * @param \Magento\Sales\Model\Order $order
-     * @return string
+     * @return string|null
      */
     public function getSyncedAtDate($order)
     {
-        return $order->getExtensionAttributes()?->getTjSyncedAt();
+        return $order->getExtensionAttributes()->getTjSyncedAt();
     }
 }

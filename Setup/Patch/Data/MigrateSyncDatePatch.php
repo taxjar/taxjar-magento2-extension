@@ -1,4 +1,19 @@
 <?php
+/**
+ * Taxjar_SalesTax
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category   Taxjar
+ * @package    Taxjar_SalesTax
+ * @copyright  Copyright (c) 2022 TaxJar. TaxJar is a trademark of TPS Unlimited, Inc. (http://www.taxjar.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ */
 
 namespace Taxjar\SalesTax\Setup\Patch\Data;
 
@@ -6,7 +21,11 @@ use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as CreditmemoCollectionFactory;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory
+    as CreditmemoMetadataCollectionFactory;
+use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory as OrderMetadataCollectionFactory;
 use Taxjar\SalesTax\Model\Sales\Order\Creditmemo\Metadata as CreditmemoMetadata;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata as OrderMetadata;
 
@@ -18,36 +37,38 @@ class MigrateSyncDatePatch implements DataPatchInterface
     private $moduleDataSetup;
 
     /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory
+     * @var OrderCollectionFactory
      */
-    private \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollection;
+    private $orderCollection;
 
     /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory
+     * @var CreditmemoCollectionFactory
      */
-    private \Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory $creditmemoCollection;
+    private $creditmemoCollection;
 
     /**
-     * @var \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory
+     * @var OrderMetadataCollectionFactory
      */
-    private \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory $orderMetadataCollection;
+    private $orderMetadataCollection;
 
     /**
-     * @var \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory
+     * @var CreditmemoMetadataCollectionFactory
      */
-    private \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory $creditmemoMetadataCollection;
+    private $creditmemoMetadataCollection;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param CollectionFactory $orderCollection
-     * @param \Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory $creditmemoCollection
+     * @param OrderCollectionFactory $orderCollection
+     * @param CreditmemoCollectionFactory $creditmemoCollection
+     * @param OrderMetadataCollectionFactory $orderMetadataCollection
+     * @param CreditmemoMetadataCollectionFactory $creditmemoMetadataCollection
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
-        \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollection,
-        \Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory $creditmemoCollection,
-        \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory $orderMetadataCollection,
-        \Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Creditmemo\Metadata\CollectionFactory $creditmemoMetadataCollection
+        OrderCollectionFactory $orderCollection,
+        CreditmemoCollectionFactory $creditmemoCollection,
+        OrderMetadataCollectionFactory $orderMetadataCollection,
+        CreditmemoMetadataCollectionFactory $creditmemoMetadataCollection
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->orderCollection = $orderCollection;
