@@ -236,9 +236,6 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
                 'api'
             );
 
-//            $this->originalRefund->setData('tj_salestax_sync_date', gmdate('Y-m-d H:i:s'));
-//            $this->originalRefund->getResource()->saveAttribute($this->originalRefund, 'tj_salestax_sync_date');
-
             $syncDate = gmdate('Y-m-d H:i:s');
 
             /** @var Metadata $metadata */
@@ -258,7 +255,6 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
             $extensionAttributes->setTjSyncedAt($syncDate);
 
             $this->originalRefund->setExtensionAttributes($extensionAttributes);
-            
         } catch (\Exception $e) {
             $this->logger->log('Error: ' . $e->getMessage(), 'error');
             $error = json_decode($e->getMessage());
