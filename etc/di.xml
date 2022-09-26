@@ -52,6 +52,9 @@
     <type name="Magento\Sales\Api\OrderRepositoryInterface">
         <plugin name="taxjar_order_repository" type="Taxjar\SalesTax\Plugin\Sales\Model\OrderRepository" />
     </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\FilterPool">
+        <plugin name="taxjarBeforeApplyFilters" type="Taxjar\SalesTax\Plugin\BeforeApplyFilters"/>
+    </type>
     <type name="Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand">
         <arguments>
             <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>
