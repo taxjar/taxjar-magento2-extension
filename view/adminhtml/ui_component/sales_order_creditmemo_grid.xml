@@ -18,13 +18,13 @@
 -->
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <columns name="sales_order_creditmemo_columns">
-        <column name="tj_salestax_sync_date" class="Taxjar\SalesTax\Ui\Component\Listing\Column\SyncedCreditmemo">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="visible" xsi:type="boolean">false</item>
-                    <item name="label" xsi:type="string" translate="true">Synced to TaxJar</item>
-                </item>
-            </argument>
+        <column name="tj_salestax_sync_date" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Synced to TaxJar</label>
+                <visible>false</visible>
+            </settings>
         </column>
     </columns>
 </listing>

@@ -17,58 +17,34 @@
 
 namespace Taxjar\SalesTax\Plugin;
 
-use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Data\Collection;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory;
-use Magento\Sales\Model\ResourceModel\Order\Grid\Collection as OrderGridCollection;
 use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Grid\Collection as CreditmemoGridCollection;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Order\Grid\Collection as OrderCreditmemoGridCollection;
+use Magento\Sales\Model\ResourceModel\Order\Grid\Collection as OrderGridCollection;
 
 class AddTjSyncDateToGrid
 {
     /**
-     * @var ResourceConnection
-     */
-    protected $resource;
-
-    /**
-     * @param ResourceConnection $resource
-     */
-    public function __construct(
-        ResourceConnection $resource
-    ) {
-        $this->resource = $resource;
-    }
-
-    /**
-     * Join tj_salestax_sync_date in the order and creditmemo admin grids
+     * Join tj_salestax_sync_date in the order, creditmemo, and order-creditmemo admin grids
      *
      * @param CollectionFactory $subject
-     * @param $collection
+     * @param Collection|AbstractDb $collection
      * @return \Magento\Framework\Data\Collection
      */
-    public function afterGetReport(
-        CollectionFactory $subject,
-        $collection
-    ) {
-        if ($collection instanceof OrderGridCollection) {
+    public function afterGetReport(CollectionFactory $subject, $collection)
+    {
+        if ($collection instanceof OrderGridCollection
+            || $collection instanceof CreditmemoGridCollection
+            || $collection instanceof OrderCreditmemoGridCollection
+        ) {
+            $table = $collection instanceof OrderGridCollection ? 'sales_order' : 'sales_creditmemo';
             $collection->getSelect()->joinLeft(
-                ['orders' => $this->resource->getTableName('sales_order')],
-                'main_table.entity_id = orders.entity_id',
+                ['sales_alias' => $collection->getConnection()->getTableName($table)],
+                'main_table.entity_id = sales_alias.entity_id',
                 'tj_salestax_sync_date'
             );
-        }
-
-        if ($collection instanceof CreditmemoGridCollection) {
-            $collection->getSelect()->joinLeft(
-                ['creditmemos' => $this->resource->getTableName('sales_creditmemo')],
-                'main_table.entity_id = creditmemos.entity_id',
-                'tj_salestax_sync_date'
-            );
-            $collection->addFilterToMap('created_at', 'main_table.created_at');
-            $collection->addFilterToMap('base_grand_total', 'main_table.base_grand_total');
-            $collection->addFilterToMap('increment_id', 'main_table.increment_id');
-            $collection->addFilterToMap('state', 'main_table.state');
-            $collection->addFilterToMap('store_id', 'main_table.store_id');
-            $collection->addFilterToMap('entity_id', 'main_table.entity_id');
         }
 
         return $collection;
