@@ -31,6 +31,7 @@ if ($synced) {
     <th><?= $block->escapeHtml(__('Synced to TaxJar')) ?></th>
     <td><?= $block->escapeHtml($orderSyncDate) ?></td>
 </tr>
+<?php endif; ?>
 <script>
     require([
         'jquery',
@@ -56,4 +57,3 @@ if ($synced) {
         };
     });
 </script>
-<?php endif; ?>
