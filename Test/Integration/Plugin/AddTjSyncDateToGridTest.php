@@ -62,8 +62,6 @@ class AddTjSyncDateToGridTest extends IntegrationTestCase
         $this->assertSame($expectedJoinParts['joinCondition'], $joinParts['sales_alias']['joinCondition']);
     }
 
-
-
     public function testAfterGetReportOrderCreditmemoGrid()
     {
         $subject = $this->objectManager->get(CollectionFactory::class);
