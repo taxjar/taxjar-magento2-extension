@@ -1,0 +1,8 @@
+{
+  "name": "module-taxjar",
+  "version": "1.9.9",
+  "description": "TaxJar Sales Tax Module for Magento 2",
+  "scripts": {
+    "build": "zip -r Taxjar_SalesTax-${npm_package_version}.zip ./ -x \"package.json\" \".git/*\" \".github/*\" \".gitignore\" \"vendor/*\" \"Test/Integration/credentials.php\" \".travis.yml\" \".vscode/*\" \".DS_Store\" \".idea\" \".editorconfig\""
+  }
+}
