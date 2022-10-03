@@ -2,7 +2,7 @@
     "name": "taxjar/module-taxjar",
     "description": "TaxJar Sales Tax Module for Magento 2",
     "type": "magento2-module",
-    "version": "1.9.10",
+    "version": "2.0.0",
     "license": "OSL-3.0",
     "require": {
         "magento/framework": "^103.0.0"
