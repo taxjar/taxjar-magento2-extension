@@ -83,13 +83,15 @@ class Logger
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Magento\Framework\Filesystem\DriverInterface $fileDriver,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Taxjar\SalesTax\Model\Configuration $taxjarConfig
+        \Taxjar\SalesTax\Model\Configuration $taxjarConfig,
+        bool $isForced = false,
     ) {
         $this->directoryList = $directoryList;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->fileDriver = $fileDriver;
         $this->taxjarConfig = $taxjarConfig;
+        $this->isForced = $isForced;
     }
 
     /**
@@ -183,9 +185,8 @@ class Logger
                 if ($this->isRecording) {
                     $this->playback[] = $message;
                 }
-                if ($this->console) {
-                    $this->console->write($message);
-                }
+
+                $this->console?->write($message);
             } catch (\Exception $e) {
                 throw new \Magento\Framework\Exception\LocalizedException(
                     __(
