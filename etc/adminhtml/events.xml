@@ -41,7 +41,4 @@
     <event name="adminhtml_customer_prepare_save">
         <observer name="taxjar_salestax_customer_save_before" instance="Taxjar\SalesTax\Observer\Customer\Save"/>
     </event>
-    <event name="customer_delete_before">
-        <observer name="taxjar_salestax_customer_delete_before" instance="Taxjar\SalesTax\Observer\Customer\Delete"/>
-    </event>
 </config>

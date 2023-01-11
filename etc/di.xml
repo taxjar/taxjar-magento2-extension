@@ -34,6 +34,9 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Customer\Api\CustomerRepositoryInterface">
+        <plugin name="taxjar_customer_repository_interface" type="Taxjar\SalesTax\Plugin\Customer\Model\ResourceModel\CustomerRepository"/>
+    </type>
     <type name="Magento\Framework\RequireJs\Config\File\Collector\Aggregated">
         <plugin name="manage_address_validation_mixins" type="Taxjar\SalesTax\Plugin\RequireJs\AfterFiles" sortOrder="100"/>
     </type>
