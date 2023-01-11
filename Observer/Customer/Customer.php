@@ -85,7 +85,7 @@ abstract class Customer implements ObserverInterface
      * @return array|null
      * @throws LocalizedException
      */
-    protected function updateTaxjar($lastSync, $data)
+    protected function updateTaxjar(string $lastSync, array $data): ?array
     {
         $customerId = $data['customer_id'];
         $response = null;
@@ -94,23 +94,20 @@ abstract class Customer implements ObserverInterface
             try {
                 $response = $this->client->postResource('customers', $data);  //create a new customer
             } catch (LocalizedException $e) {
-                $message = json_decode($e->getMessage());
+                $exceptionMessage = json_decode($e->getMessage());
 
-                if (isset($message->status) && $message->status == 422) {  //unprocessable
+                if (isset($exceptionMessage->status) && $exceptionMessage->status == 422) {  //unprocessable
                     try {
-                        $this->logger->log(
-                            'Could not create customer #' . $customerId . ', attempting to update instead',
-                            'fallback'
-                        );
+                        $message = 'Could not create customer #' . $customerId . ', attempting to update instead';
+                        $this->logger->log($message, 'fallback');
                         $response = $this->client->putResource('customers', $customerId, $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log(
-                            'Could not update customer #' . $customerId . ": " . $e->getMessage(),
-                            'error'
-                        );
+                        $message = 'Could not update customer #' . $customerId . ": " . $e->getMessage();
+                        $this->logger->log($message, 'error');
                     }
                 } else {
-                    $this->logger->log('Could not create customer #' . $customerId . ': ' . $e->getMessage(), 'error');
+                    $message = 'Could not create customer #' . $customerId . ': ' . $e->getMessage();
+                    $this->logger->log($message, 'error');
                 }
             }
         } else {
@@ -121,19 +118,16 @@ abstract class Customer implements ObserverInterface
 
                 if (isset($message->status) && $message->status == 404) {  //unprocessable
                     try {
-                        $this->logger->log(
-                            'Could not update customer #' . $customerId . ', attempting to create instead',
-                            'fallback'
-                        );
+                        $message = 'Could not update customer #' . $customerId . ', attempting to create instead';
+                        $this->logger->log($message, 'fallback');
                         $response = $this->client->postResource('customers', $data);
                     } catch (LocalizedException $e) {
-                        $this->logger->log(
-                            'Could not create customer #' . $customerId . ": " . $e->getMessage(),
-                            'error'
-                        );
+                        $message = 'Could not create customer #' . $customerId . ": " . $e->getMessage();
+                        $this->logger->log($message, 'error');
                     }
                 } else {
-                    $this->logger->log('Could not update customer #' . $customerId . ': ' . $e->getMessage(), 'error');
+                    $message = 'Could not update customer #' . $customerId . ': ' . $e->getMessage();
+                    $this->logger->log($message, 'error');
                 }
             }
         }
@@ -142,10 +136,10 @@ abstract class Customer implements ObserverInterface
     }
 
     /**
-     * @param string $regions
+     * @param array|string $regions
      * @return array
      */
-    protected function getRegionsArray($regions)
+    protected function getRegionsArray($regions): array
     {
         $customerRegions = [];
 

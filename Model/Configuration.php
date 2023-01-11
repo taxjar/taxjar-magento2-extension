@@ -117,7 +117,7 @@ class Configuration
      */
     public function isSandboxEnabled(): bool
     {
-        return (bool) (int) $this->scopeConfig->getValue(self::TAXJAR_SANDBOX_ENABLED);
+        return (bool) $this->scopeConfig->getValue(self::TAXJAR_SANDBOX_ENABLED);
     }
 
     /**

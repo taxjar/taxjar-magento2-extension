@@ -36,7 +36,7 @@ class Save extends Customer
             return;
         }
 
-        $customerAddress = $customer->getAddresses();
+        $customerAddress = $customer->getAddresses() ?: [];
         $customerAddress = reset($customerAddress);
 
         try {
@@ -52,9 +52,9 @@ class Save extends Customer
         // Null values are used to delete old address data
         $data = [
             'customer_id' => $customer->getId(),
-            'exemption_type' => $customer->getTjExemptionType(),
+            'exemption_type' => $customer->getCustomAttribute('tj_exemption_type')->getValue(),
             'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
-            'exempt_regions' => $this->getRegionsArray($customer->getTjRegions()),
+            'exempt_regions' => $this->getRegionsArray($customer->getCustomAttribute('tj_regions')->getValue()),
             'country' => null,
             'state' => null,
             'zip' => null,
@@ -77,7 +77,7 @@ class Save extends Customer
             }
         }
 
-        $response = $this->updateTaxjar($customer->getTjLastSync(), $data);
+        $response = $this->updateTaxjar($customer->getCustomAttribute('tj_last_sync')->getValue(), $data);
 
         if (isset($response)) {
             $this->logger->log('Successful API response: ' . json_encode($response), 'success');
