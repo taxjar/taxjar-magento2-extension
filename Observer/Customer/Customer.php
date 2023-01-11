@@ -119,7 +119,7 @@ abstract class Customer implements ObserverInterface
                 if (isset($message->status) && $message->status == 404) {  //unprocessable
                     try {
                         $message = 'Could not update customer #' . $customerId . ', attempting to create instead';
-                        $this->logger->log($message,'fallback');
+                        $this->logger->log($message, 'fallback');
                         $response = $this->client->postResource('customers', $data);
                     } catch (LocalizedException $e) {
                         $message = 'Could not create customer #' . $customerId . ": " . $e->getMessage();
@@ -139,7 +139,7 @@ abstract class Customer implements ObserverInterface
      * @param array|string $regions
      * @return array
      */
-    protected function getRegionsArray(array|string $regions): array
+    protected function getRegionsArray($regions): array
     {
         $customerRegions = [];
 

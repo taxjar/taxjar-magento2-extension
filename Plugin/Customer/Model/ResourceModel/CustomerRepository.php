@@ -9,7 +9,10 @@ use Taxjar\SalesTax\Model\ClientFactory;
 
 class CustomerRepository
 {
-    private ClientFactory $clientFactory;
+    /**
+     * @var ClientFactory
+     */
+    private $clientFactory;
 
     /**
      * @param ClientFactory $clientFactory
