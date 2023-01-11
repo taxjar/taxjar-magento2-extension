@@ -305,7 +305,7 @@ class Transaction
      * @param OrderInterface $order
      * @return string
      */
-    protected function getProvider($order): string
+    public function getProvider($order): string
     {
         $provider = 'api';
 
