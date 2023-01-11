@@ -35,9 +35,11 @@ class Delete extends Customer
         }
 
         try {
+            // Although not annotated, this method may throw exception
             $this->client->deleteResource('customers', $customerId);
         } catch (LocalizedException $e) {
-            $this->logger->log('Could not delete customer #' . $customerId . ": " . $e->getMessage(), 'error');
+            $message = 'Could not delete customer #' . $customerId . ": " . $e->getMessage();
+            $this->logger->log($message, 'error');
         }
     }
 }
