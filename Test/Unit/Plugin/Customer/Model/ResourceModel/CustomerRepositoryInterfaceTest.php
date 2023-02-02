@@ -66,7 +66,8 @@ class CustomerRepositoryInterfaceTest extends UnitTestCase
         static::assertSame(123, $this->sut->beforeDeleteById($subjectMock, 123));
     }
 
-    public function testBeforeDeleteByIdFailureLogsError() {
+    public function testBeforeDeleteByIdFailureLogsError()
+    {
         $expectedMessage = 'Could not delete customer #123: Failed to initialize client';
 
         $mockException = new LocalizedException(__('Failed to initialize client'));
