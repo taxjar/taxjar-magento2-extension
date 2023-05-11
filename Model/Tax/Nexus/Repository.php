@@ -183,12 +183,13 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         $exception = new InputException();
         // @codingStandardsIgnoreEnd
 
-        if (!\Zend_Validate::is(trim((string) $nexus->getCountryId()), 'NotEmpty')) {
+        $validator = new \Laminas\Validator\NotEmpty();
+        if (!$validator->isValid(trim((string) $nexus->getCountryId()))) {
             $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
         }
 
         if (($nexus->getCountryId() == 'US' || $nexus->getCountryId() == 'CA') &&
-            !\Zend_Validate::is($nexus->getRegionId(), 'NotEmpty')) {
+            !$validator->isValid($nexus->getRegionId())) {
             $exception->addError(__('State can\'t be empty if country is US/Canada'));
         }
 

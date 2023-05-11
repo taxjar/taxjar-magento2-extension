@@ -17,6 +17,8 @@
 
 namespace Taxjar\SalesTax\Model;
 
+use Laminas\Http\Client as LaminasClient;
+use Laminas\Http\Request as LaminasRequest;
 use Magento\Framework\Exception\LocalizedException;
 use Taxjar\SalesTax\Api\Client\ClientInterface;
 use Taxjar\SalesTax\Helper\Data;
@@ -88,8 +90,9 @@ class Client implements ClientInterface
      */
     public function postResource($resource, $data, $errors = [])
     {
-        $client = $this->getClient($this->_getApiUrl($resource), \Zend_Http_Client::POST);
-        $client->setRawData(json_encode($data), 'application/json');
+        $client = $this->getClient($this->_getApiUrl($resource), LaminasRequest::METHOD_POST);
+        $client->setRawBody(json_encode($data));
+        $client->setEncType('application/json');
         return $this->_getRequest($client, $errors);
     }
 
@@ -105,8 +108,9 @@ class Client implements ClientInterface
     public function putResource($resource, $resourceId, $data, $errors = [])
     {
         $resourceUrl = $this->_getApiUrl($resource) . '/' . $resourceId;
-        $client = $this->getClient($resourceUrl, \Zend_Http_Client::PUT);
-        $client->setRawData(json_encode($data), 'application/json');
+        $client = $this->getClient($resourceUrl, LaminasRequest::METHOD_PUT);
+        $client->setRawBody(json_encode($data));
+        $client->setEncType('application/json');
         return $this->_getRequest($client, $errors);
     }
 
@@ -121,7 +125,7 @@ class Client implements ClientInterface
     public function deleteResource($resource, $resourceId, $errors = [])
     {
         $resourceUrl = $this->_getApiUrl($resource) . '/' . $resourceId;
-        $client = $this->getClient($resourceUrl, \Zend_Http_Client::DELETE);
+        $client = $this->getClient($resourceUrl, LaminasRequest::METHOD_DELETE);
         return $this->_getRequest($client, $errors);
     }
 
@@ -150,16 +154,14 @@ class Client implements ClientInterface
      *
      * @param string $url
      * @param string $method
-     * @return \Zend_Http_Client $client
+     * @return \Laminas\Http\Client $client
      */
-    private function getClient($url, $method = \Zend_Http_Client::GET)
+    private function getClient($url, $method = LaminasRequest::METHOD_GET)
     {
-        // @codingStandardsIgnoreStart
-        $client = new \Zend_Http_Client($url, ['timeout' => 30]);
-        // @codingStandardsIgnoreEnd
+        $client = new LaminasClient($url, ['timeout' => 30]);
         $client->setUri($url);
         $client->setMethod($method);
-        $client->setConfig([
+        $client->setOptions([
             'useragent' => $this->tjHelper->getUserAgent(),
             'referer' => $this->tjHelper->getStoreUrl()
         ]);
@@ -174,7 +176,7 @@ class Client implements ClientInterface
     /**
      * Get HTTP request
      *
-     * @param \Zend_Http_Client $client
+     * @param \Laminas\Http\Client $client
      * @param array $errors
      * @return array
      * @throws LocalizedException
@@ -182,15 +184,15 @@ class Client implements ClientInterface
     private function _getRequest($client, $errors = [])
     {
         try {
-            $response = $client->request();
+            $response = $client->send();
 
-            if ($response->isSuccessful()) {
+            if ($response->isSuccess()) {
                 $json = $response->getBody();
                 return json_decode($json, true);
             } else {
                 $this->_handleError($errors, $response);
             }
-        } catch (\Zend_Http_Client_Exception $e) {
+        } catch (\Laminas\Http\Exception\RuntimeException $e) {
             throw new LocalizedException(__('Could not connect to TaxJar.'));
         }
     }
@@ -246,14 +248,14 @@ class Client implements ClientInterface
      * Handle API errors and throw exception
      *
      * @param array $customErrors
-     * @param \Zend_Http_Response $response
+     * @param \Laminas\Http\Response $response
      * @return void
      * @throws LocalizedException
      */
     private function _handleError($customErrors, $response)
     {
         $errors = $this->_defaultErrors() + $customErrors;
-        $statusCode = $response->getStatus();
+        $statusCode = $response->getStatusCode();
 
         if ($this->showResponseErrors) {
             throw new LocalizedException(__($response->getBody()));
