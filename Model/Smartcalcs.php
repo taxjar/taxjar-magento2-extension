@@ -17,15 +17,15 @@
 
 namespace Taxjar\SalesTax\Model;
 
-use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Directory\Model\RegionFactory;
-use Magento\Framework\HTTP\ZendClientFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\HTTP\LaminasClientFactory as HttpClientFactory;
 use Magento\Store\Model\ScopeInterface;
 use Taxjar\SalesTax\Api\Data\Sales\Order\MetadataInterface;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
-use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -38,7 +38,7 @@ class Smartcalcs
     protected $checkoutSession;
 
     /**
-     * @var ZendClientFactory
+     * @var HttpClientFactory
      */
     protected $clientFactory;
 
@@ -83,7 +83,7 @@ class Smartcalcs
     protected $scopeConfig;
 
     /**
-     * @var \Zend_Http_Response
+     * @var \Magento\Framework\App\Response\Http
      */
     protected $response;
 
@@ -115,7 +115,7 @@ class Smartcalcs
      * @param NexusFactory $nexusFactory
      * @param \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface
      * @param ScopeConfigInterface $scopeConfig
-     * @param ZendClientFactory $clientFactory
+     * @param HttpClientFactory $clientFactory
      * @param ProductMetadataInterface $productMetadata
      * @param \Magento\Tax\Helper\Data $taxData
      * @param \Taxjar\SalesTax\Helper\Data $tjHelper
@@ -130,7 +130,7 @@ class Smartcalcs
         NexusFactory $nexusFactory,
         \Magento\Tax\Api\TaxClassRepositoryInterface $taxClassRepositoryInterface,
         ScopeConfigInterface $scopeConfig,
-        ZendClientFactory $clientFactory,
+        HttpClientFactory $clientFactory,
         ProductMetadataInterface $productMetadata,
         \Magento\Tax\Helper\Data $taxData,
         \Taxjar\SalesTax\Helper\Data $tjHelper,
@@ -179,9 +179,10 @@ class Smartcalcs
         $order = $this->_getOrder($quote, $quoteTaxDetails, $address);
 
         if ($this->_orderChanged($order)) {
+            /** @var  \Magento\Framework\HTTP\LaminasClient $client */
             $client = $this->clientFactory->create();
             $client->setUri($this->taxjarConfig->getApiUrl() . '/magento/taxes');
-            $client->setConfig([
+            $client->setOptions([
                 'useragent' => $this->tjHelper->getUserAgent(),
                 'referer' => $this->tjHelper->getStoreUrl()
             ]);
@@ -189,18 +190,20 @@ class Smartcalcs
                 'Authorization' => "Bearer $apiKey",
                 'x-api-version' => TaxjarConfig::TAXJAR_X_API_VERSION
             ]);
-            $client->setRawData(json_encode($order), 'application/json');
+            $client->setRawBody(json_encode($order), 'application/json');
 
             $this->logger->log('Calculating sales tax: ' . json_encode($order), 'post');
 
             $this->_setSessionData('order', json_encode($order, JSON_NUMERIC_CHECK | JSON_PRESERVE_ZERO_FRACTION));
 
             try {
-                $response = $client->request('POST');
+                $client->setMethod(\Magento\Framework\App\Request\Http::METHOD_POST);
+                /** @var \Magento\Framework\App\Response\Http $response */
+                $response = $client->send();
                 $this->response = $response;
                 $this->_setSessionData('response', $response);
 
-                if (200 == $response->getStatus()) {
+                if (\Laminas\Http\Response::STATUS_CODE_200 == $response->getStatusCode()) {
                     $this->logger->log('Successful API response: ' . $response->getBody(), 'success');
                     $metadata = [
                         MetadataInterface::TAX_CALCULATION_STATUS => Metadata::TAX_CALCULATION_STATUS_SUCCESS,
@@ -217,7 +220,7 @@ class Smartcalcs
                             $errorResponse->error . ' - ' . $errorResponse->detail,
                     ];
                 }
-            } catch (\Zend_Http_Client_Exception $e) {
+            } catch (\Laminas\Http\Client\Exception\ExceptionInterface $e) {
                 // Catch API timeouts and network issues
                 $this->logger->log(
                     'API timeout or network issue between your store and TaxJar, please try again later.',
@@ -358,7 +361,7 @@ class Smartcalcs
         if ($this->response) {
             return [
                 'body' => json_decode($this->response->getBody(), true),
-                'status' => $this->response->getStatus(),
+                'status' => $this->response->getStatusCode(),
             ];
         } else {
             return [
