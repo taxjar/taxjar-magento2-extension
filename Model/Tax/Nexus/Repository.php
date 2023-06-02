@@ -24,6 +24,8 @@ use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException as ModelException;
+use Magento\Framework\Validator\NotEmpty;
+use Magento\Framework\Validator\ValidatorChain;
 use Taxjar\SalesTax\Model\Tax\Nexus;
 use Taxjar\SalesTax\Model\Tax\NexusRegistry;
 use Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\Collection as NexusCollection;
@@ -183,12 +185,12 @@ class Repository implements \Taxjar\SalesTax\Api\Tax\NexusRepositoryInterface
         $exception = new InputException();
         // @codingStandardsIgnoreEnd
 
-        if (!\Zend_Validate::is(trim((string) $nexus->getCountryId()), 'NotEmpty')) {
+        if (!ValidatorChain::is(trim((string)$nexus->getCountryId()), NotEmpty::class)) {
             $exception->addError(__('%fieldName is a required field.', ['fieldName' => Nexus::KEY_COUNTRY_ID]));
         }
 
-        if (($nexus->getCountryId() == 'US' || $nexus->getCountryId() == 'CA') &&
-            !\Zend_Validate::is($nexus->getRegionId(), 'NotEmpty')) {
+        if (in_array($nexus->getCountryId(), ['US', 'CA']) &&
+            !ValidatorChain::is($nexus->getRegionId(), NotEmpty::class)) {
             $exception->addError(__('State can\'t be empty if country is US/Canada'));
         }
 

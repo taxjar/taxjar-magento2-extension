@@ -116,7 +116,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface, PatchRevertable
 
     /**
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
-     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
+     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Laminas\Validator\Exception\RuntimeException
      */
     protected function createTjExemptionTypeAttribute($eavSetup)
     {
@@ -197,7 +197,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface, PatchRevertable
 
     /**
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
-     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
+     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Laminas\Validator\Exception\RuntimeException
      */
     protected function createTjRegionsAttribute($eavSetup)
     {
@@ -278,7 +278,7 @@ class AddExtensionAttributesPatch implements DataPatchInterface, PatchRevertable
 
     /**
      * @param \Magento\Eav\Setup\EavSetup $eavSetup
-     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Zend_Validate_Exception
+     * @throws \Magento\Framework\Exception\AlreadyExistsException|\Magento\Framework\Exception\LocalizedException|\Laminas\Validator\Exception\RuntimeException
      */
     protected function createTjLastSyncAttribute($eavSetup)
     {
