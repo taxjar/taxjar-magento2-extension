@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.0] - 2025-04-24
+- Fix issue with uncreated customer attributes
+
 ## [2.2.0] - 2023-07-12
 - Replace Zend_Http_Client with Magento\Framework\HTTP\LaminasClient
 
@@ -311,6 +314,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
 [Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v2.2.0..HEAD
+[3.0.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v2.2.0...v3.0.0
 [2.2.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v1.9.9...v2.0.0
