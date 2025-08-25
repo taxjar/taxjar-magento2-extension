@@ -4,6 +4,7 @@ namespace Taxjar\SalesTax\Plugin\Customer\Model\ResourceModel;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Psr\Log\LoggerInterface;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Model\ClientFactory;
 
@@ -15,11 +16,17 @@ class CustomerRepository
     private $clientFactory;
 
     /**
+     * @var LoggerInterface|null
+     */
+    private $logger;
+
+    /**
      * @param ClientFactory $clientFactory
      */
-    public function __construct(ClientFactory $clientFactory)
+    public function __construct(ClientFactory $clientFactory, ?LoggerInterface $logger = null)
     {
         $this->clientFactory = $clientFactory;
+        $this->logger = $logger;
     }
 
     /**
@@ -38,7 +45,9 @@ class CustomerRepository
             $this->getClient()->deleteResource('customers', $customerId);
         } catch (LocalizedException $e) {
             $message = 'Could not delete customer #' . $customerId . ": " . $e->getMessage();
-            $this->logger->log($message, 'error');
+            if ($this->logger) {
+                $this->logger->error($message);
+            }
         }
 
         return $customerId;
