@@ -261,16 +261,38 @@ class NexusSyncTest extends UnitTestCase
         $regionMock = $this->getMockBuilder(Region::class)->disableOriginalConstructor()->getMock();
         $regionMock->expects(static::exactly(2))
             ->method('loadByCode')
-            ->withConsecutive(['TX', 'US'], ['', 'GB'])
-            ->willReturnSelf();
+            ->willReturnCallback(function ($code, $country) use ($regionMock) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedCalls = [
+                    ['TX', 'US'],
+                    ['', 'GB']
+                ];
+
+                $this->assertSame($expectedCalls[$callCount - 1], [$code, $country]);
+
+                return $regionMock;
+            });
         $regionMock->expects(static::atLeast(2))->method('getId')->willReturn(99);
         $this->regionFactoryMock->expects(static::atLeast(2))->method('create')->willReturn($regionMock);
 
         $countryMock = $this->getMockBuilder(Country::class)->disableOriginalConstructor()->getMock();
         $countryMock->expects(static::exactly(2))
             ->method('loadByCode')
-            ->withConsecutive(['US'], ['GB'])
-            ->willReturnSelf();
+            ->willReturnCallback(function ($code) use ($countryMock) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedCalls = [
+                    ['US'],
+                    ['GB']
+                ];
+
+                $this->assertSame($expectedCalls[$callCount - 1], [$code]);
+
+                return $countryMock;
+            });
         $countryMock->expects(static::atLeast(2))->method('getId')->willReturn(77);
         $this->countryFactoryMock->expects(static::atLeast(2))->method('create')->willReturn($countryMock);
         $this->nexusResourceMock->expects(static::any())->method('getIdFieldName')->willReturn('id');

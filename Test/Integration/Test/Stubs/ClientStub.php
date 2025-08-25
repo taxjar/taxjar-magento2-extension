@@ -32,6 +32,11 @@ class ClientStub implements ClientInterface
     public $mockResponse = null;
 
     /**
+     * @var bool
+     */
+    public $showResponseErrors = false;
+
+    /**
      * @param Data $tjHelper
      * @param TaxjarConfig $taxjarConfig
      * @param BackupRateOriginAddress $backupRateOriginAddress

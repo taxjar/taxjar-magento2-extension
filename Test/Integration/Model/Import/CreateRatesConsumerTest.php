@@ -6,13 +6,14 @@ namespace Taxjar\SalesTax\Test\Integration\Model\Import;
 
 use Magento\AsynchronousOperations\Api\Data\OperationInterfaceFactory;
 use Magento\Config\Model\ResourceModel\Config as MagentoConfig;
-use Magento\Framework\Api\SearchCriteria;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Bulk\BulkManagementInterface;
 use Magento\Framework\Bulk\OperationInterface;
 use Magento\Framework\DataObject\IdentityGeneratorInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Tax\Api\TaxRuleRepositoryInterface;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\CreateRatesConsumer;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
 
@@ -72,9 +73,13 @@ class CreateRatesConsumerTest extends IntegrationTestCase
 
         /** @var TaxRuleRepositoryInterface $ruleRepository */
         $ruleRepository = $this->objectManager->get(TaxRuleRepositoryInterface::class);
+        $searchCriteria = ($this->objectManager->get(SearchCriteriaBuilder::class))
+            ->addFilter('code', TaxjarConfig::TAXJAR_BACKUP_RATE_CODE)
+            ->create();
         /** @var \Magento\Tax\Api\Data\TaxRuleSearchResultsInterface $rules */
-        $rules = $ruleRepository->getList(new SearchCriteria());
-        $ids = array_values($rules->getItems())[0]->getTaxRateIds();
+        $rules = $ruleRepository->getList($searchCriteria);
+        $ruleItems = array_values($rules->getItems());
+        $ids = $ruleItems ? $ruleItems[0]->getTaxRateIds() : [];
 
         self::assertEquals(1, $rules->getTotalCount());
         self::assertEquals(1, count($ids));

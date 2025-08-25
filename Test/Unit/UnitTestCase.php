@@ -11,6 +11,10 @@ use Taxjar\SalesTax\Test\BaseTestCase;
 class UnitTestCase extends BaseTestCase
 {
     /**
+     * @var ObjectManager
+     */
+    protected $objectManager;
+    /**
      * @param int|string $dataName
      *
      * @internal This method is not covered by the backward compatibility promise for PHPUnit

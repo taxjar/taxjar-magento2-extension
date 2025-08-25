@@ -72,7 +72,7 @@ class SaveOrderMetadataTest extends UnitTestCase
 
         $observerMock = $this->getMockBuilder(Observer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getOrder'])
+            ->addMethods(['getOrder'])
             ->getMock();
         $observerMock->expects(static::any())
             ->method('getOrder')
@@ -119,7 +119,7 @@ class SaveOrderMetadataTest extends UnitTestCase
 
         $observerMock = $this->getMockBuilder(Observer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getOrder'])
+            ->addMethods(['getOrder'])
             ->getMock();
         $observerMock->expects(static::any())
             ->method('getOrder')

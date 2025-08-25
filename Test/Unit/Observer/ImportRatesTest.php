@@ -111,15 +111,15 @@ class ImportRatesTest extends UnitTestCase
         $this->resourceConfig = $this->createMock(Config::class);
         $this->clientFactory = $this->getMockBuilder(ClientFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
         $this->rateFactory = $this->getMockBuilder(RateFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
         $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
         $this->rateRepository = $this->createMock(RateRepository::class);
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
@@ -128,7 +128,7 @@ class ImportRatesTest extends UnitTestCase
         $this->serializer = $this->createMock(SerializerInterface::class);
         $this->operationFactory = $this->getMockBuilder(OperationInterfaceFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
         $this->bulkManagement = $this->createMock(BulkManagementInterface::class);
         $this->userContext = $this->createMock(UserContextInterface::class);
@@ -146,19 +146,30 @@ class ImportRatesTest extends UnitTestCase
     {
         $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS],
-                [TaxjarConfig::TAXJAR_DEBUG]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '1',
-                '2,3',
-                '',
-                '1'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '1';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '2,3';
+                    case 4:
+                        $this->assertEquals(MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS, $path);
+                        return '';
+                    case 5:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_DEBUG, $path);
+                        return '1';
+                    default:
+                        return null;
+                }
+            });
 
         $this->messageManager->expects($this->once())
             ->method('addNoticeMessage')
@@ -180,17 +191,27 @@ class ImportRatesTest extends UnitTestCase
     {
         $this->scopeConfig->expects($this->exactly(4))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '1',
-                '2,3',
-                ''
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '1';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '2,3';
+                    case 4:
+                        $this->assertEquals(MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS, $path);
+                        return '';
+                    default:
+                        return null;
+                }
+            });
 
         $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient());
         $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
@@ -210,17 +231,27 @@ class ImportRatesTest extends UnitTestCase
     {
         $this->scopeConfig->expects($this->exactly(4))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '',
-                '',
-                ''
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '';
+                    case 4:
+                        $this->assertEquals(MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS, $path);
+                        return '';
+                    default:
+                        return null;
+                }
+            });
 
         $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient());
         $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
@@ -243,17 +274,27 @@ class ImportRatesTest extends UnitTestCase
     {
         $this->scopeConfig->expects($this->exactly(4))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                [MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '2',
-                '1',
-                '1'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '2';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '1';
+                    case 4:
+                        $this->assertEquals(MagentoTaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS, $path);
+                        return '1';
+                    default:
+                        return null;
+                }
+            });
 
         $this->clientFactory->expects($this->once())->method('create')->willReturn($this->getMockClient());
         $this->taxjarConfig->expects($this->once())->method('getApiKey')->willReturn('valid-api-key');
@@ -275,19 +316,30 @@ class ImportRatesTest extends UnitTestCase
     {
         $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '1',
-                '2,3',
-                '',
-                '0'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '1';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '2,3';
+                    case 4:
+                        $this->assertEquals('tax/classes/shipping_tax_class', $path);
+                        return '';
+                    case 5:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_DEBUG, $path);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         $this->clientFactory->expects($this->once())
             ->method('create')
@@ -320,19 +372,30 @@ class ImportRatesTest extends UnitTestCase
 
         $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '1',
-                '2,3',
-                '',
-                '0'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '1';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '2,3';
+                    case 4:
+                        $this->assertEquals('tax/classes/shipping_tax_class', $path);
+                        return '';
+                    case 5:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_DEBUG, $path);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
         $this->clientFactory->expects($this->once())
@@ -380,19 +443,30 @@ class ImportRatesTest extends UnitTestCase
 
         $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '1',
-                '2,3',
-                '',
-                '0'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '1';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '2,3';
+                    case 4:
+                        $this->assertEquals('tax/classes/shipping_tax_class', $path);
+                        return '';
+                    case 5:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_DEBUG, $path);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
         $this->clientFactory->expects($this->once())
@@ -427,19 +501,30 @@ class ImportRatesTest extends UnitTestCase
 
         $this->scopeConfig->expects($this->exactly(5))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES],
-                [TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES],
-                ['tax/classes/shipping_tax_class'],
-                [TaxjarConfig::TAXJAR_DEBUG]
-            )->willReturnOnConsecutiveCalls(
-                '1',
-                '1',
-                '2,3',
-                '',
-                '0'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '1';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_CUSTOMER_TAX_CLASSES, $path);
+                        return '1';
+                    case 3:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_PRODUCT_TAX_CLASSES, $path);
+                        return '2,3';
+                    case 4:
+                        $this->assertEquals('tax/classes/shipping_tax_class', $path);
+                        return '';
+                    case 5:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_DEBUG, $path);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         $this->resourceConfig->expects($this->any())->method('saveConfig');
         $this->clientFactory->expects($this->once())
@@ -484,13 +569,21 @@ class ImportRatesTest extends UnitTestCase
 
         $this->scopeConfig->expects($this->exactly(2))
             ->method('getValue')
-            ->withConsecutive(
-                [TaxjarConfig::TAXJAR_BACKUP],
-                [TaxjarConfig::TAXJAR_DEBUG]
-            )->willReturnOnConsecutiveCalls(
-                '0',
-                '0'
-            );
+            ->willReturnCallback(function ($path) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_BACKUP, $path);
+                        return '0';
+                    case 2:
+                        $this->assertEquals(TaxjarConfig::TAXJAR_DEBUG, $path);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         $this->resourceConfig->expects($this->exactly(2))->method('saveConfig');
 

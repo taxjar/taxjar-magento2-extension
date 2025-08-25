@@ -24,12 +24,19 @@ class RuleModelTest extends UnitTestCase
         $mockEventManager = $this->createMock(ManagerInterface::class);
         $mockEventManager->expects($this->exactly(4))
             ->method('dispatch')
-            ->withConsecutive(
-                ['model_save_after'],
-                ['clean_cache_by_tags'],
-                ['tax_rule_save_after'],
-                ['tax_settings_change_after']
-            );
+            ->willReturnCallback(function ($eventName) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedEvents = [
+                    'model_save_after',
+                    'clean_cache_by_tags',
+                    'tax_rule_save_after',
+                    'tax_settings_change_after'
+                ];
+
+                $this->assertEquals($expectedEvents[$callCount - 1], $eventName);
+            });
 
         $mockContext = $this->createMock(Context::class);
         $mockContext->expects($this->once())->method('getEventDispatcher')->willReturn($mockEventManager);
@@ -47,7 +54,7 @@ class RuleModelTest extends UnitTestCase
                 $this->createMock(AbstractResource::class),
                 $this->createMock(AbstractDb::class)
             ])
-            ->setMethods(['_init'])
+            ->onlyMethods(['_init'])
             ->getMock();
 
         $sut->method('_init')->will($this->returnValue(true));
