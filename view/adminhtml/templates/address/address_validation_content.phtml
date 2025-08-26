@@ -35,8 +35,8 @@
                     "component": "Taxjar_SalesTax/js/suggested_addresses_admin",
                     "template": "Taxjar_SalesTax/suggested_address_template",
                     "config": {
-                        "controller": "<?= $block->escapeJs($block->getRequest()->getControllerName()) ?>",
-                        "action": "<?= $block->escapeJs($block->getRequest()->getActionName()) ?>"
+                        "controller": "<?= $escaper->escapeJs($block->getRequest()->getControllerName()) ?>",
+                        "action": "<?= $escaper->escapeJs($block->getRequest()->getActionName()) ?>"
                     }
                 }
             }
