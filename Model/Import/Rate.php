@@ -44,6 +44,11 @@ class Rate
     protected $scopeConfig;
 
     /**
+     * @var \Magento\Tax\Model\CalculationFactory
+     */
+    protected $_calculationFactory;
+
+    /**
      * @var \Magento\Tax\Model\Calculation\RateFactory
      */
     protected $rateFactory;

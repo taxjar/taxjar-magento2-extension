@@ -50,11 +50,23 @@ class ConfigurationTest extends UnitTestCase
         $mockScopeConfig
             ->expects($this->exactly(2))
             ->method('getValue')
-            ->withConsecutive(
-                ['tax/taxjar/sandbox'],
-                ['tax/taxjar/apikey', 'default', null]
-            )
-            ->willReturnOnConsecutiveCalls('0', ' some -api- key');
+            ->willReturnCallback(function ($path, $scope = null, $scopeCode = null) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('tax/taxjar/sandbox', $path);
+                        return '0';
+                    case 2:
+                        $this->assertEquals('tax/taxjar/apikey', $path);
+                        $this->assertEquals('default', $scope);
+                        $this->assertEquals(null, $scopeCode);
+                        return ' some -api- key';
+                    default:
+                        throw new \Exception('Unexpected call count: ' . $callCount);
+                }
+            });
 
         $sut = new Configuration($mockMagentoConfig, $mockScopeConfig);
         $result = $sut->getApiKey();
@@ -155,13 +167,23 @@ class ConfigurationTest extends UnitTestCase
         $mockMagentoConfig
             ->expects($this->exactly(5))
             ->method('saveConfig')
-            ->withConsecutive(
-                ['tax/display/type', 1],
-                ['tax/display/shipping', 1],
-                ['tax/cart_display/price', 1],
-                ['tax/cart_display/subtotal', 1],
-                ['tax/cart_display/shipping', 1]
-            )->willReturnOnConsecutiveCalls(null, null, null, null, null);
+            ->willReturnCallback(function ($path, $value) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedCalls = [
+                    ['tax/display/type', 1],
+                    ['tax/display/shipping', 1],
+                    ['tax/cart_display/price', 1],
+                    ['tax/cart_display/subtotal', 1],
+                    ['tax/cart_display/shipping', 1]
+                ];
+
+                $this->assertEquals($expectedCalls[$callCount - 1][0], $path);
+                $this->assertEquals($expectedCalls[$callCount - 1][1], $value);
+
+                return null;
+            });
 
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
 

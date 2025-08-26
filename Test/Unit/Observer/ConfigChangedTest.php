@@ -34,22 +34,44 @@ class ConfigChangedTest extends UnitTestCase
         $this->mockScopeConfig
             ->expects($this->exactly(3))
             ->method('getValue')
-            ->withConsecutive(
-                ['tax/taxjar/enabled'],
-                ['tax/taxjar/backup'],
-                ['tax/taxjar/backup']
-            )
-            ->willReturnOnConsecutiveCalls('1', '0', '0');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('tax/taxjar/enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '0';
+                    case 3:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         // TJ Extension was enabled and Backup Rates feature was disabled
         $this->mockCache
             ->expects($this->exactly(2))
             ->method('load')
-            ->withConsecutive(
-                ['taxjar_salestax_config_enabled'],
-                ['taxjar_salestax_config_backup']
-            )
-            ->willReturnOnConsecutiveCalls('1', '0');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('taxjar_salestax_config_enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('taxjar_salestax_config_backup', $key);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         $sut = $this->getTestSubject();
         $sut->execute($this->observer);
@@ -61,31 +83,60 @@ class ConfigChangedTest extends UnitTestCase
         $this->mockScopeConfig
             ->expects($this->exactly(3))
             ->method('getValue')
-            ->withConsecutive(
-                ['tax/taxjar/enabled'],
-                ['tax/taxjar/backup'],
-                ['tax/taxjar/backup']
-            )
-            ->willReturnOnConsecutiveCalls('1', '0', '0');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('tax/taxjar/enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '0';
+                    case 3:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         // TJ Extension was disabled and Backup Rates feature was disabled
         $this->mockCache
             ->expects($this->exactly(2))
             ->method('load')
-            ->withConsecutive(
-                ['taxjar_salestax_config_enabled'],
-                ['taxjar_salestax_config_backup']
-            )
-            ->willReturnOnConsecutiveCalls('0', '0');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('taxjar_salestax_config_enabled', $key);
+                        return '0';
+                    case 2:
+                        $this->assertEquals('taxjar_salestax_config_backup', $key);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         // Expect to dispatch events
         $this->mockEventManager
             ->expects($this->exactly(2))
             ->method('dispatch')
-            ->withConsecutive(
-                ['taxjar_salestax_import_categories'],
-                ['taxjar_salestax_import_data']
-            );
+            ->willReturnCallback(function ($eventName) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedEvents = [
+                    'taxjar_salestax_import_categories',
+                    'taxjar_salestax_import_data'
+                ];
+
+                $this->assertSame($expectedEvents[$callCount - 1], $eventName);
+            });
 
         $sut = $this->getTestSubject();
         $sut->execute($this->observer);
@@ -97,31 +148,58 @@ class ConfigChangedTest extends UnitTestCase
         $this->mockScopeConfig
             ->expects($this->exactly(2))
             ->method('getValue')
-            ->withConsecutive(
-                ['tax/taxjar/enabled'],
-                ['tax/taxjar/backup']
-            )
-            ->willReturnOnConsecutiveCalls('1', '1');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('tax/taxjar/enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '1';
+                    default:
+                        return null;
+                }
+            });
 
         // TJ Extension was enabled and Backup Rates feature was disabled
         $this->mockCache
             ->expects($this->exactly(2))
             ->method('load')
-            ->withConsecutive(
-                ['taxjar_salestax_config_enabled'],
-                ['taxjar_salestax_config_backup']
-            )
-            ->willReturnOnConsecutiveCalls('1', '0');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('taxjar_salestax_config_enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('taxjar_salestax_config_backup', $key);
+                        return '0';
+                    default:
+                        return null;
+                }
+            });
 
         // Expect to dispatch events
         $this->mockEventManager
             ->expects($this->exactly(3))
             ->method('dispatch')
-            ->withConsecutive(
-                ['taxjar_salestax_import_categories'],
-                ['taxjar_salestax_import_data'],
-                ['taxjar_salestax_import_rates']
-            );
+            ->willReturnCallback(function ($eventName) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedEvents = [
+                    'taxjar_salestax_import_categories',
+                    'taxjar_salestax_import_data',
+                    'taxjar_salestax_import_rates'
+                ];
+
+                $this->assertSame($expectedEvents[$callCount - 1], $eventName);
+            });
 
         $sut = $this->getTestSubject();
         $sut->execute($this->observer);
@@ -133,34 +211,67 @@ class ConfigChangedTest extends UnitTestCase
         $this->mockScopeConfig
             ->expects($this->exactly(4))
             ->method('getValue')
-            ->withConsecutive(
-                ['tax/taxjar/enabled'],
-                ['tax/taxjar/backup'],
-                ['tax/taxjar/backup'],
-                ['tax/taxjar/product_tax_classes']
-            )
-            ->willReturnOnConsecutiveCalls('1', '1', '1', '1,2');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('tax/taxjar/enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '1';
+                    case 3:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '1';
+                    case 4:
+                        $this->assertEquals('tax/taxjar/product_tax_classes', $key);
+                        return '1,2';
+                    default:
+                        return null;
+                }
+            });
 
         // TJ Extension was enabled and Backup Rates feature was enabled - PTCs:1
         $this->mockCache
             ->expects($this->exactly(3))
             ->method('load')
-            ->withConsecutive(
-                ['taxjar_salestax_config_enabled'],
-                ['taxjar_salestax_config_backup'],
-                ['taxjar_salestax_backup_rates_ptcs']
-            )
-            ->willReturnOnConsecutiveCalls('1', '1', '1');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('taxjar_salestax_config_enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('taxjar_salestax_config_backup', $key);
+                        return '1';
+                    case 3:
+                        $this->assertEquals('taxjar_salestax_backup_rates_ptcs', $key);
+                        return '1';
+                    default:
+                        return null;
+                }
+            });
 
         // Expect to dispatch events
         $this->mockEventManager
             ->expects($this->exactly(3))
             ->method('dispatch')
-            ->withConsecutive(
-                ['taxjar_salestax_import_categories'],
-                ['taxjar_salestax_import_data'],
-                ['taxjar_salestax_import_rates']
-            );
+            ->willReturnCallback(function ($eventName) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedEvents = [
+                    'taxjar_salestax_import_categories',
+                    'taxjar_salestax_import_data',
+                    'taxjar_salestax_import_rates'
+                ];
+
+                $this->assertSame($expectedEvents[$callCount - 1], $eventName);
+            });
 
         $sut = $this->getTestSubject();
         $sut->execute($this->observer);
@@ -171,36 +282,73 @@ class ConfigChangedTest extends UnitTestCase
         $this->mockScopeConfig
             ->expects($this->exactly(5))
             ->method('getValue')
-            ->withConsecutive(
-                ['tax/taxjar/enabled'],
-                ['tax/taxjar/backup'],
-                ['tax/taxjar/backup'],
-                ['tax/taxjar/product_tax_classes'],
-                ['tax/taxjar/customer_tax_classes']
-            )
-            ->willReturnOnConsecutiveCalls('1', '1', '1', '1,2', '2');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('tax/taxjar/enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '1';
+                    case 3:
+                        $this->assertEquals('tax/taxjar/backup', $key);
+                        return '1';
+                    case 4:
+                        $this->assertEquals('tax/taxjar/product_tax_classes', $key);
+                        return '1,2';
+                    case 5:
+                        $this->assertEquals('tax/taxjar/customer_tax_classes', $key);
+                        return '2';
+                    default:
+                        return null;
+                }
+            });
 
         // TJ Extension was enabled and Backup Rates feature was enabled - PTCs:1,2 - CTCs:1
         $this->mockCache
             ->expects($this->exactly(4))
             ->method('load')
-            ->withConsecutive(
-                ['taxjar_salestax_config_enabled'],
-                ['taxjar_salestax_config_backup'],
-                ['taxjar_salestax_backup_rates_ptcs'],
-                ['taxjar_salestax_backup_rates_ctcs']
-            )
-            ->willReturnOnConsecutiveCalls('1', '1', '1,2', '1');
+            ->willReturnCallback(function ($key) {
+                static $callCount = 0;
+                $callCount++;
+
+                switch ($callCount) {
+                    case 1:
+                        $this->assertEquals('taxjar_salestax_config_enabled', $key);
+                        return '1';
+                    case 2:
+                        $this->assertEquals('taxjar_salestax_config_backup', $key);
+                        return '1';
+                    case 3:
+                        $this->assertEquals('taxjar_salestax_backup_rates_ptcs', $key);
+                        return '1,2';
+                    case 4:
+                        $this->assertEquals('taxjar_salestax_backup_rates_ctcs', $key);
+                        return '1';
+                    default:
+                        return null;
+                }
+            });
 
         // Expect to dispatch events
         $this->mockEventManager
             ->expects($this->exactly(3))
             ->method('dispatch')
-            ->withConsecutive(
-                ['taxjar_salestax_import_categories'],
-                ['taxjar_salestax_import_data'],
-                ['taxjar_salestax_import_rates']
-            );
+            ->willReturnCallback(function ($eventName) {
+                static $callCount = 0;
+                $callCount++;
+
+                $expectedEvents = [
+                    'taxjar_salestax_import_categories',
+                    'taxjar_salestax_import_data',
+                    'taxjar_salestax_import_rates'
+                ];
+
+                $this->assertSame($expectedEvents[$callCount - 1], $eventName);
+            });
 
         $sut = $this->getTestSubject();
         $sut->execute($this->observer);

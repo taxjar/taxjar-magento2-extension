@@ -16,6 +16,7 @@ use Magento\SalesRule\Model\RuleRepository;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Magento\Tax\Api\TaxRuleRepositoryInterface;
 use Magento\Tax\Model\Calculation\Rule;
+use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\CreateRatesConsumer;
 use Taxjar\SalesTax\Model\Import\DeleteRatesConsumer;
 use Taxjar\SalesTax\Test\Integration\IntegrationTestCase;
@@ -37,9 +38,13 @@ class DeleteRatesConsumerTest extends IntegrationTestCase
 
         /** @var TaxRuleRepositoryInterface $ruleRepository */
         $ruleRepository = $this->objectManager->get(TaxRuleRepositoryInterface::class);
+        $searchCriteria = ($this->objectManager->get(SearchCriteriaBuilder::class))
+            ->addFilter('code', TaxjarConfig::TAXJAR_BACKUP_RATE_CODE)
+            ->create();
         /** @var \Magento\Tax\Api\Data\TaxRuleSearchResultsInterface $rules */
-        $rules = $ruleRepository->getList(new SearchCriteria());
-        $ids = array_values($rules->getItems())[0]->getTaxRateIds();
+        $rules = $ruleRepository->getList($searchCriteria);
+        $ruleItems = array_values($rules->getItems());
+        $ids = $ruleItems ? $ruleItems[0]->getTaxRateIds() : [];
 
         $operationFactory = $this->objectManager->get(OperationInterfaceFactory::class);
         $serializer = $this->objectManager->get(SerializerInterface::class);
@@ -68,7 +73,7 @@ class DeleteRatesConsumerTest extends IntegrationTestCase
         $sut->process($operation);
 
         $ruleRepository = $this->objectManager->get(TaxRuleRepositoryInterface::class);
-        $rules = $ruleRepository->getList(new SearchCriteria());
+        $rules = $ruleRepository->getList($searchCriteria);
 
         // Rule should not be deleted
         self::assertEquals(1, $rules->getTotalCount());

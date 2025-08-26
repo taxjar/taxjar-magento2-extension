@@ -58,6 +58,9 @@
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\FilterPool">
         <plugin name="taxjarBeforeApplyFilters" type="Taxjar\SalesTax\Plugin\BeforeApplyFilters"/>
     </type>
+    <type name="Magento\Sales\Model\ResourceModel\Order\Grid\Collection">
+        <plugin name="taxjarFixBraintreeDoublePrefix" type="Taxjar\SalesTax\Plugin\FixBraintreeDoublePrefix" sortOrder="100"/>
+    </type>
     <type name="Taxjar\SalesTax\Console\Command\SyncProductCategoriesCommand">
         <arguments>
             <argument name="state" xsi:type="object">Magento\Framework\App\State\Proxy</argument>

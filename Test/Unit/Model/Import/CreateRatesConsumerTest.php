@@ -87,15 +87,15 @@ class CreateRatesConsumerTest extends UnitTestCase
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
         $this->rateFactory = $this->getMockBuilder(RateFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
         $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
         $this->configCollection = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
     }
 

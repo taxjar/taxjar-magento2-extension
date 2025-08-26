@@ -40,6 +40,11 @@ class Refund extends \Taxjar\SalesTax\Model\Transaction
     protected $request;
 
     /**
+     * @var string|null
+     */
+    protected $apiKey;
+
+    /**
      * Set request value
      *
      * @param array $value

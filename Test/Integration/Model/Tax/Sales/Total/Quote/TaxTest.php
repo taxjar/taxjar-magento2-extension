@@ -187,6 +187,6 @@ class TaxTest extends \PHPUnit\Framework\TestCase
     public function taxDataProvider()
     {
         global $taxCalculationData;
-        return $taxCalculationData;
+        return !empty($taxCalculationData) ? $taxCalculationData : [];
     }
 }

@@ -73,15 +73,17 @@ class TransactionTest extends UnitTestCase
         $mockOrder = $this->createMock(\Magento\Sales\Model\Order::class);
         $mockItem = $this->getMockBuilder(\Magento\Sales\Model\Order\Item::class)
             ->disableOriginalConstructor()
-            ->setMethods([
+            ->addMethods([
+                'getTjPtc'
+            ])
+            ->onlyMethods([
                 'getItemId',
                 'getProductType',
                 'getPrice',
                 'getQtyInvoiced',
                 'getTaxInvoiced',
                 'getSku',
-                'getName',
-                'getTjPtc'
+                'getName'
             ])
             ->getMock();
         $mockItem->expects($this->once())->method('getItemId')->willReturn(9);
