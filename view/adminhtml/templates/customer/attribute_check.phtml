@@ -22,22 +22,22 @@ $missingAttributes = $block->getMissingAttributes();
 <?php if (!empty($missingAttributes)): ?>
 <div class="message message-warning warning">
     <div>
-        <strong><?= $block->escapeHtml(__('TaxJar Customer Attributes Missing')) ?></strong>
+        <strong><?= $escaper->escapeHtml(__('TaxJar Customer Attributes Missing')) ?></strong>
         <p>
-            <?= $block->escapeHtml(__(
+            <?= $escaper->escapeHtml(__(
                 'The following TaxJar customer attributes are missing: %1.',
                 implode(', ', $missingAttributes)
             )) ?>
-            <?= $block->escapeHtml(__(
+            <?= $escaper->escapeHtml(__(
                 'This may prevent customer tax exemption settings from being saved correctly.'
             )) ?>
         </p>
         <p>
-            <a href="<?= $block->escapeUrl($block->getInstallUrl()) ?>" class="action-primary">
-                <span><?= $block->escapeHtml(__('Install Missing Attributes Now')) ?></span>
+            <a href="<?= $escaper->escapeUrl($block->getInstallUrl()) ?>" class="action-primary">
+                <span><?= $escaper->escapeHtml(__('Install Missing Attributes Now')) ?></span>
             </a>
             <span class="admin__field-note">
-                <?= $block->escapeHtml(__('You can also run bin/magento setup:upgrade from the command line.')) ?>
+                <?= $escaper->escapeHtml(__('You can also run bin/magento setup:upgrade from the command line.')) ?>
             </span>
         </p>
     </div>

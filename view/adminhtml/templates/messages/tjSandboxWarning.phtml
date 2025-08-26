@@ -25,4 +25,4 @@ $msg = __(
 $url = 'https://developers.taxjar.com/api/reference/#sandbox-environment';
 $href = '<a href="%1" target="_blank" rel="noopener">' . __('Learn more') . '</a>';
 
-echo $block->escapeHtml(__($msg . ' ' . $href, [$url]), ['a']);
+echo $escaper->escapeHtml(__($msg . ' ' . $href, [$url]), ['a']);

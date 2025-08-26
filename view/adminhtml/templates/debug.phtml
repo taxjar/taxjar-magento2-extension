@@ -23,12 +23,12 @@
 <?php if ($block->isEnabled()) { ?>
     <br/>
     <ul>
-        <li><strong>Magento Version:</strong> <?php echo $block->escapeHtml($block->getMagentoVersion()) ?></li>
-        <li><strong>TaxJar Version:</strong> <?php echo $block->escapeHtml($block->getVersion()) ?></li>
-        <li><strong>PHP Version:</strong> <?php echo $block->escapeHtml($block->getPhpVersion()) ?></li>
-        <li><strong>PHP Memory Limit:</strong> <?php echo $block->escapeHtml($block->getMemoryLimit()) ?></li>
-        <li><strong>Backup States:</strong> <?php echo $block->escapeHtml($block->getBackupStates()) ?></li>
-        <li><strong>Backup Last Updated:</strong> <?php echo $block->escapeHtml($block->getBackupUpdate()) ?></li>
+        <li><strong>Magento Version:</strong> <?= $escaper->escapeHtml($block->getMagentoVersion()) ?></li>
+        <li><strong>TaxJar Version:</strong> <?= $escaper->escapeHtml($block->getVersion()) ?></li>
+        <li><strong>PHP Version:</strong> <?= $escaper->escapeHtml($block->getPhpVersion()) ?></li>
+        <li><strong>PHP Memory Limit:</strong> <?= $escaper->escapeHtml($block->getMemoryLimit()) ?></li>
+        <li><strong>Backup States:</strong> <?= $escaper->escapeHtml($block->getBackupStates()) ?></li>
+        <li><strong>Backup Last Updated:</strong> <?= $escaper->escapeHtml($block->getBackupUpdate()) ?></li>
     </ul>
     <p><small><strong>Include the above information when emailing TaxJar support at support@taxjar.com.</strong><small></p>
 <?php } ?>

@@ -28,8 +28,8 @@ if ($synced) {
 ?>
 <?php if (isset($orderSyncDate)):?>
 <tr>
-    <th><?= $block->escapeHtml(__('Synced to TaxJar')) ?></th>
-    <td><?= $block->escapeHtml($orderSyncDate) ?></td>
+    <th><?= $escaper->escapeHtml(__('Synced to TaxJar')) ?></th>
+    <td><?= $escaper->escapeHtml($orderSyncDate) ?></td>
 </tr>
 <?php endif; ?>
 <script>
@@ -42,14 +42,14 @@ if ($synced) {
              syncButton.find('span').text('Syncing...');
 
              $.ajax({
-                 url: '<?= $block->escapeUrl($block->getUrl('taxjar/transaction/sync')) ?>',
+                 url: '<?= $escaper->escapeUrl($block->getUrl('taxjar/transaction/sync')) ?>',
                  method: 'POST',
                  data: { order_id: orderId }
              }).done(function(res) {
                  if (res.data) {
                      window.location.reload();
                  } else {
-                     alert('<?= $block->escapeHtml(__('Could not sync to TaxJar!')) ?>');
+                     alert('<?= $escaper->escapeHtml(__('Could not sync to TaxJar!')) ?>');
                      syncButton.prop('disabled', false);
                      syncButton.find('span').text('Sync to TaxJar');
                  }

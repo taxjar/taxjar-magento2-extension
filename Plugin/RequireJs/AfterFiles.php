@@ -49,7 +49,7 @@ class AfterFiles
     public function afterGetFiles(
         Aggregated $subject,
         $result,
-        Theme $theme = null
+        ?Theme $theme = null
     ) {
         $isEnabled = $this->scopeConfig->getValue(TaxjarConfig::TAXJAR_ADDRESS_VALIDATION);
 

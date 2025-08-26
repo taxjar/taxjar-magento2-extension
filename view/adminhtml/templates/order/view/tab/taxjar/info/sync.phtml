@@ -25,14 +25,14 @@ $formattedDate = $block->getFormattedSyncDate($order);
     <div class="admin__page-section-item-content taxjar-order-sync-information">
     <?php if ($block->featureEnabled()): ?>
         <?php if ($formattedDate): ?>
-            <p><i>Last synced at <?= $block->escapeHtml($formattedDate) ?></i></p>
+            <p><i>Last synced at <?= $escaper->escapeHtml($formattedDate) ?></i></p>
         <?php else: ?>
-            <span><?= $block->escapeHtml($block->getOrderStateText($order), ['br', 'pre']) ?></span>
+            <span><?= $escaper->escapeHtml($block->getOrderStateText($order), ['br', 'pre']) ?></span>
             <br><br>
-            <span><?= $block->escapeHtml($block->getOrderActionableText($order), ['br', 'pre']) ?></span>
+            <span><?= $escaper->escapeHtml($block->getOrderActionableText($order), ['br', 'pre']) ?></span>
         <?php endif; ?>
     <?php else: ?>
-        <span><?= $block->escapeHtml($block->getFeatureDisabledText(), ['br', 'pre']) ?></span>
+        <span><?= $escaper->escapeHtml($block->getFeatureDisabledText(), ['br', 'pre']) ?></span>
     <?php endif; ?>
     </div>
 </div>

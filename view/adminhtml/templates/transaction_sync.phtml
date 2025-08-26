@@ -79,8 +79,8 @@ if ($block->isEnabled()) { ?>
                         from_date: fromDate,
                         to_date: toDate,
                         force: force,
-                        store: '<?= $this->getRequest()->getParam('store') ?>',
-                        website: '<?= $this->getRequest()->getParam('website') ?>',
+                        store: '<?= $escaper->escapeJs($this->getRequest()->getParam('store')) ?>',
+                        website: '<?= $escaper->escapeJs($this->getRequest()->getParam('website')) ?>',
                     }
                 }).done(function(data) {
                     if (data.result) {

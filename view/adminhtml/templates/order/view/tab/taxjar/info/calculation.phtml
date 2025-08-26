@@ -24,11 +24,11 @@ $message = $block->getOrderCalculationMessage($order);
 
 <div class="admin__page-section-item">
     <div class="admin__page-section-item-content">
-        <p><i><?= $block->escapeHtml($status); ?></i></p>
+        <p><i><?= $escaper->escapeHtml($status); ?></i></p>
         <?php if ($message): ?>
             <br>
             <p>The following response was provided:</p>
-            <p><?= $block->escapeHtml($message) ?></p>
+            <p><?= $escaper->escapeHtml($message) ?></p>
         <?php endif; ?>
     </div>
 </div>
