@@ -17,7 +17,7 @@
 
 /** @var \Taxjar\SalesTax\Block\Adminhtml\Backup $block */
 
-$syncRatesUrl = $block->escapeXssInUrl($block->getStoreUrl('taxjar/config/syncRates'));
+$syncRatesUrl = $escaper->escapeUrl($block->getStoreUrl('taxjar/config/syncRates'));
 $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['section' => 'tax']);
 ?>
 
@@ -30,11 +30,11 @@ $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['sect
 
 <?php if ($block->isEnabled()): ?>
     <p class="success-msg" style="background: none !important; padding-left: 1rem; font-weight: 700;">
-        <small><?= $block->escapeHtml($block->getRatesLoadedText()) ?></small>
+        <small><?= $escaper->escapeHtml($block->getRatesLoadedText()) ?></small>
     </p>
 
     <p class="success-msg" style="background: none !important; padding-left: 1rem;">
-        <small><?= $block->escapeHtml($block->getLastSyncedDateText()) ?></small>
+        <small><?= $escaper->escapeHtml($block->getLastSyncedDateText()) ?></small>
     </p>
 
     <p style="margin-top: 1rem">
@@ -45,7 +45,7 @@ $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['sect
 
     <script>
         function syncBackupRates() {
-            new Ajax.Request('<?= $block->escapeUrl($syncRatesUrl) ?>', {
+            new Ajax.Request('<?= $escaper->escapeUrl($syncRatesUrl) ?>', {
                 method: 'get',
                 onCreate: function(request) {
                     varienLoaderHandler.handler.onCreate({
@@ -54,7 +54,7 @@ $systemTaxConfigUrl = $block->getStoreUrl('adminhtml/system_config/edit', ['sect
                 },
                 onComplete: function(data) {
                     varienLoaderHandler.handler.onComplete();
-                    window.location = '<?= $block->escapeUrl($systemTaxConfigUrl) ?>';
+                    window.location = '<?= $escaper->escapeUrl($systemTaxConfigUrl) ?>';
                 }
             });
         }

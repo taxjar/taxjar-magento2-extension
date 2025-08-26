@@ -80,6 +80,7 @@ class SaveOrderMetadataTest extends UnitTestCase
 
         $orderExtensionInterfaceMock = $this->getMockBuilder(OrderExtensionInterface::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['setTjTaxCalculationStatus', 'setTjTaxCalculationMessage'])
             ->getMockForAbstractClass();
         $orderExtensionInterfaceMock->expects(static::once())
             ->method('setTjTaxCalculationStatus')
@@ -127,6 +128,7 @@ class SaveOrderMetadataTest extends UnitTestCase
 
         $orderExtensionInterfaceMock = $this->getMockBuilder(OrderExtensionInterface::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['setTjTaxCalculationStatus', 'setTjTaxCalculationMessage'])
             ->getMockForAbstractClass();
         $orderExtensionInterfaceMock->expects(static::once())
             ->method('setTjTaxCalculationStatus')

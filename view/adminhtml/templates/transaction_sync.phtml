@@ -73,14 +73,14 @@ if ($block->isEnabled()) { ?>
                 $('#transaction-sync-log').find('> pre').html('Syncing transactions to TaxJar, please wait...');
 
                 $.ajax({
-                    url: '<?= $block->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
+                    url: '<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/transaction/backfill')) ?>',
                     method: 'GET',
                     data: {
                         from_date: fromDate,
                         to_date: toDate,
                         force: force,
-                        store: '<?= $this->getRequest()->getParam('store') ?>',
-                        website: '<?= $this->getRequest()->getParam('website') ?>',
+                        store: '<?= $escaper->escapeJs($block->getRequest()->getParam('store')) ?>',
+                        website: '<?= $escaper->escapeJs($block->getRequest()->getParam('website')) ?>',
                     }
                 }).done(function(data) {
                     if (data.result) {
@@ -101,8 +101,7 @@ if ($block->isEnabled()) { ?>
     </script>
 
     <div id="transaction-sync-modal" style="display: none">
-        <?php
-            echo $block->getLayout()
+        <?=  $block->getLayout()
                        ->createBlock('Taxjar\SalesTax\Block\Adminhtml\TransactionSync\Form')
                        ->setTemplate('Taxjar_SalesTax::transaction_sync/form.phtml')
                        ->toHtml();

@@ -74,8 +74,8 @@ class NexusSync extends \Taxjar\SalesTax\Model\Tax\Nexus
         RegionFactory $regionFactory,
         CountryFactory $countryFactory,
         ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(

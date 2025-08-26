@@ -80,6 +80,7 @@ class QuoteManagementTest extends UnitTestCase
 
         $extensionAttributesMock = $this->getMockBuilder(OrderExtensionInterface::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['getTjTaxCalculationStatus', 'getTjTaxCalculationMessage'])
             ->getMockForAbstractClass();
         $extensionAttributesMock->expects(static::exactly(2))
             ->method('getTjTaxCalculationStatus')

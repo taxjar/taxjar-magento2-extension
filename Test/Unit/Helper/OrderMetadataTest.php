@@ -87,6 +87,7 @@ class OrderMetadataTest extends UnitTestCase
 
         $extensionAttributeMock = $this->getMockBuilder(OrderExtensionInterface::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['setTjTaxCalculationStatus', 'setTjTaxCalculationMessage'])
             ->getMockForAbstractClass();
         $extensionAttributeMock->expects(static::once())
             ->method('setTjTaxCalculationStatus')
