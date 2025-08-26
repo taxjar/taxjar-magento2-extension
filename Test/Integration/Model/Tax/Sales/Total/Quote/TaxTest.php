@@ -35,29 +35,33 @@ class TaxTest extends \PHPUnit\Framework\TestCase
      * Test tax calculation with various configuration and combination of items
      * This method will test various collectors through $quoteAddress->collectTotals() method
      *
-     * @param array $configData
-     * @param array $quoteData
-     * @param array $expectedResults
      * @magentoDbIsolation enabled
      * @magentoAppIsolation enabled
-     * @dataProvider taxDataProvider
      * @return void
      */
-    public function testTaxCalculation($configData, $quoteData, $expectedResults)
+    public function testTaxCalculation()
     {
+        // Load test data now that framework is bootstrapped
+        $testData = $this->taxDataProvider();
+
         /** @var  \Magento\Framework\ObjectManagerInterface $objectManager */
         $objectManager = Bootstrap::getObjectManager();
         /** @var  \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector */
         $totalsCollector = $objectManager->create('Magento\Quote\Model\Quote\TotalsCollector');
 
-        //Setup tax configurations
-        $this->setupUtil = new SetupUtil($objectManager);
-        $this->setupUtil->setupTax($configData);
+        // Iterate through each test scenario
+        foreach ($testData as $scenarioName => $scenarioData) {
+            list($configData, $quoteData, $expectedResults) = $scenarioData;
 
-        $quote = $this->setupUtil->setupQuote($quoteData);
-        $quoteAddress = $quote->getShippingAddress();
-        $totalsCollector->collectAddressTotals($quote, $quoteAddress);
-        $this->verifyResult($quoteAddress, $expectedResults);
+            //Setup tax configurations
+            $this->setupUtil = new SetupUtil($objectManager);
+            $this->setupUtil->setupTax($configData);
+
+            $quote = $this->setupUtil->setupQuote($quoteData);
+            $quoteAddress = $quote->getShippingAddress();
+            $totalsCollector->collectAddressTotals($quote, $quoteAddress);
+            $this->verifyResult($quoteAddress, $expectedResults);
+        }
     }
 
     /**
