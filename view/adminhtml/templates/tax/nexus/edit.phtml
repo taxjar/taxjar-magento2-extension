@@ -27,7 +27,7 @@ require([
         'country_id',
         'region',
         'region_id',
-        <?= $escaper->escapeJs($block->helper('Magento\Directory\Helper\Data')->getRegionJson()) ?>,
+        <?= $escaper->escapeJs($this->helper('Magento\Directory\Helper\Data')->getRegionJson()) ?>,
         'disable'
     );
     updater.disableRegionValidation();
