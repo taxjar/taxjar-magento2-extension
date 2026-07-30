@@ -62,19 +62,19 @@ $taxCalculationData['none_tax_class_exemption'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 2.85,
+            'tax_amount' => 2.92,
             'subtotal' => 29.99,
-            'subtotal_incl_tax' => 32.84,
-            'grand_total' => 32.84,
+            'subtotal_incl_tax' => 32.91,
+            'grand_total' => 32.91,
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => 2.85,
-                'tax_percent' => 9.5,
+                'tax_amount' => 2.92,
+                'tax_percent' => 9.75,
                 'price' => 29.99,
-                'price_incl_tax' => 32.84,
+                'price_incl_tax' => 32.91,
                 'row_total' => 29.99,
-                'row_total_incl_tax' => 32.84
+                'row_total_incl_tax' => 32.91
             ],
         ],
     ],

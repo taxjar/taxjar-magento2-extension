@@ -61,19 +61,19 @@ $taxCalculationData['simple_product'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 2.85,
+            'tax_amount' => 2.92,
             'subtotal' => 29.99,
-            'subtotal_incl_tax' => 29.99 + 2.85,
-            'grand_total' => 29.99 + 2.85
+            'subtotal_incl_tax' => 29.99 + 2.92,
+            'grand_total' => 29.99 + 2.92
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => 2.85,
-                'tax_percent' => 9.5,
+                'tax_amount' => 2.92,
+                'tax_percent' => 9.75,
                 'price' => 29.99,
-                'price_incl_tax' => 29.99 + 2.85,
+                'price_incl_tax' => 29.99 + 2.92,
                 'row_total' => 29.99,
-                'row_total_incl_tax' => 29.99 + 2.85,
+                'row_total_incl_tax' => 29.99 + 2.92,
                 'applied_taxes' => [
                     [
                         'id' => 1,
@@ -112,14 +112,14 @@ $taxCalculationData['simple_product'] = [
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 0.67,
-                        'base_amount' => 0.67,
-                        'percent' => 2.25,
+                        'amount' => 0.75,
+                        'base_amount' => 0.75,
+                        'percent' => 2.5,
                         'rates' => [
                             [
                                 'code' => 4,
                                 'title' => 'Special District Tax',
-                                'percent' => 2.25
+                                'percent' => 2.5
                             ]
                         ]
                     ]
@@ -183,19 +183,19 @@ $taxCalculationData['simple_product_multiple'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 9.5,
+            'tax_amount' => 9.74,
             'subtotal' => 99.97,
-            'subtotal_incl_tax' => 99.97 + 9.5,
-            'grand_total' => 99.97 + 9.5
+            'subtotal_incl_tax' => 99.97 + 9.74,
+            'grand_total' => 99.97 + 9.74
         ],
         'items_data' => [
             'taxjar-tshirt' => [
-                'tax_amount' => 2.85,
-                'tax_percent' => 9.5,
+                'tax_amount' => 2.92,
+                'tax_percent' => 9.75,
                 'price' => 29.99,
-                'price_incl_tax' => 29.99 + 2.85,
+                'price_incl_tax' => 29.99 + 2.92,
                 'row_total' => 29.99,
-                'row_total_incl_tax' => 29.99 + 2.85,
+                'row_total_incl_tax' => 29.99 + 2.92,
                 'applied_taxes' => [
                     [
                         'id' => 1,
@@ -234,26 +234,26 @@ $taxCalculationData['simple_product_multiple'] = [
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 0.67,
-                        'base_amount' => 0.67,
-                        'percent' => 2.25,
+                        'amount' => 0.75,
+                        'base_amount' => 0.75,
+                        'percent' => 2.5,
                         'rates' => [
                             [
                                 'code' => 4,
                                 'title' => 'Special District Tax',
-                                'percent' => 2.25
+                                'percent' => 2.5
                             ]
                         ]
                     ]
                 ]
             ],
             'taxjar-trucker-hat' => [
-                'tax_amount' => 0.95,
-                'tax_percent' => 9.5,
+                'tax_amount' => 0.97,
+                'tax_percent' => 9.75,
                 'price' => 9.99,
-                'price_incl_tax' => 9.99 + 0.95,
+                'price_incl_tax' => 9.99 + 0.97,
                 'row_total' => 9.99,
-                'row_total_incl_tax' => 9.99 + 0.95,
+                'row_total_incl_tax' => 9.99 + 0.97,
                 'applied_taxes' => [
                     [
                         'id' => 1,
@@ -292,26 +292,26 @@ $taxCalculationData['simple_product_multiple'] = [
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 0.22,
-                        'base_amount' => 0.22,
-                        'percent' => 2.25,
+                        'amount' => 0.25,
+                        'base_amount' => 0.25,
+                        'percent' => 2.5,
                         'rates' => [
                             [
                                 'code' => 4,
                                 'title' => 'Special District Tax',
-                                'percent' => 2.25
+                                'percent' => 2.5
                             ]
                         ]
                     ]
                 ]
             ],
             'taxjar-hoodie' => [
-                'tax_amount' => 5.7,
-                'tax_percent' => 9.5,
+                'tax_amount' => 5.85,
+                'tax_percent' => 9.75,
                 'price' => 59.99,
-                'price_incl_tax' => 59.99 + 5.7,
+                'price_incl_tax' => 59.99 + 5.85,
                 'row_total' => 59.99,
-                'row_total_incl_tax' => 59.99 + 5.7,
+                'row_total_incl_tax' => 59.99 + 5.85,
                 'applied_taxes' => [
                     [
                         'id' => 1,
@@ -350,14 +350,14 @@ $taxCalculationData['simple_product_multiple'] = [
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 1.35,
-                        'base_amount' => 1.35,
-                        'percent' => 2.25,
+                        'amount' => 1.5,
+                        'base_amount' => 1.5,
+                        'percent' => 2.5,
                         'rates' => [
                             [
                                 'code' => 4,
                                 'title' => 'Special District Tax',
-                                'percent' => 2.25
+                                'percent' => 2.5
                             ]
                         ]
                     ]

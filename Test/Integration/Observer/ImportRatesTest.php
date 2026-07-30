@@ -143,6 +143,9 @@ class ImportRatesTest extends IntegrationTestCase
      */
     public function testExecuteSchedulesBulkOperationForRateCreation()
     {
+        $beforeCollection = ($this->objectManager->get(BulkCollectionFactory::class))->create();
+        $beforeCount = count($beforeCollection->getItems());
+
         /** @var ImportRates $sut */
         $sut = $this->objectManager->get(ImportRates::class);
         $sut->client->mockResponse = [
@@ -157,10 +160,11 @@ class ImportRatesTest extends IntegrationTestCase
 
         $sut->execute(new Observer());
 
-        $bulkCollection = ($this->objectManager->get(BulkCollectionFactory::class))->create();
-        $bulkItem = $bulkCollection->getFirstItem();
+        $afterCollection = ($this->objectManager->get(BulkCollectionFactory::class))->create();
+        $newBulks = count($afterCollection->getItems()) - $beforeCount;
+        $bulkItem = $afterCollection->getLastItem();
 
-        self::assertEquals(1, count($bulkCollection->getItems()));
+        self::assertEquals(1, $newBulks);
         self::assertEquals('Create TaxJar backup tax rates.', $bulkItem->getData('description'));
     }
 }

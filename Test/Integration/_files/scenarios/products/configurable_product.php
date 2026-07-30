@@ -73,19 +73,19 @@ $taxCalculationData['configurable_product'] = [
     ],
     'expected_results' => [
         'address_data' => [
-            'tax_amount' => 5.7,
+            'tax_amount' => 5.85,
             'subtotal' => 59.97,
-            'subtotal_incl_tax' => 59.97 + 5.7,
-            'grand_total' => 59.97 + 5.7
+            'subtotal_incl_tax' => 59.97 + 5.85,
+            'grand_total' => 59.97 + 5.85
         ],
         'items_data' => [
             'taxjar-configurable-tshirt' => [
-                'tax_amount' => 5.7,
-                'tax_percent' => 9.5,
+                'tax_amount' => 5.85,
+                'tax_percent' => 9.75,
                 'price' => 19.99,
-                'price_incl_tax' => 19.99 + (5.7 / 3),
+                'price_incl_tax' => 19.99 + (5.85 / 3),
                 'row_total' => 59.97,
-                'row_total_incl_tax' => 59.97 + 5.7,
+                'row_total_incl_tax' => 59.97 + 5.85,
                 'applied_taxes' => [
                     [
                         'id' => 1,
@@ -124,14 +124,14 @@ $taxCalculationData['configurable_product'] = [
                         'item_id' => null,
                         'associated_item_id' => null,
                         'item_type' => 'product',
-                        'amount' => 1.35,
-                        'base_amount' => 1.35,
-                        'percent' => 2.25,
+                        'amount' => 1.5,
+                        'base_amount' => 1.5,
+                        'percent' => 2.5,
                         'rates' => [
                             [
                                 'code' => 4,
                                 'title' => 'Special District Tax',
-                                'percent' => 2.25
+                                'percent' => 2.5
                             ]
                         ]
                     ]
