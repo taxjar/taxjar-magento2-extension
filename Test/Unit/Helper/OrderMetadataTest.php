@@ -6,12 +6,15 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Sales\Api\Data\OrderExtensionFactory;
 use Magento\Sales\Api\Data\OrderExtensionInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Taxjar\SalesTax\Test\Unit\Stub\OrderExtensionStubInterface;
 use Taxjar\SalesTax\Helper\OrderMetadata;
 use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\Collection as MetadataResourceCollection;
 use Taxjar\SalesTax\Model\ResourceModel\Sales\Order\Metadata\CollectionFactory;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class OrderMetadataTest extends UnitTestCase
 {
     /**sma
@@ -41,21 +44,15 @@ class OrderMetadataTest extends UnitTestCase
         $this->collectionFactoryMock = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->contextMock = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->contextMock = $this->createStub(Context::class);
     }
 
     public function testGetOrderMetadata()
     {
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderMock = $this->createMock(OrderInterface::class);
         $orderMock->expects(static::once())->method('getEntityId')->willReturn(789);
 
-        $metadataMock = $this->getMockBuilder(Metadata::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $metadataMock = $this->createStub(Metadata::class);
 
         $collection = $this->getMockBuilder(MetadataResourceCollection::class)
             ->disableOriginalConstructor()
@@ -78,17 +75,12 @@ class OrderMetadataTest extends UnitTestCase
 
     public function testSetOrderExtensionAttributeData()
     {
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderMock = $this->createMock(OrderInterface::class);
         $orderMock->expects(static::once())->method('getEntityId')->willReturn(789);
         $orderMock->expects(static::once())->method('getExtensionAttributes')->willReturn(null);
         $orderMock->expects(static::once())->method('setExtensionAttributes')->willReturnSelf();
 
-        $extensionAttributeMock = $this->getMockBuilder(OrderExtensionInterface::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['setTjTaxCalculationStatus', 'setTjTaxCalculationMessage'])
-            ->getMockForAbstractClass();
+        $extensionAttributeMock = $this->createMock(OrderExtensionStubInterface::class);
         $extensionAttributeMock->expects(static::once())
             ->method('setTjTaxCalculationStatus')
             ->with('error')

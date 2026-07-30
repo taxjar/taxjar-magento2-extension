@@ -17,8 +17,10 @@ use Taxjar\SalesTax\Model\ResourceModel\Tax\Nexus\Collection;
 use Taxjar\SalesTax\Model\Tax\Nexus;
 use Taxjar\SalesTax\Model\Tax\NexusFactory;
 use Taxjar\SalesTax\Model\Tax\NexusSync;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class NexusSyncTest extends UnitTestCase
 {
     /**
@@ -70,18 +72,10 @@ class NexusSyncTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->contextMock = $this->getMockBuilder(\Magento\Framework\Model\Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->registryMock = $this->getMockBuilder(\Magento\Framework\Registry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->extensionFactoryMock = $this->getMockBuilder(\Magento\Framework\Api\ExtensionAttributesFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->customAttributeFactoryMock = $this->getMockBuilder(AttributeValueFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->contextMock = $this->createStub(\Magento\Framework\Model\Context::class);
+        $this->registryMock = $this->createStub(\Magento\Framework\Registry::class);
+        $this->extensionFactoryMock = $this->createStub(\Magento\Framework\Api\ExtensionAttributesFactory::class);
+        $this->customAttributeFactoryMock = $this->createStub(AttributeValueFactory::class);
         $this->clientFactoryMock = $this->getMockBuilder(ClientFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -94,9 +88,7 @@ class NexusSyncTest extends UnitTestCase
         $this->countryFactoryMock = $this->getMockBuilder(CountryFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->scopeConfigMock = $this->createStub(ScopeConfigInterface::class);
         $this->nexusResourceMock = $this->getMockBuilder(NexusResource::class)
             ->disableOriginalConstructor()
             ->getMock();

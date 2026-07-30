@@ -6,8 +6,10 @@ namespace Taxjar\SalesTax\Test\Unit\Model\Import;
 
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Calculation\Rule;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class RuleTest extends UnitTestCase
 {
     public function testCreate()
@@ -58,6 +60,11 @@ class RuleTest extends UnitTestCase
 
     public function testSaveCalculationData()
     {
+        $mockCollection = $this->getMockBuilder(\Magento\Framework\Data\Collection\AbstractDb::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['addFieldToFilter', 'getFirstItem', 'getResource'])
+            ->getMock();
+
         $mockCalculation = $this->getMockBuilder(Calculation::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
@@ -67,15 +74,11 @@ class RuleTest extends UnitTestCase
                 'getId',
                 'delete'
             ])
-            ->addMethods([
-                'addFieldToFilter',
-                'getFirstItem'
-            ])
             ->getMock();
 
-        $mockCalculation->expects($this->any())->method('getCollection')->willReturnSelf();
-        $mockCalculation->expects($this->any())->method('addFieldToFilter')->willReturnSelf();
-        $mockCalculation->expects($this->any())->method('getFirstItem')->willReturnSelf();
+        $mockCollection->expects($this->any())->method('addFieldToFilter')->willReturnSelf();
+        $mockCollection->expects($this->any())->method('getFirstItem')->willReturn($mockCalculation);
+        $mockCalculation->expects($this->any())->method('getCollection')->willReturn($mockCollection);
         $mockCalculation->expects($this->any())->method('getId')->willReturn(99);
         $mockCalculation->expects($this->any())->method('delete')->willReturn(true);
 
@@ -147,15 +150,9 @@ class RuleTest extends UnitTestCase
             ->method('getCalculationModel')
             ->willReturn($mockCalculation);
 
-        $mockRuleFactory = $this->getMockBuilder(\Taxjar\SalesTax\Model\Import\RuleModelFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock();
+        $mockRuleFactory = $this->createStub(\Taxjar\SalesTax\Model\Import\RuleModelFactory::class);
 
-        $mockRuleRepository = $this->getMockBuilder(\Magento\Tax\Api\TaxRuleRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['get', 'getList', 'save', 'delete', 'deleteById'])
-            ->getMock();
+        $mockRuleRepository = $this->createStub(\Magento\Tax\Api\TaxRuleRepositoryInterface::class);
 
         $sut = new \Taxjar\SalesTax\Model\Import\Rule(
             $mockRuleFactory,

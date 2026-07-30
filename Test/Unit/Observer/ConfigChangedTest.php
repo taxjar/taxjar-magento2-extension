@@ -9,8 +9,10 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Event\Observer;
 use Taxjar\SalesTax\Observer\ConfigChanged;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class ConfigChangedTest extends UnitTestCase
 {
     private $observer;
@@ -22,7 +24,7 @@ class ConfigChangedTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->observer = $this->createMock(Observer::class);
+        $this->observer = $this->createStub(Observer::class);
         $this->mockCache = $this->createMock(CacheInterface::class);
         $this->mockEventManager = $this->createMock(ManagerInterface::class);
         $this->mockScopeConfig = $this->createMock(ScopeConfigInterface::class);

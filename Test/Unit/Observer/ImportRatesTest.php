@@ -28,8 +28,10 @@ use Taxjar\SalesTax\Model\Import\Rate;
 use Taxjar\SalesTax\Model\Import\RateFactory;
 use Taxjar\SalesTax\Model\Import\RuleFactory;
 use Taxjar\SalesTax\Observer\ImportRates;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class ImportRatesTest extends UnitTestCase
 {
     /**
@@ -117,10 +119,7 @@ class ImportRatesTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['create'])
             ->getMock();
-        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock();
+        $this->ruleFactory = $this->createStub(RuleFactory::class);
         $this->rateRepository = $this->createMock(RateRepository::class);
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
         $this->backupRateOriginAddress = $this->createMock(BackupRateOriginAddress::class);
@@ -406,7 +405,7 @@ class ImportRatesTest extends UnitTestCase
         $mockRateModel->expects($this->once())->method('getExistingRates')->willReturn(['old_rate_1', 'old_rate_2']);
 
         $this->rateFactory->expects($this->once())->method('create')->willReturn($mockRateModel);
-        $this->ruleFactory = $this->createMock(RuleFactory::class);
+        $this->ruleFactory = $this->createStub(RuleFactory::class);
 
         $mockRate = $this->createMock(Calculation\Rate::class);
         $mockRate->expects($this->any())->method('getCode')->willReturn('US-TX-*');

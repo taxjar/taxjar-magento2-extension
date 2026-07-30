@@ -151,6 +151,7 @@ class RefundTest extends UnitTestCase
      * @param bool $forceFlag
      * @param string $expectedMethod
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getHandleErrorDataProvider')]
     public function testHandleErrorPersistsForceFlagAndCallsOppositeMethodOnRetry(
         int $status,
         string $method,
@@ -189,33 +190,13 @@ class RefundTest extends UnitTestCase
      *
      * @return array[]
      */
-    public function getHandleErrorDataProvider(): array
+    public static function getHandleErrorDataProvider(): array
     {
         return [
-            'post_already_exists_error' => [
-                'status' => 422,
-                'method' => 'POST',
-                'force' => false,
-                'expected' => 'PUT',
-            ],
-            'put_does_not_exist_error' => [
-                'status' => 404,
-                'method' => 'PUT',
-                'force' => false,
-                'expected' => 'POST',
-            ],
-            'force_post_already_exists_error' => [
-                'status' => 422,
-                'method' => 'POST',
-                'force' => true,
-                'expected' => 'PUT',
-            ],
-            'force_put_does_not_exist_error' => [
-                'status' => 404,
-                'method' => 'PUT',
-                'force' => true,
-                'expected' => 'POST',
-            ],
+            'post_already_exists_error' => [422, 'POST', false, 'PUT'],
+            'put_does_not_exist_error' => [404, 'PUT', false, 'POST'],
+            'force_post_already_exists_error' => [422, 'POST', true, 'PUT'],
+            'force_put_does_not_exist_error' => [404, 'PUT', true, 'POST'],
         ];
     }
 

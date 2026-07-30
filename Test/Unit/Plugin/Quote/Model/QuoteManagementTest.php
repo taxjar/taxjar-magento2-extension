@@ -8,11 +8,14 @@ use Magento\Quote\Api\CartManagementInterface;
 use Magento\Sales\Api\Data\OrderExtensionInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Taxjar\SalesTax\Api\Data\Sales\MetadataRepositoryInterface;
+use Taxjar\SalesTax\Test\Unit\Stub\OrderExtensionStubInterface;
 use Taxjar\SalesTax\Model\Sales\Order\Metadata;
 use Taxjar\SalesTax\Model\Sales\Order\MetadataFactory;
 use Taxjar\SalesTax\Plugin\Quote\Model\QuoteManagement;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class QuoteManagementTest extends UnitTestCase
 {
     /**
@@ -50,7 +53,7 @@ class QuoteManagementTest extends UnitTestCase
                 'setTaxCalculationStatus',
                 'setTaxCalculationMessage'
             ])
-            ->getMockForAbstractClass();
+            ->getMock();
         $this->metadataFactoryMock->expects(static::any())
             ->method('create')
             ->willReturn($this->metadataMock);
@@ -58,9 +61,7 @@ class QuoteManagementTest extends UnitTestCase
 
     public function testAfterSubmit()
     {
-        $subjectMock = $this->getMockBuilder(CartManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $subjectMock = $this->createStub(CartManagementInterface::class);
 
         $this->metadataMock->expects(static::exactly(2))
             ->method('setOrderId')
@@ -78,10 +79,7 @@ class QuoteManagementTest extends UnitTestCase
             ->method('getOrderId')
             ->willReturn(999);
 
-        $extensionAttributesMock = $this->getMockBuilder(OrderExtensionInterface::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getTjTaxCalculationStatus', 'getTjTaxCalculationMessage'])
-            ->getMockForAbstractClass();
+        $extensionAttributesMock = $this->createMock(OrderExtensionStubInterface::class);
         $extensionAttributesMock->expects(static::exactly(2))
             ->method('getTjTaxCalculationStatus')
             ->willReturn('error');
@@ -89,9 +87,7 @@ class QuoteManagementTest extends UnitTestCase
             ->method('getTjTaxCalculationMessage')
             ->willReturn('Whoops!');
 
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $orderMock = $this->createMock(OrderInterface::class);
         $orderMock->expects(static::once())
             ->method('getExtensionAttributes')
             ->willReturn($extensionAttributesMock);
@@ -111,9 +107,7 @@ class QuoteManagementTest extends UnitTestCase
 
     public function testAfterSubmitHandlesNullOrder()
     {
-        $subjectMock = $this->getMockBuilder(CartManagementInterface::class)
-                            ->disableOriginalConstructor()
-                            ->getMock();
+        $subjectMock = $this->createStub(CartManagementInterface::class);
 
         $orderMock = null;
 

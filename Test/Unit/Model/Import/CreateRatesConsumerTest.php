@@ -17,8 +17,10 @@ use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Import\CreateRatesConsumer;
 use Taxjar\SalesTax\Model\Import\RateFactory;
 use Taxjar\SalesTax\Model\Import\RuleFactory;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class CreateRatesConsumerTest extends UnitTestCase
 {
     /**
@@ -80,19 +82,13 @@ class CreateRatesConsumerTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->scopeConfig = $this->createMock(ScopeConfigInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->entityManager = $this->createMock(EntityManager::class);
+        $this->serializer = $this->createStub(SerializerInterface::class);
+        $this->scopeConfig = $this->createStub(ScopeConfigInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
+        $this->entityManager = $this->createStub(EntityManager::class);
         $this->taxjarConfig = $this->createMock(TaxjarConfig::class);
-        $this->rateFactory = $this->getMockBuilder(RateFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock();
-        $this->ruleFactory = $this->getMockBuilder(RuleFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock();
+        $this->rateFactory = $this->createStub(RateFactory::class);
+        $this->ruleFactory = $this->createStub(RuleFactory::class);
         $this->configCollection = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['create'])

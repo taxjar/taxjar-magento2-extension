@@ -40,8 +40,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Taxjar\SalesTax\Model\Configuration;
 use Taxjar\SalesTax\Model\Logger;
 use Taxjar\SalesTax\Observer\BackfillTransactions;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class BackfillTransactionsTest extends UnitTestCase
 {
     /**
@@ -97,45 +99,31 @@ class BackfillTransactionsTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->requestMock = $this->getMockBuilder(RequestInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->requestMock = $this->createMock(RequestInterface::class);
 
         $this->loggerMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->orderRepositoryMock = $this->getMockBuilder(OrderRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->orderRepositoryMock = $this->createMock(OrderRepositoryInterface::class);
 
-        $this->storeManagerMock = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
 
         $this->searchCriteriaBuilderMock = $this->getMockBuilder(SearchCriteriaBuilder::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->bulkManagementMock = $this->getMockBuilder(BulkManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->bulkManagementMock = $this->createMock(BulkManagementInterface::class);
 
         $this->operationFactoryMock = $this->getMockBuilder(OperationInterfaceFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->identityServiceMock = $this->getMockBuilder(IdentityGeneratorInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->identityServiceMock = $this->createMock(IdentityGeneratorInterface::class);
 
-        $this->serializerMock = $this->getMockBuilder(SerializerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->serializerMock = $this->createStub(SerializerInterface::class);
 
-        $this->userContextMock = $this->getMockBuilder(UserContextInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->userContextMock = $this->createStub(UserContextInterface::class);
 
         $this->taxjarConfigMock = $this->getMockBuilder(Configuration::class)
             ->disableOriginalConstructor()
@@ -180,14 +168,13 @@ class BackfillTransactionsTest extends UnitTestCase
      * @param $dataReturnMap
      * @param $dateRange
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('searchCriteriaDataProvider')]
     public function testGetSearchCriteriaMethod($paramReturnMap, $dataReturnMap, $dateRange)
     {
         $this->requestMock->expects($this->any())->method('getParam')->willReturnMap($paramReturnMap);
         $this->setStoreExpectations();
 
-        $searchCriteriaMock = $this->getMockBuilder(SearchCriteriaInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $searchCriteriaMock = $this->createStub(SearchCriteriaInterface::class);
 
         $this->searchCriteriaBuilderMock->expects($this->exactly(3))->method('addFilter')->willReturnSelf();
         $this->searchCriteriaBuilderMock->expects($this->once())->method('create')->willReturn($searchCriteriaMock);
@@ -201,183 +188,181 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->assertSame($searchCriteriaMock, $this->sut->getSearchCriteria(...$dateRange));
     }
 
-    public function searchCriteriaDataProvider(): array
+    public static function searchCriteriaDataProvider(): array
     {
-        $testDates = $this->getTestDates();
+        $testDates = static::getTestDates();
 
         return [
             'request_without_configuration' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, '0'],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'date_range' => $testDates,
+                $testDates,
             ],
 
             'observer_without_configuration' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, '0'],
                 ],
-                'date_range' => $testDates,
+                $testDates,
             ],
 
             'request_with_force_sync_enabled' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, '1'],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'date_range' => $testDates,
+                $testDates,
             ],
 
             'observer_with_force_sync_enabled' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, '1'],
                 ],
-                'date_range' => $testDates,
+                $testDates,
             ],
 
             'request_with_date_range' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, '2021-01-01'],
                     ['to', null, '2021-01-31'],
                     ['force', null, null],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'date_range' => [
+                [
                     '2021-01-01 00:00:00',
                     '2021-01-31 23:59:59',
                 ],
             ],
 
             'observer_with_date_range' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'observer' => [
+                [
                     ['from', null, '2021-01-01'],
                     ['to', null, '2021-01-31'],
                     ['force', null, null],
                 ],
-                'date_range' => [
+                [
                     '2021-01-01 00:00:00',
                     '2021-01-31 23:59:59',
                 ],
             ],
 
             'request_with_date_range_and_force_sync_enabled' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, '2021-01-01'],
                     ['to', null, '2021-01-31'],
                     ['force', null, '1'],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'date_range' => [
+                [
                     '2021-01-01 00:00:00',
                     '2021-01-31 23:59:59',
                 ],
             ],
 
             'observer_with_date_range_and_force_sync_enabled' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, null],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'observer' => [
+                [
                     ['from', null, '2021-01-01'],
                     ['to', null, '2021-01-31'],
                     ['force', null, '1'],
                 ],
-                'date_range' => [
+                [
                     '2021-01-01 00:00:00',
                     '2021-01-31 23:59:59',
                 ],
             ],
 
             'request_with_website' => [
-                'request' => [
+                [
                     ['store', null, null],
                     ['website', null, '1'],
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'observer' => [
+                [
                     ['from', null, null],
                     ['to', null, null],
                     ['force', null, null],
                 ],
-                'date_range' => $testDates,
+                $testDates,
             ],
         ];
     }
 
     /**
+     * @dataProvider orderDataProvider
      * @param bool $forceSync
      * @param int $count
      * @param string $updatedAt
      * @param string $syncedAt
-     * @dataProvider orderDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('orderDataProvider')]
     public function testGetOrdersMethod(bool $forceSync, int $count, string $updatedAt, string $syncedAt)
     {
         $orderMock = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->addMethods([
-                'getTjSalestaxSyncDate'
-            ])
             ->onlyMethods([
                 'getUpdatedAt'
             ])
@@ -385,7 +370,7 @@ class BackfillTransactionsTest extends UnitTestCase
 
         if (!$forceSync) {
             $orderMock->expects($this->once())->method('getUpdatedAt')->willReturn($updatedAt);
-            $orderMock->expects($this->once())->method('getTjSalestaxSyncDate')->willReturn($syncedAt);
+            $orderMock->setData('tj_salestax_sync_date', $syncedAt);
         }
 
         $orderSearchResult = $this->createMock(OrderSearchResultInterface::class);
@@ -405,38 +390,18 @@ class BackfillTransactionsTest extends UnitTestCase
 
         $this->sut->observer = $observerMock;
 
-        $criteriaMock = $this->getMockForAbstractClass(SearchCriteriaInterface::class);
+        $criteriaMock = $this->createStub(SearchCriteriaInterface::class);
 
         $this->assertCount($count, $this->sut->getOrders($criteriaMock));
     }
 
-    public function orderDataProvider(): array
+    public static function orderDataProvider(): array
     {
         return [
-            'force_sync_enabled_for_unsyncable_order' => [
-                'force' => true,
-                'count' => 1,
-                'updated_at' => '2021-01-01',
-                'sync_date' => '2021-01-01',
-            ],
-            'force_sync_disabled_for_unsyncable_order' => [
-                'force' => false,
-                'count' => 0,
-                'updated_at' => '2021-01-01',
-                'sync_date' => '2021-01-01',
-            ],
-            'force_sync_enabled_for_syncable_order' => [
-                'force' => true,
-                'count' => 1,
-                'updated_at' => '2021-02-01',
-                'sync_date' => '2021-01-01',
-            ],
-            'force_sync_disabled_for_syncable_order' => [
-                'force' => false,
-                'count' => 1,
-                'updated_at' => '2021-02-01',
-                'sync_date' => '2021-01-01',
-            ],
+            'force_sync_enabled_for_unsyncable_order' => [true, 1, '2021-01-01', '2021-01-01'],
+            'force_sync_disabled_for_unsyncable_order' => [false, 0, '2021-01-01', '2021-01-01'],
+            'force_sync_enabled_for_syncable_order' => [true, 1, '2021-02-01', '2021-01-01'],
+            'force_sync_disabled_for_syncable_order' => [false, 1, '2021-02-01', '2021-01-01'],
         ];
     }
 
@@ -447,7 +412,7 @@ class BackfillTransactionsTest extends UnitTestCase
 
         $this->bulkManagementMock->expects($this->once())->method('scheduleBulk')->willReturn(false);
 
-        $operationMock = $this->getMockForAbstractClass(OperationInterface::class);
+        $operationMock = $this->createStub(OperationInterface::class);
         $this->operationFactoryMock->expects($this->once())->method('create')->willReturn($operationMock);
 
         $this->setExpectations();
@@ -461,11 +426,14 @@ class BackfillTransactionsTest extends UnitTestCase
     /**
      * @dataProvider syncTransactionDataProvider
      */
-    public function testSyncTransactionMethod($orders, $count, $force)
+    #[\PHPUnit\Framework\Attributes\DataProvider('syncTransactionDataProvider')]
+    public function testSyncTransactionMethod(int $orderCount, int $count, bool $force)
     {
+        $orders = array_map([$this, 'getOrderStub'], range(1, $orderCount));
+
         $this->bulkManagementMock->expects($this->once())->method('scheduleBulk')->willReturn(true);
 
-        $operationMock = $this->getMockForAbstractClass(OperationInterface::class);
+        $operationMock = $this->createStub(OperationInterface::class);
         $this->operationFactoryMock->expects($this->exactly($count))->method('create')->willReturn($operationMock);
 
         $this->setExpectations();
@@ -473,35 +441,19 @@ class BackfillTransactionsTest extends UnitTestCase
         $this->sut->syncTransactions($orders);
     }
 
-    public function syncTransactionDataProvider(): array
+    public static function syncTransactionDataProvider(): array
     {
         return [
-            'single_operation_without_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1, 100)),
-                'count' => 1,
-                'force' => false,
-            ],
-            'single_operation_with_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1, 100)),
-                'count' => 1,
-                'force' => true,
-            ],
-            'multiple_operations_without_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1, 500)),
-                'count' => 5,
-                'force' => false,
-            ],
-            'multiple_operations_with_force' => [
-                'orders' => array_map([$this, 'getOrderStub'], range(1, 500)),
-                'count' => 5,
-                'force' => true,
-            ],
+            'single_operation_without_force' => [100, 1, false],
+            'single_operation_with_force' => [100, 1, true],
+            'multiple_operations_without_force' => [500, 5, false],
+            'multiple_operations_with_force' => [500, 5, true],
         ];
     }
 
     public function testSuccessMethod()
     {
-        [$startDate, $endDate] = $this->getTestDates();
+        [$startDate, $endDate] = static::getTestDates();
         $expectedConfig = json_encode([
             'date_start' => $startDate,
             'date_end' => $endDate,
@@ -553,11 +505,7 @@ class BackfillTransactionsTest extends UnitTestCase
 
     protected function expectSearchCriteria(): void
     {
-        $searchCriteriaMock = $this->getMockBuilder(SearchCriteriaInterface::class)
-            ->disableOriginalConstructor()
-            ->addMethods(['__toArray'])
-            ->getMockForAbstractClass();
-        $searchCriteriaMock->expects($this->once())->method('__toArray')->willReturn((object)[]);
+        $searchCriteriaMock = $this->createStub(SearchCriteriaInterface::class);
 
         $this->searchCriteriaBuilderMock->expects($this->exactly(3))->method('addFilter')->willReturnSelf();
         $this->searchCriteriaBuilderMock->expects($this->once())->method('create')->willReturn($searchCriteriaMock);
@@ -582,7 +530,7 @@ class BackfillTransactionsTest extends UnitTestCase
         $storeListMock = [];
 
         if ($this->requestMock->getParam('store') && !$this->requestMock->getParam('website')) {
-            $storeMock = $this->getMockForAbstractClass(StoreInterface::class);
+            $storeMock = $this->createMock(StoreInterface::class);
             $storeMock->expects($this->once())->method('getWebsiteId')->willReturn(1);
             $storeListMock[] = $storeMock;
         }
@@ -619,7 +567,7 @@ class BackfillTransactionsTest extends UnitTestCase
      * This method is necessary to replicate the hard dependency of DateTime object
      * @return array
      */
-    private function getTestDates(): array
+    private static function getTestDates(): array
     {
         $date = new \DateTimeImmutable();
         return [

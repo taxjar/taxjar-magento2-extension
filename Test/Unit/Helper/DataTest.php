@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Taxjar\SalesTax\Test\Unit\Helper;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Model\Configuration;
 
+#[AllowMockObjectsWithoutExpectations]
 class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -41,18 +43,10 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->contextMock = $this->getMockBuilder(\Magento\Framework\App\Helper\Context::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->requestMock = $this->getMockBuilder(\Magento\Framework\App\Request\Http::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->productMetadataMock = $this->getMockBuilder(\Magento\Framework\App\ProductMetadataInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-        $this->storeManagerMock = $this->getMockBuilder(\Magento\Store\Model\StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-        $this->priceCurrencyMock = $this->getMockBuilder(\Magento\Framework\Pricing\PriceCurrencyInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->requestMock = $this->createStub(\Magento\Framework\App\Request\Http::class);
+        $this->productMetadataMock = $this->createStub(\Magento\Framework\App\ProductMetadataInterface::class);
+        $this->storeManagerMock = $this->createStub(\Magento\Store\Model\StoreManagerInterface::class);
+        $this->priceCurrencyMock = $this->createStub(\Magento\Framework\Pricing\PriceCurrencyInterface::class);
 
         $this->setExpectations();
     }
@@ -75,16 +69,15 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     }
 
     /**
+     * @dataProvider orderAddressMethodDataProvider
      * @param $isVirtual
      * @param $expectedMethod
      * @param $notExpected
-     * @dataProvider orderAddressMethodDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('orderAddressMethodDataProvider')]
     public function testGetOrderAddressMethod($isVirtual, $expectedMethod, $notExpected)
     {
-        $addressMock = $this->getMockBuilder(\Magento\Sales\Api\Data\OrderAddressInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $addressMock = $this->createStub(\Magento\Sales\Api\Data\OrderAddressInterface::class);
         $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -101,27 +94,17 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->sut->getOrderAddress($orderMock);
     }
 
-    public function orderAddressMethodDataProvider(): array
+    public static function orderAddressMethodDataProvider(): array
     {
         return [
-            'virtual_order' => [
-                'is_virtual' => true,
-                'expect' => 'getBillingAddress',
-                'not' => 'getShippingAddress',
-            ],
-            'non_virtual_order' => [
-                'is_virtual' => false,
-                'expect' => 'getShippingAddress',
-                'not' => 'getBillingAddress',
-            ],
+            'virtual_order' => [true, 'getBillingAddress', 'getShippingAddress'],
+            'non_virtual_order' => [false, 'getShippingAddress', 'getBillingAddress'],
         ];
     }
 
     public function testGetOrderValidationMethod()
     {
-        $addressMock = $this->getMockBuilder(\Magento\Sales\Api\Data\OrderAddressInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $addressMock = $this->createMock(\Magento\Sales\Api\Data\OrderAddressInterface::class);
         $addressMock->expects(static::once())
             ->method('getCountryId')
             ->willReturn('invalid');
@@ -155,10 +138,11 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     }
 
     /**
+     * @dataProvider isSyncableOrderStateDataProvider
      * @param $state
      * @param $expect
-     * @dataProvider isSyncableOrderStateDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('isSyncableOrderStateDataProvider')]
     public function testIsSyncableOrderStateMethod($state, $expect)
     {
         $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
@@ -171,7 +155,7 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         static::assertEquals($expect, $this->sut->isSyncableOrderState($orderMock));
     }
 
-    public function isSyncableOrderStateDataProvider(): array
+    public static function isSyncableOrderStateDataProvider(): array
     {
         return [
             ['canceled', false],
@@ -190,10 +174,11 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     }
 
     /**
+     * @dataProvider isSyncableOrderCurrencyDataProvider
      * @param $currencyCode
      * @param $expect
-     * @dataProvider isSyncableOrderCurrencyDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('isSyncableOrderCurrencyDataProvider')]
     public function testIsSyncableOrderCurrencyMethod($currencyCode, $expect)
     {
         $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
@@ -206,24 +191,23 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         static::assertEquals($expect, $this->sut->isSyncableOrderCurrency($orderMock));
     }
 
-    public function isSyncableOrderCurrencyDataProvider(): array
+    public static function isSyncableOrderCurrencyDataProvider(): array
     {
         return [
             'syncable_currency' => ['USD', true],
-            'non_syncable_currency' => ['ZIM', false]
+            'non_syncable_currency' => ['ZIM', false],
         ];
     }
 
     /**
+     * @dataProvider isSyncableOrderCountryDataProvider
      * @param $countryId
      * @param $expect
-     * @dataProvider isSyncableOrderCountryDataProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('isSyncableOrderCountryDataProvider')]
     public function testIsSyncableOrderCountryMethod($countryId, $expect)
     {
-        $addressMock = $this->getMockBuilder(\Magento\Sales\Api\Data\OrderAddressInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $addressMock = $this->createMock(\Magento\Sales\Api\Data\OrderAddressInterface::class);
         $addressMock->expects(static::once())
             ->method('getCountryId')
             ->willReturn($countryId);
@@ -231,7 +215,7 @@ class DataTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         static::assertEquals($expect, $this->sut->isSyncableOrderCountry($addressMock));
     }
 
-    public function isSyncableOrderCountryDataProvider(): array
+    public static function isSyncableOrderCountryDataProvider(): array
     {
         return [
             'syncable_country' => ['US', true],

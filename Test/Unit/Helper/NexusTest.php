@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Helper;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Helper\Nexus;
 
+#[AllowMockObjectsWithoutExpectations]
 class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -25,9 +27,7 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     {
         parent::setUp();
 
-        $this->contextMock = $this->getMockBuilder(\Magento\Framework\App\Helper\Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->contextMock = $this->createStub(\Magento\Framework\App\Helper\Context::class);
         $this->nexusFactoryMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Tax\NexusFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -35,9 +35,7 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 
     public function testGetNexusAddresses()
     {
-        $nexusInterfaceMock = $this->getMockBuilder(\Taxjar\SalesTax\Api\Data\Tax\NexusInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $nexusInterfaceMock = $this->createMock(\Taxjar\SalesTax\Api\Data\Tax\NexusInterface::class);
         $nexusInterfaceMock->expects(static::any())->method('getId')->willReturn('99');
         $nexusInterfaceMock->expects(static::any())->method('getCountryId')->willReturn('US');
         $nexusInterfaceMock->expects(static::any())->method('getPostcode')->willReturn('94080');
@@ -108,9 +106,7 @@ class NexusTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 
     public function testGetNexusData()
     {
-        $nexusMock = $this->getMockBuilder(\Taxjar\SalesTax\Api\Data\Tax\NexusInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $nexusMock = $this->createMock(\Taxjar\SalesTax\Api\Data\Tax\NexusInterface::class);
         $nexusMock->expects(static::any())->method('getId')->willReturn(1);
         $nexusMock->expects(static::any())->method('getCountryId')->willReturn('US');
         $nexusMock->expects(static::any())->method('getPostcode')->willReturn('94080');

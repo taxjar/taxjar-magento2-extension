@@ -21,7 +21,6 @@ class BaseTestCase extends TestCase
     {
         $class = new ReflectionClass($object);
         $method = $class->getMethod($methodName);
-        $method->setAccessible(true);
         return empty($arguments)
             ? $method->invoke($object)
             : $method->invokeArgs($object, $arguments);
@@ -38,7 +37,6 @@ class BaseTestCase extends TestCase
     {
         $reflection = new ReflectionClass($object);
         $property = $reflection->getProperty($propertyName);
-        $property->setAccessible(true);
         return $property->getValue($object);
     }
 
@@ -51,7 +49,6 @@ class BaseTestCase extends TestCase
     public function setProperty($object, $propertyName, $value)
     {
         $reflection = new \ReflectionProperty($object, $propertyName);
-        $reflection->setAccessible(true);
         $reflection->setValue($object, $value);
 
         return $object;
