@@ -58,7 +58,11 @@ class NexusRegistry
      */
     public function registerNexus(Nexus $nexusModel)
     {
-        $this->nexusRegistryById[$nexusModel->getId()] = $nexusModel;
+        $id = $nexusModel->getId();
+
+        if ($id !== null) {
+            $this->nexusRegistryById[$id] = $nexusModel;
+        }
     }
 
     /**
