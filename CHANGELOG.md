@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [4.0.2] - 2026-07-28
-### Fixed
-- Relaxed `magento/framework` version constraint from `^103.0.8` to `^103.0.6` to support Magento 2.4.7
-
 ## [4.0.1] - 2025-08-25
 ### Fixed
 - Added PHP 8.4 compatibility for Magento 2.4.8 support
