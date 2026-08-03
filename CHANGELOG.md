@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.0.2] - 2026-08-03
+### Fixed
+- Relaxed `magento/framework` version constraint from `^103.0.8` to `^103.0.6` to support Magento 2.4.6 through 2.4.9
+- Added PHP 8.5 null-safety guards for array offsets in Smartcalcs, NexusRegistry, TaxCalculation, and Rate
+- Added return type declarations to Console Commands (required by Symfony Console on PHP 8.5)
+- Updated test suite for PHPUnit 9, 10, and 12 cross-version compatibility
+
 ## [4.0.1] - 2025-08-25
 ### Fixed
 - Added PHP 8.4 compatibility for Magento 2.4.8 support
@@ -325,6 +332,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Special promo sales tax calculations for Magento merchants.** Existing M2 beta users must upgrade to this version to receive special promo calculations at checkout using our new API endpoint.
 
 [Unreleased]: https://github.com/taxjar/taxjar-magento2-extension/compare/v4.0.1..HEAD
+[4.0.2]: https://github.com/taxjar/taxjar-magento2-extension/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/taxjar/taxjar-magento2-extension/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/taxjar/taxjar-magento2-extension/compare/v2.2.0...v3.0.0
