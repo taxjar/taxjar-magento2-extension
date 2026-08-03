@@ -134,10 +134,15 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $parentToChildren = [];
 
         foreach ($items as $item) {
-            if ($item->getParentCode() === null) {
-                $keyedItems[$item->getCode()] = $item;
+            $code = $item->getCode();
+            $parentCode = $item->getParentCode();
+
+            if ($parentCode === null) {
+                if ($code !== null) {
+                    $keyedItems[$code] = $item;
+                }
             } else {
-                $parentToChildren[$item->getParentCode()][] = $item;
+                $parentToChildren[$parentCode][] = $item;
             }
         }
 
@@ -146,22 +151,30 @@ class TaxCalculation extends \Magento\Tax\Model\TaxCalculation
         $processedItems = [];
         /** @var QuoteDetailsItemInterface $item */
         foreach ($keyedItems as $item) {
-            if (isset($parentToChildren[$item->getCode()])) {
+            $code = $item->getCode();
+
+            if ($code !== null && isset($parentToChildren[$code])) {
                 $processedChildren = [];
-                foreach ($parentToChildren[$item->getCode()] as $child) {
+                foreach ($parentToChildren[$code] as $child) {
                     $processedItem = $this->processItemDetails($child, $useBaseCurrency, $scope);
                     $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
-                    $processedItems[$processedItem->getCode()] = $processedItem;
+                    $processedItemCode = $processedItem->getCode();
+                    if ($processedItemCode !== null) {
+                        $processedItems[$processedItemCode] = $processedItem;
+                    }
                     $processedChildren[] = $processedItem;
                 }
                 $processedItem = $this->calculateParent($processedChildren, $item->getQuantity());
-                $processedItem->setCode($item->getCode());
+                $processedItem->setCode($code);
                 $processedItem->setType($item->getType());
             } else {
                 $processedItem = $this->processItemDetails($item, $useBaseCurrency, $scope);
                 $taxDetailsData = $this->aggregateItemData($taxDetailsData, $processedItem);
             }
-            $processedItems[$processedItem->getCode()] = $processedItem;
+            $processedItemCode = $processedItem->getCode();
+            if ($processedItemCode !== null) {
+                $processedItems[$processedItemCode] = $processedItem;
+            }
         }
 
         $taxDetailsDataObject = $this->taxDetailsDataObjectFactory->create();

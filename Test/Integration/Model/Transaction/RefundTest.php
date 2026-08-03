@@ -30,6 +30,7 @@ class RefundTest extends IntegrationTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->taxjarOrder = $this->objectManager->get(TaxjarOrder::class);
         $this->taxjarRefund = $this->objectManager->get(TaxjarRefund::class);
     }

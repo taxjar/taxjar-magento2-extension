@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Model\Transaction;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
+#[AllowMockObjectsWithoutExpectations]
 class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -47,9 +50,7 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     {
         parent::setUp();
 
-        $this->orderRepositoryMock = $this->getMockBuilder(\Magento\Sales\Api\OrderRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
         $this->orderTransactionMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Transaction\Order::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -59,18 +60,14 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->loggerMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Logger::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->serializerMock = $this->getMockBuilder(\Magento\Framework\Serialize\SerializerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->serializerMock = $this->createMock(\Magento\Framework\Serialize\SerializerInterface::class);
         $this->entityManagerMock = $this->getMockBuilder(\Magento\Framework\EntityManager\EntityManager::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->tjSalesTaxDataMock = $this->getMockBuilder(\Taxjar\SalesTax\Helper\Data::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->operationMock = $this->getMockBuilder(\Magento\AsynchronousOperations\Api\Data\OperationInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->operationMock = $this->createMock(\Magento\AsynchronousOperations\Api\Data\OperationInterface::class);
 
         $this->setExpectations();
     }
@@ -104,9 +101,7 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $unserializedMock = ['meta_information' => ['orderIds' => ['9'], 'force' => false]];
         $this->expectOperationData($serializedMock, $unserializedMock);
 
-        $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderMock = $this->createStub(\Magento\Sales\Model\Order::class);
         $this->orderRepositoryMock->expects(static::once())
             ->method('get')
             ->with(9)
@@ -137,9 +132,7 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $unserializedMock = ['meta_information' => ['orderIds' => ['9'], 'force' => false]];
         $this->expectOperationData($serializedMock, $unserializedMock);
 
-        $creditmemoMock = $this->getMockBuilder(\Magento\Sales\Model\Order\Creditmemo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $creditmemoMock = $this->createStub(\Magento\Sales\Model\Order\Creditmemo::class);
         $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
             ->disableOriginalConstructor()
             ->getMock();

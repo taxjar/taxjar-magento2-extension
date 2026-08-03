@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Plugin\Sales\Block\Adminhtml\Order;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+#[AllowMockObjectsWithoutExpectations]
 class ViewTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -27,15 +31,15 @@ class ViewTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
     }
 
     /**
+     * @dataProvider beforeSetLayoutMethodDataProvider
      * @param bool $transactionSyncEnabled
      * @param bool $orderIsSyncable
-     * @dataProvider beforeSetLayoutMethodDataProvider
      */
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    #[DataProvider('beforeSetLayoutMethodDataProvider')]
     public function testBeforeSetLayoutMethod(bool $transactionSyncEnabled, bool $orderIsSyncable)
     {
-        $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderMock = $this->createStub(\Magento\Sales\Model\Order::class);
 
         $viewMock = $this->getMockBuilder(\Magento\Sales\Block\Adminhtml\Order\View::class)
             ->disableOriginalConstructor()
@@ -61,25 +65,13 @@ class ViewTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->sut->beforeSetLayout($viewMock);
     }
 
-    public function beforeSetLayoutMethodDataProvider(): array
+    public static function beforeSetLayoutMethodDataProvider(): array
     {
         return [
-            'feature_not_enabled_order_not_syncable' => [
-                'is_transaction_sync_enabled' => false,
-                'is_syncable_order' => false,
-            ],
-            'feature_enabled_order_not_syncable' => [
-                'is_transaction_sync_enabled' => true,
-                'is_syncable_order' => false,
-            ],
-            'feature_not_enabled_order_syncable' => [
-                'is_transaction_sync_enabled' => false,
-                'is_syncable_order' => true,
-            ],
-            'feature_enabled_order_syncable' => [
-                'is_transaction_sync_enabled' => true,
-                'is_syncable_order' => true,
-            ],
+            'feature_not_enabled_order_not_syncable' => [false, false],
+            'feature_enabled_order_not_syncable' => [true, false],
+            'feature_not_enabled_order_syncable' => [false, true],
+            'feature_enabled_order_syncable' => [true, true],
         ];
     }
 

@@ -59,10 +59,7 @@ class SyncTransactionsCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * Sets config for CLI command
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('taxjar:transactions:sync')
             ->setDescription('Sync transactions from Magento to TaxJar')
@@ -71,16 +68,10 @@ class SyncTransactionsCommand extends Command
             ->addOption(self::OPTION_FORCE, self::OPTION_FORCE_SHORT);
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return void
-     */
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         try {
             $this->state->setAreaCode('adminhtml');
             $this->logger->console($output);
@@ -89,8 +80,12 @@ class SyncTransactionsCommand extends Command
                 'to_date' => $input->getArgument(self::TO_ARGUMENT),
                 'force' => (bool) $input->getOption(self::OPTION_FORCE)
             ]));
+
+            return 0;
         } catch (\Exception $e) {
             $output->writeln(PHP_EOL . '<error>Failed to sync transactions: ' . $e->getMessage() . '</error>');
+
+            return 1;
         }
     }
 }

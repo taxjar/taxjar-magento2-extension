@@ -8,8 +8,10 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderSearchResultInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Taxjar\SalesTax\Plugin\Sales\Model\OrderRepository;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class OrderRepositoryTest extends UnitTestCase
 {
     /**
@@ -32,13 +34,9 @@ class OrderRepositoryTest extends UnitTestCase
 
     public function testAfterGet()
     {
-        $subjectMock = $this->getMockBuilder(OrderRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $subjectMock = $this->createStub(OrderRepositoryInterface::class);
 
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $orderMock = $this->createStub(OrderInterface::class);
 
         $this->orderMetadataHelperMock->expects(static::once())
             ->method('setOrderExtensionAttributeData')
@@ -52,17 +50,11 @@ class OrderRepositoryTest extends UnitTestCase
 
     public function testAfterGetList()
     {
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $orderMock = $this->createStub(OrderInterface::class);
 
-        $subjectMock = $this->getMockBuilder(OrderRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $subjectMock = $this->createStub(OrderRepositoryInterface::class);
 
-        $searchResultMock = $this->getMockBuilder(OrderSearchResultInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $searchResultMock = $this->createMock(OrderSearchResultInterface::class);
         $searchResultMock->expects(static::once())
             ->method('getItems')
             ->willReturn([$orderMock]);

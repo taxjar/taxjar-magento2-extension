@@ -13,7 +13,7 @@ class ConfigurationTest extends UnitTestCase
 {
     public function testGetApiUrl()
     {
-        $mockMagentoConfig = $this->createMock(MagentoConfig::class);
+        $mockMagentoConfig = $this->createStub(MagentoConfig::class);
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfig
             ->expects($this->once())
@@ -29,7 +29,7 @@ class ConfigurationTest extends UnitTestCase
 
     public function testGetApiUrlWithSandboxEnabled()
     {
-        $mockMagentoConfig = $this->createMock(MagentoConfig::class);
+        $mockMagentoConfig = $this->createStub(MagentoConfig::class);
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfig
             ->expects($this->once())
@@ -45,7 +45,7 @@ class ConfigurationTest extends UnitTestCase
 
     public function testGetApiKey()
     {
-        $mockMagentoConfig = $this->createMock(MagentoConfig::class);
+        $mockMagentoConfig = $this->createStub(MagentoConfig::class);
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfig
             ->expects($this->exactly(2))
@@ -76,7 +76,7 @@ class ConfigurationTest extends UnitTestCase
 
     public function testSandboxEnabled()
     {
-        $mockMagentoConfig = $this->createMock(MagentoConfig::class);
+        $mockMagentoConfig = $this->createStub(MagentoConfig::class);
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfig
             ->expects($this->once())
@@ -91,7 +91,7 @@ class ConfigurationTest extends UnitTestCase
 
     public function testSandboxNotEnabled()
     {
-        $mockMagentoConfig = $this->createMock(MagentoConfig::class);
+        $mockMagentoConfig = $this->createStub(MagentoConfig::class);
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfig
             ->expects($this->once())
@@ -112,7 +112,7 @@ class ConfigurationTest extends UnitTestCase
             ->method('saveConfig')
             ->with('tax/calculation/based_on', 'shipping', 'default');
 
-        $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $mockScopeConfig = $this->createStub(ScopeConfigInterface::class);
 
         $sut = new Configuration($mockMagentoConfig, $mockScopeConfig);
         $sut->setTaxBasis(['tax_source' => null]);
@@ -126,7 +126,7 @@ class ConfigurationTest extends UnitTestCase
             ->method('saveConfig')
             ->with('tax/calculation/based_on', 'origin', 'default');
 
-        $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $mockScopeConfig = $this->createStub(ScopeConfigInterface::class);
 
         $sut = new Configuration($mockMagentoConfig, $mockScopeConfig);
         $sut->setTaxBasis(['tax_source' => 'origin']);
@@ -134,7 +134,7 @@ class ConfigurationTest extends UnitTestCase
 
     public function testGetBackupRateCount()
     {
-        $mockMagentoConfig = $this->createMock(MagentoConfig::class);
+        $mockMagentoConfig = $this->createStub(MagentoConfig::class);
         $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
         $mockScopeConfig
             ->expects($this->once())
@@ -155,7 +155,7 @@ class ConfigurationTest extends UnitTestCase
             ->method('saveConfig')
             ->with('tax/taxjar/backup_rate_count', 99, 'default');
 
-        $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $mockScopeConfig = $this->createStub(ScopeConfigInterface::class);
 
         $sut = new Configuration($mockMagentoConfig, $mockScopeConfig);
         $sut->setBackupRateCount(99);
@@ -185,7 +185,7 @@ class ConfigurationTest extends UnitTestCase
                 return null;
             });
 
-        $mockScopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $mockScopeConfig = $this->createStub(ScopeConfigInterface::class);
 
         $sut = new Configuration($mockMagentoConfig, $mockScopeConfig);
         $sut->setDisplaySettings();

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Controller\Adminhtml\Transaction;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
+#[AllowMockObjectsWithoutExpectations]
 class SyncTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -38,15 +41,9 @@ class SyncTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->contextMock = $this->getMockBuilder(\Magento\Backend\App\Action\Context::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->loggerMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Logger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->requestMock = $this->getMockBuilder(\Magento\Framework\App\RequestInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-        $this->eventManagerMock = $this->getMockBuilder(\Magento\Framework\Event\ManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->loggerMock = $this->createStub(\Taxjar\SalesTax\Model\Logger::class);
+        $this->requestMock = $this->createMock(\Magento\Framework\App\RequestInterface::class);
+        $this->eventManagerMock = $this->createMock(\Magento\Framework\Event\ManagerInterface::class);
         $this->resultFactoryMock = $this->getMockBuilder(\Magento\Framework\Controller\ResultFactory::class)
             ->disableOriginalConstructor()
             ->getMock();

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Taxjar\SalesTax\Test\Unit\Controller\Adminhtml\Transaction;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
+#[AllowMockObjectsWithoutExpectations]
 class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
 {
     /**
@@ -41,9 +44,7 @@ class BackfillTest extends \Taxjar\SalesTax\Test\Unit\UnitTestCase
         $this->loggerMock = $this->getMockBuilder(\Taxjar\SalesTax\Model\Logger::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->eventManagerMock = $this->getMockBuilder(\Magento\Framework\Event\ManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $this->eventManagerMock = $this->createMock(\Magento\Framework\Event\ManagerInterface::class);
         $this->resultFactoryMock = $this->getMockBuilder(\Magento\Framework\Controller\ResultFactory::class)
             ->disableOriginalConstructor()
             ->getMock();

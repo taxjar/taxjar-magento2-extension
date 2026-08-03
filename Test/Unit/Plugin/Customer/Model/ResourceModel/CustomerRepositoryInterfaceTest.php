@@ -7,8 +7,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Taxjar\SalesTax\Model\Client;
 use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Plugin\Customer\Model\ResourceModel\CustomerRepository;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Test\Unit\UnitTestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 class CustomerRepositoryInterfaceTest extends UnitTestCase
 {
     /**
@@ -32,9 +34,7 @@ class CustomerRepositoryInterfaceTest extends UnitTestCase
 
     public function testBeforeDeleteById()
     {
-        $subjectMock = $this->getMockBuilder(CustomerRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $subjectMock = $this->createStub(CustomerRepositoryInterface::class);
 
         $clientMock = $this->getMockBuilder(Client::class)
             ->disableOriginalConstructor()

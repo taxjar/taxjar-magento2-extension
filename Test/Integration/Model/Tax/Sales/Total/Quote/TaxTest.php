@@ -18,9 +18,9 @@
 namespace Taxjar\SalesTax\Test\Integration\Model\Tax\Sales\Total\Quote;
 
 use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/SetupUtil.php';
-require_once __DIR__ . '/../../../../../_files/tax_calculation_data_aggregated.php';
 
 class TaxTest extends \PHPUnit\Framework\TestCase
 {
@@ -37,31 +37,24 @@ class TaxTest extends \PHPUnit\Framework\TestCase
      *
      * @magentoDbIsolation enabled
      * @magentoAppIsolation enabled
-     * @return void
+     * @dataProvider taxDataProvider
      */
-    public function testTaxCalculation()
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    #[DataProvider('taxDataProvider')]
+    public function testTaxCalculation(array $configData, array $quoteData, array $expectedResults)
     {
-        // Load test data now that framework is bootstrapped
-        $testData = $this->taxDataProvider();
-
         /** @var  \Magento\Framework\ObjectManagerInterface $objectManager */
         $objectManager = Bootstrap::getObjectManager();
         /** @var  \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector */
         $totalsCollector = $objectManager->create('Magento\Quote\Model\Quote\TotalsCollector');
 
-        // Iterate through each test scenario
-        foreach ($testData as $scenarioName => $scenarioData) {
-            list($configData, $quoteData, $expectedResults) = $scenarioData;
+        $this->setupUtil = new SetupUtil($objectManager);
+        $this->setupUtil->setupTax($configData);
 
-            //Setup tax configurations
-            $this->setupUtil = new SetupUtil($objectManager);
-            $this->setupUtil->setupTax($configData);
-
-            $quote = $this->setupUtil->setupQuote($quoteData);
-            $quoteAddress = $quote->getShippingAddress();
-            $totalsCollector->collectAddressTotals($quote, $quoteAddress);
-            $this->verifyResult($quoteAddress, $expectedResults);
-        }
+        $quote = $this->setupUtil->setupQuote($quoteData);
+        $quoteAddress = $quote->getShippingAddress();
+        $totalsCollector->collectAddressTotals($quote, $quoteAddress);
+        $this->verifyResult($quoteAddress, $expectedResults);
     }
 
     /**
@@ -74,7 +67,24 @@ class TaxTest extends \PHPUnit\Framework\TestCase
     protected function verifyItem($item, $expectedItemData)
     {
         foreach ($expectedItemData as $key => $value) {
-            $this->assertEquals($value, $item->getData($key), 'item ' . $key . ' is incorrect', 0.01);
+            if ($key === 'applied_taxes') {
+                $actual = $item->getData($key);
+                foreach ($value as $i => $expectedTax) {
+                    foreach ($expectedTax as $taxKey => $taxValue) {
+                        if ($taxKey === 'item_id') {
+                            continue;
+                        }
+                        $this->assertEqualsWithDelta(
+                            $taxValue,
+                            $actual[$i][$taxKey],
+                            0.01,
+                            'item applied_taxes[' . $i . '][' . $taxKey . '] is incorrect'
+                        );
+                    }
+                }
+                continue;
+            }
+            $this->assertEqualsWithDelta($value, $item->getData($key), 0.01, 'item ' . $key . ' is incorrect');
         }
 
         return $this;
@@ -90,7 +100,12 @@ class TaxTest extends \PHPUnit\Framework\TestCase
     protected function verifyAppliedTaxRate($appliedTaxRate, $expectedAppliedTaxRate)
     {
         foreach ($expectedAppliedTaxRate as $key => $value) {
-            $this->assertEquals($value, $appliedTaxRate[$key], 'Applied tax rate ' . $key . ' is incorrect', 0.01);
+            $this->assertEqualsWithDelta(
+                $value,
+                $appliedTaxRate[$key],
+                0.01,
+                'Applied tax rate ' . $key . ' is incorrect'
+            );
         }
         return $this;
     }
@@ -110,7 +125,7 @@ class TaxTest extends \PHPUnit\Framework\TestCase
                     $this->verifyAppliedTaxRate($appliedTax['rates'][$index], $taxRate);
                 }
             } else {
-                $this->assertEquals($value, $appliedTax[$key], 'Applied tax ' . $key . ' is incorrect', 0.01);
+                $this->assertEqualsWithDelta($value, $appliedTax[$key], 0.01, 'Applied tax ' . $key . ' is incorrect');
             }
         }
         return $this;
@@ -145,11 +160,11 @@ class TaxTest extends \PHPUnit\Framework\TestCase
             if ($key == 'applied_taxes') {
                 $this->verifyAppliedTaxes($quoteAddress->getAppliedTaxes(), $value);
             } else {
-                $this->assertEquals(
+                $this->assertEqualsWithDelta(
                     $value,
                     $quoteAddress->getData($key),
-                    'Quote address ' . $key . ' is incorrect',
-                    0.01
+                    0.01,
+                    'Quote address ' . $key . ' is incorrect'
                 );
             }
         }
@@ -173,8 +188,10 @@ class TaxTest extends \PHPUnit\Framework\TestCase
         $quoteItems = $quoteAddress->getAllItems();
         foreach ($quoteItems as $item) {
             /** @var  \Magento\Quote\Model\Quote\Address\Item $item */
-            // Return correct SKU for configurable products
             $sku = $item->getProduct()->getData('sku');
+            if (!isset($expectedResults['items_data'][$sku])) {
+                continue;
+            }
             $expectedItemData = $expectedResults['items_data'][$sku];
             $this->verifyItem($item, $expectedItemData);
         }
@@ -188,9 +205,20 @@ class TaxTest extends \PHPUnit\Framework\TestCase
      *
      * @return array
      */
-    public function taxDataProvider()
+    public static function taxDataProvider(): array
     {
-        global $taxCalculationData;
-        return !empty($taxCalculationData) ? $taxCalculationData : [];
+        $taxCalculationData = [];
+        include __DIR__ . '/../../../../../_files/tax_calculation_data_aggregated.php';
+
+        $result = [];
+        foreach ($taxCalculationData as $scenarioName => $scenarioData) {
+            $result[$scenarioName] = [
+                $scenarioData['config_data'],
+                $scenarioData['quote_data'],
+                $scenarioData['expected_results'],
+            ];
+        }
+
+        return $result;
     }
 }

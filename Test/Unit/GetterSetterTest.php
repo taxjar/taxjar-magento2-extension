@@ -19,13 +19,17 @@
 
 namespace Taxjar\SalesTax\Test\Unit;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
+#[AllowMockObjectsWithoutExpectations]
 class GetterSetterTest extends \PHPUnit\Framework\TestCase
 {
     /**
+     * @dataProvider dataProviderGettersSetters
      * @param string $className
      * @param array $variables
-     * @dataProvider dataProviderGettersSetters
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderGettersSetters')]
     public function testGettersSetters($className = null, $variables = null)
     {
         $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
@@ -83,7 +87,7 @@ class GetterSetterTest extends \PHPUnit\Framework\TestCase
      * @return array
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function dataProviderGettersSetters()
+    public static function dataProviderGettersSetters()
     {
         return [
             [
