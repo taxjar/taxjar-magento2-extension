@@ -76,6 +76,11 @@ class Transaction
     protected $taxjarConfig;
 
     /**
+     * Array
+     */
+    protected $apikey;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Taxjar\SalesTax\Model\ClientFactory $clientFactory
      * @param \Magento\Catalog\Model\ProductRepository $productRepository
