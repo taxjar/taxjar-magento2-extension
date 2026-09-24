@@ -94,24 +94,4 @@ class TransactionSync extends PopupField
 
         return $this->helper->isTransactionSyncEnabled();
     }
-
-    /**
-     * Get popup URL
-     *
-     * @return string
-     */
-    public function getPopupUrl()
-    {
-        $popupUrl = $this->getAuthUrl()
-                        . '/smartcalcs/connect/magento/upgrade_account/?store='
-                        . urlencode($this->getStoreOrigin());
-
-        if ($this->getStoreGeneralEmail()) {
-            $popupUrl .= '&email=' . urlencode($this->getStoreGeneralEmail());
-        }
-
-        $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
-
-        return $popupUrl;
-    }
 }

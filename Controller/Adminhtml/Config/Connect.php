@@ -21,6 +21,7 @@ use Exception;
 use Magento\Backend\App\AbstractAction;
 use Magento\Backend\App\Action\Context;
 use Magento\Config\Model\ResourceModel\Config;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\ManagerInterface;
@@ -30,7 +31,7 @@ use Taxjar\SalesTax\Model\ClientFactory;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 use Taxjar\SalesTax\Model\Logger;
 
-class Connect extends AbstractAction
+class Connect extends AbstractAction implements HttpPostActionInterface
 {
     public const ADMIN_RESOURCE = 'Magento_Tax::manage_tax';
 
@@ -97,8 +98,8 @@ class Connect extends AbstractAction
      */
     public function execute()
     {
-        $apiKey = (string) $this->getRequest()->getParam('api_key');
-        $apiEmail = (string) $this->getRequest()->getParam('api_email');
+        $apiKey = (string) $this->getRequest()->getPostValue('api_key');
+        $apiEmail = (string) $this->getRequest()->getPostValue('api_email');
 
         if ($apiKey && $apiEmail && $this->isVerified($apiKey)) {
             $this->resourceConfig->saveConfig(TaxjarConfig::TAXJAR_APIKEY, $apiKey, 'default', 0);

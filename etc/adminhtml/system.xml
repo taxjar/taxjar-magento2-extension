@@ -79,6 +79,14 @@
                         <field id="debug">1</field>
                     </depends>
                 </field>
+                <field id="email" translate="label" sortOrder="11" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>API Email</label>
+                    <comment>The email address associated with your TaxJar account.</comment>
+                    <depends>
+                        <field id="connected">1</field>
+                        <field id="debug">1</field>
+                    </depends>
+                </field>
                 <field id="sandbox" translate="label" sortOrder="12" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Sandbox</label>
                     <comment>Use the TaxJar sandbox environment to test API sales tax calculations. We recommend only using this mode in a staging environment. Some features may not work as expected.</comment>

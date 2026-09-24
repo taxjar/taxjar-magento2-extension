@@ -21,6 +21,7 @@ use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Data\Form\FormKey;
 use Taxjar\SalesTax\Model\Configuration as TaxjarConfig;
 
 class Enabled extends PopupField
@@ -66,10 +67,16 @@ class Enabled extends PopupField
     protected $taxjarConfig;
 
     /**
+     * @var FormKey
+     */
+    protected $formKey;
+
+    /**
      * @param CacheInterface $cache
      * @param Context $context
      * @param UrlInterface $backendUrl
      * @param TaxjarConfig $taxjarConfig
+     * @param FormKey $formKey
      * @param array $data
      */
     public function __construct(
@@ -77,6 +84,7 @@ class Enabled extends PopupField
         Context $context,
         UrlInterface $backendUrl,
         TaxjarConfig $taxjarConfig,
+        FormKey $formKey,
         array $data = []
     ) {
         $this->cache = $cache;
@@ -85,6 +93,7 @@ class Enabled extends PopupField
         $this->backendUrl = $backendUrl;
         $this->taxjarConfig = $taxjarConfig;
         $this->apiKey = $this->taxjarConfig->getApiKey();
+        $this->formKey = $formKey;
         parent::__construct($context, $backendUrl, $data);
     }
 
@@ -131,14 +140,12 @@ class Enabled extends PopupField
     }
 
     /**
-     * Get popup URL
+     * Get the form key for the manual connect form
      *
      * @return string
      */
-    public function getPopupUrl()
+    public function getFormKey()
     {
-        $popupUrl = $this->getAuthUrl() . '/smartcalcs/connect/magento/?store=' . urlencode($this->getStoreOrigin());
-        $popupUrl .= '&plugin=magento2&version=' . TaxjarConfig::TAXJAR_VERSION;
-        return $popupUrl;
+        return $this->formKey->getFormKey();
     }
 }

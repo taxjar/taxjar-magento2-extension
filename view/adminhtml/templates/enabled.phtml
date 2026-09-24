@@ -38,28 +38,39 @@
 
   <p><button type='button' class='scalable delete' onclick='if (window.confirm("Are you sure you want to disconnect from TaxJar? This will remove all TaxJar rates from your Magento store. If you have a paid TaxJar subscription, manage your account at https://app.taxjar.com.")) window.location="<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/config/disconnect')) ?>"'><span>Disconnect TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p><br/>
 <?php } else { ?>
-  <p><button type='button' class='scalable primary' onclick='openPopup("<?= $escaper->escapeUrl($block->getPopupUrl()) ?>", "Connect to TaxJar", 400, 500)'><span>Connect to TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p>
+  <p>
+    <label for="taxjar-connect-api-key">API Token</label><br/>
+    <input type="text" id="taxjar-connect-api-key" size="40" />
+  </p>
+  <p>
+    <label for="taxjar-connect-api-email">Account Email</label><br/>
+    <input type="email" id="taxjar-connect-api-email" size="40" />
+  </p>
+  <p><button type='button' class='scalable primary' id='taxjar-connect-submit'><span>Connect to TaxJar</span></button>&nbsp;&nbsp;<button type='button' class='scalable' onclick='window.open("http://www.taxjar.com/guides/integrations/magento/", "_blank")'><span>Learn More</span></button></p>
+  <p style='font-size: 0.9em'>Don't have an API token? <a href='https://app.taxjar.com/account#api-access' target='_blank'>Get one from your TaxJar account.</a></p>
 
   <script>
-    require([
-        'taxjarPopup'
-    ], function(popup) {
-        window.addEventListener('message', function(e) {
-            if (e.origin !== '<?= $escaper->escapeUrl($block->getAuthUrl()) ?>')
-                return;
+    require(['jquery'], function ($) {
+        $('#taxjar-connect-submit').on('click', function () {
+            var apiKey = $.trim($('#taxjar-connect-api-key').val());
+            var apiEmail = $.trim($('#taxjar-connect-api-email').val());
 
-            try {
-                var data = JSON.parse(e.data);
-                if (data.api_token && data.email) {
-                    window.popup.postMessage('Data received', '<?= $escaper->escapeUrl($block->getAuthUrl()) ?>');
-                    window.location = encodeURI('<?= $escaper->escapeUrl($block->getStoreUrl('taxjar/config/connect')) ?>?api_key=' + data.api_token + '&api_email=' + data.email);
-                } else {
-                    throw 'Invalid data';
-                }
-            } catch (e) {
-                alert('Invalid API token or email provided. Please try connecting to TaxJar again or contact support@taxjar.com.');
+            if (!apiKey || !apiEmail) {
+                alert('Please enter both your API token and account email to connect.');
+                return;
             }
-        }, false);
+
+            var $form = $('<form>', {
+                method: 'post',
+                action: '<?= /* @noEscape */ $escaper->escapeJs($block->getStoreUrl('taxjar/config/connect')) ?>'
+            });
+
+            $form.append($('<input>', {type: 'hidden', name: 'form_key', value: '<?= /* @noEscape */ $escaper->escapeJs($block->getFormKey()) ?>'}));
+            $form.append($('<input>', {type: 'hidden', name: 'api_key', value: apiKey}));
+            $form.append($('<input>', {type: 'hidden', name: 'api_email', value: apiEmail}));
+
+            $form.appendTo('body').trigger('submit');
+        });
     });
   </script>
 <?php } ?>
