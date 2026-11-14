@@ -82,6 +82,23 @@ class Sync extends \Magento\Sales\Block\Adminhtml\Order\AbstractOrder
     }
 
     /**
+     * Get formatted date the order was synced at
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return string|null
+     */
+    public function getFormattedSyncDate($order)
+    {
+        $syncedAt = $order->getData('tj_salestax_sync_date');
+
+        if (!$syncedAt) {
+            return null;
+        }
+
+        return $this->formatDate($this->getOrderSyncedAtDate($syncedAt), \IntlDateFormatter::MEDIUM, true);
+    }
+
+    /**
      * Get status text for sales orders
      *
      * @param mixed $order
