@@ -9,6 +9,7 @@ use Magento\Directory\Model\Region;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Escaper;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Taxjar\SalesTax\Model\AddressValidation;
@@ -68,7 +69,8 @@ class AddressValidationTest extends UnitTestCase
             $regionFactoryMock,
             $this->createStub(CountryFactory::class),
             $cacheMock,
-            $this->createStub(StoreManagerInterface::class)
+            $this->createStub(StoreManagerInterface::class),
+            new Escaper()
         );
     }
 
