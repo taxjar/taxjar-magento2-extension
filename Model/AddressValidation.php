@@ -24,6 +24,7 @@ use Magento\Directory\Model\Region;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Escaper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
@@ -69,6 +70,11 @@ class AddressValidation implements AddressValidationInterface
     private $_storeManager;
 
     /**
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
      * @param ClientFactory $clientFactory
      * @param Logger $logger
      * @param ScopeConfigInterface $scopeConfig
@@ -76,6 +82,7 @@ class AddressValidation implements AddressValidationInterface
      * @param CountryFactory $countryFactory
      * @param CacheInterface $cache
      * @param StoreManagerInterface $storeManager
+     * @param Escaper $escaper
      */
     public function __construct(
         ClientFactory $clientFactory,
@@ -84,7 +91,8 @@ class AddressValidation implements AddressValidationInterface
         RegionFactory $regionFactory,
         CountryFactory $countryFactory,
         CacheInterface $cache,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Escaper $escaper
     ) {
         $this->logger = $logger->setFilename(TaxjarConfig::TAXJAR_ADDRVALIDATION_LOG);
         $this->client = $clientFactory->create();
@@ -94,6 +102,7 @@ class AddressValidation implements AddressValidationInterface
         $this->countryFactory = $countryFactory;
         $this->cache = $cache;
         $this->_storeManager = $storeManager;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -150,7 +159,7 @@ class AddressValidation implements AddressValidationInterface
             'postcode' => $postcode
         ];
 
-        $results[] = ['id' => 0, 'address' => $original, 'changes' => $original];
+        $results[] = ['id' => 0, 'address' => $original, 'changes' => $this->escapeAddress($original)];
 
         // Send address to Taxjar for validation
         $response = $this->validateWithTaxjar($addr);
@@ -351,7 +360,7 @@ class AddressValidation implements AddressValidationInterface
      */
     protected function highlightChanges($original, $new, $id)
     {
-        $changes = $new;
+        $changes = $this->escapeAddress($new);
         $changesMade = false;
 
         foreach ($original as $k => $v) {
@@ -430,13 +439,30 @@ class AddressValidation implements AddressValidationInterface
         foreach ($simplediff as $diff) {
             if (is_array($diff)) {
                 $ret .= (!empty($diff['i']) ? '<span class="suggested-address-diff">' .
-                    implode(' ', $diff['i']) . '</span> ' : '');
+                    $this->escaper->escapeHtml(implode(' ', $diff['i'])) . '</span> ' : '');
             } else {
-                $ret .= $diff . ' ';
+                $ret .= $this->escaper->escapeHtml($diff) . ' ';
             }
         }
 
         return $ret;
+    }
+
+    /**
+     * Escape address values that the suggestion template renders as HTML
+     *
+     * @param array $address
+     * @return array
+     */
+    protected function escapeAddress($address)
+    {
+        foreach (['street', 'city', 'regionCode', 'countryId', 'postcode'] as $field) {
+            if (isset($address[$field])) {
+                $address[$field] = $this->escaper->escapeHtml($address[$field]);
+            }
+        }
+
+        return $address;
     }
 
     /**
