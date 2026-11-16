@@ -150,7 +150,7 @@ class AddressValidation implements AddressValidationInterface
             'postcode' => $postcode
         ];
 
-        $results[] = ['id' => 0, 'address' => $original, 'changes' => $original];
+        $results[] = ['id' => 0, 'address' => $original, 'changes' => $this->escapeAddress($original)];
 
         // Send address to Taxjar for validation
         $response = $this->validateWithTaxjar($addr);
@@ -351,7 +351,7 @@ class AddressValidation implements AddressValidationInterface
      */
     protected function highlightChanges($original, $new, $id)
     {
-        $changes = $new;
+        $changes = $this->escapeAddress($new);
         $changesMade = false;
 
         foreach ($original as $k => $v) {
@@ -430,13 +430,45 @@ class AddressValidation implements AddressValidationInterface
         foreach ($simplediff as $diff) {
             if (is_array($diff)) {
                 $ret .= (!empty($diff['i']) ? '<span class="suggested-address-diff">' .
-                    implode(' ', $diff['i']) . '</span> ' : '');
+                    $this->escapeHtml(implode(' ', $diff['i'])) . '</span> ' : '');
             } else {
-                $ret .= $diff . ' ';
+                $ret .= $this->escapeHtml($diff) . ' ';
             }
         }
 
         return $ret;
+    }
+
+    /**
+     * Escape address values that the suggestion template renders as HTML
+     *
+     * @param array $address
+     * @return array
+     */
+    protected function escapeAddress($address)
+    {
+        foreach (['city', 'regionCode', 'countryId', 'postcode'] as $field) {
+            if (isset($address[$field])) {
+                $address[$field] = $this->escapeHtml($address[$field]);
+            }
+        }
+
+        if (isset($address['street']) && is_array($address['street'])) {
+            $address['street'] = array_map([$this, 'escapeHtml'], $address['street']);
+        }
+
+        return $address;
+    }
+
+    /**
+     * Escape a single value for HTML output
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private function escapeHtml($value)
+    {
+        return $value === null ? null : htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     /**
